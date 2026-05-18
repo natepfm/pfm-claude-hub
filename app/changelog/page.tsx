@@ -1,15 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { remark } from "remark";
-import remarkHtml from "remark-html";
+import { marked } from "marked";
 
 export const metadata = { title: "Changelog — PFM Claude Hub" };
 
 async function getChangelogHtml(): Promise<string> {
   try {
     const md = fs.readFileSync(path.join(process.cwd(), "content", "CHANGELOG.md"), "utf8");
-    const processed = await remark().use(remarkHtml).process(md);
-    return processed.toString();
+    return await marked.parse(md);
   } catch {
     return "<p>Changelog file missing — check content/CHANGELOG.md.</p>";
   }
