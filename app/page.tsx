@@ -31,64 +31,80 @@ export default function Home() {
         </p>
       </header>
 
-      {latest && (
-        <Callout type="info" title={`Latest skill update — ${latest.date}`}>
-          <div className="text-muted">
-            {latest.body.split("\n").find((l) => l.startsWith("### "))?.replace("### ", "") || "See changelog below."}
-            {" · "}
-            <a href="#changelog" className="text-accent hover:text-accentHover underline">
-              jump to changelog
-            </a>
+      {/* Hero: Update my skills — the main action editors use day-to-day */}
+      <section id="update" className="my-8 scroll-mt-8">
+        <div className="border-2 border-accent rounded-xl bg-gradient-to-br from-accentMuted to-bg p-8 md:p-10 shadow-2xl">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-4xl">🔄</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-text">Update my skills</h2>
           </div>
-        </Callout>
-      )}
-
-      {/* Quick actions */}
-      <section id="quick" className="my-12 scroll-mt-8">
-        <h2 className="text-2xl font-bold mb-2">⚡ Quick actions</h2>
-        <p className="text-muted mb-4">Most-used commands. Copy → paste in Terminal (Mac) or Git Bash (Windows).</p>
-
-        <div className="my-6">
-          <h3 className="text-lg font-semibold mb-2">🔄 Update my skills</h3>
-          <p className="text-muted text-sm mb-2">
-            Run after any new <a href="#changelog" className="text-accent hover:text-accentHover underline">changelog</a> entry to pull the latest skills + settings.
+          {latest && (
+            <p className="text-muted mb-6 ml-1">
+              <span className="inline-block px-2 py-0.5 mr-2 rounded text-xs font-mono bg-accent text-bg">
+                NEW {latest.date}
+              </span>
+              {latest.body.split("\n").find((l) => l.startsWith("### "))?.replace("### ", "") || "Latest skill changes shipped."}
+              {" · "}
+              <a href="#changelog" className="text-accent hover:text-accentHover underline">
+                see changelog
+              </a>
+            </p>
+          )}
+          <p className="text-text mb-5 ml-1">
+            Run this whenever a new entry lands on the changelog. Pulls the latest skills + settings from Lucid Link.
           </p>
-          <CopyBlock
-            label="Mac"
-            code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`}
-          />
-          <CopyBlock
-            label="Windows (Git Bash, drive letter may vary)"
-            code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`}
-          />
-          <p className="text-sm text-muted mt-2">
-            Then ⌘Q (Mac) or close-tray-and-reopen (Windows) on Claude Desktop to load the new skills.
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-widest text-accent mb-2 font-semibold">🍎 Mac · Terminal</div>
+              <CopyBlock
+                code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`}
+              />
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-widest text-accent mb-2 font-semibold">🪟 Windows · Git Bash</div>
+              <CopyBlock
+                code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`}
+              />
+            </div>
+          </div>
+
+          <p className="text-sm text-muted mt-4 ml-1">
+            <strong className="text-text">After:</strong> ⌘Q (Mac) or close-tray-and-reopen (Windows) on Claude Desktop to load the new skills.
           </p>
         </div>
       </section>
 
-      {/* New editor CTA */}
+      {/* New editor CTA — smaller, secondary */}
       <section className="my-12">
-        <h2 className="text-2xl font-bold mb-2">🚀 New editor? Start here</h2>
-        <p className="text-muted mb-4">
-          Pick your operating system and jump to the setup walkthrough below.
+        <h2 className="text-xl font-bold mb-2">🚀 New to the team? Start here</h2>
+        <p className="text-muted text-sm mb-4">
+          First-time setup. Pick your OS and jump to the walkthrough below.
         </p>
         <div className="grid md:grid-cols-2 gap-4">
           <a
             href="#setup-mac"
-            className="block border border-border rounded-lg p-6 hover:border-accent hover:bg-surface transition-colors"
+            className="block border border-border rounded-lg p-5 hover:border-accent hover:bg-surface transition-colors"
           >
-            <div className="text-2xl mb-2">🍎</div>
-            <div className="text-xl font-semibold mb-1">Setup on Mac</div>
-            <div className="text-sm text-muted">Homebrew, Git, Node, Higgsfield CLI, PFM skills — ~10-45 min.</div>
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">🍎</div>
+              <div>
+                <div className="text-base font-semibold">Setup on Mac</div>
+                <div className="text-xs text-muted">~10-45 min</div>
+              </div>
+            </div>
           </a>
           <a
             href="#setup-windows"
-            className="block border border-border rounded-lg p-6 hover:border-accent hover:bg-surface transition-colors"
+            className="block border border-border rounded-lg p-5 hover:border-accent hover:bg-surface transition-colors"
           >
-            <div className="text-2xl mb-2">🪟</div>
-            <div className="text-xl font-semibold mb-1">Setup on Windows</div>
-            <div className="text-sm text-muted">Git Bash, Node, Python, Higgsfield CLI, PFM skills — ~15-50 min.</div>
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">🪟</div>
+              <div>
+                <div className="text-base font-semibold">Setup on Windows</div>
+                <div className="text-xs text-muted">~15-50 min</div>
+              </div>
+            </div>
           </a>
         </div>
       </section>
