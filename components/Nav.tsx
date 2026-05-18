@@ -1,17 +1,17 @@
 import Link from "next/link";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/setup/mac", label: "Setup · Mac" },
-  { href: "/setup/windows", label: "Setup · Windows" },
-  { href: "/skills", label: "Skills" },
-  { href: "/troubleshooting", label: "Troubleshooting" },
-  { href: "/changelog", label: "Changelog" },
+  { href: "/#quick", label: "Quick actions" },
+  { href: "/#setup-mac", label: "Setup · Mac" },
+  { href: "/#setup-windows", label: "Setup · Windows" },
+  { href: "/#skills", label: "Skills" },
+  { href: "/#troubleshooting", label: "Troubleshooting" },
+  { href: "/#changelog", label: "Changelog" },
 ];
 
 export default function Nav() {
   return (
-    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-border px-6 py-10 bg-surface">
+    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-border px-6 py-10 bg-surface sticky top-0 self-start max-h-screen overflow-y-auto">
       <Link href="/" className="block mb-10">
         <div className="text-2xl font-bold tracking-tight">
           <span className="text-text">PFM </span>
@@ -22,12 +22,12 @@ export default function Nav() {
       <ul className="space-y-1">
         {links.map((l) => (
           <li key={l.href}>
-            <Link
+            <a
               href={l.href}
-              className="block px-3 py-2 rounded text-muted hover:text-text hover:bg-surface2 transition-colors"
+              className="block px-3 py-2 rounded text-muted hover:text-text hover:bg-surface2 transition-colors text-sm"
             >
               {l.label}
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

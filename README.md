@@ -62,12 +62,41 @@ No CLI, no `git` commands. Just save → commit → push.
 | File | What you'd change |
 |---|---|
 | `content/CHANGELOG.md` | New skill update, new feature shipped. Most-frequently edited file. |
-| `content/skills.ts` | Add or update a skill in the Skills reference page. |
-| `app/page.tsx` | Home dashboard layout. |
-| `app/setup/mac/page.tsx` | Mac setup walkthrough content. |
-| `app/setup/windows/page.tsx` | Windows setup walkthrough content. |
-| `app/troubleshooting/page.tsx` | Common-error fixes. |
+| `content/skills.ts` | Add or update a skill in the Skills section. |
+| `app/page.tsx` | Top-of-page hero + Quick Actions. |
+| `components/sections/SetupMac.tsx` | Mac setup walkthrough section. |
+| `components/sections/SetupWindows.tsx` | Windows setup walkthrough section. |
+| `components/sections/SkillsSection.tsx` | Skills reference + download buttons. |
+| `components/sections/Troubleshooting.tsx` | Common-error fixes section. |
+| `components/sections/ChangelogSection.tsx` | Renders content/CHANGELOG.md inline. |
+| `public/skills/<name>/SKILL.md` | The downloadable version of each skill (served on the Skills page). Re-copy from `~/.claude/skills/` when a skill changes — see "Syncing skills" below. |
+| `public/pfm-writing-skills.plugin` | The Cowork plugin bundle. Rebuild from the source skills when text-only skills change. |
 | `tailwind.config.ts` | Theme colors (currently black/white/orange — PFM brand). |
+
+---
+
+## Syncing skills when they change
+
+When a skill is updated (in `~/.claude/skills/<name>/SKILL.md`), the changes need to land in three places in this repo:
+
+1. **`public/skills/<name>/SKILL.md`** — the downloadable copy on the Skills page.
+2. **`public/pfm-writing-skills.plugin`** — the Cowork bundle (only if a `cowork`-tagged skill changed).
+3. **`content/CHANGELOG.md`** — note what changed and why.
+
+Quick sync command for the file copies (run from this repo's root):
+
+```bash
+# Copy individual SKILL.md files
+for s in hvg-flow hig-flow veo-script-writing lc-to-video-podcast breaking-news-story-ads nano-banana-prompting iphone-cameraroll-prompting higgsfield-image-generation higgsfield-veo-batch; do
+  cp ~/.claude/skills/$s/SKILL.md public/skills/$s/SKILL.md
+done
+cp "/Users/samschiller/Documents/CLAUDE/Projects/PFM CONTEXT/.claude/skills/story-beats/SKILL.md" public/skills/story-beats/SKILL.md
+
+# Copy rebuilt Cowork plugin
+cp "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/pfm-writing-skills.plugin" public/pfm-writing-skills.plugin
+```
+
+Then commit + push via GitHub Desktop as usual.
 
 ---
 
