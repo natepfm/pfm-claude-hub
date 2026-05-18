@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background: #0a0a0a;
+  color: #fafafa;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #FF6B35;
+  color: #0a0a0a;
+}
+
+/* prose styling for changelog markdown */
+.prose-pfm h1 { @apply text-3xl font-bold mt-8 mb-4 text-text; }
+.prose-pfm h2 { @apply text-2xl font-semibold mt-8 mb-3 text-accent border-b border-border pb-2; }
+.prose-pfm h3 { @apply text-xl font-semibold mt-6 mb-2 text-text; }
+.prose-pfm p { @apply my-3 text-text leading-relaxed; }
+.prose-pfm ul { @apply my-3 ml-6 list-disc text-text; }
+.prose-pfm ol { @apply my-3 ml-6 list-decimal text-text; }
+.prose-pfm li { @apply my-1; }
+.prose-pfm code { @apply font-mono text-sm bg-surface2 text-accent px-1.5 py-0.5 rounded; }
+.prose-pfm pre { @apply bg-surface2 border border-border rounded-md p-4 my-4 overflow-x-auto; }
+.prose-pfm pre code { @apply bg-transparent text-text p-0; }
+.prose-pfm strong { @apply text-text font-semibold; }
+.prose-pfm a { @apply text-accent hover:text-accentHover underline; }
+.prose-pfm hr { @apply my-8 border-border; }
+.prose-pfm blockquote { @apply border-l-4 border-accent pl-4 my-4 text-muted italic; }
