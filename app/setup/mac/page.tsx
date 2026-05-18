@@ -49,22 +49,22 @@ export default function MacSetup() {
         </Callout>
       </Section>
 
-      <Section id="higgsfield-auth" number="3" title="Higgsfield account setup">
+      <Section id="higgsfield-auth" number="3" title="Higgsfield authentication">
         <p>
           Sam should have sent you an invite email to the <strong>Power Fox Media</strong> Higgsfield workspace. Accept it first. No invite? Ping Sam in Slack.
         </p>
         <p>Then in Terminal:</p>
         <CopyBlock code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-account-switch.sh"`} />
         <p>
-          The script logs you out of any old account, opens a browser for you to sign in with <strong>your own email</strong> (the one Sam invited you with), sets the PowerFox enterprise workspace as active, and verifies. Expected final output: your email + Power Fox Media + ~1.1M credits.
+          The script opens a browser for you to sign in with <strong>your own email</strong> (the one Sam invited you with), sets the PowerFox enterprise workspace as your active workspace, and verifies. Expected final output: your email + Power Fox Media + ~1.1M credits.
         </p>
-        <h3>Reconnect the Higgsfield MCP in Claude Desktop</h3>
+        <h3>Connect the Higgsfield MCP in Claude Desktop</h3>
         <p>
-          The Higgsfield MCP inside Claude Desktop has its own auth — separate from the CLI. To switch it too:
+          The Higgsfield MCP inside Claude Desktop has its own auth — separate from the CLI.
         </p>
         <ol>
           <li>Open <strong>Claude Desktop → Settings → Connectors → Higgsfield</strong></li>
-          <li>Click <strong>Disconnect</strong>, then <strong>Reconnect</strong> with your own email</li>
+          <li>Click <strong>Connect</strong> (or Disconnect + Reconnect if already connected) with your own email</li>
           <li>Restart Claude Desktop (⌘Q + reopen)</li>
         </ol>
       </Section>

@@ -51,19 +51,19 @@ export default function WindowsSetup() {
         </p>
       </Section>
 
-      <Section id="higgsfield-auth" number="3" title="Higgsfield account setup">
+      <Section id="higgsfield-auth" number="3" title="Higgsfield authentication">
         <p>
           Sam should have sent you an invite email to the <strong>Power Fox Media</strong> Higgsfield workspace. Accept it first.
         </p>
         <p>Then in Git Bash:</p>
         <CopyBlock code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-account-switch.sh"`} />
         <p>
-          Logs out of any old account, opens a browser for you to sign in with <strong>your own email</strong> (NOT a shared account), sets the PowerFox enterprise workspace as active, and verifies.
+          Opens a browser for you to sign in with <strong>your own email</strong> (NOT a shared account), sets the PowerFox enterprise workspace as your active workspace, and verifies.
         </p>
-        <h3>Reconnect the Higgsfield MCP in Claude Desktop</h3>
+        <h3>Connect the Higgsfield MCP in Claude Desktop</h3>
         <ol>
           <li>Open <strong>Claude Desktop → Settings → Connectors → Higgsfield</strong></li>
-          <li>Click <strong>Disconnect</strong>, then <strong>Reconnect</strong> with your own email</li>
+          <li>Click <strong>Connect</strong> (or Disconnect + Reconnect if already connected) with your own email</li>
           <li>Restart Claude Desktop (close from system tray + reopen)</li>
         </ol>
       </Section>

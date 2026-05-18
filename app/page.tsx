@@ -86,24 +86,6 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="my-12">
-        <h2 className="text-2xl font-bold mb-2">🔑 Switch Higgsfield account</h2>
-        <p className="text-muted mb-2">
-          When the team moves to a new Higgsfield workspace, run this:
-        </p>
-        <CopyBlock
-          label="Mac"
-          code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-account-switch.sh"`}
-        />
-        <CopyBlock
-          label="Windows (Git Bash)"
-          code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-account-switch.sh"`}
-        />
-        <p className="text-sm text-muted mt-2">
-          Then also re-authenticate the Higgsfield MCP in Claude Desktop (Settings → Connectors → Higgsfield → Disconnect / Reconnect).
-        </p>
-      </section>
-
       <section className="my-12 grid md:grid-cols-3 gap-4">
         <Link
           href="/skills"
