@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1 px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">{children}</main>
         </div>
         <footer className="border-t border-border py-6 text-center text-sm text-muted">
-          Power Fox Media · Claude Hub · <a href="/changelog" className="text-accent hover:text-accentHover">Changelog</a>
+          Power Fox Media · Claude Hub · <a href="/#changelog" className="text-accent hover:text-accentHover">Changelog</a>
         </footer>
       </body>
     </html>
