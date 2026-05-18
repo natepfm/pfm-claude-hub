@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const links = [
-  { href: "/#quick", label: "Quick actions" },
+  { href: "/#update", label: "Update my skills" },
   { href: "/#setup-mac", label: "Setup · Mac" },
   { href: "/#setup-windows", label: "Setup · Windows" },
   { href: "/#skills", label: "Skills" },
