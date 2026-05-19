@@ -8,6 +8,13 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-18
 
+### hvg-flow — strict protocol initiation on Notion link / project folder
+Hardened auto-trigger behavior so the skill never freelances between gates. When an editor drops a Notion URL or references a PFM project folder path, the model now enters Gate 1 immediately — no head-start Notion fetches, no early shell commands, no brief parsing or format guessing before the gates instruct it, no "would you like to…" alternative offers.
+
+If an editor pastes ahead-of-schedule info (e.g., the master prompt at session start), the skill acknowledges it but still walks gates in order, using the early input at the corresponding gate.
+
+This is a discipline fix, not a feature change — but the difference editors will notice is fewer surprise tool calls between gates and tighter, more predictable conversations.
+
 ### veo-script-writing — Gate 0, [STATE LINE] strip, no 3-4s beats
 Three hardenings landed today after an editor's LC-to-Video output shipped with `[STATE LINE]` trailing annotations and choppy 3-4s "punchy beats":
 

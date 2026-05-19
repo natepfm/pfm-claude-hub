@@ -9,7 +9,25 @@ End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HV
 
 **Architecture:** Notion MCP for request fetch → image MCP (`higgsfield-image-generation`) for reference creation when missing → Higgsfield CLI for video generation (NOT the MCP — the MCP filters out fields needed for Veo + image + audio) → xlsx skill for the audit manifest.
 
-**Trigger phrases:** "run video generations" (primary), "run the HVG flow", "run HVG", "fire the batch", "fire the gens". Also auto-propose when a Notion URL is dropped while cwd is inside a Lucid Link project folder.
+**Trigger phrases:** "run video generations" (primary), "run the HVG flow", "run HVG", "fire the batch", "fire the gens".
+
+**Auto-initiation triggers (these alone fire the protocol — do NOT wait for an explicit verb):**
+- The editor drops a **Notion URL** (any `notion.so/...` or `*.notion.site/...` link) in any session
+- The editor drops or names a **PFM project folder path** (anything under `/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/...`) — including when the session opens with cwd already inside one
+- The editor pastes both a Notion URL AND a folder reference together
+
+**🛑 MANDATORY INITIATION BEHAVIOR — read carefully:**
+
+When any of the auto-initiation triggers above are detected, your **first response must be Gate 1 of this skill** — full stop. Do NOT:
+- Fetch the Notion page first to "get a head start"
+- Run `ls`, `pwd`, or any shell commands ahead of Gate 2's exact prompt
+- Try to parse the brief or guess at request shape (Format A/B/C)
+- Build prompts, scan refs, propose models, or speculate about state variations
+- Offer alternatives ("would you like me to run hvg-flow, or just summarize the brief?") — the answer is always: enter the protocol
+
+The editor invoking the skill via trigger (URL drop, folder ref, or verb) is the confirmation to start. Your job is to walk them through 9 gates in order. Each gate's prompt is scripted below — say what's scripted, wait for the editor's reply, move to the next gate. **No freelancing between gates. No skipping gates. No combining gates.**
+
+If the editor's first message contains information that would normally come at Gate 3 or later (e.g., they paste the master prompt at session start), still acknowledge Gate 1 first, then mention you've already captured the master prompt and will reuse it at Gate 6 when you arrive there. Do not jump ahead.
 
 **Speed expectation:** <2 minutes from session start to wave 1 firing on a clean project (refs already in place, master prompt ready to paste).
 
