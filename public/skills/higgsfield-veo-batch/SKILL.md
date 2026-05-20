@@ -7,6 +7,30 @@ description: Drive the full Higgsfield video-generation pipeline end-to-end from
 
 Runtime counterpart to **HVG.1** (Higgsfield Video Generator webapp at `https://higgsfield-video-generator-production.up.railway.app/`).
 
+## 🛑 PFM CONVENTIONS — non-negotiable before firing
+
+**Before firing ANY Higgsfield video CLI call for PFM work** (one-off re-fires, manual tests, exploratory shots, legacy HVG.1 manifest batches), load and apply the conventions from `hvg-flow` — even when the editor isn't going through the structured 9-gate flow.
+
+Quick rules to self-impose every time:
+- Veo prompt format: prefix `Veo video prompt: ` for JSON masters (CLI rejects leading `{`)
+- Auto-resize images >2000px before passing as `--image`
+- Default model: Veo 3.1 Fast (~25 cr/clip) unless explicitly requested otherwise
+- `veo3_1_lite` has NO audio — use only for intentionally silent b-roll
+- Audio block: never write "no audio" — always include benign ambient direction
+- Brand-clean negatives stack matched to vertical (no automaker badges, no Geico/Progressive/etc, no GE/Whirlpool, no Apple/macOS dock, etc.)
+- No 3-4s "punchy" beats — lines are 15-24 words, lean long
+- No dashes, no ALL CAPS in line text (except `[BRACKETED_TOKEN]` placeholders)
+- No `[STATE LINE]` trailing annotations
+- No camera device names in scene description (no "iPhone"/"GoPro"/"DSLR" — bleeds device into frame)
+- One image input only — Veo accepts a single ref, no start+end keyframes
+- Wide-shot lip-sync fails — `status: "failed"` spikes on long-lens / distant-subject refs
+- Re-fires save as v3/v4/v5 — never overwrite v01/v02
+- UGC dialogue: 6-block prose template (header / scene / performance with cold-open / verbatim dialogue / voice lock / locked audio block / negatives)
+- For new-character placement: 1-ref + scene description beats 2-ref
+- Concealed Carry vertical exempt from "no firearms" default
+
+Full convention list lives in `~/.claude/skills/hvg-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
+
 **Uses the Higgsfield CLI, NOT the MCP.** The CLI bypasses the MCP's filters that broke `mode: input_images`, `input_image`, and `generate_audio` for Veo models. Verified 2026-05-06: Veo 3.1 Fast + image + audio works perfectly through `higgsfield generate create`.
 
 Editor walks away after dropping the manifest; comes back to a folder of correctly-named `.mp4` files with audio.
