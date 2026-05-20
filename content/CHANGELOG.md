@@ -6,6 +6,21 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-20
+
+### Hub — "How it works" overview section added
+New visual overview on the home page (anchor: **How it works** in the sidebar). Five panels designed for sharing the system with non-editor stakeholders:
+
+1. **Context layers** — how Claude is trained up on PFM (memory → skills → context folder → Notion brief)
+2. **MCP vs CLI** — side-by-side comparison of the two ways Claude talks to Higgsfield, and why PFM uses the CLI for production
+3. **Notion drop flow** — what happens when an editor drops a Notion URL or project folder reference
+4. **The 9 gates** — visual stepper of every gate Claude walks with an editor, with one-line descriptions
+5. **Team folder breakdown** — what's inside `6. Claude PFM/` on Lucid Link
+
+This sits between the daily-use commands at the top and the per-OS setup walkthroughs below.
+
+---
+
 ## 2026-05-18
 
 ### PFM conventions enforced on ALL Higgsfield fires (not just gated flows)

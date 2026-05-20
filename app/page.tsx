@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import CopyBlock from "@/components/CopyBlock";
 import Callout from "@/components/Callout";
+import Overview from "@/components/sections/Overview";
 import SetupMac from "@/components/sections/SetupMac";
 import SetupWindows from "@/components/sections/SetupWindows";
 import SkillsSection from "@/components/sections/SkillsSection";
@@ -110,6 +111,7 @@ export default function Home() {
       </section>
 
       {/* Full sections */}
+      <Overview />
       <SetupMac />
       <SetupWindows />
       <SkillsSection />
