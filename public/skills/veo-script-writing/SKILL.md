@@ -29,18 +29,19 @@ Veo 3.1 generates one short video clip per prompt. Each clip is capped at 8 seco
 
 ### Rule 1. Every numbered line fits a 6 to 8 second clip — lean long, never short
 
-Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **15 to 22 words per line**. Hard ceiling: 24 words. Hard floor: 15 words. Lean toward the long side (18-22 words) by default.
+Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **15 to 22 words per line**. Hard ceiling: 30 words. Hard floor: 15 words. Lean toward the long side (18-22 words) by default.
 
 Quick math:
 - 6 seconds ≈ 15 to 18 words
 - 7 seconds ≈ 18 to 21 words
-- 8 seconds ≈ 21 to 24 words (ceiling)
+- 8 seconds ≈ 21 to 24 words (target sweet spot)
+- 9-10 seconds ≈ 24 to 30 words (upper edge — use sparingly, only when the beat really earns it)
 
-**🛑 NEVER produce "punchy 3-4 second beats" — even if the brief mentions them.** PFM does not ship sub-6s Veo clips. If a brief calls for "punchy dramatic beats," interpret that as **emphasis cues to apply within a 6-8s line** (e.g., short clauses inside the line separated by commas or periods for written rhythm — but the line itself is still 15-24 words). NOT as a license to produce 3-4s clips.
+**🛑 NEVER produce "punchy 3-4 second beats" — even if the brief mentions them.** PFM does not ship sub-6s Veo clips. If a brief calls for "punchy dramatic beats," interpret that as **emphasis cues to apply within a 6-8s line** (e.g., short clauses inside the line separated by commas or periods for written rhythm — but the line itself is still 15-30 words). NOT as a license to produce 3-4s clips.
 
 Lines like `"Impact. Bumper gone."` or `"Traffic. Full stop."` — even if they read punchy on the page — are **always merge candidates**. Combine them with adjacent context until the full line lands in the 6-8s window. The dramatic punch survives because the speaker emphasizes those short clauses naturally; you don't need a separate Veo clip for them.
 
-**The only allowed short line is the closing line**, which may be 12-15 words for held-silence impact on the final beat. Every other line must be 15-24 words.
+**The only allowed short line is the closing line**, which may be 12-15 words for held-silence impact on the final beat. Every other line must be 15-30 words (with 18-22 as the comfortable sweet spot).
 
 When in doubt, lean LONG. A 22-word line that runs ~7.5s is always better than a 14-word line that ends with awkward silence.
 
@@ -155,7 +156,7 @@ Good (isolated):
 
 | Check | What to verify |
 |---|---|
-| Line length | Every numbered line 15 to 22 words (hard cap 24) |
+| Line length | Every numbered line 15 to 22 words (hard cap 30) |
 | Caps | No ALL CAPS words outside of [PLACEHOLDERS] |
 | Dashes | Zero dashes. All replaced with commas, periods, or rewrites |
 | State isolation | Every line with a token lives on its own number |
@@ -166,7 +167,7 @@ Good (isolated):
 
 ## TLDR
 
-1. 15 to 22 words per numbered line. 24 max.
+1. 15 to 22 words per numbered line. 30 max.
 2. No ALL CAPS except inside placeholders.
 3. No dashes. Use commas or periods.
 4. State tokens get their own numbered line.

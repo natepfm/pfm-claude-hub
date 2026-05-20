@@ -8,6 +8,11 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-20
 
+### Veo word ceiling raised — 24 → 30
+Veo line ceiling moved from 24 to 30 words across `veo-script-writing`, `lc-to-video-podcast`, and `higgsfield-veo-batch`. Target sweet spot stays **17-22 words** with the long-lean discipline intact — the extra room is reserved for beats that genuinely earn a longer landing (~9-10s at podcast pace). Closing line still gets the 12-15 word short-line exception.
+
+Quick reference: floor 15 words / target 17-22 / hard ceiling 30 / closer 12-15.
+
 ### Hub — "How it works" overview section added
 New visual overview on the home page (anchor: **How it works** in the sidebar). Five panels designed for sharing the system with non-editor stakeholders:
 

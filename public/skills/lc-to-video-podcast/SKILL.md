@@ -140,7 +140,7 @@ Every "do not" → "don't", "I will" → "I'll", "we are" → "we're". The LC is
 
 After the voice pass, recount every line. Veo's hard rules from `veo-script-writing`:
 
-- **17-22 words per line** (target). **15 word floor, 24 word ceiling.** Lean long.
+- **17-22 words per line** (target). **15 word floor, 30 word ceiling.** Lean long; reserve 24-30 for beats that really earn the longer landing.
 - **No em dashes, no en dashes**, no hyphen-as-pause.
 - **No ALL CAPS** outside `[BRACKETED_TOKENS]`.
 - **No hyphens in compound words being spoken** (`one-day` → `one day`, `co-signed` → `co signed`, `7-year-old` → `7 year old`, `24-hour` → `24 hour`).
@@ -151,7 +151,7 @@ After the voice pass, recount every line. Veo's hard rules from `veo-script-writ
 
 **Combine short fragments** (under 15 words) with adjacent lines. Two 11-word fragments back-to-back will both feel rushed on screen; combined into a 19-word line, they breathe. If a brief mentions "punchy dramatic beats," that's a cue to make the emphasis land inside a longer line — not to ship 3-4s clips.
 
-**Split long beats** (over 24 words) at natural breath points — a comma, a sentence boundary, an emotional pivot. Don't break mid-clause.
+**Split long beats** (over 30 words) at natural breath points — a comma, a sentence boundary, an emotional pivot. Don't break mid-clause.
 
 Read every line aloud at podcast pace before finalizing. If it doesn't fit a steady breath, it won't fit in Veo's 8 second window.
 
@@ -176,7 +176,7 @@ Run a final pass before showing the editor:
 | Spoken numbers | Hard dollar figures converted; small punchy numbers kept exact |
 | Brand names | None (unless brief explicitly requires) |
 | Named camera devices | None (`iPhone`, `phone`, `GoPro` — these belong in negatives, not the script) |
-| Word count | Every line 12-24 words, target 17-22 |
+| Word count | Every line 15-30 words, target 17-22 (closer can dip to 12-15) |
 | Closer | Final line 12-15 words for held-silence impact |
 | Flagged words | Surface any preserved swears or compliance-sensitive lines for editor review |
 
@@ -210,7 +210,7 @@ If the brief is state-variant, use `### [Concept Name] — [Vertical] LC — Veo
 
 1. **Confirm inputs** — source LC, vertical, brandless yes/no, broad vs state-variant, character archetype. Ask plainly in chat if anything's missing from the brief.
 2. **Voice pass** — go line-by-line through the LC, applying spoken numbers, dropping FB-post tics, adding natural intensifiers, dialogue attribution, light filler, and conversational connectors. Don't worry about Veo word counts yet.
-3. **Veo balance pass** — recount every line. Combine fragments under 13 words. Split lines over 24 words. Target 17-22 per line. Closer can dip to 12-15 for impact.
+3. **Veo balance pass** — recount every line. Combine fragments under 15 words. Split lines over 30 words. Target 17-22 per line. Closer can dip to 12-15 for impact.
 4. **Compliance scan** — run the checklist above. Flag any preserved swears for the editor.
 5. **Deliver in chat** — show the full numbered script for editor review. Flag any compliance/Veo concerns in a short note above or below the script.
 6. **Push to Notion on approval** — once the editor approves, replace the existing Copy callout block (numbered list + `<details>` source LC). Use `notion-update-page` with a `content_updates` `old_str`/`new_str` replacement targeting the numbered list block. Preserve any Sam-edited lines exactly if they appear in the current Notion state — fetch first, integrate any human edits to the early lines, then push the full balanced script.
@@ -298,7 +298,7 @@ After (two Veo lines, the closer trimmed to 13 words for held silence):
 ## TLDR
 
 1. Re-voice the LC line-by-line: spoken numbers, drop FB-post fragments, natural intensifiers, dialogue attribution, light filler, conversational connectors.
-2. Balance every line to 17-22 words (12-24 hard floor/ceiling). Closer can dip to 12-15 for impact.
+2. Balance every line to 17-22 words (15-30 hard floor/ceiling). Closer can dip to 12-15 for impact.
 3. Strip em/en dashes, ALL CAPS, and compound hyphens.
 4. Preserve every fact, number, beat, and CTA from the source LC. No new claims.
 5. Output as a numbered list with the verbatim LC tucked into a `<details>` block underneath.

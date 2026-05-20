@@ -18,7 +18,7 @@ Quick rules to self-impose every time:
 - `veo3_1_lite` has NO audio — use only for intentionally silent b-roll
 - Audio block: never write "no audio" — always include benign ambient direction
 - Brand-clean negatives stack matched to vertical (no automaker badges, no Geico/Progressive/etc, no GE/Whirlpool, no Apple/macOS dock, etc.)
-- No 3-4s "punchy" beats — lines are 15-24 words, lean long
+- No 3-4s "punchy" beats — lines are 15-30 words (target 17-22), lean long
 - No dashes, no ALL CAPS in line text (except `[BRACKETED_TOKEN]` placeholders)
 - No `[STATE LINE]` trailing annotations
 - No camera device names in scene description (no "iPhone"/"GoPro"/"DSLR" — bleeds device into frame)
