@@ -6,7 +6,33 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-20
+
+### Hub — "How it works" overview section added
+New visual overview on the home page (anchor: **How it works** in the sidebar). Five panels designed for sharing the system with non-editor stakeholders:
+
+1. **Context layers** — how Claude is trained up on PFM (memory → skills → context folder → Notion brief)
+2. **MCP vs CLI** — side-by-side comparison of the two ways Claude talks to Higgsfield, and why PFM uses the CLI for production
+3. **Notion drop flow** — what happens when an editor drops a Notion URL or project folder reference
+4. **The 9 gates** — visual stepper of every gate Claude walks with an editor, with one-line descriptions
+5. **Team folder breakdown** — what's inside `6. Claude PFM/` on Lucid Link
+
+This sits between the daily-use commands at the top and the per-OS setup walkthroughs below.
+
+---
+
 ## 2026-05-18
+
+### PFM conventions enforced on ALL Higgsfield fires (not just gated flows)
+Closes a gap where one-off CLI calls, manual re-fires, and exploratory gens outside the structured `hvg-flow` / `hig-flow` 9-gate flows were skipping PFM-specific conventions — brand-clean negatives, ambient audio direction, character master format, no [STATE LINE] tags, count=1 vs count=2, filename hex suffixes for Resolve, etc.
+
+Three reinforcing signals locked in:
+
+- **New memory entry** so the rule fires across all sessions: whenever Claude is about to invoke Higgsfield (CLI or MCP) for PFM work, it must self-impose `hvg-flow` (video) or `hig-flow` (image) conventions first.
+- **`higgsfield-image-generation` skill** now opens with a "PFM CONVENTIONS — non-negotiable" callout listing the must-apply rules and cross-referencing `hig-flow`.
+- **`higgsfield-veo-batch` skill** same — opens with the matching callout cross-referencing `hvg-flow`.
+
+This is a discipline fix. The difference editors will notice: fewer first-draft fires that need re-runs because something obvious (brand-clean negative, audio block, ref format, count) was skipped.
 
 ### hvg-flow — strict protocol initiation on Notion link / project folder
 Hardened auto-trigger behavior so the skill never freelances between gates. When an editor drops a Notion URL or references a PFM project folder path, the model now enters Gate 1 immediately — no head-start Notion fetches, no early shell commands, no brief parsing or format guessing before the gates instruct it, no "would you like to…" alternative offers.

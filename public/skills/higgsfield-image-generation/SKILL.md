@@ -7,6 +7,26 @@ description: Drive image generation through the Higgsfield MCP end-to-end — up
 
 This skill drives the Higgsfield MCP to actually generate images, not just write prompts. If the user wants prompts they can copy-paste themselves into the Higgsfield UI, write the prompts and stop — this skill doesn't apply.
 
+## 🛑 PFM CONVENTIONS — non-negotiable before firing
+
+**Before firing ANY Higgsfield image gen for PFM work** (one-off, test, re-fire, or exploratory), load and apply the conventions from `hig-flow` — even when the editor isn't going through hig-flow's structured 9-gate flow.
+
+Quick rules to self-impose every time:
+- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=2
+- Filename suffix: end every b-roll PNG with a unique 4-char hex tag (`_<hex>.png`) so DaVinci Resolve doesn't auto-group as image sequences
+- No iOS UI chrome in b-roll (no status bar, Camera Roll header, scrubbing strip, date stamps)
+- Brand-clean negatives stack matched to vertical (no automaker badges in vehicle shots, no Geico/Progressive in insurance, no GE/Whirlpool in appliances, no Apple/macOS dock on laptops, etc.)
+- iPhone camera-roll prompting style by default for podcast story-ad b-roll
+- For UGC character master refs, use "extracted video frame" framing — NOT "screenshot" or "photo"
+- Selfie arm framing: minimize the extending arm in foreground
+- Folded-bill aging cue (tri-fold creases + opened #10 envelope) on every printed-bill moment
+- Lived-in clutter on home-interior b-roll (junk mail, dirty mug, charger cable) — NOT stock photography
+- Character placement: 1-ref + scene prose beats 2-ref
+- Shirt rotation: random per scene, same within a scene
+- Concealed Carry vertical exempt from "no firearms" default
+
+Full convention list lives in `~/.claude/skills/hig-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
+
 The Higgsfield MCP tools are namespaced `mcp__8e9e70fb-f82a-467f-bde0-e9daaeb5b439__*`. Key tools you'll use:
 
 - `models_explore` — browse and recommend models
