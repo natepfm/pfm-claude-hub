@@ -222,6 +222,16 @@ If the brief is state-variant, use `### [Concept Name] — [Vertical] LC — Veo
 - **Hand off to `spanish-translation`** for a Spanish version once the English script is locked. Run that skill against the final numbered script, not against the source LC.
 - **Camera-roll b-roll** for the podcast (cutaways of the speaker's life — kitchen table, Best Buy register, etc.) uses `iphone-cameraroll-prompting` via `hig-flow`.
 
+### Handoff to hvg-flow — DO NOT ask the editor to re-paste anything
+
+When the editor approves the script and you're ready to move to generation, **do not ask them to "drop the Notion URL again" or paste anything**. The Notion URL and project folder are already in the session context — you used them to fetch the brief and push the rebalanced script back. Re-asking is redundant and frustrating.
+
+Correct closing language (script-locked, ready to chain):
+
+> Script is locked and pushed to Notion. Say **"run video generations"** (or any HVG trigger) and I'll initiate `hvg-flow` against the same Notion URL + project folder we've been working in. No re-paste needed.
+
+When the editor says any HVG trigger, immediately invoke `hvg-flow` with the established Notion URL and cwd as context. `hvg-flow` itself is also instructed not to re-ask for the URL in this scenario — see its "MANDATORY INITIATION BEHAVIOR" section.
+
 ## PFM Context
 
 - **Lineage**: LC-to-Video Podcast started in Auto (Repossessed Florida → Denied Car Loan → Permission Slip Podcast). The format is now porting to Loans (Best Buy TV Denial is the first Loans LC2V Podcast as of 2026-05).

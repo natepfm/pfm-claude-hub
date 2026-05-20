@@ -29,6 +29,20 @@ The editor invoking the skill via trigger (URL drop, folder ref, or verb) is the
 
 If the editor's first message contains information that would normally come at Gate 3 or later (e.g., they paste the master prompt at session start), still acknowledge Gate 1 first, then mention you've already captured the master prompt and will reuse it at Gate 6 when you arrive there. Do not jump ahead.
 
+**Mid-session handoffs — DO NOT re-ask for the Notion URL or project folder:**
+
+If hvg-flow is being invoked mid-session — common cases are after `lc-to-video-podcast` finishes (script just got pushed to Notion) or after script edits / review work — the Notion URL and project folder context are **already established** from earlier in the conversation. Use them. Do NOT ask the editor to "drop the Notion URL again" or "paste the brief again." Acknowledge what's in context, then enter Gate 1.
+
+Example correct opening when chained mid-session:
+
+> Picking up the same Notion request (`<URL>`) in `<project folder pwd>`. Entering HVG Gate 1.
+
+Example WRONG opening (do not produce this — it's redundant and frustrating):
+
+> ~~Drop the Notion URL again with "run video generations" and I'll spin up hvg-flow.~~
+
+The editor already gave you the URL once. Re-asking treats them like they're starting over. The only time you ask for a Notion URL is when the session genuinely starts cold with no prior context.
+
 **Speed expectation:** <2 minutes from session start to wave 1 firing on a clean project (refs already in place, master prompt ready to paste).
 
 **The 9-gate sequence is non-negotiable.** Every gate is a confirmation point — never skip ahead, never proceed past a gate without explicit editor confirmation. Gates exist to catch misconfigurations before they burn credits.
@@ -43,7 +57,7 @@ Editor has already done this part:
 1. Opened Claude Code in the specific project folder (Code tab → folder picker → Lucid Link path)
 2. Pasted the Notion request URL as their first message (optionally pasted a master prompt too)
 
-Capture the URL from the editor's message. Don't proceed past gate 2 without it. If the editor activates the skill without a Notion URL, ask: "Drop the Notion request URL to continue."
+Capture the URL from the editor's message OR from earlier in the session context (e.g., from a chained `lc-to-video-podcast` or `veo-script-writing` run). Don't proceed past gate 2 without a URL. **Only ask "Drop the Notion request URL to continue"** when the session genuinely has no URL anywhere in context — never as a default opener mid-conversation.
 
 ## Gate 2 — Context check ("up to speed")
 

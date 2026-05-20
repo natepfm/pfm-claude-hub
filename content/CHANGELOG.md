@@ -8,6 +8,9 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-20
 
+### Never re-ask for Notion URL or project folder mid-session
+Hardened the handoff between `lc-to-video-podcast` and `hvg-flow` so editors aren't asked to "drop the Notion URL again" when the URL and project folder are already in session context. The chained handoff now flows: script-locked → editor says any HVG trigger → `hvg-flow` enters Gate 1 immediately with the already-known URL + cwd. No re-paste, no redundant prompting. Same fix applies to any in-session chain where the URL was established earlier (script review → fire, edits → fire, etc.).
+
 ### Veo word ceiling raised — 24 → 30
 Veo line ceiling moved from 24 to 30 words across `veo-script-writing`, `lc-to-video-podcast`, and `higgsfield-veo-batch`. Target sweet spot stays **17-22 words** with the long-lean discipline intact — the extra room is reserved for beats that genuinely earn a longer landing (~9-10s at podcast pace). Closing line still gets the 12-15 word short-line exception.
 
