@@ -6,6 +6,54 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-21
+
+### CLI is the default for ALL Higgsfield image and video gens — MCP is read-only inspection only
+Hardened the CLI-vs-MCP rule across memory + every Higgsfield skill. The MCP `generate_image` / `generate_video` tools are now explicitly **forbidden** for actual firing. MCP stays in play only for read-only ops — `balance`, `transactions`, `models_explore`, `select_workspace`, `show_*`. This applies to every gen — one-off tests, character masters, re-fires, exploratory variations, everything. Previously this rule lived implicitly in `feedback_higgsfield_workflow.md`; now it's surfaced in the memory index, the `higgsfield-image-generation` skill (rewritten from MCP-driven to CLI-driven), and the convention banners on `higgsfield-veo-batch` + cross-references in `hvg-flow` / `hig-flow`.
+
+The "MCP vs CLI" panel on the home page now reflects the new lock — MCP is described as inspection-only, not "one-off exploratory firing."
+
+### Concurrency rewrite — UUIDs + Python ThreadPool `max_workers=8`
+The previous bash-background-jobs concurrency pattern (`& + wait` with `--image <local_path>`) hit the Higgsfield CLI's credential-store race under load — concurrent CLI processes contend on the auth file while uploading per-job, and most jobs come back empty past ~10 in flight. New locked pattern (verified empirically on 100-job runs):
+
+1. **Pre-upload** every unique reference image **serially**, capture UUIDs.
+2. Fire the batch via **Python `ThreadPoolExecutor(max_workers=8)`**, passing UUIDs to `--image` / `--start-image` / `--end-image` (never local file paths).
+3. Bash `&` past ~10 jobs is deprecated. Don't use.
+
+Applied to `hvg-flow`, `hig-flow`, `higgsfield-veo-batch`, and `higgsfield-image-generation`. Cap will be revisited after Higgsfield Enterprise call — if Enterprise allows higher concurrency cleanly, workers can be raised.
+
+### Veo cost table corrected — empirical 2026-05-20 numbers
+Previous skills documented stale costs (Fast at 22 cr, Lite at "8 cr with audio"). New verified numbers across `hvg-flow` + `higgsfield-veo-batch`:
+
+| Model | Cost / 8s clip | Audio |
+|---|---|---|
+| Lite — silent | 8 cr | ✗ |
+| Lite — with `--generate_audio true` | 12 cr | ✓ |
+| Fast | ~27 cr | ✓ (default) |
+| Preview (base) | ~58 cr | ✓ |
+| Preview (Ultra) — `--quality ultra` | ~87 cr | ✓ |
+
+Two flags newly documented: **`--generate_audio true`** (Lite ships silent without it — known gotcha that caused silent shipping in past batches) and **`--quality basic\|high\|ultra`** (Preview Ultra is the top-tier quality knob).
+
+### veo-script-writing — no camera device names rule
+New Rule 3b: words like `iPhone`, `phone`, `GoPro`, `DSLR`, `dash cam`, `Ring camera` in the spoken dialogue or scene description make Veo render that physical device in frame. Device-aesthetic cues belong in the Veo prompt's visual block as indirect markers, not named in the script. Compliance scan + the breaking-news integration checklist both updated to call this out.
+
+### breaking-news-story-ads — three flavors + default talent
+Aligned the LL copy of `breaking-news-story-ads` to the most recent Cowork plugin source. Adds:
+
+- **The three flavors** — Flavor A (news-wraps-existing-story-ad re-frame), Flavor B (news-wraps-LC-as-viral-podcast-clip), Flavor C (pure breaking news no source asset). Each with source/body description + reference creative.
+- **Default talent** — Lauren Hayes (anchor) + Rachel Torres (field reporter) are the recurring PFM news-talent. Reuse by default; only propose new names if explicitly requested.
+- **Workflow gating** — master template first, state/variant fills only after master is locked.
+- Removed the stale "Frame-to-video JSON patterns" section. Per-clip Veo prompts now live in the project's Excel manifest built by `hvg-flow`, not embedded inside the script doc.
+
+### PowerFox Enterprise plan — concurrency cap pending
+Skills now say "PowerFox Enterprise plan (verify concurrent cap with David — was 16 on Team)" wherever they reference Higgsfield concurrency. Concurrency caps come back from the Higgsfield call; until then, `max_workers=8` is the defensive default.
+
+### Install command — no sudo
+`higgsfield-veo-batch` and `hvg-flow` install hints both now use `npm install -g @higgsfield/cli` (no sudo) to match `claude-pfm-setup.sh`. Sudo isn't needed on properly-configured editor machines and triggers prompts for password.
+
+---
+
 ## 2026-05-20
 
 ### Never re-ask for Notion URL or project folder mid-session

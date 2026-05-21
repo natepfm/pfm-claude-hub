@@ -1,6 +1,6 @@
 ---
 name: hig-flow
-description: PFM's Higgsfield Image Generator flow — end-to-end pipeline from a Notion request URL to delivered b-roll images, run by editors directly in Claude Code. Image counterpart to `hvg-flow`. Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder AND wants images (not video clips), or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference scan + auto-character-match → model lock → shot list + prompt craft → Excel manifest → preflight → CLI fire → report) and downloads images into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default model is Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt. Loads `iphone-cameraroll-prompting` skill by default for prompt craft style; editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic, etc.). NOT for: video generation (use `hvg-flow`), one-off image experiments without a Notion request (use `higgsfield-image-generation` MCP-based skill), training Soul Characters (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: PFM's Higgsfield Image Generator flow — end-to-end pipeline from a Notion request URL to delivered b-roll images, run by editors directly in Claude Code. Image counterpart to `hvg-flow`. Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder AND wants images (not video clips), or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference scan + auto-character-match → model lock → shot list + prompt craft → Excel manifest → preflight → CLI fire → report) and downloads images into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default model is Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt. Loads `iphone-cameraroll-prompting` skill by default for prompt craft style; editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic, etc.). NOT for: video generation (use `hvg-flow`), one-off image experiments without a Notion request (use `higgsfield-image-generation` skill — CLI-driven), training Soul Characters (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
 ---
 
 # HIG Flow (PFM Image Generation)
@@ -96,7 +96,7 @@ Report mapping:
 > Continue to model lock?
 
 **Missing-ref handling:**
-- If a critical character is missing → ask the editor: "Generate now via the higgsfield-image-generation MCP skill, or specify a path?"
+- If a critical character is missing → ask the editor: "Generate now via the higgsfield-image-generation skill (CLI), or specify a path?"
 - If a minor character is missing (e.g. "Derek's sister" mentioned in one line) → flag it; editor can decide whether to skip that line's b-roll or substitute a different character
 
 PFM character master format (from memory): full-body, plain studio backdrop, neutral pose, neutral wardrobe, 9:16. The Reference folder usually has master + a few action variations + shirt library.
@@ -182,7 +182,7 @@ Editor approves the shot list → proceed to gate 7. (Note: gate 7 from `hvg-flo
 
 ## Gate 7 — (Skipped by default for HIG Flow)
 
-Image gens are cheap (~5 cr/image) and fast (~30s each). No test-fire gate. If the editor wants to spot-test one shot before firing the full batch, they can ask: "fire just shot S05 first" — and we'd run a one-off via `higgsfield-image-generation` then return.
+Image gens are cheap (~5 cr/image) and fast (~30s each). No test-fire gate. If the editor wants to spot-test one shot before firing the full batch, they can ask: "fire just shot S05 first" — and we'd run a one-off via the CLI (`higgsfield generate create nano_banana_2 ...`) per the `higgsfield-image-generation` skill conventions, then return.
 
 ## Gate 8 — Excel manifest write
 
@@ -269,61 +269,81 @@ Editor confirms → CLI fires.
 
 ## Step 10 — CLI fire
 
-**Concurrency model — flat job queue, not discrete waves.** Higgsfield Team plan = 16 concurrent. The cleanest fire pattern is:
+**Concurrency model — pre-uploaded UUIDs + ThreadPool `max_workers=8`.** PowerFox Enterprise plan (verify concurrent cap with David — was 16 on Team). Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` call reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each also uploads a `--image <local_path>` (which is 3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically.
+
+**Verified empirical data (2026-05-21):**
+- 15 ThreadPool workers + file paths (per-job upload) → 65 of 100 jobs returned empty output ✗
+- 16 ThreadPool workers + UUIDs (pre-uploaded) → mostly works (15/16 b-roll) ✓
+- **8 ThreadPool workers + UUIDs → reliable target** ✓
+
+Verify cap rules with David on the Higgsfield call; if Enterprise allows higher concurrency cleanly, the workers cap can be raised.
+
+**Step 1 — Pre-upload every unique reference image, serially, capture UUIDs:**
+
+```python
+import subprocess, json
+
+# Dedupe refs across all shots first
+unique_refs = {ref for shot in all_shots for ref in shot["refs"]}
+ref_uuid_map = {}
+for ref_path in unique_refs:
+    result = subprocess.run(
+        ["higgsfield", "upload", "create", ref_path, "--json"],
+        capture_output=True, text=True, check=True
+    )
+    ref_uuid_map[ref_path] = json.loads(result.stdout)["id"]
+    # → e.g. "70b6e9b2-90c3-4703-84e8-570b99a1884c"
+```
+
+Pre-upload calls run **one at a time** (not in a pool) — the auth race exists for uploads too. Pre-upload is cheap (~1-3s per file) and only runs once per unique ref across the whole batch.
+
+**Image preflight before pre-upload:** for any reference image, check pixel width and resize if >2000px or >3MB (same logic as `hvg-flow`). Pre-upload the RESIZED file, not the original. Dedupe — same character master may be referenced by many shots; only resize and upload once.
+
+**Step 2 — Fire the batch via Python ThreadPool with `max_workers=8`, passing UUIDs (not local paths) to `--image`:**
 
 ```python
 from concurrent.futures import ThreadPoolExecutor, as_completed
-with ThreadPoolExecutor(max_workers=15) as ex:
-    futs = {ex.submit(fire_one, shot, v): ... for shot, v in all_jobs}
+
+def fire_one(shot, variation, ref_uuid_map):
+    # NB Pro takes `input_images` as an array; pass repeated --image flags.
+    img_flags = []
+    for ref in shot["refs"]:
+        img_flags.extend(["--image", ref_uuid_map[ref]])  # UUID, not local path
+
+    cmd = [
+        "higgsfield", "generate", "create", "nano_banana_2",
+        "--prompt", shot["prompt"],
+        *img_flags,
+        "--aspect_ratio", shot["aspect"],
+        "--resolution", "1k",
+        "--wait", "--wait-timeout", "5m",
+        "--json",
+    ]
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
+
+all_jobs = [(shot, v) for shot in shots for v in ("01", "02")]
+with ThreadPoolExecutor(max_workers=8) as ex:
+    futs = {ex.submit(fire_one, shot, v, ref_uuid_map): (shot, v) for shot, v in all_jobs}
     for fut in as_completed(futs):
-        ...
+        shot, v = futs[fut]
+        result = fut.result()
+        # save result.stdout to /tmp/hig-flow-results/<shotId>_v<v>.json
 ```
 
-Build a flat list of `(shot, variation)` tuples covering every job in the run, hand it to a 15-worker pool, let Python manage the cap. Workers pick up the next job as slots free — no wave bookkeeping, no idle gaps. Use `max_workers=15` (not 16) to leave 1 slot of headroom for the API. Bash `&` + `wait` works for tiny runs but breaks down past ~16 jobs; Python ThreadPool scales cleanly to hundreds.
-
-Images are quick (~30s each), so even a 60-job run drains in ~3.5 min wall-clock.
-
-**Image preflight:** for any reference image, check pixel width and resize if >2000px or >3MB (same logic as `hvg-flow`). Dedupe — same character master may be referenced by many shots; only resize once.
-
-**Per-shot CLI construction:**
-
-NB Pro takes `input_images` as an array. The CLI accepts repeated `--image` flags or `--input_images` (verify on first fire — `--image` repeated is the safe default per the CLI's general-purpose media flags).
-
-```bash
-mkdir -p /tmp/hig-flow-results
-
-for SHOT in "${WAVE_SHOTS[@]}"; do
-  SHOT_ID="<from manifest>"
-  PROMPT="<from manifest>"
-  ASPECT="<from manifest>"
-  REFS=(<list of full ref paths>)
-
-  # Build --image flag list from refs array
-  IMG_FLAGS=()
-  for REF in "${REFS[@]}"; do
-    IMG_FLAGS+=(--image "$REF")
-  done
-
-  for VARIATION in 01 02; do
-    higgsfield generate create nano_banana_2 \
-      --prompt "$PROMPT" \
-      "${IMG_FLAGS[@]}" \
-      --aspect_ratio "$ASPECT" \
-      --resolution "1k" \
-      --wait --wait-timeout 5m \
-      --json > "/tmp/hig-flow-results/${SHOT_ID}_v${VARIATION}.json" 2>&1 &
-  done
-done
-
-wait
-```
+Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock at workers=8 (reliability beats the marginal throughput vs higher worker counts).
 
 **No prompt prefix needed.** NB Pro's CLI doesn't have the leading-`{` quirk that Veo had — image prompts are plain prose, not JSON.
 
+**Self-check before any concurrent CLI fire:**
+1. Are any `--image` flags pointing at local file paths instead of UUIDs? → Pre-upload first and swap to UUIDs.
+2. Is `max_workers` ≤ 8? → If higher, lower it.
+3. Are you using Python ThreadPool, not `bash &`? → ThreadPool past ~4 jobs.
+
 **Edge cases:**
 - NSFW false-positive on character images is rare for NB Pro (Veo's stochastic NSFW filter doesn't apply here). If it triggers, just re-fire.
-- Reference image too large → auto-resize (same `sips -Z 1920` logic).
+- Reference image too large → auto-resize (`sips -Z 1920`) BEFORE pre-uploading.
 - `result_url` may be a list when count > 1 returned in one job; the skill should handle either single-URL or list-URL response formats.
+- Worker auth error / `Failed to read credentials.` / empty CLI output → wait 60s, retry the failed jobs. If recurring across multiple retries, drop `max_workers` to 4-6.
 
 ## Step 11 — Download + Excel update + report
 
@@ -339,7 +359,7 @@ Final report:
 > ⏱ Total elapsed: Z min
 > 📋 Manifest: `<slug>_shots.xlsx`
 
-If any shot looks off in review, editor can re-fire individual shots via `higgsfield-image-generation` MCP skill (or by re-running this skill with a scoped-down shot list).
+If any shot looks off in review, editor can re-fire individual shots via the `higgsfield-image-generation` skill (CLI-driven) or by re-running this skill with a scoped-down shot list.
 
 ---
 
@@ -348,10 +368,10 @@ If any shot looks off in review, editor can re-fire individual shots via `higgsf
 When the editor drops **N batches at once** (e.g. 5 state URLs in a single message, asking for slides for all of them), don't fire them sequentially batch-by-batch. Treat the whole thing as ONE mega-fire with per-batch routing:
 
 1. **Parallel Notion fetches.** When the message has N URLs, fire all `notion-fetch` calls in one tool-call message — they all return in roughly the time of one fetch instead of N×.
-2. **Single flat job queue.** Build the union of all jobs across all batches (e.g. 5 states × 6 shots × 2 takes = 60 jobs) and feed it to one `ThreadPoolExecutor(max_workers=15)`. The API doesn't care that jobs span multiple state outputs — it just sees 60 NB Pro requests.
+2. **Single pre-upload pass + single flat job queue.** Pre-upload every unique reference image across ALL batches serially (de-duped — a shared character master uploads once, not N times). Then build the union of all jobs across all batches (e.g. 5 states × 6 shots × 2 takes = 60 jobs) and feed it to one `ThreadPoolExecutor(max_workers=8)` using the UUID map. The API doesn't care that jobs span multiple state outputs — it just sees 60 NB Pro requests.
 3. **Per-batch output routing at download time.** Each shot dict carries its own `out_dir` (e.g. `Slide Images - Michigan/`). The download step routes by that field — no co-mingling.
 4. **Per-batch manifest at each folder's root.** One Excel manifest per batch (`vsl_<state>_slides_shots.xlsx`), written to the batch's output folder. Don't write a global manifest covering all batches — editors open each state's folder independently.
-5. **Throughput data point:** 60 NB Pro 2k jobs delivered in ~3.5 min wall-clock with 15 concurrent workers. Use this as a planning baseline.
+5. **Throughput data point:** 60 NB Pro 2k jobs delivered in ~4 min wall-clock with `max_workers=8` and pre-uploaded UUIDs. Use this as a planning baseline. (Higher worker counts were faster pre-2026-05-21 but unreliable — the 8-worker reliability target trades minor throughput for not having to re-fire failed jobs.)
 
 Trigger phrases that signal multi-batch: "run a bunch more," "do all of these," paste of >1 Notion URL in the same message, "next batch is X, Y, Z."
 
@@ -384,7 +404,7 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 - **Don't write image prompts without `iphone-cameraroll-prompting` patterns** — that's the default style for PFM b-roll. Editor explicitly opts out per-shot if a different aesthetic is needed.
 - **Don't skip PFM brand-clean rules** — every prompt's negative section needs the brand-clean stack from `feedback_pfm_brand_clean_rules.md` (no automaker badges for Auto, no carrier logos, no Apple dock on laptops, etc.).
 - **Don't fire** without showing the shot list at gate 6 and the preflight at gate 9.
-- **Don't generate character masters here** — masters are foundational, build them via `higgsfield-image-generation` MCP skill (or follow `STORY-AD-IMAGE-WORKFLOW.md` Phase 1). HIG Flow assumes masters already exist in `Reference/`.
+- **Don't generate character masters here** — masters are foundational, build them via the `higgsfield-image-generation` skill (CLI-driven) or follow `STORY-AD-IMAGE-WORKFLOW.md` Phase 1. HIG Flow assumes masters already exist in `Reference/`.
 - **Don't write outputs** to a folder other than `Elements/Footage/Primary/B-Roll Photos/` without asking.
 - **Don't pre-process the prompt text** beyond shot-list approval — Higgsfield's API may auto-enhance.
 - **Don't update the Excel mid-batch** — single write before, single write after.
@@ -394,7 +414,7 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 
 - `hvg-flow` — video counterpart to this skill (same architecture, different model + output)
 - `iphone-cameraroll-prompting` — loaded by default at gate 6 for prompt style
-- `higgsfield-image-generation` — MCP-based skill for one-off image experiments and character-master creation
+- `higgsfield-image-generation` — CLI-driven skill for one-off image experiments and character-master creation
 - `nano-banana-prompting` — NB-specific prompting patterns
 - `higgsfield-product-photoshoot` — for studio / product compositions (different skill if editor requests)
 - Memory: `feedback_pfm_brand_clean_rules.md`, `feedback_pfm_character_master_format.md`, `feedback_higgsfield_workflow.md`, `feedback_shirt_rotation_pattern.md`, `feedback_selfie_arm_framing.md`, `feedback_social_proof_selfie_variety.md`, `feedback_folded_bill_aging_cue.md`, `feedback_image_review_context_budget.md`, `feedback_character_placement_one_ref_wins.md`

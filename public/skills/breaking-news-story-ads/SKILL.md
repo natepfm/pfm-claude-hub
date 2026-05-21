@@ -472,9 +472,11 @@ Good (possibility-framed, news-native):
 
 This skill produces the **content** of a news-wrapped ad. When the script moves into Veo production, the Veo Script Writing rules still apply on top:
 
-- Every numbered dialogue line is still capped at 15–22 words per Veo clip (with 24 hard ceiling).
+- Every numbered dialogue line is still capped at 17–22 words per Veo clip (with **30 hard ceiling**, closer can dip to 12–15 for impact).
 - No ALL CAPS in dialogue — **but ALL CAPS is required for chyron text in the video column.** Veo generates the on-screen chyron from the video-column annotation; it will render the chyron text correctly when it's in brackets or the video column, and it won't read it as shouting. Keep ALL CAPS out of the audio/dialogue column only.
 - No dashes in dialogue. Commas and periods only.
+- No `[STATE LINE]` trailing annotations on state-variable lines.
+- No camera device names (`iPhone`, `phone`, `GoPro`, `DSLR`) in dialogue or scene description — those belong in the Veo prompt's negatives, not in the script.
 - State-token lines still get their own numbered line.
 
 The news wrapper adds **script layout** complexity (two-column, anchor vs reporter vs SOT), but the per-clip Veo rules are unchanged inside each numbered clip.

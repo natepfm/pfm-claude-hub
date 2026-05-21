@@ -13,9 +13,10 @@ Runtime counterpart to **HVG.1** (Higgsfield Video Generator webapp at `https://
 
 Quick rules to self-impose every time:
 - Veo prompt format: prefix `Veo video prompt: ` for JSON masters (CLI rejects leading `{`)
-- Auto-resize images >2000px before passing as `--image`
-- Default model: Veo 3.1 Fast (~25 cr/clip) unless explicitly requested otherwise
-- `veo3_1_lite` has NO audio — use only for intentionally silent b-roll
+- Auto-resize images >2000px before passing as `--image`; pre-upload to UUIDs for batch fires (see Step 4a)
+- Default model: Veo 3.1 Fast (~27 cr/clip, audio by default) unless explicitly requested otherwise
+- `veo3_1_lite` ships SILENT by default (8 cr/clip). Add `--generate_audio true` for dialogue audio (12 cr/clip)
+- `veo3_1` Preview has a `--quality basic|high|ultra` knob — Ultra is ~87 cr/clip, reserve for hero placements
 - Audio block: never write "no audio" — always include benign ambient direction
 - Brand-clean negatives stack matched to vertical (no automaker badges, no Geico/Progressive/etc, no GE/Whirlpool, no Apple/macOS dock, etc.)
 - No 3-4s "punchy" beats — lines are 15-30 words (target 17-22), lean long
@@ -28,6 +29,7 @@ Quick rules to self-impose every time:
 - UGC dialogue: 6-block prose template (header / scene / performance with cold-open / verbatim dialogue / voice lock / locked audio block / negatives)
 - For new-character placement: 1-ref + scene description beats 2-ref
 - Concealed Carry vertical exempt from "no firearms" default
+- Workspace check: `higgsfield workspace set e7479d4c-0d59-4be5-9057-abce9fe30f39` if the CLI shows "No workspace selected" (PowerFox Enterprise drift recovery)
 
 Full convention list lives in `~/.claude/skills/hvg-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
 
@@ -65,8 +67,10 @@ higgsfield account status                     # confirms auth + current credits
 
 If `which higgsfield` returns nothing, install:
 ```bash
-sudo npm install -g @higgsfield/cli
+npm install -g @higgsfield/cli
 ```
+
+(Matches the `claude-pfm-setup.sh` installer — no `sudo` if the user's npm prefix is writable, which it is on a properly-configured editor machine.)
 
 If `higgsfield account status` says "Session expired" or "Not authenticated", ask the editor to run `higgsfield auth login` (interactive, browser-based, ~5s).
 
@@ -92,12 +96,14 @@ Then output **one** preflight line:
 
 If balance < estimated cost: stop and ask. Don't volunteer the full table unless asked.
 
-**Rough per-clip costs (8s, 16:9):**
-- **Veo 3.1 Fast: ~22 credits** ← default for HVG.1
-- Veo 3.1 Preview: ~60-100 credits
-- Veo 3.1 Lite: ~20 credits (NOTE: silent video, no audio — generally not what we want)
+**Verified per-clip costs (8s, 16:9, empirical table 2026-05-20):**
+- **Veo 3.1 Fast: ~27 credits** ← default for HVG.1 (audio included by default)
+- **Veo 3.1 Preview (base): ~58 credits** (audio included)
+- **Veo 3.1 Preview (Ultra): ~87 credits** (`--quality ultra` flag on `veo3_1` — `--quality` accepts `basic | high | ultra`)
+- **Veo 3.1 Lite — silent: 8 credits** (no audio — default if `--generate_audio` flag omitted)
+- **Veo 3.1 Lite — with audio: 12 credits** (requires `--generate_audio true` flag — Lite ships silent without it)
 - Seedance 2.0: ~30-40 credits
-- Kling 3.0: ~30-50 credits
+- Kling 3.0: 10 cr (5s std) / 20 cr (10s std) / 25 cr (10s pro)
 
 ## Step 3 — Image size validation (defensive)
 
@@ -117,44 +123,97 @@ fi
 
 Tell the editor if you auto-resized so they know which file got uploaded.
 
-## Step 4 — Fire generations in waves (CLI in parallel)
+## Step 4 — Fire generations (Python ThreadPool + pre-uploaded UUIDs)
 
-**Critical: Higgsfield Team plan caps at 16 concurrent jobs.** Fire in waves of **6-7 prompts × `countPerPrompt`** (= 12-14 jobs per wave), wait for the wave to drain, then fire the next.
+**Concurrency model — pre-uploaded UUIDs + `max_workers=8`.** PowerFox Enterprise plan (verify concurrent cap with David — was 16 on Team). Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), most jobs come back empty.
 
-For each prompt in a wave, fire `count` separate `higgsfield generate create` calls in parallel as backgrounded bash processes. Each command blocks until done with `--wait` and writes its JSON result to a temp file:
+**Verified empirical data (2026-05-21):**
+- 16 bash `&` background jobs + file paths → all 16 fail with auth errors ✗
+- 15 ThreadPool workers + file paths (per-job upload) → 65 of 100 jobs return empty output ✗
+- 8 ThreadPool workers + pre-uploaded UUIDs → reliable target ✓
 
-```bash
-mkdir -p /tmp/veo-batch-results
+The old `bash & + wait` wave pattern in earlier versions of this skill is DEPRECATED.
 
-# Build the wave: for each prompt, fire `countPerPrompt` background jobs
-for ENTRY_IDX in 0 1 2 3 4 5; do  # 6 prompts in this wave
-  SLUG="${SLUGS[$ENTRY_IDX]}"
-  PROMPT="${PROMPTS[$ENTRY_IDX]}"
+**Step 4a — Pre-upload the reference image(s), serially, capture UUID(s):**
 
-  for VARIATION in 01 02; do
-    higgsfield generate create veo3_1 \
-      --prompt "$PROMPT" \
-      --image "$IMG" \
-      --aspect_ratio "${ASPECT_RATIO}" \
-      --duration "${DURATION}" \
-      --model "${MODEL_VARIANT}" \
-      --wait --wait-timeout 8m \
-      --json > "/tmp/veo-batch-results/${SLUG}_v${VARIATION}.json" 2>&1 &
-  done
-done
+For HVG.1 manifests, the reference is typically a single character master image (one upload). For multi-ref manifests, dedupe first.
 
-# Wait for all background jobs to finish
-wait
+```python
+import subprocess, json
+
+unique_refs = collect_unique_refs(manifest)  # set of local paths from manifest entries
+ref_uuid_map = {}
+for ref_path in unique_refs:
+    result = subprocess.run(
+        ["higgsfield", "upload", "create", ref_path, "--json"],
+        capture_output=True, text=True, check=True
+    )
+    ref_uuid_map[ref_path] = json.loads(result.stdout)["id"]
 ```
 
-Tunables in the manifest's `generation` block:
-- `mcpModel` → CLI positional arg (e.g. `veo3_1`)
+Uploads run **one at a time** (not in a pool — the auth race exists for uploads too). Pre-upload is cheap (~1-3s per file) and only once per unique ref. Image preflight (Step 3) produces the resized files; pre-upload those resized versions, not the originals.
+
+**Step 4b — Fire the batch via Python ThreadPool with `max_workers=8`, passing UUIDs:**
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import subprocess, os
+
+os.makedirs("/tmp/veo-batch-results", exist_ok=True)
+
+def fire_one(entry, variation, ref_uuid_map, mcp_model, model_flag, aspect_ratio, duration, generate_audio, quality):
+    prompt = f"Veo video prompt: {entry['fullPrompt']}"  # leading-{ prefix workaround for JSON masters
+
+    cmd = [
+        "higgsfield", "generate", "create", mcp_model,
+        "--prompt", prompt,
+        "--image", ref_uuid_map[entry["ref_path"]],  # UUID, not local path
+        "--aspect_ratio", aspect_ratio,
+        "--duration", str(duration),
+        "--wait", "--wait-timeout", "8m",
+        "--json",
+    ]
+    if model_flag:                  # e.g. "veo-3-1-fast"
+        cmd.extend(["--model", model_flag])
+    if generate_audio:              # Lite-with-audio fires only
+        cmd.extend(["--generate_audio", "true"])
+    if quality:                     # Preview Ultra fires
+        cmd.extend(["--quality", quality])
+
+    out_path = f"/tmp/veo-batch-results/{entry['slug']}_v{variation}.json"
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=540)
+    with open(out_path, "w") as f:
+        f.write(result.stdout)
+    return (entry["slug"], variation, result.returncode)
+
+all_jobs = [(entry, v) for entry in manifest_entries for v in ("01", "02")]
+with ThreadPoolExecutor(max_workers=8) as ex:
+    futs = {
+        ex.submit(fire_one, entry, v, ref_uuid_map, MCP_MODEL, MODEL_FLAG, ASPECT_RATIO, DURATION, GENERATE_AUDIO, QUALITY): (entry, v)
+        for entry, v in all_jobs
+    }
+    for fut in as_completed(futs):
+        entry, v = futs[fut]
+        result = fut.result()
+        # progress log or report
+```
+
+**Manifest tunables → CLI flags:**
+- `mcpModel` → CLI positional arg (e.g. `veo3_1`, `veo3_1_lite`)
 - `mcpParams.model` → `--model <variant>` flag (e.g. `--model veo-3-1-fast`)
-- Other `mcpParams` keys → `--<key> <value>` flags (e.g. `--quality high`, `--resolution 720p`)
+- `mcpParams.quality` → `--quality <basic|high|ultra>` flag (Preview Ultra runs only)
+- `mcpParams.generate_audio` → `--generate_audio true` (Lite-with-audio runs only)
+- Other `mcpParams` keys → `--<key> <value>` flags
 - `aspectRatio` → `--aspect_ratio`
 - `duration` → `--duration`
 
-**Do NOT pass `--quality` or `--model` if `mcpParams` is empty** — the CLI uses model defaults.
+**Do NOT pass `--quality`, `--model`, or `--generate_audio` if `mcpParams` doesn't include them** — the CLI uses model defaults. `veo3_1_lite` without `--generate_audio true` ships silent; `veo3_1_lite` with the flag ships at the audio rate (12 cr vs 8 cr).
+
+**Self-check before firing:**
+1. Are any `--image` flags pointing at local file paths? → Pre-upload first and swap to UUIDs.
+2. Is `max_workers` ≤ 8? → If higher, lower it.
+3. Is the model `veo3_1_lite` AND the manifest specifies audio? → Add `--generate_audio true`.
+4. Is the manifest spec'ing Preview Ultra? → Add `--quality ultra`.
 
 ### Per-prompt construction
 
@@ -177,7 +236,7 @@ If `fullPrompt` contains literal newlines or quote characters, escape them prope
 - **Image upload failure**: CLI returns an error before the gen starts. Auto-resize the image and retry.
 - **Rate limit hit**: 16-concurrent cap exceeded. Wait 60s, retry the failed jobs.
 - **NSFW false positive**: Veo's safety filter is stochastic on certain character archetypes (~20-30% rate on bald/turtleneck "Chad" silhouettes). Failed jobs return `status: "failed"` with no `result_url`. Just re-fire the same prompt + ref. Add `"NOT a real person, NOT a celebrity, NOT a public figure - entirely fictional original character"` to the character description if persistent.
-- **Silent audio (Veo 3.1 Lite only)**: Lite is a silent-video model. If editor used Lite in HVG.1, the clips will have no audio. Suggest re-running with Fast.
+- **Silent audio (Veo 3.1 Lite without `--generate_audio true`)**: Lite ships silent by default. If the manifest specs `veo3_1_lite` but the editor expected dialogue audio, the fire either needs the `--generate_audio true` flag added (12 cr/clip instead of 8 cr/clip silent) OR the model escalated to Fast (~27 cr/clip, audio by default). Confirm with the editor before re-firing.
 
 ## Step 5 — Download results
 
@@ -238,6 +297,6 @@ If you're going slower than this, audit which step ate the time. Most common cul
 
 - HVG.1 webapp: produces the handoff `.md` + manifest JSON this skill consumes
 - `higgsfield-generate`: official Higgsfield-built skill for one-off generations via CLI
-- `higgsfield-image-generation`: parallel skill for Higgsfield image gens (b-roll, character masters) via MCP
+- `higgsfield-image-generation`: parallel skill for Higgsfield image gens (b-roll, character masters) — CLI-driven, same `higgsfield generate create` pattern
 - Project memory: `project_pfm_podcast_story_workflow.md` for full pipeline context
 - Memory: `feedback_higgsfield_workflow.md` for download/save conventions, rate limits, NSFW retry pattern

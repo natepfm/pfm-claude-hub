@@ -1,11 +1,32 @@
 ---
 name: higgsfield-image-generation
-description: Drive image generation through the Higgsfield MCP end-to-end — upload reference images, fire generations, poll for completion, and download results into the user's project folder. Use this whenever the user asks Claude to generate images directly via Higgsfield (rather than just write prompts to copy-paste), wants to fire off Nano Banana / Nano Banana Pro / NB Pro generations, asks for camera-roll b-roll for an ad, references the Higgsfield platform, or has the Higgsfield MCP tools available and wants Claude to actually run image generation rather than describe one. Triggers especially on requests like "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation work where the Higgsfield MCP is the obvious tool. Pair with the iphone-cameraroll-prompting skill when the output should look like real phone snaps rather than studio shots.
+description: Drive Higgsfield image generation end-to-end via the Higgsfield CLI (`higgsfield generate create`) — fire generations, parse result URLs, download into the user's project folder with PFM filename conventions. CLI-only firing; the Higgsfield MCP `generate_image` tool is FORBIDDEN for actual gens (MCP is read-only inspection only — balance, transactions, models_explore, workspace). Use this whenever the user wants Claude to actually generate Higgsfield images (rather than just write prompts to copy-paste), wants to fire Nano Banana / Nano Banana Pro / NB Pro generations, asks for camera-roll b-roll, references the Higgsfield platform, or wants Claude to run image generation rather than describe one. Triggers especially on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation work. Pair with the iphone-cameraroll-prompting skill when the output should look like real phone snaps rather than studio shots.
 ---
 
-# Higgsfield Image Generation
+# Higgsfield Image Generation (CLI-driven)
 
-This skill drives the Higgsfield MCP to actually generate images, not just write prompts. If the user wants prompts they can copy-paste themselves into the Higgsfield UI, write the prompts and stop — this skill doesn't apply.
+This skill drives the Higgsfield **CLI** to actually generate images, not just write prompts. If the user wants prompts they can copy-paste themselves into the Higgsfield UI, write the prompts and stop — this skill doesn't apply.
+
+## 🛑 CLI ONLY — MCP is forbidden for firing gens
+
+**The firing tool is always `higgsfield generate create`.** Locked 2026-05-19, re-locked 2026-05-21. See memory `feedback_higgsfield_workflow.md`.
+
+Reasons:
+1. **MCP is ~10× slower.** 4 NB Pro masters via MCP took ~9 min wall clock (presigned upload → curl → confirm → generate → poll → poll again → download). CLI does the same in one command per gen with `--image ./path.png --wait --json`.
+2. **MCP filters break Veo** (relevant for the sibling video skill, but the same architectural pattern applies — never trust the MCP for firing).
+3. **Sam's automation thesis** is to never touch the Higgsfield UI and never manual-wait between steps. CLI delivers that end-to-end.
+
+**Forbidden MCP tools** (for actual gens — DO NOT call these):
+- `mcp__*generate_image` — use the CLI
+- `mcp__*media_upload` + `mcp__*media_confirm` — CLI's `--image ./local.png` auto-uploads
+- `mcp__*job_display` polling — `--wait` blocks until complete
+
+**Allowed MCP tools** (read-only inspection — fine to call):
+- `mcp__*balance` — credit check
+- `mcp__*transactions` — cost reporting (per `feedback_higgsfield_cost_reporting`)
+- `mcp__*models_explore` — model parameter discovery
+- `mcp__*list_workspaces` / `mcp__*select_workspace` — workspace state
+- `mcp__*show_generations` / `mcp__*show_medias` / `mcp__*show_characters` — inspect prior work
 
 ## 🛑 PFM CONVENTIONS — non-negotiable before firing
 
@@ -27,22 +48,13 @@ Quick rules to self-impose every time:
 
 Full convention list lives in `~/.claude/skills/hig-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
 
-The Higgsfield MCP tools are namespaced `mcp__8e9e70fb-f82a-467f-bde0-e9daaeb5b439__*`. Key tools you'll use:
-
-- `models_explore` — browse and recommend models
-- `balance` — check credits
-- `media_upload` — get presigned URLs to upload reference images
-- `media_confirm` — finalize uploads after curl
-- `generate_image` — fire generations
-- `job_display` — poll for completion and get result URLs
-
-For prompt craft (what to actually write in the `prompt` field), use the **iphone-cameraroll-prompting** skill alongside this one.
+For prompt craft (what to actually write in the prompt body), use the **iphone-cameraroll-prompting** skill alongside this one.
 
 ## Model lineup (the names are confusing)
 
-The Higgsfield UI uses friendly names that don't match the MCP model IDs. This trips people up regularly:
+The Higgsfield UI uses friendly names that don't match the CLI model IDs. This trips people up regularly:
 
-| Higgsfield UI name | MCP `model` id | When to use |
+| Higgsfield UI name | CLI model id | When to use |
 |---|---|---|
 | Nano Banana Pro | `nano_banana_2` | Default for ad b-roll. Highest quality, 4K capable, best text rendering. |
 | Nano Banana 2 | `nano_banana_flash` | Fast variant, lower quality. Use only when explicitly asked. |
@@ -50,134 +62,175 @@ The Higgsfield UI uses friendly names that don't match the MCP model IDs. This t
 | Soul Cast | `soul_cast` | Higgsfield's character-consistency specialist. Worth trying for character-locked work. |
 | Soul 2 | `soul_2` | UGC-style realism. Good for portraits, fashion. |
 
-**When the user says "NB2" or "Nano Banana 2" in conversation**, verify which they mean — many people use "NB2" loosely for whichever Nano Banana they're using. Default to `nano_banana_2` for podcast story ad b-roll unless they correct you.
+**When the user says "NB2" or "Nano Banana 2"** in conversation, verify which they mean — many people use "NB2" loosely. Default to `nano_banana_2` for podcast story ad b-roll unless they correct you.
+
+If you're unsure about a model's CLI flags or params, call the read-only MCP `models_explore` tool to inspect — that's the one MCP call still allowed here.
 
 ## Cost reality (verified empirically)
 
 At `nano_banana_2`:
-- **1k resolution: ~2 credits per generation**
+- **1k resolution: ~2 credits per generation** (per result; count=2 → 4 credits/pair)
 - **2k resolution: ~4-5 credits per generation**
-- 4k: untested, presumably more
+- 4k: more expensive, untested at scale
 
-For camera-roll-style content, 1k is plenty — real iPhone snaps aren't pin-sharp. **Default to `params: {resolution: "1k"}`** unless the output is for hero placement that needs to hold up at high crops.
+For camera-roll-style content, 1k is plenty — real iPhone snaps aren't pin-sharp. **Default to `--resolution 1k`** unless the output is for hero placement that needs to hold up at high crops.
 
-Always check `balance` at the start of a session and again after big batches so you can keep the user informed about runway.
+Always check `mcp__*balance` at the start of a session and again after big batches so you can keep the user informed about runway. (The CLI also reports balance via `higgsfield account status` — either works.)
 
-## The full workflow
+## The CLI workflow
 
-### Step 1: Plan the upload
-
-Identify the reference images you'll need. For a typical ad b-roll generation, that's:
-- A character master (e.g., the protagonist solo, the couple, the family)
-- A shirt or wardrobe item to put on the character
-- Optionally, a prior generation as a reference for character continuity (see "Image-as-reference trick" below)
-
-Don't re-upload images that are already uploaded in this session. Track media IDs as you go — keep a mental ledger so you can reuse them.
-
-### Step 2: Upload via presigned URL
-
-```
-mcp__8e9e70fb-f82a-467f-bde0-e9daaeb5b439__media_upload({
-  method: "upload_url",
-  files: [
-    {filename: "ref-name.png", content_type: "image/png"},
-    ...
-  ]
-})
-```
-
-Returns an array of `{upload_url, media_id, ...}`. Then run a Bash command with parallel curls to actually push the files up:
+### Step 1: Confirm workspace + balance
 
 ```bash
-curl -X PUT -H "Content-Type: image/png" \
-  --data-binary @"/full/path/to/ref.png" \
-  '<presigned_url>' \
-  -w "Name: %{http_code}\n" -s -o /dev/null &
-# ...more curls...
+higgsfield account status
+```
+
+Verify:
+- `Workspace: PowerFox Enterprise` (UUID `e7479d4c-0d59-4be5-9057-abce9fe30f39`) — NOT "No workspace selected". If drift detected, run `higgsfield workspace set e7479d4c-0d59-4be5-9057-abce9fe30f39` first.
+- Balance has runway for the planned batch.
+
+### Step 2: Pre-upload reference images (only if firing in parallel)
+
+**Single fire:** skip — pass `--image ./local.png` directly; the CLI auto-uploads inline.
+
+**Parallel batch (>4 fires)** with reference images: pre-upload each unique ref ONCE serially, capture UUIDs, then pass UUIDs (not local paths) into the parallel fires. This avoids the concurrent-auth race documented in `feedback_higgsfield_cli_concurrency_race.md`.
+
+```bash
+# Pre-upload once per unique ref:
+higgsfield upload create "Reference/Chad - Master.png" --json | jq -r '.id'
+# → "70b6e9b2-90c3-4703-84e8-570b99a1884c"
+```
+
+Track UUIDs in a dict keyed by ref filename. Re-use across the batch.
+
+### Step 3: Fire the gen via CLI
+
+**Single-fire (image-to-image with one ref):**
+
+```bash
+higgsfield generate create nano_banana_2 \
+  --prompt "<full prompt text with PFM conventions baked in>" \
+  --image ./Elements/Footage/Reference/Chad/Chad-Master.png \
+  --aspect-ratio 9:16 \
+  --resolution 1k \
+  --count 2 \
+  --wait --json
+```
+
+**Multi-ref:** pass multiple `--image` flags (or pre-uploaded UUIDs):
+
+```bash
+higgsfield generate create nano_banana_2 \
+  --prompt "..." \
+  --image <chad_master_uuid> \
+  --image <shirt_uuid> \
+  --aspect-ratio 9:16 \
+  --resolution 1k \
+  --count 2 \
+  --wait --json
+```
+
+**Key flags:**
+- `--wait` — blocks until complete. No separate polling step needed (THIS is the big CLI win over MCP).
+- `--json` — emits machine-readable result with rawUrls so you can `jq` out the download URLs.
+- `--count 2` — produces 2 variants per fire. Default for PFM b-roll so editor has a pick.
+- `--aspect-ratio 9:16` — vertical for camera-roll style. Use `4:3` for landscape phone shots, `1:1` for square, `16:9` for landscape video frame.
+- `--resolution 1k` — default. Bump to `2k` only for hero placements.
+
+### Step 4: Parse result URLs from JSON
+
+For `nano_banana_2`, completed jobs return `.results[].rawUrl`. Use `jq` to extract:
+
+```bash
+echo "$JSON" | jq -r '.results[].rawUrl'
+```
+
+Save the rawUrls — they expire after a window (CloudFront-signed).
+
+### Step 5: Download directly into the project folder
+
+```bash
+cd "/path/to/project/Elements/Footage/Primary/B-Roll Photos"
+curl -sSL "<rawUrl1>" -o "L14_dad_register_v01_a3f2.png" -w "v01: %{http_code}\n" &
+curl -sSL "<rawUrl2>" -o "L14_dad_register_v02_b7c1.png" -w "v02: %{http_code}\n" &
 wait
 ```
 
-**Gotchas:**
-- File paths with spaces must be double-quoted in the curl command. Always.
-- Use `&` for parallel uploads, end the block with `wait` so the Bash call doesn't return until all uploads finish.
-- Verify HTTP 200 on every curl. Anything else means the upload failed and the media_id won't resolve later.
+**Filename pattern for podcast story ad b-roll:** `LXX_short_description_vNN_<HEX>.png` (e.g. `L14_insurance_app_v01_a3f2.png`).
 
-After the curls succeed, call `media_confirm` with the `media_ids` array. The media is now usable in `generate_image`.
-
-### Step 3: Fire the generation
-
-```
-mcp__8e9e70fb-f82a-467f-bde0-e9daaeb5b439__generate_image({
-  model: "nano_banana_2",
-  prompt: "...",
-  aspect_ratio: "9:16",  // 9:16 vertical for camera-roll, 4:3 horizontal for landscape phone shots
-  count: 2,  // 1 or 2 — count=2 occasionally returns only 1 result silently
-  medias: [
-    {value: "<media_id_or_prior_job_id>", role: "image"},
-    {value: "<another_media_id>", role: "image"}
-  ],
-  params: {
-    resolution: "1k"
-  }
-})
-```
-
-**Legacy nested params shape:** the `params.params.resolution` nesting looks redundant but it's the shape the MCP accepts. The response will include `adjustments.params.resolution` confirming the resolution was honored.
-
-Returns an array of jobs with `id` and `status: "pending"`. Save those IDs immediately — you'll need them for polling.
-
-### Step 4: Poll (don't spam)
-
-Wait 20-25 seconds, then call `job_display` with the job IDs. NB Pro typically completes in 30-90 seconds. Don't poll more often than every ~20s — the platform docs say not to spam-poll.
-
-```
-mcp__8e9e70fb-f82a-467f-bde0-e9daaeb5b439__job_display({
-  ids: ["job-uuid-1", "job-uuid-2"]
-})
-```
-
-A completed job has `status: "completed"` and a `results.rawUrl` pointing at the full-resolution PNG.
-
-**Sleep blocking gotcha:** Claude Code's Bash tool blocks `sleep N` for N >= 25, and blocks chained shorter sleeps. Use `sleep 20` standalone between polls. If you genuinely need longer waits, the Monitor tool with an `until` loop is the technically correct alternative, but it's rarely worth the setup for short polls — just call `job_display` again after another `sleep 20`.
-
-### Step 5: Handle stuck and lost jobs
-
-Two common failure modes worth knowing about:
-
-**Stuck jobs:** It's common for one job in a `count: 2` call to hang in `in_progress` for 3-5 minutes while the other completes normally. The stuck one usually completes eventually. Don't poll it more than every 30s.
-
-**Silently lost jobs:** Sometimes a `count: 2` call returns only one job ID in the response. The second was never queued. You'll only notice when you can't poll for the second variation because it doesn't exist.
-
-If a job is stuck past ~3 minutes with no progress, or if you got back fewer job IDs than you asked for, fire a `count: 1` backup with the same prompt and references. Don't worry the user about this — it's a quirk of the platform. Quietly handle it and proceed.
-
-### Step 6: Download results
-
-`results.rawUrl` is a CloudFront URL serving the full PNG. Use Bash + curl to download into the user's project folder, parallel where possible:
-
-```bash
-cd "/path/to/project/B-Roll Photos"
-curl -sSL "<rawUrl1>" -o "L14-Description-v1.png" -w "L14-v1: %{http_code}\n" &
-curl -sSL "<rawUrl2>" -o "L14-Description-v2.png" -w "L14-v2: %{http_code}\n" &
-wait
-```
-
-**Filename pattern for podcast story ad b-roll:** `LXX_short_description_vNN_<HEX>.png` (e.g. `L14_insurance_app_v01_a3f2.png`). Breakdown:
+Breakdown:
 - `LXX` — script line tag so editors can grep by line later.
 - `_short_description_` — human-readable scene slug.
-- `_vNN` — take number (`v01`, `v02`, etc). If a line gets re-fired, increment (`v03`, `v04`) so prior versions aren't overwritten.
-- `_<HEX>` — **required** unique 4-char lowercase hex tag (e.g. `a3f2`, `b7c1`, `9eee`) immediately before `.png`. **Every file in the same folder must have a unique hash.** This is non-optional.
+- `_vNN` — take number (`v01`, `v02`). If a line gets re-fired, increment (`v03`, `v04`) — NEVER overwrite (`feedback_regen_no_overwrite`).
+- `_<HEX>` — **required** unique 4-char lowercase hex tag (e.g. `a3f2`, `b7c1`, `9eee`) immediately before `.png`. **Every file in the folder must have a unique hash.** Non-optional — see `feedback_broll_filename_unique_hash`.
 
-**Why the hash matters:** DaVinci Resolve (Sam's editor) auto-groups files in the Media Pool when their filenames are identical except for a sequential number. Without the trailing hash, `L01_dad_register_v01.png` and `L01_dad_register_v02.png` get stacked into a single unusable "image sequence" clip. The unique trailing hex tag breaks the pattern so each file imports as an individual still. See memory `feedback_broll_filename_unique_hash.md` for the full rule.
+**Why the hash matters:** DaVinci Resolve auto-groups files in the Media Pool when their filenames are identical except for a sequential number. Without the trailing hash, `L01_dad_v01.png` and `L01_dad_v02.png` get stacked into a single unusable "image sequence" clip. The hex tag breaks the pattern.
 
-**How to generate the hash during firing:** in the Python download script, track a set of used tags this session and append a random 4-char tag from `[0-9a-f]` to each file's name before `.png`. Skip files that already match the `_[a-f0-9]{4}\.png$` pattern (idempotent — won't double-tag on re-runs).
+**Generate the hash** by picking a random 4-char string from `[0-9a-f]`, skipping any tag already used this session.
 
-**Videos are exempt.** This rule applies to `.png` (and other still-image) downloads only. `.mp4` Veo clips keep their plain `_v01/_v02.mp4` versioning — Resolve doesn't auto-group video files the same way.
+**Videos are exempt.** This rule applies to `.png` (and other still-image) downloads only. `.mp4` Veo clips keep their plain `_v01.mp4` / `_v02.mp4` versioning.
+
+### Step 6: Verify and report
+
+```bash
+ls -la /path/to/project/Elements/Footage/Primary/B-Roll\ Photos/ | grep "L14"
+```
+
+Confirm file count matches expected (count × number of fires). Report to user:
+- Filenames saved
+- Final balance (CLI: `higgsfield account status`)
+- Any silent losses (stuck or missing jobs — see below)
+
+## Parallel batch firing (multiple shots)
+
+For batches of 5+ gens, use Python `ThreadPoolExecutor` with `max_workers=8` and pre-uploaded UUIDs. Bash `&`+`wait` past ~10 jobs breaks down on the credential-store race documented in `feedback_higgsfield_cli_concurrency_race.md`.
+
+Skeleton (adapt to actual job shape):
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import subprocess, json
+
+def fire_one(job):
+    cmd = [
+        "higgsfield", "generate", "create", "nano_banana_2",
+        "--prompt", job["prompt"],
+        "--image", job["ref_uuid"],                # UUID, not local path
+        "--aspect-ratio", "9:16",
+        "--resolution", "1k",
+        "--count", "2",
+        "--wait", "--wait-timeout", "5m", "--json",
+    ]
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
+
+with ThreadPoolExecutor(max_workers=8) as ex:
+    futs = {ex.submit(fire_one, j): j for j in jobs}
+    for fut in futs:
+        result = fut.result()
+        parsed = json.loads(result.stdout) if result.returncode == 0 else None
+        # ... extract rawUrls, queue downloads
+```
+
+**Self-check before any concurrent CLI fire:**
+1. Are any `--image` flags pointing at local file paths? → If yes, pre-upload first and swap to UUIDs.
+2. Is `max_workers` ≤ 8? → If higher, lower it.
+3. Are you using Python ThreadPool or bash `& + wait`? → ThreadPool past 8 jobs.
+
+## Handling stuck and lost jobs
+
+Two failure modes worth knowing about even with `--wait`:
+
+**Stuck jobs:** A `--count 2` fire occasionally returns with one variant in `completed` and one in `in_progress` after the wait window. Re-fire a `--count 1` with the same prompt for the missing variant. Save as `_v03`.
+
+**Silent partial results:** Sometimes only one rawUrl shows up in `.results[]` when count=2. Same recovery — fire a single-count backup.
+
+Don't worry the user about this — it's a quirk of the platform. Quietly handle it and proceed.
 
 ## Image-as-reference trick for character AND setting continuity
 
-When the same element — a recurring guest character OR a recurring setting — needs to appear consistently across multiple shots, describing it by text alone is unreliable. Identities drift, kitchens get redrawn, parking lots come out as different parking lots. The model is doing a fresh interpretation each generation.
+When the same element — a recurring guest character OR a recurring setting — needs to appear consistently across multiple shots, describing it by text alone is unreliable. Identities drift, kitchens get redrawn, parking lots come out as different parking lots.
 
-**The fix:** pass a prior generation (or any project shot containing the element) as a `medias` reference for the next shot. The model treats it as a lock and preserves whatever you point it at.
+**The fix:** pass a prior generation (or any project shot containing the element) as a `--image` reference for the next shot. The model treats it as a lock and preserves whatever you point it at.
 
 ### For recurring guest characters
 
@@ -186,53 +239,36 @@ E.g., the wife when only the couple master exists, the son, "the Asian guy in th
 Workflow:
 1. Generate the first shot using whatever refs you have (character masters + shirts)
 2. Once you have a result you like, download it
-3. For the second shot, upload that downloaded image as a new reference (it counts as a normal media_id after upload + confirm)
-4. In the prompt: "the same [character description] from reference image 1, just at a different angle / different moment / different framing"
+3. For the second shot, upload the downloaded image (via the pre-upload step above) and pass the new UUID as `--image` for the next fire
+4. In the prompt: "the same [character description] from the reference image, just at a different angle / different moment / different framing"
 
 Dramatically more reliable than re-describing a recurring character by text. Especially valuable for one-off characters introduced mid-script (the hardware-store guy, the neighbor with a dog, the woman in the next car at a red light) where you don't have a dedicated character master.
 
-You can pass a prior generation's `id` (the job_id) directly in the `medias` array as `value` — no need to re-download and re-upload. But for clarity and persistence across sessions, downloading and uploading as a new ref is more durable.
-
 ### For recurring settings
 
-E.g., the protagonist's kitchen, his driveway, the hardware-store parking lot, the inside of his truck cab. The model invents a new variation of any room or location on every generation if you only describe it in prose, even with detailed prompt language.
+E.g., the protagonist's kitchen, his driveway, the hardware-store parking lot, the inside of his truck cab. The model invents a new variation of any room or location on every generation if you only describe it in prose.
 
-Same workflow as above, just pointing the reference at a setting instead of a person:
+Same workflow, just pointing the reference at a setting:
 1. Pick an existing project shot that shows the setting clearly
-2. Upload it as a media reference (or pass it by job_id if it was a Higgsfield gen)
-3. In the prompt, name what the reference is for: *"Same exact kitchen as reference image 3 — preserve the kitchen environment precisely. Use reference image 3 ONLY for the kitchen environment, not for pose or expression."*
+2. Upload it via `higgsfield upload create` and capture its UUID
+3. Pass that UUID as `--image` for shots that need the same setting
+4. In the prompt, name what the reference is for: *"Same exact kitchen as reference image — preserve the kitchen environment precisely. Use the reference ONLY for the kitchen environment, not for pose or expression."*
 
-The "use reference X ONLY for [setting], not [pose/expression]" framing matters. Without it, the model pulls pose, framing, and other elements from the reference and fights what you actually want in the new shot.
+The "use reference X ONLY for [setting], not [pose/expression]" framing matters — without it, the model pulls pose, framing, and other elements from the reference and fights what you actually want in the new shot.
 
 See **iphone-cameraroll-prompting** for more on setting-continuity prompt language.
-
-## Common patterns
-
-### Batch-firing multiple lines
-
-When generating b-roll for multiple script lines (e.g., L14, L15, L16, L18), don't fire them one at a time and wait for each. Fire all the `generate_image` calls back-to-back, then poll `job_display` once with all the IDs. Saves significant wall-clock time and keeps the user from waiting between batches.
-
-### Tracking what's uploaded
-
-Keep a mental ledger of media IDs in the conversation. Re-uploading the same reference wastes a round-trip and an API call. The protagonist character master should be uploaded once at session start; shirts get uploaded as you cycle through them. Couple/family masters get uploaded the first time they're needed.
-
-### Quality vs cost tradeoff
-
-If the user is iterating on a prompt to get the look right, drop to `count: 2` at `1k` for ~4 credits per attempt. Once the prompt is dialed, you can re-run finals at `2k` for ~10 credits per pair if the placement demands it. For most podcast story ad camera-roll content, 1k is fine as the final.
-
-If credits are getting low, drop to `count: 1` for ~2 credits per shot. You lose the safety net of two variations but stretch the runway considerably.
 
 ## Communication patterns
 
 - **Before a big batch**: state how many credits the batch will burn so the user can sanity-check budget.
 - **After a batch**: report new balance.
 - **When something fails silently** (stuck job, failed upload, missing variation): tell the user matter-of-factly and explain the recovery you're doing. Don't catastrophize a single missing image.
-- **When uploading**: list the reference images you're sending up so the user can confirm.
+- **When pre-uploading**: list the reference images and their UUIDs so the user can confirm.
 - **Filename callouts after download**: list the saved filenames so the user can find them in their folder. Don't make them guess.
 
 ## When NOT to use this skill
 
-- The user wants prompts they can copy-paste themselves into the Higgsfield UI. Write the prompts and stop — driving the API is overkill for that.
-- The user is on a different image-generation platform (Veo Flow, Midjourney, Runway, Sora). Different MCPs, different conventions. This skill is Higgsfield-specific.
-- The user wants video generation. There's a separate `generate_video` tool with its own model lineup and parameters — different flow.
-- The Higgsfield MCP tools aren't actually available in the session. Check the deferred-tools list before assuming.
+- The user wants prompts they can copy-paste themselves into the Higgsfield UI. Write the prompts and stop — driving the CLI is overkill for that.
+- The user is on a different image-generation platform (Midjourney, Runway, Sora). This skill is Higgsfield-specific.
+- The user wants video generation. Use `hvg-flow` (gated) or `higgsfield-veo-batch` (manifest-driven) — both also CLI-only.
+- The CLI isn't installed in this session. If `which higgsfield` returns nothing, say so explicitly and ask Sam how to proceed. Do NOT silently fall back to MCP firing.

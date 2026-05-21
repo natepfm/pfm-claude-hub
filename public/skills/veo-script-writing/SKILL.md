@@ -1,11 +1,11 @@
 ---
 name: veo-script-writing
-description: Write or review story ad scripts for Google Veo 3.1. Use whenever the user asks to draft a new Veo script, rebalance an existing script into Veo-ready clips, review a script for Veo compliance, or format dialogue for the PFM Veo Prompt Generator. Triggers on mentions of Veo, Veo 3.1, story ad scripts, state-variable scripts, per-clip line balancing, "Veo-ready," or the PFM Story Ads workflow.
+description: Write or review story ad scripts for Google Veo 3.1. Use whenever the user asks to draft a new Veo script, rebalance an existing script into Veo-ready clips, review a script for Veo compliance, or format dialogue for the PFM `hvg-flow` Excel manifest. Triggers on mentions of Veo, Veo 3.1, story ad scripts, state-variable scripts, per-clip line balancing, "Veo-ready," or the PFM Story Ads workflow.
 ---
 
 # Veo Script Writing — PFM Story Ads
 
-This skill encodes the writing rules Power Fox Media uses for every story ad script that will be generated with Google Veo 3.1. Follow these rules whenever you draft, rebalance, or review a script that will be fed into Veo (directly or via the PFM Veo Prompt Generator).
+This skill encodes the writing rules Power Fox Media uses for every story ad script that will be generated with Google Veo 3.1. Follow these rules whenever you draft, rebalance, or review a script that will be fed into Veo (directly or via the `hvg-flow` skill, which builds the project's Excel manifest of per-clip Veo prompts).
 
 ## Gate 0 — Source check (before any rewriting)
 
@@ -23,18 +23,18 @@ Wait for editor confirmation before proceeding. If they confirm LC handoff, run 
 
 ## Why this skill exists
 
-Veo 3.1 generates one short video clip per prompt. Each clip is capped at 8 seconds. If a script line runs long, the generated clip cuts off mid-sentence. If a line is too short, the clip ends with dead air or awkward pacing. Veo also chokes on two specific formatting habits that are easy to avoid: words in ALL CAPS and em/en dashes. Follow the rules below and every line will drop cleanly into the Veo Prompt Generator and render the way it was intended.
+Veo 3.1 generates one short video clip per prompt. Each clip is capped at 8 seconds. If a script line runs long, the generated clip cuts off mid-sentence. If a line is too short, the clip ends with dead air or awkward pacing. Veo also chokes on two specific formatting habits that are easy to avoid: words in ALL CAPS and em/en dashes. Follow the rules below and every line will drop cleanly into the `hvg-flow` Excel manifest and render the way it was intended.
 
 ## The hard rules
 
 ### Rule 1. Every numbered line fits a 6 to 8 second clip — lean long, never short
 
-Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **15 to 22 words per line**. Hard ceiling: 30 words. Hard floor: 15 words. Lean toward the long side (18-22 words) by default.
+Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **17 to 22 words per line** (sweet spot). Hard ceiling: 30 words. Hard floor: 15 words. Lean toward the long side by default.
 
 Quick math:
 - 6 seconds ≈ 15 to 18 words
-- 7 seconds ≈ 18 to 21 words
-- 8 seconds ≈ 21 to 24 words (target sweet spot)
+- 7 seconds ≈ 18 to 21 words (target sweet spot — comfortable podcast pace)
+- 8 seconds ≈ 21 to 24 words (still in window — lands at clip cap)
 - 9-10 seconds ≈ 24 to 30 words (upper edge — use sparingly, only when the beat really earns it)
 
 **🛑 NEVER produce "punchy 3-4 second beats" — even if the brief mentions them.** PFM does not ship sub-6s Veo clips. If a brief calls for "punchy dramatic beats," interpret that as **emphasis cues to apply within a 6-8s line** (e.g., short clauses inside the line separated by commas or periods for written rhythm — but the line itself is still 15-30 words). NOT as a license to produce 3-4s clips.
@@ -63,9 +63,22 @@ Em dashes (—), en dashes (–), and hyphen-as-pause all confuse Veo's phrasing
 - Bad: `The [METRO] is considered high-risk.`
 - Good: `The [METRO] is considered high risk.`
 
+### Rule 3b. Never name camera devices in the dialogue or scene description
+
+Words like `iPhone`, `phone`, `GoPro`, `DSLR`, `dash cam`, `Ring camera` inside the spoken dialogue or the script's scene description make Veo render that physical device in frame — a phone held up, a GoPro on a chest harness, a literal dashboard camera mounted to the windshield. The aesthetic (vertical phone-snap framing, fisheye GoPro lens, low-res dashcam look) belongs in the Veo prompt's visual block as indirect outcome markers, NOT named devices in the script.
+
+If the script needs to refer to the camera ("our home camera picked it up," "the dash cam caught it"), describe what the camera *saw* in subsequent lines instead, or rewrite the line to leave the device implicit.
+
+- Bad: `I pulled out my iPhone and recorded it.`
+- Good: `I started recording it on my way back to the truck.`
+- Bad: `The GoPro on my helmet caught everything.`
+- Good: `Everything got caught on camera.`
+
+Veo also pulls device-naming cues from negatives — keep those device names in the negative-prompt block of the Veo prompt (per `hvg-flow`), not in the dialogue itself.
+
 ### Rule 4. Isolate state-variable lines on their own number
 
-Any line that contains a `[STATE]`, `[CITY]`, `[ROAD]`, `[STATE_RATE_YEAR]`, or any other token gets its own numbered line, separated from non-state content. This lets the Veo Prompt Generator render it once per state (for example, 5x for a 5-state batch) without re-rendering the unchanged beats. Never mix state tokens and non-state dialogue in the same numbered clip.
+Any line that contains a `[STATE]`, `[CITY]`, `[ROAD]`, `[STATE_RATE_YEAR]`, or any other token gets its own numbered line, separated from non-state content. This lets the `hvg-flow` Excel manifest render it once per state (for example, 5x for a 5-state batch) without re-rendering the unchanged beats. Never mix state tokens and non-state dialogue in the same numbered clip.
 
 > 🛑 **Never append `[STATE LINE]`, `[state lines]`, `[STATE LINES]`, or any similar trailing annotation tag to the end of a line.** The generator already detects state lines by the presence of the actual token (`[STATE]`, `[ROAD]`, `[STATE_RATE_YEAR]`, etc.). Trailing meta-annotations are clutter and must be stripped before delivery. **Run a scan-and-strip pass before handing off the script.** Real placeholder tokens INSIDE the line stay; trailing annotations come out.
 

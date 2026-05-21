@@ -69,14 +69,14 @@ export default function Overview() {
               </div>
             </div>
             <div className="space-y-2 text-sm">
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Interactive, conversational firing</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">One image or clip at a time</span></div>
+              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Read-only inspection of workspace state</span></div>
+              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Balance, transactions, models_explore lookups</span></div>
               <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Built-in via Claude Desktop connectors</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Filters some Veo features (audio, frame-to-video)</span></div>
+              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Filters break Veo (audio, frame-to-video) — not usable for firing</span></div>
             </div>
             <div className="mt-4 pt-3 border-t border-border">
               <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-1">Best for</div>
-              <div className="text-sm text-muted">Single-image exploration, character master gens, quick test variations, anything where the editor wants to iterate visually one shot at a time.</div>
+              <div className="text-sm text-muted">Inspection only — checking credit balance, pulling cost transaction history, discovering model parameters. <strong className="text-text">Not used for firing any image or video gen</strong> — that&apos;s all CLI.</div>
             </div>
           </div>
 
@@ -103,7 +103,7 @@ export default function Overview() {
         </div>
 
         <div className="mt-4 text-xs text-muted italic">
-          PFM uses the CLI for all production runs. MCP is reserved for one-off exploratory work.
+          PFM fires every image and video gen through the CLI — no exceptions. MCP is for read-only inspection (balance, transactions, workspace) only.
         </div>
       </div>
 
@@ -210,7 +210,7 @@ export default function Overview() {
 │   ├── breaking-news-story-ads/           LATU news-wrapper framing
 │   ├── nano-banana-prompting/             NB Pro prompt patterns
 │   ├── iphone-cameraroll-prompting/       Real-phone-snap b-roll aesthetic
-│   ├── higgsfield-image-generation/       MCP-based one-off image driver
+│   ├── higgsfield-image-generation/       CLI-driven one-off image driver
 │   └── higgsfield-veo-batch/              Legacy HVG.1 manifest runner
 ├── context/                             ← Brand briefs per vertical (auto, home, CC)
 ├── settings.json                        ← Claude permission allowlist (46 entries)

@@ -73,9 +73,9 @@ export const skills: Skill[] = [
   },
   {
     name: "higgsfield-image-generation",
-    title: "Higgsfield Image Generation (MCP)",
+    title: "Higgsfield Image Generation (CLI)",
     description:
-      "Fire one-off image generations through the Higgsfield MCP. Upload refs, poll, download into project folder.",
+      "Fire one-off image generations through the Higgsfield CLI. Pre-upload refs to UUIDs, fire via higgsfield generate create, download into project folder. CLI-only — the Higgsfield MCP is forbidden for actual firing (read-only inspection only).",
     worksIn: ["code"],
     category: "image",
   },

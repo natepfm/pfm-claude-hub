@@ -301,6 +301,16 @@ Add a single anti-stock line only if the output is drifting stock on first rende
 
 Do NOT stack 10+ "not a [platform]" negatives. One closing line at most.
 
+## Cross-references (PFM workflows)
+
+This skill is **prompt-craft only** — it writes the prompt text. To actually fire a Nano Banana / NB Pro gen, hand off to one of the PFM execution skills:
+
+- **`higgsfield-image-generation`** — CLI-driven, one-off image fires. Use for exploratory gens, character master creation, social-proof batches outside a Notion project.
+- **`hig-flow`** — gated 9-step PFM pipeline for Notion-request-driven b-roll batches. Use when an editor drops a Notion request URL inside a Lucid Link project folder.
+- **`iphone-cameraroll-prompting`** — sibling prompt-craft skill for camera-roll-aesthetic (real phone snap) images. Use that one instead of this one for character-driven podcast story-ad b-roll where authenticity matters more than polish.
+
+**Firing tool is always the Higgsfield CLI** (`higgsfield generate create nano_banana_2 ...`). The Higgsfield MCP `generate_image` tool is forbidden for actual gens — MCP is read-only inspection only. See memory `feedback_higgsfield_workflow.md`.
+
 ## Source material
 
 - [Google — Prompting tips for Nano Banana Pro](https://blog.google/products-and-platforms/products/gemini/prompting-tips-nano-banana-pro/)
