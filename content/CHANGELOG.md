@@ -6,6 +6,25 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-22
+
+### ffmpeg added to the Mac installer
+`claude-pfm-setup.sh` now installs **ffmpeg** to `~/bin/ffmpeg` as part of the one-shot install. This is what Claude (and skills) use to read video file metadata — duration, dimensions, codec — without needing to open the file in a player. Static binary pulled from evermeet.cx (~80MB, idempotent — re-running the installer skips if `~/bin/ffmpeg` is already present).
+
+On already-set-up editor machines: re-run `claude-pfm-setup.sh` to get ffmpeg. It'll skip everything that's already installed and just add the ffmpeg step. Or run the install snippet directly:
+
+```bash
+mkdir -p ~/bin && cd /tmp && \
+  curl -L -o ffmpeg.zip "https://evermeet.cx/ffmpeg/getrelease/zip" && \
+  unzip -o ffmpeg.zip -d ~/bin/ && \
+  chmod +x ~/bin/ffmpeg && \
+  ~/bin/ffmpeg -version
+```
+
+Windows equivalent pending — `evermeet.cx` is Mac-only. Windows editors should sit tight until the cross-platform path is added.
+
+---
+
 ## 2026-05-21
 
 ### CLI is the default for ALL Higgsfield image and video gens — MCP is read-only inspection only
