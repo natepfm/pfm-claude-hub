@@ -6,6 +6,36 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-25
+
+### New `audio-qc` skill — Veo audio fast-pass + optional Whisper full-pass
+After every Veo batch downloads, you can now run an automatic audio quality check on the clips before importing to DaVinci. Two modes:
+
+- **Fast pass** (~90s for ~350 clips): ffmpeg-based parallel scanner. Flags `silent` / `low_volume` / `cut_off` / `clipped` / `no_audio`. Writes a markdown report straight into the Veo folder. Validated on Car Chase Breaking News B1-B5 — caught L12 (95% cut_off) and L03 (79% cut_off) as systemic script-line-too-long issues, not random takes. The flag table makes the "fix at the script level vs. re-fire individually" call obvious at a glance.
+- **Whisper full pass** (optional, ~10-15s/clip): transcribes each clip with OpenAI Whisper, fuzzy-matches against the Excel manifest's dialogue field. Use when fast pass is clean but you suspect wrong-words / voice drift on a hero clip.
+
+**Auto-offered, not auto-fired.** `hvg-flow` Step 11 and `higgsfield-veo-batch` Step 6 now ask plainly in chat after downloads complete:
+
+> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass?
+> - `yes` (or `fast`) — fast pass
+> - `whisper` — full dialogue verification
+> - `no` (or `skip`) — proceed to final report
+
+The flow is gated like everything else — explicit opt-in.
+
+### Whisper added to the Mac installer (step 6)
+`claude-pfm-setup.sh` now installs OpenAI Whisper alongside ffmpeg, so the audio-qc Whisper full-pass works for every editor out of the box. Install method: `pip3 install --user -U openai-whisper`, then symlink the user-site binary into `~/bin/whisper`. **Slow step** — Whisper has PyTorch dependencies, ~3-5 min on a fresh Mac. Install is wrapped in a try/continue: if it fails, the installer keeps going and the fast-pass audio QC still works (Whisper is the optional escalation, not the daily driver).
+
+Re-run `claude-pfm-setup.sh` on already-set-up machines to pick up Whisper. Idempotent — skips anything already installed.
+
+### settings.json allowlist additions
+- `Bash(python3 *audio-qc/audio_qc_scan.py *)` — no permission prompt on the QC fast-pass invocation
+- `Bash(*bin/whisper *)` — same for Whisper full-pass
+
+Re-run `claude-pfm-update.sh` to pick up the new `audio-qc` skill, the updated `hvg-flow` + `higgsfield-veo-batch` skills, and the refreshed settings.json.
+
+---
+
 ## 2026-05-22
 
 ### ffmpeg added to the Mac installer
