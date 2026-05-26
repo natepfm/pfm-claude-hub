@@ -263,16 +263,20 @@ Quote paths with spaces. Variation number = explicit in the filename loop above.
 
 After all downloads complete and BEFORE summarizing, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion`):
 
-> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / clipped / no_audio in ~90s for ~350 clips.
+> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci? Two phases — ffmpeg audio-physics (silent / clipped / no_audio in ~90s) plus, if the HVG.1 manifest is available with dialogue, Whisper verification against it (~2 min). Total ~3-4 min for a typical 350-clip batch.
 >
 > Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
 
 **Handling each response:**
 - **`yes`** — load `audio-qc` and fire:
   ```bash
+  # If the HVG.1 manifest has a dialogue column, pass it for Whisper Phase 2:
+  python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" \
+    --manifest "<path-to-manifest.xlsx>" --workers 12
+  # Otherwise (HVG.1 doesn't always emit a manifest in this shape) — omit --manifest, Phase 1 only:
   python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
   ```
-  Surface flag counts + hotspots in the report below.
+  Surface flag counts + hotspots + any dialogue_mismatch transcripts in the report below.
 - **`no` / `skip`** — proceed directly to the summary.
 
 Never auto-fire QC without confirmation.

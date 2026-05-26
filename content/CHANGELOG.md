@@ -8,6 +8,22 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### `audio-qc` Phase 2 — Whisper dialogue verification folded back in
+After an M-series speed test showed Whisper transcribes 8s clips in ~0.3s (vs the 10-15s/clip the original handoff doc estimated), we folded the Whisper pass back into the audio-qc scanner as a default phase whenever a project's Excel manifest is available.
+
+**What the scanner now does:**
+- *Phase 1 — ffmpeg audio-physics* (parallel, ~90s per ~350 clips): silent / low_volume / clipped / no_audio flags (unchanged)
+- *Phase 2 — Whisper dialogue verification* (sequential, ~2 min per ~350 clips on M-series): transcribes each clip, fuzzy-matches transcript against the manifest's `dialogue` column, flags `dialogue_mismatch` on similarity below threshold (default 0.70)
+
+Phase 2 catches the **real "audio cut mid-word" cases** that the disabled cut_off heuristic was supposed to but couldn't — if a clip is actually missing trailing words, the transcript won't include them and similarity drops below threshold. Spot-test on 55 L14 clips: 0 dialogue mismatches, 100% match on 49 / >95% on 4 / 77-90% on 4 (the dip is Whisper mistranscribing dollar amounts like "fifteen hundred" as "1500" — not missing words).
+
+**Phase 2 is opt-in via `--manifest`** — `hvg-flow` Step 11 and `higgsfield-veo-batch` Step 6 pass the project's Excel manifest automatically when offering the QC pass. Without a manifest, Phase 1 still runs. Total runtime for a typical 350-clip batch with both phases: ~3-4 min.
+
+### Whisper added to the Mac installer
+`claude-pfm-setup.sh` step 6 installs OpenAI Whisper via pip3 (user install + symlink to `~/bin/whisper`). PyTorch deps make this a ~3-5 min step on a fresh Mac; install is wrapped in try/continue so failures don't abort the rest of the installer (Phase 1 of audio-qc still works without Whisper).
+
+Re-run `claude-pfm-setup.sh` on already-set-up machines to pick up Whisper. Idempotent — skips what's already installed.
+
 ### Canva connector — lower thirds graphics on demand
 The **Canva** connector is now part of the standard editor onboarding (Setup step 3). PFM uses a **single shared Canva account** — Sam will share the credentials separately, not via the hub.
 

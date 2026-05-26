@@ -1,11 +1,11 @@
 ---
 name: audio-qc
-description: PFM's audio quality check skill for Veo-generated mp4 clips. ffmpeg-based parallel scanner that flags silent / low_volume / clipped / no_audio clips in ~90s for ~350 clips and writes a markdown report into the Veo folder. Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
+description: PFM's audio quality check skill for Veo-generated mp4 clips. Two-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
 ---
 
 # Audio QC — PFM
 
-Fast audio quality check for Veo-generated mp4 clips. Catches silent / clipped / no-audio clips before they hit DaVinci. ffmpeg-based, no external Python deps, ~90s for 350 clips.
+Two-phase quality check for Veo-generated mp4 clips. Catches silent / clipped / no-audio (audio physics) AND wrong-words / voice drift (Whisper transcription) before clips hit DaVinci. Total wall clock ~3-4 min for a typical 350-clip batch on M-series Mac.
 
 ## When to invoke
 
@@ -22,6 +22,8 @@ Don't invoke for:
 
 ## What it checks
 
+### Phase 1 — ffmpeg audio-physics (parallel, ~90s per ~350 clips)
+
 ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 3 active checks run in one ffmpeg pass:
 
 1. Audio stream present?
@@ -30,7 +32,20 @@ ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 3 active chec
 
 (The scanner also measures tail silence in the last 0.5s — left in the report for visibility — but does NOT flag on it. See "What's NOT in this skill" for the rationale.)
 
-**Flag values:**
+### Phase 2 — Whisper dialogue verification (sequential, ~2 min per ~350 clips on M-series)
+
+When the project's Excel manifest is passed via `--manifest <slug>_prompts.xlsx`:
+
+1. Load OpenAI Whisper `base` model (one-time, ~5s)
+2. For each clip whose audio-physics flag is OK (skip silent / no_audio / error):
+   - Transcribe via Whisper (M-series: ~0.3s per 8s clip)
+   - Look up expected dialogue from manifest's `dialogue` column (matched by slug)
+   - Normalize both (strip `[PLACEHOLDER]` tokens, lowercase, strip punctuation)
+   - Compute SequenceMatcher similarity ratio
+   - If similarity < threshold (default 0.70) → escalate flag to `dialogue_mismatch`
+3. Report includes per-clip transcript + expected dialogue for any mismatches
+
+**Flag values (combined):**
 | Flag | Means | Typical cause |
 |---|---|---|
 | `OK` | Passed all checks | — |
@@ -38,22 +53,36 @@ ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 3 active chec
 | `low_volume` | mean_volume between -55 and -35 dB | Quiet performance or muffled audio |
 | `clipped` | max_volume > -0.5 dB | Distortion / harsh peaks (digital 0 dBFS clipping) |
 | `no_audio` | No audio stream | Veo Lite shipped silent (common — known issue) |
-| `error` | ffmpeg failed | Corrupt file or codec issue |
+| `dialogue_mismatch` | Transcript similarity < threshold | Wrong words, mid-syllable cut, voice drift, or Whisper mistranscription of dollar amounts / numbers |
+| `error` | ffmpeg or Whisper failed | Corrupt file, codec issue, or model exception |
 
-**Empirical baseline (2026-05-26 Car Repo scan, cut_off heuristic disabled):**
-- 276/325 OK (85%)
-- 49 clipped (15%) — concentrated on **Steve cinemagraph intros + closes** (L02 "Tonight, this viral video..." = 20 clips, L23 "Wow, just incredible..." = 26 clips). Rachel-narrated lines (L11/L14/L03) are essentially clean (1 each).
-- 0 silent / no_audio in this scan (all clips generated with audio)
+**Empirical baseline (2026-05-26 Car Repo scan):**
+- *Phase 1 only* (cut_off heuristic disabled): 276/325 OK (85%), 49 clipped (15%) — concentrated on **Steve cinemagraph intros + closes** (L02 "Tonight, this viral video..." = 20 clips, L23 "Wow, just incredible..." = 26 clips). Rachel-narrated lines (L11/L14/L03) are essentially clean (1 each).
+- *Phase 2 spot-test* on 55 L14 clips (Car Repo B2-B6): **0 dialogue mismatches**. 100% full-match on 49 clips, >95% on 4, 77-90% on 4 (the dip is Whisper mistranscribing dollar amounts like "fifteen hundred" as "1500" — not missing words). Whisper confirms intact dialogue when audio physics alone can't.
+- Runtime per phase on M-series Mac: ~90s ffmpeg parallel + ~2 min Whisper sequential ≈ 3-4 min total for a 350-clip batch.
 
 The Steve-clipping pattern is a known PFM-specific issue — his hot opens and emphatic closes peak at 0 dBFS. See Recovery patterns below.
 
 ## Full SOP
 
-### Command
+### Command (Phase 1 + Phase 2 — the default for any post-batch QC)
+
+```bash
+python3 ~/.claude/skills/audio-qc/audio_qc_scan.py \
+  "<project>/Elements/Footage/Veo" \
+  --manifest "<project>/Elements/Footage/Veo/<slug>_prompts.xlsx" \
+  --workers 12
+```
+
+Passing `--manifest` activates Phase 2 (Whisper) automatically. The manifest is the same Excel file `hvg-flow` writes at gate 8 / step 11.
+
+### Command (Phase 1 only — when no manifest exists or Whisper isn't installed)
 
 ```bash
 python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
 ```
+
+Omit `--manifest` and only the audio-physics phase runs. Useful for HVG.1 legacy projects without an Excel manifest, or quick spot-checks where dialogue verification isn't needed.
 
 The report writes to `<veo_root>/audio_qc_report_<YYYY-MM-DD>.md` by default. Override with `--out /path/to/report.md`.
 
@@ -61,10 +90,14 @@ The report writes to `<veo_root>/audio_qc_report_<YYYY-MM-DD>.md` by default. Ov
 
 | Flag | When to use |
 |---|---|
-| `--workers 12` | Default. Lower to 4-8 if the machine is busy. |
+| `--manifest <path>` | Enables Phase 2 (Whisper). Path to project's `<slug>_prompts.xlsx`. |
+| `--workers 12` | Default ffmpeg parallelism. Lower to 4-8 if the machine is busy. |
 | `--exclude "Batch 6"` | Skip in-flight batches. Repeatable — pass once per pattern. |
 | `--exclude "_v03"` | Skip re-fires while scanning originals. |
 | `--out <path>` | Custom report destination. |
+| `--whisper-model small` | Bigger model for higher accuracy (default `base`). `tiny` for speed, `small`/`medium`/`large` for accuracy. |
+| `--no-whisper` | Skip Phase 2 even when `--manifest` is passed. |
+| `--dialogue-threshold 0.65` | Lower the similarity threshold for `dialogue_mismatch` (default 0.70). |
 
 ### Reading the report
 
@@ -102,7 +135,10 @@ Example:
 | `clipped` (isolated, 1-3 per line) | Random distortion on one take | Re-fire as v03 |
 | `clipped` (concentrated on hot-open / emphatic-close lines, e.g. Steve "Tonight!"/"Wow!") | Veo audio renderer pushes first-word emphasis to 0 dBFS — content fingerprint, not random | **Best path: normalize in DaVinci on import** — one-pass loudness pass at -3 dB peak ceiling fixes all flagged clips at once. Re-firing rarely helps because the prompt is already as soft-delivery as it can be. Accepting brief peaks at 0 dBFS is also valid — clipping artifacts at that brevity often aren't audible |
 | `low_volume` | Quiet take | Spot-check — may be fine; only re-fire if muddy in context |
-| `error` | Corrupt download | Re-download from the result JSON |
+| `dialogue_mismatch` (isolated, transcript reads close to expected but with a wrong word) | Real wrong-word event — Veo synthesized a different word than the prompt asked for | Spot-check the transcript section of the report; if it really is a wrong-word case, re-fire as v03 |
+| `dialogue_mismatch` (similarity 0.7-0.9, transcript matches but for number/dollar-amount rendering) | Whisper mistranscription of digits — "fifteen hundred" heard as "1500" | Usually a false positive — verify by listening and accept the take. Consider lowering `--dialogue-threshold` for this project if it's frequent |
+| `dialogue_mismatch` (concentrated on one L#) | Either Veo consistently drops a phrase from that line, or the manifest's expected dialogue is out of sync with what was actually fired | Check the manifest vs the script; if script was edited mid-batch, manifest may be stale. Re-fire affected clips only if dialogue is genuinely missing words |
+| `error` | Corrupt download or Whisper exception | Re-download from the result JSON; if Whisper itself errored, re-run the scanner |
 
 ## Common scenarios
 
@@ -153,5 +189,4 @@ After re-firing some failed clips as v03/v04, re-run the scanner. The latest sca
 - Veo cost estimation / preflight (handled by `hvg-flow` Step 9)
 - Re-firing failed clips (Claude does that outside this skill, using the recovery patterns above)
 - DaVinci timeline-level audio checks (different domain — would need a separate skill)
-- Dialogue-content verification — was tested with OpenAI Whisper transcription, decided the fast pass covers PFM's real failure modes and the Whisper pass was overkill for our use case. Not part of the skill.
-- **Cut-off detection (disabled 2026-05-26).** Originally flagged clips with `<50ms silence in the last 0.5s` as "cut mid-word." Disabled after the Car Repo Breaking News scan flagged 150+ false positives: Rachel's continuous narration + breath + ambient fills the full 8s window without leaving any tail silence, but the dialogue is intact. silencedetect can't tell "audio actually cut mid-word" apart from "audio cleanly fills the 8s window with no quiet tail" for PFM's news-read content. Scanner still computes tail-silence-seconds and includes the value in the report for visibility, but the flag is never set. Re-enable only if we find a better signal (e.g., amplitude envelope analysis on the last ~100ms vs the rest of the clip).
+- **Cut-off detection (disabled 2026-05-26).** Originally flagged clips with `<50ms silence in the last 0.5s` as "cut mid-word." Disabled after the Car Repo Breaking News scan flagged 150+ false positives: Rachel's continuous narration + breath + ambient fills the full 8s window without leaving any tail silence, but the dialogue is intact. silencedetect can't tell "audio actually cut mid-word" apart from "audio cleanly fills the 8s window with no quiet tail" for PFM's news-read content. Scanner still computes tail-silence-seconds and includes the value in the report for visibility, but the flag is never set. **Phase 2 Whisper now catches the real "audio cut mid-word" cases** — if a clip is actually missing trailing words, the transcript won't include them and similarity drops below threshold, escalating to `dialogue_mismatch`. That replaces what cut_off was supposed to do.
