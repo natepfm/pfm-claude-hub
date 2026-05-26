@@ -44,7 +44,9 @@ export default function SetupMac() {
       </div>
 
       <div className="my-8">
-        <h3 className="text-xl font-semibold mb-2">3. Higgsfield authentication</h3>
+        <h3 className="text-xl font-semibold mb-2">3. Connect Higgsfield + Canva</h3>
+
+        <h4 className="font-semibold mt-2 mb-2">Higgsfield CLI authentication</h4>
         <p className="text-muted mb-2">
           Sam should have sent you an invite email to the <strong className="text-text">Power Fox Media</strong> Higgsfield workspace. Accept it first. No invite? Ping Sam in Slack.
         </p>
@@ -61,6 +63,20 @@ export default function SetupMac() {
           <li>Click <strong className="text-text">Connect</strong> (or Disconnect + Reconnect if already connected) with your own email</li>
           <li>Restart Claude Desktop (⌘Q + reopen)</li>
         </ol>
+
+        <h4 className="font-semibold mt-4 mb-2">Connect Canva (shared PFM account)</h4>
+        <p className="text-sm text-muted mb-2">
+          Canva is used to generate <strong className="text-text">lower-thirds graphics</strong> for breaking-news creatives (chyrons, person IDs, location tags, the LATU News brand stack). PFM uses a <strong className="text-text">single shared Canva account</strong> — Sam will share the login credentials separately.
+        </p>
+        <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
+          <li>Open <strong className="text-text">Claude Desktop → Settings → Connectors → Canva</strong></li>
+          <li>Click <strong className="text-text">Connect</strong></li>
+          <li>Sign in with the <strong className="text-text">shared PFM Canva credentials</strong> Sam sent you (not your own Canva account)</li>
+          <li>Restart Claude Desktop (⌘Q + reopen)</li>
+        </ol>
+        <p className="text-xs text-muted italic mt-2">
+          Once connected, when you&apos;re in a breaking-news project and the script has chyron specs (`BREAKING NEWS`, `JESSICA MARSH / MOTHER OF THREE`, etc.), Claude can generate the actual lower-thirds graphics in Canva and drop the PNGs into the project folder. Ask Claude to &ldquo;build the lower thirds&rdquo; after the script is locked.
+        </p>
       </div>
 
       <div className="my-8">

@@ -8,6 +8,13 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### Canva connector — lower thirds graphics on demand
+The **Canva** connector is now part of the standard editor onboarding (Setup step 3). PFM uses a **single shared Canva account** — Sam will share the credentials separately, not via the hub.
+
+**What it unlocks:** when you're in a breaking-news project and the script has chyron specs (`BREAKING NEWS`, `JESSICA MARSH / MOTHER OF THREE`, `LIVE — WEST ELMWOOD`, etc.), you can now ask Claude to "build the lower thirds" and it'll generate the actual graphics directly in the shared Canva account using the PFM LATU News brand kit — then drop PNGs into `Elements/Footage/Primary/Lower Thirds/`. No more manually rebuilding chyrons in Canva from a script-side spec.
+
+`breaking-news-story-ads` skill body updated with the full workflow + the LATU News brand style spec.
+
 ### `audio-qc` cut_off heuristic disabled — false-positive on PFM news-read content
 After spot-checking ~150 cut_off-flagged clips from the Car Repo Breaking News scan, every one ended cleanly — the heuristic was a false-alarm machine. Rachel's continuous narration + breath + ambient fills the full 8s window above -35 dB without leaving any tail silence, but the dialogue is intact. The silencedetect-based check couldn't tell "audio actually cut mid-word" apart from "audio cleanly fills the 8s window with no quiet tail."
 

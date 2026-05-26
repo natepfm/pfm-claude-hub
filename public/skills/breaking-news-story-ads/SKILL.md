@@ -468,6 +468,44 @@ Bad (fake urgency + "program" language):
 Good (possibility-framed, news-native):
 > *"Incredible. And if you want to see if you could lower your own rate, we have got a link on our website. Just head to LATU-dot-com."*
 
+## Generating the lower thirds in Canva
+
+When the Canva connector is available in Claude Desktop (`mcp__plugin_marketing_canva__*` tools), Claude can generate the actual lower-thirds graphics from the chyron specs in the script — not just produce the text.
+
+**Workflow:**
+
+1. Script is locked with chyron specs in the video column (ALL CAPS, per Rule 8).
+2. Editor says "build the lower thirds" / "make the chyrons in Canva" / "generate the LATU News graphics" or similar.
+3. Claude lists every distinct chyron in the script and confirms the build list with the editor:
+   > Found 9 chyrons in this script:
+   > - `BREAKING NEWS` (top, opening anchor 2-shot)
+   > - `LOCAL HEROES` (top, opening anchor 2-shot)
+   > - `JESSICA MARSH / MOTHER OF THREE` (lower third, SOT 1)
+   > - `[HERO NAME] / STEPPED IN TO HELP` (lower third, SOT 2)
+   > - `LIVE — [NEIGHBORHOOD]` (corner, reporter live shot)
+   > - `EARLIER TODAY — MAPLE STREET` (corner, b-roll)
+   > - `[HERO NAME] / MORTGAGE BROKER` (lower third, after Hero reveal)
+   > - `LATU.COM/RATECHECK` (anchor tag CTA)
+   >
+   > Build all in Canva, or a subset?
+4. On editor approval, Claude fires the Canva MCP to create each graphic using PFM's LATU News brand style.
+5. Output saves to `Elements/Footage/Primary/Lower Thirds/` (creates folder if needed) with deterministic filenames like `LT_jessica_marsh_mother_of_three.png`.
+
+**LATU News brand style (Canva spec):**
+- **Top banner / breaking news bar:** red background, bold sans-serif white text, LATU logo on the right edge
+- **Lower thirds (person IDs):** white text on a dark navy bar, two-line stack (NAME on line 1, ROLE on line 2), accent stripe on the left edge
+- **Location tags:** smaller, semi-transparent gray bar in the corner, white text
+- **CTA tag (anchor close):** matches the lower-thirds style but with the URL framed as a "tap to learn more" prompt
+
+Canva brand kit assets (logos, fonts, colors) live in the shared PFM Canva account. Claude can pull them via the Canva MCP when generating each graphic — no need for the editor to upload anything per-project.
+
+**Constraints (same as the in-script chyron rules):**
+- ❌ Hero Wife's chyron is NEVER `INSURANCE AGENT` — always `MORTGAGE BROKER` (Home), `DEALERSHIP ASST. MANAGER` (Auto), `FINANCIAL ADVISOR` (Loans). See Rule 8 for the full compliance stack.
+- ❌ No government-implying chyrons (`STATE PROGRAM ANNOUNCED` etc.)
+- ❌ Don't generate the Hero's profession-reveal chyron under the opening banner — start with neutral `LOCAL HEROES` and swap in the profession chyron only at the dialogue beat where it's revealed.
+
+**When Canva is not connected:** the skill produces chyron specs in the script as ALL CAPS text (per Rule 8), and the editor builds the graphics manually in Canva or DaVinci's title generator. The script-side spec is the canonical source either way.
+
 ## Integration with the Veo Script Writing skill
 
 This skill produces the **content** of a news-wrapped ad. When the script moves into Veo production, the Veo Script Writing rules still apply on top:
