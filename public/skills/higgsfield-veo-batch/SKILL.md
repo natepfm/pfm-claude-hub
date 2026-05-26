@@ -294,6 +294,26 @@ After all downloads complete and BEFORE summarizing, surface the QC offer to the
 
 Never auto-fire QC without confirmation.
 
+### Visual QC offer (optional)
+
+After audio QC runs (or was declined), surface the visual QC offer in **plain markdown chat**:
+
+> Visual QC catches what audio can't see — background morphs / slide text garble / hallucinated overlays / hard cuts. ~10-15 min for ~350 clips (filmstrip extraction ~2-3 min, then I review each — heavier than audio QC). Best for VSL-style projects with per-line slide refs; podcast-style with one shared ref rarely needs it.
+>
+> Reply `yes` (no caption-slide focus), `yes L02,L17,L19` (with caption-slide L-numbers for full-res text inspection), `no` / `skip`.
+
+**Handling each response:**
+- **`yes` (with or without L-list)** — load `visual-qc` and fire:
+  ```bash
+  python3 ~/.claude/skills/visual-qc/visual_qc_scan.py "<project>/Elements/Footage/Veo" \
+    --caption-clips L02,L17,L19 \
+    --workers 8
+  ```
+  Omit `--caption-clips` if editor didn't specify any. After filmstrips extract, walk the index JSON, Read each filmstrip (+ caption full-res frames for caption-slide clips), apply pass/fail criteria from `visual-qc/SKILL.md`, and surface ✗ + 🔍 VERIFY counts in the summary below.
+- **`no` / `skip`** — proceed to the summary.
+
+Never auto-fire visual QC without confirmation.
+
 ### Final report
 
 When all downloads complete (and QC has run or been declined), summarize:

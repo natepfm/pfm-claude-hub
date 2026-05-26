@@ -799,6 +799,26 @@ After the manifest is rewritten and BEFORE the final report, surface the QC offe
 
 **Never auto-fire QC without explicit confirmation.** The editor opted into a gated flow; this is a gate too.
 
+### Visual QC offer (optional)
+
+After audio QC runs (or was declined), surface the visual QC offer in **plain markdown chat** (NOT `AskUserQuestion`):
+
+> Visual QC catches what audio can't see — background morphs / slide text garble / hallucinated overlays / hard cuts. **~10-15 min for ~350 clips** (filmstrip extraction in 2-3 min, then I review each — heavier than audio QC). Best for VSL-style projects with per-line slide refs; podcast-style with one shared ref rarely needs it (the speaker IS the content, nothing else to morph).
+>
+> Reply `yes` (no caption-slide focus), `yes L02,L17,L19` (with caption-slide L-numbers for full-res text inspection — rate text / name labels / ZIP codes / dollar amounts), `no` / `skip`.
+
+**Handling each response:**
+- **`yes` (with or without L-list)** — load the `visual-qc` skill and fire the scanner:
+  ```bash
+  python3 ~/.claude/skills/visual-qc/visual_qc_scan.py "<project>/Elements/Footage/Veo" \
+    --caption-clips L02,L17,L19 \
+    --workers 8
+  ```
+  Omit `--caption-clips` if the editor didn't specify any. After filmstrip extraction completes (~2-3 min), walk the index JSON (`<veo_root>/qc/visual_qc_index_<date>.json`), Read each filmstrip PNG (+ caption full-res frames for caption-slide clips), apply the pass/fail criteria from `visual-qc/SKILL.md`, and write `<veo_root>/qc/visual_qc_report_<date>.md` alongside the audio one. Surface the ✗ + 🔍 VERIFY counts + top concentrations in the final report below.
+- **`no` / `skip`** — proceed directly to the final report below.
+
+**Never auto-fire visual QC without explicit confirmation.** Same gate discipline as audio QC.
+
 ### Final report
 
 Then summarize for the editor:

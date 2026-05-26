@@ -8,6 +8,37 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### `visual-qc` skill — per-clip filmstrip pass for VSL slide defects
+
+New sibling skill to `audio-qc`. Catches what you can SEE that audio can't — background morphs, slide text garble, hallucinated overlays (the canonical L19 "Jake" label defect), hard cuts. Built primarily for VSL-style projects with per-line slide references where the LED screen and on-screen text MUST stay frozen across the 8s clip.
+
+**What the scanner does:**
+- Extracts 5 stills per clip at fixed timestamps (0s / 2s / 4s / 6s / 7.8s)
+- Scales each to ~480px wide and hstacks into a single filmstrip PNG per clip — `<veo_root>/qc/strip_<slug>.png` (per-state subfolders for state-routed batches)
+- For caption-slide clips (rate text / name labels / ZIP codes / dollar amounts), additionally pulls 4s / 6s / 7.8s at FULL native resolution to `<veo_root>/qc/caption/<slug>_<t>s.png` — the 480px filmstrip is too small to spot subtle text defects
+- Writes a JSON index of all artifacts
+
+**What Claude does:**
+- Walks the index, Reads each filmstrip
+- Applies pass/fail criteria per clip: ✓ (clean) / ✗ (defect with reason + timestamp) / 🔍 VERIFY (ambiguous — editor's eyes make the call)
+- Reads full-res end frames for caption-slide clips
+- Writes a markdown report alongside the audio QC report
+
+**The "don't rationalize" rule:** if something ambiguous shows up — faint floating text, edge artifact, partial occlusion — flag it as 🔍 VERIFY, don't talk yourself into "probably a reflection." The L19 "Jake" hallucinated label defect was missed once for exactly that reason. The bias is to over-flag, not under-flag.
+
+**Regen workflow:** pre-delivery defects regen on Veo 3.1 Lite + audio on at count=1, **overwriting the bad take** (explicit exception to `feedback_regen_no_overwrite.md` — the bad clip never entered any timeline). 2-retry cap; after that, surface to editor for Fast escalation decision.
+
+**Integration:** `hvg-flow` Step 11 and `higgsfield-veo-batch` Step 6 now offer visual QC as a second pass after audio QC (sequential offers). Editor can skip it (default for podcast-style work where there's nothing to morph) or opt in with `yes` / `yes L02,L17,L19` (with caption-slide L-numbers).
+
+**Editor command:**
+```
+python3 ~/.claude/skills/visual-qc/visual_qc_scan.py "<project>/Elements/Footage/Veo" \
+  --caption-clips L02,L17,L19,L20,L27,L28 \
+  --workers 8
+```
+
+Skill files: `~/.claude/skills/visual-qc/SKILL.md` + `visual_qc_scan.py`. Memory entry: `feedback_visual_qc_workflow.md`. Re-run `bash claude-pfm-update.sh` to pick it up. **Sam, also add `Bash(python3 *visual-qc/visual_qc_scan.py *)` to the Lucid Link `settings.json` allowlist next to the audio-qc entry** so first-run permission prompt is skipped.
+
 ### Default fire shape — count=1 per prompt (was count=2)
 
 **`count=1` is the new locked default** for all PFM Higgsfield video fires (`hvg-flow`, `higgsfield-veo-batch`, ad-hoc CLI). Previously count=2 was the default to give A/B picks per line — refire-on-QC-fail is the new safety net instead (paired with the partial-return discipline + audio QC Phase 2 dialogue verification, both below).

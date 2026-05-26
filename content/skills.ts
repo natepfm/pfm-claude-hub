@@ -95,4 +95,12 @@ export const skills: Skill[] = [
     worksIn: ["code"],
     category: "utility",
   },
+  {
+    name: "visual-qc",
+    title: "Visual QC",
+    description:
+      "Post-download visual quality check for Veo mp4 clips. Sibling to audio-qc — catches what you can see that audio can't (background morphs, slide text garble, hallucinated overlays, hard cuts). Per-clip 5-frame filmstrip via ffmpeg (0/2/4/6/7.8s × 480px wide, hstacked); for caption-slide clips, also pulls full-res 4/6/7.8s frames. Claude reads each strip and calls ✓ / ✗ / 🔍 VERIFY per clip. Best for VSL-style projects with per-line slide refs. Auto-offered after audio QC by hvg-flow Step 11 + higgsfield-veo-batch Step 6.",
+    worksIn: ["code"],
+    category: "utility",
+  },
 ];
