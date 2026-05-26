@@ -125,7 +125,7 @@ Tell the editor if you auto-resized so they know which file got uploaded.
 
 ## Step 4 — Fire generations (Python ThreadPool + pre-uploaded UUIDs)
 
-**Concurrency model — pre-uploaded UUIDs + `max_workers=8`.** PowerFox Enterprise plan (verify concurrent cap with David — was 16 on Team). Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), most jobs come back empty.
+**Concurrency model — pre-uploaded UUIDs + `max_workers=8`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), most jobs come back empty.
 
 **Verified empirical data (2026-05-21):**
 - 16 bash `&` background jobs + file paths → all 16 fail with auth errors ✗

@@ -88,7 +88,7 @@ Aligned the LL copy of `breaking-news-story-ads` to the most recent Cowork plugi
 - Removed the stale "Frame-to-video JSON patterns" section. Per-clip Veo prompts now live in the project's Excel manifest built by `hvg-flow`, not embedded inside the script doc.
 
 ### PowerFox Enterprise plan — concurrency cap pending
-Skills now say "PowerFox Enterprise plan (verify concurrent cap with David — was 16 on Team)" wherever they reference Higgsfield concurrency. Concurrency caps come back from the Higgsfield call; until then, `max_workers=8` is the defensive default.
+Skills now say "PowerFox Enterprise plan" wherever they reference Higgsfield concurrency. Server-side cap is high enough on Enterprise that it's no longer the practical bottleneck — `max_workers=8` is the defensive default driven by the client-side CLI credential-store race observed on the old Team plan, and will be revisited after the first real Enterprise batch fire.
 
 ### Install command — no sudo
 `higgsfield-veo-batch` and `hvg-flow` install hints both now use `npm install -g @higgsfield/cli` (no sudo) to match `claude-pfm-setup.sh`. Sudo isn't needed on properly-configured editor machines and triggers prompts for password.
