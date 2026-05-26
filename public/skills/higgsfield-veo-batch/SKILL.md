@@ -257,15 +257,39 @@ wait
 
 Quote paths with spaces. Variation number = explicit in the filename loop above.
 
-## Step 6 — Report
+## Step 6 — Audio QC offer + final report
 
-When all downloads complete, summarize:
+### Audio QC offer (optional)
+
+After all downloads complete and BEFORE summarizing, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion`):
+
+> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci?
+>
+> - `yes` (or `fast`) — fast pass (~90s for ~350 clips): flags silent / low_volume / cut_off / clipped / no_audio. Writes a markdown report into the Veo folder.
+> - `whisper` — full dialogue verification (~10-15s per clip): transcribes each clip and fuzzy-matches against the HVG.1 manifest's `dialogue` field. Use when fast pass is clean but you suspect wrong words / voice drift.
+> - `no` (or `skip`) — proceed straight to the final report.
+
+**Handling each response:**
+- **`yes` / `fast`** — load the `audio-qc` skill and fire:
+  ```bash
+  python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
+  ```
+  Surface flag counts + hotspots in the report below.
+- **`whisper`** — load `audio-qc`, run the Whisper SOP from its body. Use the HVG.1 manifest's `dialogue` field as expected text.
+- **`no` / `skip`** — proceed directly to the summary.
+
+Never auto-fire QC without confirmation.
+
+### Final report
+
+When all downloads complete (and QC has run or been declined), summarize:
 - ✅ N clips delivered to `<output folder>`
 - ❌ Y prompts had failures (with reasons + slugs)
 - 💰 Final balance: M credits (delta: -K credits)
 - ⏱ Total elapsed: Z minutes
+- 🎧 Audio QC: `<summary if ran, else "skipped">`
 
-If any prompt failed, list slug + dialogue + reason so the editor can decide whether to re-fire.
+If any prompt failed, list slug + dialogue + reason so the editor can decide whether to re-fire. If QC ran, list flagged-clip hotspots — per-L-number concentrations usually mean script-level fixes (line too long for 8s) rather than re-fires.
 
 ## Speed budget (target)
 
