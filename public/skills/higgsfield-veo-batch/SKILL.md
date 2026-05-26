@@ -92,7 +92,7 @@ Fire these in parallel in a single message:
 
 Then output **one** preflight line:
 
-> Preflight: 10 prompts × count=2 = 20 clips, ~440 cr (have 3,764 → 3,324 after). Output: `Elements/Footage/Veo/`. Reference: `Jason - On Podcast Set.jpg` ✓ Cleared to fire?
+> Preflight: 10 prompts × count=1 = 10 clips, ~220 cr (have 3,764 → 3,544 after). Output: `Elements/Footage/Veo/`. Reference: `Jason - On Podcast Set.jpg` ✓ Cleared to fire?
 
 If balance < estimated cost: stop and ask. Don't volunteer the full table unless asked.
 
@@ -259,6 +259,19 @@ Quote paths with spaces. Variation number = explicit in the filename loop above.
 
 ## Step 6 — Audio QC offer + final report
 
+### Refire decisions — DO NOT refire until QC has run
+
+**Every successful return passes through audio QC before any refire decision.** Refiring on reflex burns credits AND clutters the manifest with extra v-numbered rows for clips that were already fine. With `count=1` as the locked default (2026-05-26), the math is simple: trust what came back unless QC says otherwise.
+
+Routing (applied in the final report below):
+- **Returned (v01 at count=1 default, or any variation at count≥2 opt-in) AND passes QC** → recommend "accept as-is", no refire prompt
+- **Returned AND flagged by QC** → recommend "refire", save as next vNN (v02 for count=1 rows, v03+ for count≥2 rows)
+- **Total fail (0 returned)** → automatic refire candidate (nothing to QC)
+
+**Partial status (count≥2 opt-in only):** when a row in the HVG.1 manifest was fired at count≥2 and 1 of N variations is missing, treat it the same way — QC the survivor first. Don't refire just to "top up" to the requested count if the survivor is already good.
+
+If the editor declines QC, this rule cannot be applied — note in the final report that nothing was auto-vetted. See `feedback_partial_returns_qc_before_refire.md`.
+
 ### Audio QC offer (optional)
 
 After all downloads complete and BEFORE summarizing, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion`):
@@ -290,23 +303,31 @@ When all downloads complete (and QC has run or been declined), summarize:
 - ⏱ Total elapsed: Z minutes
 - 🎧 Audio QC: `<summary if ran, else "skipped">`
 
-If any prompt failed, list slug + dialogue + reason so the editor can decide whether to re-fire. If QC ran, list flagged-clip hotspots — per-L-number concentrations usually mean script-level fixes (line too long for 8s) rather than re-fires.
+If failures or QC flags exist, list them in three buckets (assuming QC ran — see "Refire decisions" above):
+
+- **Total fails** (0 returned) — slug + dialogue + reason; default-recommend refire
+- **Returned, QC-clean** — accept as-is, no refire. Default for count=1 returns + count≥2 Partials whose survivor passed QC.
+- **Returned, QC-flagged** — slug + dialogue + flag reason; default-recommend refire (save as next vNN)
+
+If QC was declined, all returns land in a single "needs editor review" bucket — Claude cannot auto-vet without QC signal.
+
+If QC ran, also list flagged-clip hotspots — per-L-number concentrations usually mean script-level fixes (line too long for 8s) rather than refires.
 
 ## Speed budget (target)
 
-For a typical 10-line × count=2 batch:
+For a typical 10-line × count=1 batch (default as of 2026-05-26):
 
 | Step | Target time |
 |---|---|
 | Bootstrap + preflight (parallel) | 30s |
 | Image validate + maybe resize | 10s |
-| Fire wave 1 (6 prompts × 2 = 12 jobs in background) | 5s |
-| Wave 1 generation + drain (CLI --wait blocks) | 90-180s |
-| Fire wave 2 (4 prompts × 2 = 8 jobs) | 5s |
-| Wave 2 generation + drain | 90-180s |
+| Fire 10 prompts in 1 wave (single job per prompt, ≤16 concurrent) | 5s |
+| Generation + drain (CLI --wait blocks) | 90-180s |
 | Download all clips (parallel curl) | 30s |
 | Report | 5s |
-| **Total wall clock** | **~5-7 min for 20 clips** |
+| **Total wall clock** | **~3-4 min for 10 clips** |
+
+For count=2 opt-in (A/B picks per line), expect ~2× the wave count and ~2× the wall clock.
 
 If you're going slower than this, audit which step ate the time. Most common culprit: serial CLI calls instead of parallel background jobs.
 

@@ -8,6 +8,38 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### Default fire shape — count=1 per prompt (was count=2)
+
+**`count=1` is the new locked default** for all PFM Higgsfield video fires (`hvg-flow`, `higgsfield-veo-batch`, ad-hoc CLI). Previously count=2 was the default to give A/B picks per line — refire-on-QC-fail is the new safety net instead (paired with the partial-return discipline + audio QC Phase 2 dialogue verification, both below).
+
+**The math:**
+- Old default (Lite audio × count=2): 24 cr/line
+- New default (Lite audio × count=1): 12 cr/line
+- ~50% cost cut on dialogue batches
+- ~50% cost cut on silent b-roll (16 cr/line → 8 cr/line)
+
+**Editor opt-in to count=2** when audio variance matters or a line is high-stakes — surface at Gate 5 of `hvg-flow`. Per-line ("L01 and L17 at count=2, rest count=1") or per-batch ("fire everything at count=2") both work.
+
+**Why this works:**
+- count=1 + audio QC + refire-on-flag covers most lines first try
+- The ~10-20% that fail QC get refired as v02 — same effective cost as the old count=2 default
+- Editor saves credits AND manifest stays cleaner
+- `Partial` status is now rare — only meaningful on opt-in count≥2 lines
+
+Files updated: `hvg-flow` SKILL.md (Gate 5 default block + cost ladder + Gate 7 L1 test + Step 8 config example + Step 11 status legend + Step 11 final-report buckets), `higgsfield-veo-batch` SKILL.md (preflight + speed budget + Step 6 sections), `build_xlsx.py` (config-schema default `countPerPrompt: 1`). Re-run `bash claude-pfm-update.sh` to pick it up.
+
+### Partial-return discipline — QC the survivor before any refire
+
+When a Veo batch comes back with a `Partial` row (one variation made it, one didn't — usually NSFW filter), the surviving variation is often perfectly usable on its own. `hvg-flow` Step 11 and `higgsfield-veo-batch` Step 6 now make this explicit:
+
+- **Partial + survivor passes audio QC** → final report recommends "accept as-is", no refire prompt
+- **Partial + survivor flagged by QC** → final report recommends "refire", surfaces the flag
+- **Total fail (0 of 2)** → automatic refire candidate (nothing to QC)
+
+Reflexive refires on Partial rows burn ~12-27 cr per row AND clutter the manifest with a v3 entry for a row whose v01 was already fine. The QC offer landing before the final report already creates the right *ordering*, but the rule wasn't *stated* — an editor scanning the manifest could refire on instinct without checking the survivor.
+
+If QC is declined, partials get bucketed as "needs editor review" — the rule can't be applied without QC signal. Memory entry: `feedback_partial_returns_qc_before_refire.md`. Re-run `claude-pfm-update.sh` to pick it up.
+
 ### `audio-qc` Phase 2 — Whisper dialogue verification folded back in
 After an M-series speed test showed Whisper transcribes 8s clips in ~0.3s (vs the 10-15s/clip the original handoff doc estimated), we folded the Whisper pass back into the audio-qc scanner as a default phase whenever a project's Excel manifest is available.
 

@@ -161,7 +161,7 @@ The skill routes based on what the Notion request looks like. Three shapes:
 > State-variation run detected.
 > States this batch: **Florida, Colorado, Pennsylvania**
 > Tagged clips: **L02, L15, L18, L24, L41** (5 lines per state)
-> Total prompts: **15** (5 lines × 3 states) × count=2 = **30 clips**
+> Total prompts: **15** (5 lines × 3 states) × count=1 = **15 clips**
 >
 > Confirm before I check refs?
 
@@ -280,9 +280,9 @@ PFM character master format (from memory `feedback_pfm_character_master_format.m
 
 ## Gate 5 — Model confirmation
 
-**Default for SILENT b-roll: Veo 3.1 Lite at count=2** (8 cr/clip × 2 takes = 16 cr/line). **Default for DIALOGUE: Veo 3.1 Lite with `--generate_audio true` at count=2** (12 cr/clip × 2 takes = 24 cr/line — still cheaper than Fast count=1 at 27 cr AND gives A/B picks).
+**Default for SILENT b-roll: Veo 3.1 Lite at count=1** (8 cr/clip = 8 cr/line). **Default for DIALOGUE: Veo 3.1 Lite with `--generate_audio true` at count=1** (12 cr/clip = 12 cr/line). **`count=1` is the locked default** as of 2026-05-26 — editors can opt in to `count=2` (or higher) on specific lines where audio variance matters by saying so at this gate. A/B picks are no longer the default; refire-on-QC-fail is the new safety net (see Step 11 "Refire decisions" and `feedback_default_count_1.md`).
 
-> Model: **Veo 3.1 Lite** (default — silent at 8 cr/clip OR with audio at 12 cr/clip via `--generate_audio true`, `count=2` for A/B picks). Confirm silent or audio, or different model?
+> Model: **Veo 3.1 Lite** (default — silent at 8 cr/clip OR with audio at 12 cr/clip via `--generate_audio true`, `count=1` default). Confirm silent or audio, or want count=2 on any lines? Or different model?
 
 **Available models with verified costs** (8s / 16:9, empirical table 2026-05-20):
 - **Veo 3.1 Lite — silent** — **8 cr/clip**, no audio. Default for silent b-roll, ambient plates, state-variation backgrounds.
@@ -293,15 +293,16 @@ PFM character master format (from memory `feedback_pfm_character_master_format.m
 - Seedance 2.0 — ~30-40 cr/clip
 - **Kling 3.0** — 10 cr (5s std) / 20 cr (10s std) / 25 cr (10s pro) — has audio with lip sync. Strong identity-lock from reference image. Better than Veo for testimonial / single-subject character-continuity work where Veo's stochastic NSFW filter is a tax.
 
-**Cost ladder** (8s clips, audio variants):
-| Setup | Cost/line | Audio | A/B picks |
-|---|---|---|---|
-| Lite silent × count=2 (DEFAULT for silent b-roll) | 16 cr | ✗ | ✓ |
-| Lite audio × count=2 (DEFAULT for dialogue) | 24 cr | ✓ | ✓ |
-| Fast × count=1 | 27 cr | ✓ | ✗ |
-| Fast × count=2 | 54 cr | ✓ | ✓ |
-| Preview base × count=1 | 58 cr | ✓ | ✗ |
-| Preview Ultra × count=1 | 87 cr | ✓ | ✗ |
+**Cost ladder** (8s clips, audio variants, count=1 default — double the cost/line for count=2 opt-in):
+| Setup | Cost/line | Audio |
+|---|---|---|
+| Lite silent (DEFAULT for silent b-roll) | 8 cr | ✗ |
+| Lite audio (DEFAULT for dialogue) | 12 cr | ✓ |
+| Fast | 27 cr | ✓ |
+| Preview base | 58 cr | ✓ |
+| Preview Ultra | 87 cr | ✓ |
+
+For opt-in A/B picks (count=2) on specific lines, double the cost/line. Editor can specify per-line at gate 5 — e.g. "L01 and L17 at count=2, rest count=1."
 
 If editor picks Preview, confirm: "Preview base is ~2.1× the cost of Fast; Preview Ultra is ~3.2× Fast — hero shot only?"
 
@@ -419,14 +420,17 @@ Show 1-2 representative per-line prompts to the editor for spot-check before mov
 
 ## Gate 7 — Optional test generation (L1)
 
-> Test-fire L1 with count=2 (~44 cr) before committing the full batch? Veo Fast can have audio variance — worth checking before you fire 100 clips.
+> Test-fire L1 (~12-27 cr depending on model, count=1 default) before committing the full batch? Worth it if the prompt is novel or the line is high-stakes. Reply `yes` (count=1 default), `yes count=2` (~double cost, see take-to-take audio variance), or `skip`.
 
-**Yes:**
-- Fire L1 with count=2 using step 10's CLI logic, but only for L1's two variations
-- Download to `Elements/Footage/Veo/<slug>_L01_v01.mp4` and `<slug>_L01_v02.mp4`
-- Tell the editor: "L1 takes ready in `Elements/Footage/Veo/`. Give them a watch and let me know if the prompt needs adjustment."
-- Editor approves → mark L1 as DONE; the full batch will skip L1 (saves ~44 cr).
-- Editor wants prompt adjusted → loop back to gate 6, repaste/edit master_prompt.json, re-fire test (overwriting the bad takes).
+**Yes (count=1, default):**
+- Fire L1 with count=1 using step 10's CLI logic
+- Download to `Elements/Footage/Veo/<slug>_L01_v01.mp4`
+- Tell the editor: "L1 take ready in `Elements/Footage/Veo/`. Give it a watch and let me know if the prompt needs adjustment."
+- Editor approves → mark L1 as DONE; the full batch will skip L1 (saves L1's cost).
+- Editor wants prompt adjusted → loop back to gate 6, repaste/edit master_prompt.json, re-fire test (save as v02 — never overwrite per `feedback_regen_no_overwrite.md`).
+
+**Yes (count=2, opt-in for variance check):**
+- Same as above but fire L1 twice — `<slug>_L01_v01.mp4` AND `<slug>_L01_v02.mp4`. Use this when you want to see take-to-take variance on the prompt before committing to a 100-clip batch.
 
 **Skip:**
 - Proceed to gate 8 with no L1 takes yet; full batch will fire L1 along with everything else.
@@ -473,7 +477,7 @@ Step A — use the `Write` tool to create `/tmp/hvg-build-config.json` with this
     "mcpParams":      {"model": "veo-3-1-fast"},
     "duration":       8,
     "aspectRatio":    "16:9",
-    "countPerPrompt": 2,
+    "countPerPrompt": 1,
     "estCostPerClip": 25
   },
   "reference": {
@@ -531,8 +535,7 @@ State batches drop their clips into `<STATE_ABBR>/` subfolders inside `Elements/
 Elements/Footage/Veo/
 ├── FL/
 │   ├── cybertruck_state_b1_FL_L02_v01.mp4
-│   ├── cybertruck_state_b1_FL_L02_v02.mp4
-│   ├── ... (5 lines × 2 takes = 10 files)
+│   ├── ... (5 lines × 1 take = 5 files at count=1 default)
 ├── CO/
 │   ├── cybertruck_state_b1_CO_L02_v01.mp4
 │   └── ...
@@ -541,15 +544,15 @@ Elements/Footage/Veo/
 └── <slug>_prompts.xlsx        ← manifest stays at the Veo root
 ```
 
-**The Excel manifest stays at the Veo root** (not duplicated per state) — its rows reference the per-state filenames including the subfolder prefix in the v01/v02 columns (e.g. `FL/cybertruck_state_b1_FL_L02_v01.mp4`).
+**The Excel manifest stays at the Veo root** (not duplicated per state) — its rows reference the per-state filenames including the subfolder prefix in the `v01` column (e.g. `FL/cybertruck_state_b1_FL_L02_v01.mp4`). The `v02` column stays empty for count=1 fires; populated only for lines where the editor opted into count=2 at gate 5.
 
 For BASE / BROAD runs (single state's worth of clips), Veo/ stays flat — no subfolders.
 
 **Status field values** (drives row color):
 - `"pending"` — not fired yet (grey) — use this for every row at gate 8 (except a test-approved L1 → `"✓"`)
-- `"✓"` — both v01 + v02 delivered (green)
-- `"Partial"` — one variation missing (yellow) — set `notes` to explain
-- `"✗"` — both takes failed (red)
+- `"✓"` — all expected takes delivered (green). At count=1 default: just v01. At count=2 opt-in: v01 + v02.
+- `"Partial"` — at count≥2 opt-in only: one or more expected variations missing but at least one delivered (yellow); set `notes` to explain. Not used for count=1 rows.
+- `"✗"` — all takes failed (red)
 - `"skipped"` — line had a missing ref (Mode B/D gap) and editor chose to fire without it (grey italic)
 
 > Manifest written: `<slug>_prompts.xlsx`
@@ -752,7 +755,7 @@ This command IS statically allowlistable as `Bash(bash ~/.claude/skills/hvg-flow
 After all clips download, **rewrite** `<slug>_prompts.xlsx` using the same `build_xlsx.py` helper from gate 8 — same config schema, just refreshed status / v01 / v02 / notes per row. The helper overwrites the file cleanly; both Summary and Prompts sheets get rebuilt in one shot.
 
 Update each prompt entry in the config:
-- `status`: `"✓"` if both v01 + v02 mp4s exist on disk, `"Partial"` if only one exists, `"✗"` if neither
+- `status`: `"✓"` if all expected mp4s exist on disk (just v01 at count=1 default; v01 + v02 at count=2 opt-in), `"Partial"` if some-but-not-all (count≥2 opt-in only), `"✗"` if none
 - `v01` / `v02`: actual filenames. **For state-variation runs, include the per-state subfolder prefix** (e.g. `FL/cybertruck_state_b1_FL_L02_v01.mp4`) so the editor can locate the file directly from the manifest. For BASE / BROAD runs, just the filename.
 - `notes`: error reason for failed rows (e.g. "v01 missing — NSFW filter false positive"); empty for success
 
@@ -762,6 +765,19 @@ Then run the helper exactly like in gate 8:
 python3 ~/.claude/skills/hvg-flow/build_xlsx.py "$CONFIG" \
   "Elements/Footage/Veo/<slug>_prompts.xlsx"
 ```
+
+### Refire decisions — DO NOT refire until QC has run
+
+**Every successful return passes through audio QC before any refire decision.** Refiring on reflex burns credits AND clutters the manifest with extra v-numbered rows for clips that were already fine. With `count=1` as the locked default (2026-05-26), the math is simple: trust what came back unless QC says otherwise.
+
+Routing (applied in the final report below):
+- **Returned (v01 at count=1 default, or any variation at count≥2 opt-in) AND passes QC** → recommend "accept as-is", no refire prompt
+- **Returned AND flagged by QC** → recommend "refire", save as next vNN (v02 for count=1 rows, v03+ for count≥2 rows)
+- **Total fail (0 returned)** → automatic refire candidate (nothing to QC)
+
+**Partial status (count≥2 opt-in only):** when a row was fired at count≥2 and 1 of N variations is missing, treat it the same way — QC the survivor first. Don't refire just to "top up" to the requested count if the survivor is already good.
+
+If the editor declines QC, this rule cannot be applied — note in the final report that nothing was auto-vetted and the editor needs to review manually. See `feedback_partial_returns_qc_before_refire.md`.
 
 ### Audio QC offer (optional)
 
@@ -794,7 +810,15 @@ Then summarize for the editor:
 > 📋 Manifest: `<slug>_prompts.xlsx`
 > 🎧 Audio QC: `<summary if ran, else "skipped">`
 
-If failures exist, list them with slug + dialogue snippet so the editor can decide whether to re-fire or accept. If audio QC ran, list flagged-clip hotspots (per-L-number concentrations) — these are usually script-level fixes, not re-fire candidates.
+If failures or QC flags exist, list them in three buckets (assuming QC ran — see "Refire decisions" above):
+
+- **Total fails** (0 returned) — slug + dialogue + reason; default-recommend refire
+- **Returned, QC-clean** — accept as-is, no refire. Default for count=1 returns + count≥2 Partials whose survivor passed QC.
+- **Returned, QC-flagged** — slug + dialogue + flag reason; default-recommend refire (save as next vNN)
+
+If QC was declined, all returns land in a single "needs editor review" bucket — Claude cannot auto-vet without QC signal.
+
+If audio QC ran, also list flagged-clip hotspots (per-L-number concentrations) — these are usually script-level fixes, not refire candidates.
 
 ---
 
