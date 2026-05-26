@@ -91,7 +91,7 @@ export const skills: Skill[] = [
     name: "audio-qc",
     title: "Audio QC",
     description:
-      "Post-download audio quality check for Veo mp4 clips. Fast pass: ffmpeg-based parallel scanner flags silent / cut-off / clipped / no-audio clips in ~90s for ~350 clips. Optional Whisper full pass: transcribes + fuzzy-matches against expected dialogue. Auto-offered by hvg-flow and higgsfield-veo-batch after downloads.",
+      "Post-download audio quality check for Veo mp4 clips. ffmpeg-based parallel scanner flags silent / cut-off / clipped / no-audio clips in ~90s for ~350 clips. Writes a markdown report into the Veo folder. Auto-offered by hvg-flow and higgsfield-veo-batch after downloads.",
     worksIn: ["code"],
     category: "utility",
   },

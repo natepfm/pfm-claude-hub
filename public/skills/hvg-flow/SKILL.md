@@ -767,19 +767,16 @@ python3 ~/.claude/skills/hvg-flow/build_xlsx.py "$CONFIG" \
 
 After the manifest is rewritten and BEFORE the final report, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows.md`):
 
-> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass before you import to DaVinci?
+> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / cut_off / clipped / no_audio in ~90s for ~350 clips and writes a markdown report into the Veo folder.
 >
-> - `yes` (or `fast`) — fast pass (~90s for ~350 clips): flags silent / low_volume / cut_off / clipped / no_audio. Writes a markdown report into the Veo folder.
-> - `whisper` — full dialogue verification (~10-15s per clip): transcribes each clip with Whisper and fuzzy-matches against the manifest's dialogue column. Use this when fast pass is clean but you suspect wrong words / voice drift.
-> - `no` (or `skip`) — proceed straight to the final report.
+> Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
 
 **Handling each response:**
-- **`yes` / `fast`** — load the `audio-qc` skill and fire the fast-pass scanner:
+- **`yes`** — load the `audio-qc` skill and fire the scanner:
   ```bash
   python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
   ```
   After it completes (~90s), surface the flag-count summary + top hotspots in the final report below. See `audio-qc/SKILL.md` for how to interpret flags and what to surface.
-- **`whisper`** — load `audio-qc` and run the Whisper full-pass SOP from its skill body. Slower but catches wrong-words / voice drift. Use the project's `<slug>_prompts.xlsx` as the source of expected dialogue.
 - **`no` / `skip`** — proceed directly to the final report below.
 
 **Never auto-fire QC without explicit confirmation.** The editor opted into a gated flow; this is a gate too.

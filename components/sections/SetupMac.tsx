@@ -34,7 +34,7 @@ export default function SetupMac() {
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">2. Fast path — one-shot installer</h3>
         <p className="text-muted mb-3">
-          Installs Homebrew, Git, Node, Higgsfield CLI, <strong className="text-text">ffmpeg</strong> (so Claude can read video file metadata), <strong className="text-text">OpenAI Whisper</strong> (for the audio-qc full-pass dialogue verification), Python's openpyxl, and copies all PFM skills + settings from Lucid Link in one command.
+          Installs Homebrew, Git, Node, Higgsfield CLI, <strong className="text-text">ffmpeg</strong> (so Claude can read video file metadata for the audio-qc skill), Python's openpyxl, and copies all PFM skills + settings from Lucid Link in one command.
         </p>
         <p className="text-muted">Open Terminal (⌘ Space → "Terminal") and paste:</p>
         <CopyBlock code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-setup.sh"`} />

@@ -263,19 +263,16 @@ Quote paths with spaces. Variation number = explicit in the filename loop above.
 
 After all downloads complete and BEFORE summarizing, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion`):
 
-> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci?
+> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / cut_off / clipped / no_audio in ~90s for ~350 clips.
 >
-> - `yes` (or `fast`) — fast pass (~90s for ~350 clips): flags silent / low_volume / cut_off / clipped / no_audio. Writes a markdown report into the Veo folder.
-> - `whisper` — full dialogue verification (~10-15s per clip): transcribes each clip and fuzzy-matches against the HVG.1 manifest's `dialogue` field. Use when fast pass is clean but you suspect wrong words / voice drift.
-> - `no` (or `skip`) — proceed straight to the final report.
+> Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
 
 **Handling each response:**
-- **`yes` / `fast`** — load the `audio-qc` skill and fire:
+- **`yes`** — load `audio-qc` and fire:
   ```bash
   python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
   ```
   Surface flag counts + hotspots in the report below.
-- **`whisper`** — load `audio-qc`, run the Whisper SOP from its body. Use the HVG.1 manifest's `dialogue` field as expected text.
 - **`no` / `skip`** — proceed directly to the summary.
 
 Never auto-fire QC without confirmation.
