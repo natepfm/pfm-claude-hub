@@ -269,7 +269,7 @@ Editor confirms → CLI fires.
 
 ## Step 10 — CLI fire
 
-**Concurrency model — pre-uploaded UUIDs + ThreadPool `max_workers=8`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` call reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each also uploads a `--image <local_path>` (which is 3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically.
+**Concurrency model — pre-uploaded UUIDs + ThreadPool `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` call reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each also uploads a `--image <local_path>` (which is 3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically.
 
 **Verified empirical data (2026-05-21):**
 - 15 ThreadPool workers + file paths (per-job upload) → 65 of 100 jobs returned empty output ✗
@@ -299,7 +299,7 @@ Pre-upload calls run **one at a time** (not in a pool) — the auth race exists 
 
 **Image preflight before pre-upload:** for any reference image, check pixel width and resize if >2000px or >3MB (same logic as `hvg-flow`). Pre-upload the RESIZED file, not the original. Dedupe — same character master may be referenced by many shots; only resize and upload once.
 
-**Step 2 — Fire the batch via Python ThreadPool with `max_workers=8`, passing UUIDs (not local paths) to `--image`:**
+**Step 2 — Fire the batch via Python ThreadPool with `max_workers=16`, passing UUIDs (not local paths) to `--image`:**
 
 ```python
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -322,7 +322,7 @@ def fire_one(shot, variation, ref_uuid_map):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
 
 all_jobs = [(shot, v) for shot in shots for v in ("01", "02")]
-with ThreadPoolExecutor(max_workers=8) as ex:
+with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {ex.submit(fire_one, shot, v, ref_uuid_map): (shot, v) for shot, v in all_jobs}
     for fut in as_completed(futs):
         shot, v = futs[fut]
@@ -330,13 +330,13 @@ with ThreadPoolExecutor(max_workers=8) as ex:
         # save result.stdout to /tmp/hig-flow-results/<shotId>_v<v>.json
 ```
 
-Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock at workers=8 (reliability beats the marginal throughput vs higher worker counts).
+Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock at workers=16 (verified clean on Enterprise — see `feedback_higgsfield_cli_concurrency_race.md`).
 
 **No prompt prefix needed.** NB Pro's CLI doesn't have the leading-`{` quirk that Veo had — image prompts are plain prose, not JSON.
 
 **Self-check before any concurrent CLI fire:**
 1. Are any `--image` flags pointing at local file paths instead of UUIDs? → Pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 8? → If higher, lower it.
+2. Is `max_workers` ≤ 16? → If higher, lower it.
 3. Are you using Python ThreadPool, not `bash &`? → ThreadPool past ~4 jobs.
 
 **Edge cases:**
@@ -368,10 +368,10 @@ If any shot looks off in review, editor can re-fire individual shots via the `hi
 When the editor drops **N batches at once** (e.g. 5 state URLs in a single message, asking for slides for all of them), don't fire them sequentially batch-by-batch. Treat the whole thing as ONE mega-fire with per-batch routing:
 
 1. **Parallel Notion fetches.** When the message has N URLs, fire all `notion-fetch` calls in one tool-call message — they all return in roughly the time of one fetch instead of N×.
-2. **Single pre-upload pass + single flat job queue.** Pre-upload every unique reference image across ALL batches serially (de-duped — a shared character master uploads once, not N times). Then build the union of all jobs across all batches (e.g. 5 states × 6 shots × 2 takes = 60 jobs) and feed it to one `ThreadPoolExecutor(max_workers=8)` using the UUID map. The API doesn't care that jobs span multiple state outputs — it just sees 60 NB Pro requests.
+2. **Single pre-upload pass + single flat job queue.** Pre-upload every unique reference image across ALL batches serially (de-duped — a shared character master uploads once, not N times). Then build the union of all jobs across all batches (e.g. 5 states × 6 shots × 2 takes = 60 jobs) and feed it to one `ThreadPoolExecutor(max_workers=16)` using the UUID map. The API doesn't care that jobs span multiple state outputs — it just sees 60 NB Pro requests.
 3. **Per-batch output routing at download time.** Each shot dict carries its own `out_dir` (e.g. `Slide Images - Michigan/`). The download step routes by that field — no co-mingling.
 4. **Per-batch manifest at each folder's root.** One Excel manifest per batch (`vsl_<state>_slides_shots.xlsx`), written to the batch's output folder. Don't write a global manifest covering all batches — editors open each state's folder independently.
-5. **Throughput data point:** 60 NB Pro 2k jobs delivered in ~4 min wall-clock with `max_workers=8` and pre-uploaded UUIDs. Use this as a planning baseline. (Higher worker counts were faster pre-2026-05-21 but unreliable — the 8-worker reliability target trades minor throughput for not having to re-fire failed jobs.)
+5. **Throughput data point:** 60 NB Pro 2k jobs delivered in ~3-4 min wall-clock with `max_workers=16` and pre-uploaded UUIDs. Use this as a planning baseline. (Cap was 8 from 2026-05-21 → 2026-05-26 as a defensive default; bumped to 16 after Enterprise B5 wave 1 verified clean at 16 workers. Past ~16 the credential-store race starts dropping jobs — 100 workers = 50% failure.)
 
 Trigger phrases that signal multi-batch: "run a bunch more," "do all of these," paste of >1 Notion URL in the same message, "next batch is X, Y, Z."
 

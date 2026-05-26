@@ -626,7 +626,7 @@ The CLI command's image flags depend on the reference mode locked in at gate 4:
 | D — Start + end | `--start-image <LXX_start> --end-image <LXX_end>` (no `--image` flag) |
 | E — Mixed | per-line: `--image <LXX.png if exists, else pool pick>` |
 
-**Concurrency model — pre-uploaded UUIDs + Python ThreadPool `max_workers=8`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically and most jobs come back empty.
+**Concurrency model — pre-uploaded UUIDs + Python ThreadPool `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically and most jobs come back empty.
 
 **Verified empirical data (2026-05-21):**
 - 16 bash `&` background jobs + file paths → all 16 fail with auth errors ✗
@@ -659,7 +659,7 @@ for ref_path in unique_refs:
 
 Run upload calls **one at a time** (not in a pool) — the auth race exists for uploads too. Pre-upload is cheap (~1-3s per file) and runs once per unique ref across the whole batch. Resize images >2000px or >3MB BEFORE uploading; pre-upload the resized file (the image preflight step earlier in this gate already produces resized versions).
 
-**Step 2 — Fire the batch via Python ThreadPool with `max_workers=8`, passing UUIDs to `--image` / `--start-image` / `--end-image`:**
+**Step 2 — Fire the batch via Python ThreadPool with `max_workers=16`, passing UUIDs to `--image` / `--start-image` / `--end-image`:**
 
 ```python
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -704,7 +704,7 @@ def fire_one(line_assignment, variation, ref_uuid_map, mcp_model, model_flag, as
     return (line_assignment["slug"], variation, result.returncode)
 
 all_jobs = [(line, v) for line in line_assignments for v in ("01", "02")]
-with ThreadPoolExecutor(max_workers=8) as ex:
+with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {
         ex.submit(fire_one, line, v, ref_uuid_map, MCP_MODEL, MODEL_FLAG, ASPECT_RATIO, DURATION, GENERATE_AUDIO, QUALITY): (line, v)
         for line, v in all_jobs
@@ -717,7 +717,7 @@ with ThreadPoolExecutor(max_workers=8) as ex:
 
 **Self-check before firing:**
 1. Are any `--image` / `--start-image` / `--end-image` flags pointing at local file paths? → Pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 8? → If higher, lower it.
+2. Is `max_workers` ≤ 16? → If higher, lower it.
 3. Are you using Python ThreadPool, not `bash &`? → ThreadPool past ~4 jobs.
 4. Is the model `veo3_1_lite` AND the editor wants audio? → Add `--generate_audio true` (Lite ships silent without it).
 5. Is the model Preview Ultra? → Add `--quality ultra`.

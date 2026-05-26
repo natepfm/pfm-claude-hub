@@ -125,7 +125,7 @@ Tell the editor if you auto-resized so they know which file got uploaded.
 
 ## Step 4 — Fire generations (Python ThreadPool + pre-uploaded UUIDs)
 
-**Concurrency model — pre-uploaded UUIDs + `max_workers=8`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), most jobs come back empty.
+**Concurrency model — pre-uploaded UUIDs + `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), most jobs come back empty.
 
 **Verified empirical data (2026-05-21):**
 - 16 bash `&` background jobs + file paths → all 16 fail with auth errors ✗
@@ -153,7 +153,7 @@ for ref_path in unique_refs:
 
 Uploads run **one at a time** (not in a pool — the auth race exists for uploads too). Pre-upload is cheap (~1-3s per file) and only once per unique ref. Image preflight (Step 3) produces the resized files; pre-upload those resized versions, not the originals.
 
-**Step 4b — Fire the batch via Python ThreadPool with `max_workers=8`, passing UUIDs:**
+**Step 4b — Fire the batch via Python ThreadPool with `max_workers=16`, passing UUIDs:**
 
 ```python
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -187,7 +187,7 @@ def fire_one(entry, variation, ref_uuid_map, mcp_model, model_flag, aspect_ratio
     return (entry["slug"], variation, result.returncode)
 
 all_jobs = [(entry, v) for entry in manifest_entries for v in ("01", "02")]
-with ThreadPoolExecutor(max_workers=8) as ex:
+with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {
         ex.submit(fire_one, entry, v, ref_uuid_map, MCP_MODEL, MODEL_FLAG, ASPECT_RATIO, DURATION, GENERATE_AUDIO, QUALITY): (entry, v)
         for entry, v in all_jobs
@@ -211,7 +211,7 @@ with ThreadPoolExecutor(max_workers=8) as ex:
 
 **Self-check before firing:**
 1. Are any `--image` flags pointing at local file paths? → Pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 8? → If higher, lower it.
+2. Is `max_workers` ≤ 16? → If higher, lower it.
 3. Is the model `veo3_1_lite` AND the manifest specifies audio? → Add `--generate_audio true`.
 4. Is the manifest spec'ing Preview Ultra? → Add `--quality ultra`.
 

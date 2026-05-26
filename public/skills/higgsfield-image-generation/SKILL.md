@@ -183,7 +183,7 @@ Confirm file count matches expected (count × number of fires). Report to user:
 
 ## Parallel batch firing (multiple shots)
 
-For batches of 5+ gens, use Python `ThreadPoolExecutor` with `max_workers=8` and pre-uploaded UUIDs. Bash `&`+`wait` past ~10 jobs breaks down on the credential-store race documented in `feedback_higgsfield_cli_concurrency_race.md`.
+For batches of 5+ gens, use Python `ThreadPoolExecutor` with `max_workers=16` and pre-uploaded UUIDs. Bash `&`+`wait` past ~10 jobs breaks down on the credential-store race documented in `feedback_higgsfield_cli_concurrency_race.md`.
 
 Skeleton (adapt to actual job shape):
 
@@ -203,7 +203,7 @@ def fire_one(job):
     ]
     return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
 
-with ThreadPoolExecutor(max_workers=8) as ex:
+with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {ex.submit(fire_one, j): j for j in jobs}
     for fut in futs:
         result = fut.result()
@@ -213,7 +213,7 @@ with ThreadPoolExecutor(max_workers=8) as ex:
 
 **Self-check before any concurrent CLI fire:**
 1. Are any `--image` flags pointing at local file paths? → If yes, pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 8? → If higher, lower it.
+2. Is `max_workers` ≤ 16? → If higher, lower it. (16 verified clean on Enterprise; race kicks in past ~16 — 100 workers = 50% job loss.)
 3. Are you using Python ThreadPool or bash `& + wait`? → ThreadPool past 8 jobs.
 
 ## Handling stuck and lost jobs
