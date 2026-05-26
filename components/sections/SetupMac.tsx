@@ -68,11 +68,16 @@ export default function SetupMac() {
         <p className="text-sm text-muted mb-2">
           Canva is used to generate <strong className="text-text">lower-thirds graphics</strong> for breaking-news creatives (chyrons, person IDs, location tags, the LATU News brand stack). PFM uses a <strong className="text-text">single shared Canva account</strong> — Sam will share the login credentials separately.
         </p>
+        <p className="text-sm text-muted mb-2">
+          Canva uses an <strong className="text-text">authorization-link flow</strong>, not the Settings → Connectors UI. Connect it from inside a Claude Code session:
+        </p>
         <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
-          <li>Open <strong className="text-text">Claude Desktop → Settings → Connectors → Canva</strong></li>
-          <li>Click <strong className="text-text">Connect</strong></li>
+          <li>Open a Claude Code session (any project folder works for the auth step)</li>
+          <li>Ask Claude: <code>connect Canva</code> (or <code>authenticate Canva</code>)</li>
+          <li>Claude prints an <strong className="text-text">authorization URL</strong> — click it</li>
           <li>Sign in with the <strong className="text-text">shared PFM Canva credentials</strong> Sam sent you (not your own Canva account)</li>
-          <li>Restart Claude Desktop (⌘Q + reopen)</li>
+          <li>Approve the access — the browser tab can be closed once you see the &ldquo;connected&rdquo; confirmation</li>
+          <li>Back in Claude, tell it you&apos;re done — it&apos;ll complete the handshake and Canva tools become available in this and future sessions</li>
         </ol>
         <p className="text-xs text-muted italic mt-2">
           Once connected, when you&apos;re in a breaking-news project and the script has chyron specs (`BREAKING NEWS`, `JESSICA MARSH / MOTHER OF THREE`, etc.), Claude can generate the actual lower-thirds graphics in Canva and drop the PNGs into the project folder. Ask Claude to &ldquo;build the lower thirds&rdquo; after the script is locked.
