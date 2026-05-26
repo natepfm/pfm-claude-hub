@@ -8,6 +8,13 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### `audio-qc` cut_off heuristic disabled — false-positive on PFM news-read content
+After spot-checking ~150 cut_off-flagged clips from the Car Repo Breaking News scan, every one ended cleanly — the heuristic was a false-alarm machine. Rachel's continuous narration + breath + ambient fills the full 8s window above -35 dB without leaving any tail silence, but the dialogue is intact. The silencedetect-based check couldn't tell "audio actually cut mid-word" apart from "audio cleanly fills the 8s window with no quiet tail."
+
+**Scanner patched** (`audio_qc_scan.py`) — cut_off branch in the flag-decision logic is commented out with full rationale. The scanner still computes tail-silence-seconds and includes it in the report for visibility, but the flag is never set. Skill body updated to reflect the new flag set: `silent / low_volume / clipped / no_audio / error`.
+
+**New empirical baseline (Car Repo scan, 325 clips):** 276 OK (85%), 49 clipped (15%). Clipped concentrates on Steve cinemagraph intros + closes ("Tonight!" + "Wow, just incredible!") peaking at 0 dBFS — a content fingerprint, not random distortion. Recovery for that pattern is **normalize-on-import in DaVinci** rather than re-firing, since the prompt is already as soft-delivery as it can be. Re-enable cut_off detection only when there's a better signal (e.g., amplitude envelope analysis on the last ~100ms vs the rest of the clip).
+
 ### `max_workers` bumped 8 → 16 across all skills — 2× throughput on Enterprise
 After the Higgsfield Enterprise migration on 2026-05-25, two empirical Enterprise tests landed:
 - **2026-05-25, 100-worker test:** 50/100 jobs returned empty — race carries over from Team plan at high concurrency.

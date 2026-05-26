@@ -767,7 +767,7 @@ python3 ~/.claude/skills/hvg-flow/build_xlsx.py "$CONFIG" \
 
 After the manifest is rewritten and BEFORE the final report, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows.md`):
 
-> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / cut_off / clipped / no_audio in ~90s for ~350 clips and writes a markdown report into the Veo folder.
+> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / clipped / no_audio in ~90s for ~350 clips and writes a markdown report into the Veo folder.
 >
 > Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
 

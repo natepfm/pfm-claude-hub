@@ -263,7 +263,7 @@ Quote paths with spaces. Variation number = explicit in the filename loop above.
 
 After all downloads complete and BEFORE summarizing, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion`):
 
-> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / cut_off / clipped / no_audio in ~90s for ~350 clips.
+> All N clips downloaded. Want me to run an audio QC pass before you import to DaVinci? Flags silent / low_volume / clipped / no_audio in ~90s for ~350 clips.
 >
 > Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
 

@@ -1,11 +1,11 @@
 ---
 name: audio-qc
-description: PFM's audio quality check skill for Veo-generated mp4 clips. ffmpeg-based parallel scanner that flags silent / low_volume / cut_off / clipped / no_audio clips in ~90s for ~350 clips and writes a markdown report into the Veo folder. Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
+description: PFM's audio quality check skill for Veo-generated mp4 clips. ffmpeg-based parallel scanner that flags silent / low_volume / clipped / no_audio clips in ~90s for ~350 clips and writes a markdown report into the Veo folder. Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
 ---
 
 # Audio QC — PFM
 
-Fast audio quality check for Veo-generated mp4 clips. Catches silent / cut-off / clipped / no-audio clips before they hit DaVinci. ffmpeg-based, no external Python deps, ~90s for 350 clips.
+Fast audio quality check for Veo-generated mp4 clips. Catches silent / clipped / no-audio clips before they hit DaVinci. ffmpeg-based, no external Python deps, ~90s for 350 clips.
 
 ## When to invoke
 
@@ -22,12 +22,13 @@ Don't invoke for:
 
 ## What it checks
 
-ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 4 checks run in one ffmpeg pass:
+ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 3 active checks run in one ffmpeg pass:
 
 1. Audio stream present?
 2. mean_volume above silent threshold?
 3. max_volume below clipping threshold?
-4. Tail of clip has any silence? (no = cut-off mid-word)
+
+(The scanner also measures tail silence in the last 0.5s — left in the report for visibility — but does NOT flag on it. See "What's NOT in this skill" for the rationale.)
 
 **Flag values:**
 | Flag | Means | Typical cause |
@@ -35,18 +36,16 @@ ffmpeg + silencedetect, parallelized 12 workers default. Per clip, 4 checks run 
 | `OK` | Passed all checks | — |
 | `silent` | mean_volume < -55 dB | Veo 3.1 Lite without `--generate_audio true` |
 | `low_volume` | mean_volume between -55 and -35 dB | Quiet performance or muffled audio |
-| `cut_off` | <50ms silence in the last 0.5s | Line too long for 8s clip — Veo cut mid-word |
-| `clipped` | max_volume > -0.5 dB | Distortion / harsh peaks |
+| `clipped` | max_volume > -0.5 dB | Distortion / harsh peaks (digital 0 dBFS clipping) |
 | `no_audio` | No audio stream | Veo Lite shipped silent (common — known issue) |
 | `error` | ffmpeg failed | Corrupt file or codec issue |
 
-**Empirical baseline (2026-05-25 Car Chase B1-B5 scan):**
-- 170/344 OK (49%)
-- 134 cut_off (39%) — concentrated on L12 (95% fail), L03 (79%), L09, L22
-- 31 clipped (9%) — concentrated on L02 (loud intro), L22 (loud close)
-- 9 no_audio (3%) — all in Batch 1, Lite silent-take pattern
+**Empirical baseline (2026-05-26 Car Repo scan, cut_off heuristic disabled):**
+- 276/325 OK (85%)
+- 49 clipped (15%) — concentrated on **Steve cinemagraph intros + closes** (L02 "Tonight, this viral video..." = 20 clips, L23 "Wow, just incredible..." = 26 clips). Rachel-narrated lines (L11/L14/L03) are essentially clean (1 each).
+- 0 silent / no_audio in this scan (all clips generated with audio)
 
-When you see those L-number concentrations, the fix is script-level — the dialogue line is too long for 8s. Surface to Sam, not "re-fire".
+The Steve-clipping pattern is a known PFM-specific issue — his hot opens and emphatic closes peak at 0 dBFS. See Recovery patterns below.
 
 ## Full SOP
 
@@ -79,29 +78,29 @@ The report has three sections:
 
 Don't dump the entire report. Surface:
 - Flag counts (1-liner)
-- Top concentrations (e.g. "L12 has 19/20 cut_off — line is too long for 8s, needs script-level fix")
-- Per-batch hotspots (e.g. "Batch 3 has 8/14 clipped — loud intro consistent issue")
+- Top concentrations (e.g. "L23 has 26/26 clipped — Steve's emphatic close hits 0 dBFS — normalize on import")
+- Per-batch hotspots (e.g. "Batch 3 has 8/14 clipped — same pattern across states")
 - A pointer to the full report path
 
 Example:
 
-> Audio QC complete on 244 clips. **170 OK, 49 cut_off, 18 clipped, 7 no_audio.**
+> Audio QC complete on 325 clips. **276 OK, 49 clipped.**
 > Hotspots:
-> - **L12** — 19/20 cut_off across all states. Line is overflowing 8s; suggest splitting at the comma in "...home, and the dash cam caught it" → two clips
-> - **L03** — 11/14 cut_off, same pattern as L12. Needs splitting
-> - **Batch 1 / Lite silent** — 7 no_audio, all in Batch 1. If `--generate_audio true` was missing in the manifest, re-fire those 7 with the flag
+> - **L02** (Steve "Tonight, this viral video..."): 20 clipped — hot-open peaks at 0 dBFS, content fingerprint
+> - **L23** (Steve "Wow, just incredible..."): 26 clipped — emphatic close, same pattern
+> - **L11 / L14 / L03** (Rachel): 1 clipped each — essentially clean
 >
-> Full report: `Elements/Footage/Veo/audio_qc_report_2026-05-25.md`
+> Recovery: one-pass loudness normalization in DaVinci on import (-3 dB peak ceiling) fixes all 49 in a single step. Re-firing rarely helps — the prompt is already as soft-delivery as it can be.
+>
+> Full report: `Elements/Footage/Veo/audio_qc_report_2026-05-26.md`
 
 ## Recovery patterns by flag
 
 | Flag | Likely cause | Recovery |
 |---|---|---|
 | `silent` / `no_audio` | Veo Lite without `--generate_audio true` | Re-fire with `--generate_audio true` (12 cr/clip) or escalate to Veo 3.1 Fast (~27 cr/clip, audio default). See `feedback_veo_audio.md` |
-| `cut_off` (isolated) | This particular take ran long | Re-fire same line, save as v03 |
-| `cut_off` (concentrated on one L#) | Script line is too long for 8s | **DO NOT** re-fire — surface to Sam for script-level split. See `feedback_veo_no_short_punchy_beats.md` for line-length rules |
-| `clipped` (isolated) | Random distortion | Re-fire as v03 |
-| `clipped` (concentrated) | Performance / mix issue baked into prompt | Surface to Sam — may need master-prompt audio block adjustment |
+| `clipped` (isolated, 1-3 per line) | Random distortion on one take | Re-fire as v03 |
+| `clipped` (concentrated on hot-open / emphatic-close lines, e.g. Steve "Tonight!"/"Wow!") | Veo audio renderer pushes first-word emphasis to 0 dBFS — content fingerprint, not random | **Best path: normalize in DaVinci on import** — one-pass loudness pass at -3 dB peak ceiling fixes all flagged clips at once. Re-firing rarely helps because the prompt is already as soft-delivery as it can be. Accepting brief peaks at 0 dBFS is also valid — clipping artifacts at that brevity often aren't audible |
 | `low_volume` | Quiet take | Spot-check — may be fine; only re-fire if muddy in context |
 | `error` | Corrupt download | Re-download from the result JSON |
 
@@ -143,7 +142,7 @@ After re-firing some failed clips as v03/v04, re-run the scanner. The latest sca
 - **`higgsfield-veo-batch`** — same post-download offer pattern in Step 6
 - **`feedback_veo_audio.md`** — Lite silent-take risk (the "no_audio" pattern)
 - **`feedback_verify_veo_download_count.md`** — file-count reconciliation that runs alongside QC
-- **`feedback_veo_no_short_punchy_beats.md`** — the line-length rules that cause `cut_off` flags
+- **`feedback_veo_no_short_punchy_beats.md`** — the line-length rules (relevant for the disabled cut_off check; if cut_off is ever re-enabled, this is the upstream fix for "line too long for 8s")
 - **`feedback_higgsfield_workflow.md`** — Higgsfield CLI is the firing tool; QC happens after files land on disk
 - **`audio_qc_scan.py`** (sibling) — the actual scanner script
 
@@ -155,3 +154,4 @@ After re-firing some failed clips as v03/v04, re-run the scanner. The latest sca
 - Re-firing failed clips (Claude does that outside this skill, using the recovery patterns above)
 - DaVinci timeline-level audio checks (different domain — would need a separate skill)
 - Dialogue-content verification — was tested with OpenAI Whisper transcription, decided the fast pass covers PFM's real failure modes and the Whisper pass was overkill for our use case. Not part of the skill.
+- **Cut-off detection (disabled 2026-05-26).** Originally flagged clips with `<50ms silence in the last 0.5s` as "cut mid-word." Disabled after the Car Repo Breaking News scan flagged 150+ false positives: Rachel's continuous narration + breath + ambient fills the full 8s window without leaving any tail silence, but the dialogue is intact. silencedetect can't tell "audio actually cut mid-word" apart from "audio cleanly fills the 8s window with no quiet tail" for PFM's news-read content. Scanner still computes tail-silence-seconds and includes the value in the report for visibility, but the flag is never set. Re-enable only if we find a better signal (e.g., amplitude envelope analysis on the last ~100ms vs the rest of the clip).
