@@ -87,10 +87,9 @@ Quick sync command for the file copies (run from this repo's root):
 
 ```bash
 # Copy individual SKILL.md files
-for s in hvg-flow hig-flow veo-script-writing lc-to-video-podcast breaking-news-story-ads nano-banana-prompting iphone-cameraroll-prompting higgsfield-image-generation higgsfield-veo-batch; do
+for s in hvg-flow hig-flow veo-script-writing lc-to-video-podcast breaking-news-story-ads nano-banana-prompting higgsfield-image-generation audio-qc visual-qc story-beats; do
   cp ~/.claude/skills/$s/SKILL.md public/skills/$s/SKILL.md
 done
-cp "/Users/samschiller/Documents/CLAUDE/Projects/PFM CONTEXT/.claude/skills/story-beats/SKILL.md" public/skills/story-beats/SKILL.md
 
 # Copy rebuilt Cowork plugin
 cp "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/pfm-writing-skills.plugin" public/pfm-writing-skills.plugin

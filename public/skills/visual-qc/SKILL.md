@@ -1,6 +1,6 @@
 ---
 name: visual-qc
-description: PFM's visual QC skill for Veo-generated mp4 clips — catches background morphs, slide text garble, hallucinated overlays, and hard cuts that audio QC can't see. Per-clip 5-frame filmstrip extraction via ffmpeg (0s/2s/4s/6s/7.8s, scaled 480px wide, hstacked) + full-res end-frame extraction for caption-slide clips with fine on-screen text (rate text, name labels, ZIP codes, dollar amounts). Claude reads each filmstrip and calls ✓ / ✗ / 🔍 VERIFY per clip. Use this skill whenever an editor asks to "run visual QC", "visual QC", "filmstrip QC", "frame QC", "check the visuals", "verify the visuals", "QC the slides", "scan the visuals" — or after a Veo batch downloads and the editor wants a per-clip visual pass. Primarily used on VSL-style projects with per-line slide references where backgrounds must stay frozen. Also auto-offered alongside audio-qc by hvg-flow Step 11 and higgsfield-veo-batch Step 6 (sequential offers: audio first, then visual). NOT for: audio defects (use audio-qc), one-off image QC, podcast story-ad work without per-line slides (filmstrip overhead not worth it).
+description: PFM's visual QC skill for Veo-generated mp4 clips — catches background morphs, slide text garble, hallucinated overlays, and hard cuts that audio QC can't see. Per-clip 5-frame filmstrip extraction via ffmpeg (0s/2s/4s/6s/7.8s, scaled 480px wide, hstacked) + full-res end-frame extraction for caption-slide clips with fine on-screen text (rate text, name labels, ZIP codes, dollar amounts). Claude reads each filmstrip and calls ✓ / ✗ / 🔍 VERIFY per clip. Use this skill whenever an editor asks to "run visual QC", "visual QC", "filmstrip QC", "frame QC", "check the visuals", "verify the visuals", "QC the slides", "scan the visuals" — or after a Veo batch downloads and the editor wants a per-clip visual pass. Primarily used on VSL-style projects with per-line slide references where backgrounds must stay frozen. Also auto-offered alongside audio-qc by hvg-flow Step 11 (sequential offers: audio first, then visual). NOT for: audio defects (use audio-qc), one-off image QC, podcast story-ad work without per-line slides (filmstrip overhead not worth it).
 ---
 
 # Visual QC — PFM
@@ -11,7 +11,7 @@ Per-clip visual quality check for Veo-generated mp4 clips. Catches background mo
 
 This skill triggers on:
 - Editor says "visual QC", "check the visuals", "run visual QC", "filmstrip QC", "frame QC", "verify the visuals"
-- Editor accepts the visual QC offer surfaced by `hvg-flow` Step 11 or `higgsfield-veo-batch` Step 6 (offered after audio QC completes)
+- Editor accepts the visual QC offer surfaced by `hvg-flow` Step 11 (offered after audio QC completes)
 - Editor wants per-clip frame analysis after a Veo batch downloads
 
 Most useful for:
@@ -84,7 +84,7 @@ When stills are ambiguous but everything else looks stable and likely correct (t
 
 ### Standalone invocation (editor says "run visual QC" cold)
 
-When invoked outside `hvg-flow` / `higgsfield-veo-batch` — i.e. the editor says "run visual QC", "filmstrip QC", "check the visuals", etc. without going through a gated flow — confirm the two things the scanner needs before firing:
+When invoked outside `hvg-flow` — i.e. the editor says "run visual QC", "filmstrip QC", "check the visuals", etc. without going through a gated flow — confirm the two things the scanner needs before firing:
 
 1. **Veo folder path** — default suggestion is `<cwd>/Elements/Footage/Veo` if cwd is inside a PFM Lucid Link project (`/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/...`). If cwd is somewhere else, ask the editor for the absolute path.
 2. **Caption-slide L-numbers** — comma-separated list of L-numbers whose slides have rate text / name labels / ZIP codes / dollar amounts that need full-res text inspection. Editor knows this; you don't. Default is `none` if the editor doesn't volunteer any.
@@ -161,7 +161,7 @@ Skipped lines (NSFW at cap) DON'T enter the regen loop — they feed the next de
 
 ### Scenario 1 — Editor accepts post-download offer (chained from hvg-flow)
 
-`hvg-flow` Step 11 or `higgsfield-veo-batch` Step 6 surfaced the visual QC offer after audio QC. Editor said `yes L02, L17, L19` (or just `yes` for no caption focus). The Veo folder is already known (project root + `/Elements/Footage/Veo`), the caption L-numbers came in the editor's reply. Skip the standalone-invocation ask flow above — fire the scanner with the params from the chained context.
+`hvg-flow` Step 11 surfaced the visual QC offer after audio QC. Editor said `yes L02, L17, L19` (or just `yes` for no caption focus). The Veo folder is already known (project root + `/Elements/Footage/Veo`), the caption L-numbers came in the editor's reply. Skip the standalone-invocation ask flow above — fire the scanner with the params from the chained context.
 
 ### Scenario 2 — Editor invokes cold ("run visual QC")
 
@@ -198,7 +198,6 @@ Podcast-style project (one shared ref + one speaker, no slide refs): tell the ed
 
 - **`audio-qc`** — sibling skill; runs first in the bundled QC offer (audio → visual)
 - **`hvg-flow`** — invokes this skill via the post-download QC offer in Step 11 (sequential after audio QC)
-- **`higgsfield-veo-batch`** — same post-download offer pattern in Step 6
 - **`feedback_visual_qc_workflow.md`** — the canonical rule set (5-frame default, caption-slide rule, don't-rationalize, 2-retry cap, pre-delivery overwrite exception)
 - **`feedback_regen_no_overwrite.md`** — visual-qc's pre-delivery overwrite is the documented exception
 - **`feedback_default_count_1.md`** — regen default matches the count=1 fire shape

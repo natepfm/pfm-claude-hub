@@ -1,6 +1,6 @@
 ---
 name: audio-qc
-description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac), Phase 3 is unexpected-music detection (piggybacks on Phase 1's silence intervals + Phase 2's Whisper speech segments to flag non-speech audio energy — musical stings, musical beds, musical tails that Veo sometimes adds despite prompt-level negatives, runs in zero additional ffmpeg passes). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
+description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac), Phase 3 is unexpected-music detection (piggybacks on Phase 1's silence intervals + Phase 2's Whisper speech segments to flag non-speech audio energy — musical stings, musical beds, musical tails that Veo sometimes adds despite prompt-level negatives, runs in zero additional ffmpeg passes). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
 ---
 
 # Audio QC — PFM
@@ -11,7 +11,7 @@ Two-phase quality check for Veo-generated mp4 clips. Catches silent / clipped / 
 
 This skill triggers on:
 - Editor says "QC the clips", "check audio quality", "run audio QC", "verify the videos", "spot-check the clips"
-- Editor accepts the post-download QC offer surfaced by `hvg-flow` Step 11 or `higgsfield-veo-batch` Step 6
+- Editor accepts the post-download QC offer surfaced by `hvg-flow` Step 11
 - Editor wants to re-scan after re-firing failed clips
 - Editor wants to scan a sub-folder (single batch, single state)
 
@@ -167,7 +167,7 @@ Example:
 
 ### Scenario 1 — Editor accepts post-download offer
 
-`hvg-flow` or `higgsfield-veo-batch` surfaced the QC offer after downloads. Editor said `yes`. Run the scanner with the project's Veo folder as the root, default workers, no exclusions. Surface findings + report path.
+`hvg-flow` surfaced the QC offer after downloads. Editor said `yes`. Run the scanner with the project's Veo folder as the root, default workers, no exclusions. Surface findings + report path.
 
 ### Scenario 2 — Batch is still in flight
 
@@ -198,7 +198,6 @@ After re-firing some failed clips as v03/v04, re-run the scanner. The latest sca
 ## Cross-references
 
 - **`hvg-flow`** — invokes this skill via the post-download offer in Step 11
-- **`higgsfield-veo-batch`** — same post-download offer pattern in Step 6
 - **`feedback_veo_audio.md`** — Lite silent-take risk (the "no_audio" pattern)
 - **`feedback_verify_veo_download_count.md`** — file-count reconciliation that runs alongside QC
 - **`feedback_veo_no_short_punchy_beats.md`** — the line-length rules (relevant for the disabled cut_off check; if cut_off is ever re-enabled, this is the upstream fix for "line too long for 8s")

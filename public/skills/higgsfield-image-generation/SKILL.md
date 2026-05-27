@@ -1,32 +1,23 @@
 ---
 name: higgsfield-image-generation
-description: Drive Higgsfield image generation end-to-end via the Higgsfield CLI (`higgsfield generate create`) — fire generations, parse result URLs, download into the user's project folder with PFM filename conventions. CLI-only firing; the Higgsfield MCP `generate_image` tool is FORBIDDEN for actual gens (MCP is read-only inspection only — balance, transactions, models_explore, workspace). Use this whenever the user wants Claude to actually generate Higgsfield images (rather than just write prompts to copy-paste), wants to fire Nano Banana / Nano Banana Pro / NB Pro generations, asks for camera-roll b-roll, references the Higgsfield platform, or wants Claude to run image generation rather than describe one. Triggers especially on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation work. Pair with the iphone-cameraroll-prompting skill when the output should look like real phone snaps rather than studio shots.
+description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfield generate create`) for one-off image work — single shots, ad-hoc variations, prompt tests. **No gated batch flow, no Excel manifest.** Fire generations, parse result URLs, download into the editor's project folder with PFM filename conventions. CLI-only firing; MCP firing is FORBIDDEN (see `feedback_higgsfield_workflow.md` — MCP is read-only inspection only). Use this skill for one-off variations of an existing character, ad-hoc b-roll for an active project, testing prompts before committing to a full batch, refiring failed shots, or character master tests. Triggers on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation that isn't a coordinated batch. NOT for: full batch image work where the editor wants a manifest + coordinated download + gated workflow — use `hig-flow` instead (the 9-gate flow, which accepts either a Notion request URL OR a direct editor brief). Pair with `nano-banana-prompting` for camera-roll prompt style.
 ---
 
-# Higgsfield Image Generation (CLI-driven)
+# Higgsfield Image Generation (CLI-driven, one-off scope)
 
-This skill drives the Higgsfield **CLI** to actually generate images, not just write prompts. If the user wants prompts they can copy-paste themselves into the Higgsfield UI, write the prompts and stop — this skill doesn't apply.
+This skill drives the Higgsfield CLI to actually generate images for **one-off work** — single shots, variations, ad-hoc b-roll, prompt tests. For **full Notion-request batches**, hand off to `hig-flow` instead (the 9-gate flow).
 
-## 🛑 CLI ONLY — MCP is forbidden for firing gens
+If the user wants prompts to copy-paste into the Higgsfield UI themselves, write the prompts and stop — this skill doesn't apply.
 
-**The firing tool is always `higgsfield generate create`.** Locked 2026-05-19, re-locked 2026-05-21. See memory `feedback_higgsfield_workflow.md`.
+## 🛑 CLI for firing, MCP FORBIDDEN — canonical rule in memory
 
-Reasons:
-1. **MCP is ~10× slower.** 4 NB Pro masters via MCP took ~9 min wall clock (presigned upload → curl → confirm → generate → poll → poll again → download). CLI does the same in one command per gen with `--image ./path.png --wait --json`.
-2. **MCP filters break Veo** (relevant for the sibling video skill, but the same architectural pattern applies — never trust the MCP for firing).
-3. **Sam's automation thesis** is to never touch the Higgsfield UI and never manual-wait between steps. CLI delivers that end-to-end.
+**The firing tool is always `higgsfield generate create`.** Full rule + empirical rationale lives in `feedback_higgsfield_workflow.md` (memory). Summary:
 
-**Forbidden MCP tools** (for actual gens — DO NOT call these):
-- `mcp__*generate_image` — use the CLI
-- `mcp__*media_upload` + `mcp__*media_confirm` — CLI's `--image ./local.png` auto-uploads
-- `mcp__*job_display` polling — `--wait` blocks until complete
+- CLI is ~10× faster than the MCP `generate_image` round-trip (one command vs presigned upload → confirm → generate → poll → download)
+- MCP filters break Veo's audio + frame-to-video params (relevant for the sibling video pipeline; same architectural pattern applies here)
+- Sam's automation thesis: never touch the Higgsfield UI, never manual-wait between steps
 
-**Allowed MCP tools** (read-only inspection — fine to call):
-- `mcp__*balance` — credit check
-- `mcp__*transactions` — cost reporting (per `feedback_higgsfield_cost_reporting`)
-- `mcp__*models_explore` — model parameter discovery
-- `mcp__*list_workspaces` / `mcp__*select_workspace` — workspace state
-- `mcp__*show_generations` / `mcp__*show_medias` / `mcp__*show_characters` — inspect prior work
+**Allowed MCP tools** (read-only inspection — fine to call): `balance`, `transactions`, `models_explore`, `list_workspaces` / `select_workspace`, `show_generations` / `show_medias` / `show_characters`. Everything else (`generate_image`, `media_upload`, `media_confirm`, `job_display` polling) → use the CLI instead.
 
 ## 🛑 PFM CONVENTIONS — non-negotiable before firing
 
@@ -48,7 +39,7 @@ Quick rules to self-impose every time:
 
 Full convention list lives in `~/.claude/skills/hig-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
 
-For prompt craft (what to actually write in the prompt body), use the **iphone-cameraroll-prompting** skill alongside this one.
+For prompt craft (what to actually write in the prompt body), use the **nano-banana-prompting** skill alongside this one.
 
 ## Model lineup (the names are confusing)
 
@@ -256,7 +247,7 @@ Same workflow, just pointing the reference at a setting:
 
 The "use reference X ONLY for [setting], not [pose/expression]" framing matters — without it, the model pulls pose, framing, and other elements from the reference and fights what you actually want in the new shot.
 
-See **iphone-cameraroll-prompting** for more on setting-continuity prompt language.
+See **nano-banana-prompting** for more on setting-continuity prompt language.
 
 ## Communication patterns
 

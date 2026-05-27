@@ -63,14 +63,8 @@ export const skills: Skill[] = [
     worksIn: ["code", "cowork"],
     category: "image",
   },
-  {
-    name: "iphone-cameraroll-prompting",
-    title: "iPhone Camera-Roll Prompting",
-    description:
-      "Prompt style for real-phone-snap aesthetic b-roll. Anti-stock, anti-glossy. Pair with hig-flow for batch generation.",
-    worksIn: ["code", "cowork"],
-    category: "image",
-  },
+  // NOTE: `iphone-cameraroll-prompting` was retired 2026-05-27 and folded into
+  // `nano-banana-prompting` as the "iPhone camera-roll style" section.
   {
     name: "higgsfield-image-generation",
     title: "Higgsfield Image Generation (CLI)",
@@ -78,14 +72,6 @@ export const skills: Skill[] = [
       "Fire one-off image generations through the Higgsfield CLI. Pre-upload refs to UUIDs, fire via higgsfield generate create, download into project folder. CLI-only — the Higgsfield MCP is forbidden for actual firing (read-only inspection only).",
     worksIn: ["code"],
     category: "image",
-  },
-  {
-    name: "higgsfield-veo-batch",
-    title: "Higgsfield Veo Batch (Legacy HVG.1)",
-    description:
-      "Reads an HVG.1 webapp manifest + fires the Veo batch via CLI. Kept for legacy projects; new projects use hvg-flow instead.",
-    worksIn: ["code"],
-    category: "video",
   },
   {
     name: "audio-qc",

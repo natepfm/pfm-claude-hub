@@ -6,6 +6,62 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-27
+
+### Complete system audit — final summary
+
+End-to-end pass over hub + skills + memory + Lucid Link mirror + source-of-truth drift. Twelve items closed (in execution order):
+
+1. **Local `hvg-flow` synced** — 45 lines of local-only "Batch/State subfolder" docs that were about to be reverted by the next `update.sh` are now mirrored to Lucid Link + hub.
+2. **`story-beats` restored** — was missing from Lucid Link + local install but still in the hub catalog + Cowork plugin; restored from hub copy.
+3. **Team `CLAUDE.md` rewritten** — old "for Sam personally, not the editing team" scope section replaced with current-reality team-deployed listing (12 skills, hub + Lucid Link as source of truth).
+4. **Superseded memory file deleted** — `feedback_veo_no_camera_move.md` (claim invalidated by 2026-05-26 `feedback_veo_start_end_keyframes_cinemagraph.md`).
+5. **MEMORY.md index fixed** — 2 substantive unindexed feedback files added (`feedback_higgsfield_cli_concurrency_race`, `feedback_veo_lite_audio_flag_always`).
+6. **Hub skill count drift fixed** — `Overview.tsx` now reads `{skills.length}` from `skills.ts` instead of hardcoded "10" in two places.
+7. **`higgsfield-veo-batch` retired** — full removal, all cross-refs cleaned up in audio-qc / visual-qc / hvg-flow / higgsfield-image-generation / hub / CLAUDE.md / MEMORY.md. Folder archived to `_archive/skills/` on Lucid Link.
+8. **MCP-vs-CLI canonicalized** — memory (`feedback_higgsfield_workflow.md`) is the source of truth; hub panel + skill body openings now use "FORBIDDEN" wording consistently and point to memory; stale higgsfield-veo-batch refs in canonical memory cleaned up.
+9. **Changelog top 5 + collapsed archive** — `ChangelogSection.tsx` now parses `## YYYY-MM-DD` date headers, renders the most recent 5 inline, wraps older entries in a `<details>` collapsible.
+10. **`hig-flow` vs `higgsfield-image-generation` sharpened** — both descriptions now explicitly call out the trigger boundary: hig-flow REQUIRES a Notion request URL; higgsfield-image-generation is for one-off work with no Notion required.
+11. **`iphone-cameraroll-prompting` folded into `nano-banana-prompting`** — see dedicated entry below.
+12. **`hvg-flow` reference content extracted** — Gate 4 per-mode follow-ups + Gate 5 full model lineup / cost ladder / CLI args / Kling specifics / aspect ratio defaults moved to load-on-demand sub-docs `hvg-flow/refs/reference-modes.md` and `hvg-flow/refs/model-lineup.md`. Main SKILL.md dropped from 909 → 867 lines with brief inline summaries + pointers to refs/.
+
+Plus polish: 2 memory feedback files had dash-case `name:` values from old slug-copy patterns; normalized to Title Case sentences to match the other 48 files.
+
+Skill count is now 10 (was 12 before audit — `higgsfield-veo-batch` retired + `iphone-cameraroll-prompting` folded). All mirrors verified consistent: Lucid Link = hub public = skills.ts = 10.
+
+Re-run `bash claude-pfm-update.sh` to pick everything up.
+
+### `iphone-cameraroll-prompting` folded into `nano-banana-prompting`
+
+The two image-prompting skills had overlapping triggers and both targeted Nano Banana — `iphone-cameraroll-prompting` even said in its own description "apply BEFORE writing any Nano Banana prompt for character b-roll", which already read as a sub-rule of nano-banana-prompting rather than a sibling. Folded the camera-roll content in as a new section ("iPhone camera-roll style — minimal prompts for character b-roll") inside `nano-banana-prompting/SKILL.md`.
+
+The section preserves all the camera-roll discipline — anchor phrases, anti-glossy words list, phone-screen problem, brand-name negative block, reference image discipline, aging-photos trick, selfies vs third-person framing, concrete good/bad examples — and adds a clear "when to use camera-roll style vs the structured templates above" boundary so editors know which mode applies. The `nano-banana-prompting` skill now covers three distinct prompt-craft modes:
+
+1. **Structured layered prompts** (Rules 1-7 + kill-switch closer) for social-proof batches and character-consistent scenes
+2. **Broadcast news / interview / anchor / field reporter** aesthetic (broadcast ENG camera, lavalier mics, off-camera eye line, anti-stock discipline)
+3. **iPhone camera-roll style** (minimal beats verbose, anchor phrases, anti-glossy discipline) for podcast story-ad b-roll where authenticity beats polish
+
+**Cross-references updated:** every other skill that referenced `iphone-cameraroll-prompting` now points to `nano-banana-prompting` instead (`hig-flow`, `higgsfield-image-generation`, `hvg-flow`, `lc-to-video-podcast`). Same applies to the hub's `Overview.tsx` skills callout + folder tree, `README.md` sync script, team `CLAUDE.md` skills list, and the hub's `skills.ts` catalog (10 entries now, down from 11).
+
+**For Cowork users:** the `pfm-writing-skills.plugin` source has `iphone-cameraroll-prompting/` removed; Sam will rebuild + re-upload the .plugin so Cowork installs pick up the consolidated `nano-banana-prompting` skill on next install.
+
+The skill folder is archived to `_archive/skills/iphone-cameraroll-prompting/` on Lucid Link — recoverable if the split is ever wanted again.
+
+### System audit pass — `higgsfield-veo-batch` retired, hub clutter cleaned up
+
+End-to-end audit of the hub + skills + memory + Lucid Link mirror, fixing inconsistencies and removing legacy weight.
+
+**Retired: `higgsfield-veo-batch` skill.** The legacy HVG.1 webapp manifest path is no longer used — `hvg-flow` (the in-Claude 9-gate flow) supersedes it cleanly. Removed from `skills.ts`, hub `public/skills/`, editor mirrors, and cross-references in `audio-qc` / `visual-qc` / `hvg-flow` / `higgsfield-image-generation` descriptions. The skill folder is archived to `_archive/skills/higgsfield-veo-batch/` on Lucid Link — recoverable if the HVG.1 workflow ever needs to come back, but no longer loaded into editor sessions. Editors with old `~/.claude/skills/higgsfield-veo-batch/` directories can `rm -rf` them or just leave them — they'll stop auto-loading once they're not in Lucid Link's mirror.
+
+**Other audit fixes shipped same day:**
+- `story-beats` skill was missing from Lucid Link and Sam's local install but still in the hub catalog + the Cowork `pfm-writing-skills.plugin` — editors hitting the hub download got an orphan. Restored to both Claude Code installs from the hub copy.
+- `hvg-flow` SKILL.md had 45 lines of locally-edited "Batch/State subfolder" docs that hadn't been mirrored back — about to be silently overwritten on next `claude-pfm-update.sh`. Synced.
+- Team `CLAUDE.md` (auto-loaded at every editor session start) was stuck on "v1 = Sam personally, not the editing team" framing from before the team rollout. Rewritten to current reality (12 deployed skills, hub + Lucid Link as source of truth).
+- `MEMORY.md` index: deleted the explicitly-superseded `feedback_veo_no_camera_move.md` file, added bullets for 2 substantive feedback files that were unindexed (`feedback_higgsfield_cli_concurrency_race`, `feedback_veo_lite_audio_flag_always`).
+- Hub `Overview.tsx` skill count was hardcoded "10" in two places while `skills.ts` had 12 — now dynamic via `{skills.length}`. Drift can't recur.
+
+Re-run `bash claude-pfm-update.sh` to pick everything up.
+
 ## 2026-05-26
 
 ### `audio-qc` Phase 3 — unexpected music / non-speech audio detection

@@ -1,6 +1,6 @@
 ---
 name: hvg-flow
-description: PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference mode + per-line assignment → model lock → master prompt → optional L1 test → Excel manifest → preflight → CLI fire) and downloads clips into `Elements/Footage/Veo/` with deterministic filenames. Supersedes `higgsfield-veo-batch` for new projects (which stays available for legacy HVG.1 webapp manifest drops). NOT for: HVG.1 manifest drops (use `higgsfield-veo-batch`), or one-off clips without a Notion request (use `higgsfield-generate`).
+description: PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference mode + per-line assignment → model lock → master prompt → optional L1 test → Excel manifest → preflight → CLI fire) and downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
 ---
 
 # HVG Flow (PFM Video Generation)
@@ -238,23 +238,14 @@ Render in chat:
 >
 > Reply with the file(s) and the mode letter, e.g. `Jason - On Podcast Set.png, mode A`.
 
-**Step 3 — Per-mode follow-ups:**
+**Step 3 — Per-mode follow-ups:** see `refs/reference-modes.md` for the per-mode specifics (Mode A through Mode E). Quick summary:
+- **Mode A** → confirm shared ref file
+- **Mode B** → verify per-line ref availability via `^L(\d+)\b` regex; surface gaps + ask generate (route to `higgsfield-image-generation`) or skipped
+- **Mode C** → ask rotation strategy: random / sequential / script-tagged
+- **Mode D** → verify both `_start` and `_end` exist per line
+- **Mode E** → ask Mode C rotation strategy for the fall-through pool; per-line `LXX.png` if it exists, else pool pick
 
-**Mode A:** ask which file is the shared ref (auto-pick if exactly one root-level file). Confirm.
-
-**Mode B:** verify every line in the script has a matching file via `^L(\d+)\b` regex. Map lines → files and surface the assignment table. If gaps exist, surface them and ask: "L05, L12, L19 don't have refs. Generate them now (kick to `higgsfield-image-generation`) or fire without them (skill will mark those rows `skipped`)?" If multiple version variants match the same line, ask which version (default suggestion: latest).
-
-**Mode C:** ask rotation strategy:
-> Rotation strategy?
-> (1) **Random** — random pool item per line
-> (2) **Sequential** — cycle through the pool in order, loop if pool < line count
-> (3) **Script-tagged** — editor specifies shot type per line in the script (e.g., `L01: Close, L02: Medium, L03: Long`)
-
-If (3), ask the editor to drop the per-line tag list now (or paste an updated script with the tags inline).
-
-**Mode D:** verify both `_start` and `_end` exist for every line. Surface gaps. Confirm.
-
-**Mode E:** ask Mode C rotation strategy for the fall-through pool. Skill builds per-line assignment using fall-through logic: `LXX.png` if it exists, else pool pick.
+Load `refs/reference-modes.md` for the full procedure if any mode needs more than the quick summary.
 
 **Step 4 — Build the per-line ref assignment table:**
 
@@ -272,9 +263,7 @@ Show the editor what each line will use:
 
 The assignment table feeds gate 8 (Excel manifest's Reference(s) column) and step 10 (per-line `--image` / `--start-image` / `--end-image` dispatch).
 
-**Missing refs handling:**
-- If editor wants to generate missing refs → exit hvg-flow, point editor to `higgsfield-image-generation` skill in a separate chat, restart hvg-flow when refs are saved into the folder
-- If editor wants to fire without missing refs → mark those lines as `skipped` in the manifest and don't fire them in step 10
+**Missing refs:** if editor wants to generate them, exit hvg-flow and route to `higgsfield-image-generation` (one-off) or `hig-flow` (Notion-request batch); if firing without, mark those rows `skipped` in the manifest. Full handling in `refs/reference-modes.md`.
 
 PFM character master format (from memory `feedback_pfm_character_master_format.md`): full-body, plain studio backdrop, standing front-on, neutral pose, neutral wardrobe, 9:16. Don't generate cinematic in-scene shots as the master — only as derived b-roll.
 
@@ -284,53 +273,23 @@ PFM character master format (from memory `feedback_pfm_character_master_format.m
 
 > Model: **Veo 3.1 Lite** (default — silent at 8 cr/clip OR with audio at 12 cr/clip via `--generate_audio true`, `count=1` default). Confirm silent or audio, or want count=2 on any lines? Or different model?
 
-**Available models with verified costs** (8s / 16:9, empirical table 2026-05-20):
-- **Veo 3.1 Lite — silent** — **8 cr/clip**, no audio. Default for silent b-roll, ambient plates, state-variation backgrounds.
-- **Veo 3.1 Lite — with audio** — **12 cr/clip**, dialogue audio + lip sync. **Requires `--generate_audio true` flag** — WITHOUT the flag, Lite ships silent. Default for podcast story-ad dialogue lines where identity is locked from a single reference.
-- **Veo 3.1 Fast** — **~27 cr/clip**, has audio by default. Escalation when Lite quality isn't holding — hero shots, complex performance, tight lip-sync requirements.
-- **Veo 3.1 Preview (base)** — **~58 cr/clip**, has audio. One-shot heroes only — ~2.1× the cost of Fast.
-- **Veo 3.1 Preview (Ultra)** — **~87 cr/clip**, has audio, dialed via `--quality ultra` flag. `--quality` knob on `veo3_1` accepts `basic | high | ultra`. Top-tier quality reserve; use only when Preview-base isn't delivering for the hero placement.
-- Seedance 2.0 — ~30-40 cr/clip
-- **Kling 3.0** — 10 cr (5s std) / 20 cr (10s std) / 25 cr (10s pro) — has audio with lip sync. Strong identity-lock from reference image. Better than Veo for testimonial / single-subject character-continuity work where Veo's stochastic NSFW filter is a tax.
+**Quick cost summary (8s clips, count=1):** Lite silent 8 cr · Lite audio 12 cr · Fast 27 cr · Preview base 58 cr · Preview Ultra 87 cr · Kling 10-25 cr depending on pro/std × duration. **Full model lineup, cost ladder (incl. count=2 opt-in math), complete CLI arg mappings, Kling-specific params, and aspect ratio defaults live in `refs/model-lineup.md` — load it whenever the editor wants a non-default model, asks about cost / CLI flag details, or the Notion brief specs something unusual.**
 
-**Cost ladder** (8s clips, audio variants, count=1 default — double the cost/line for count=2 opt-in):
-| Setup | Cost/line | Audio |
-|---|---|---|
-| Lite silent (DEFAULT for silent b-roll) | 8 cr | ✗ |
-| Lite audio (DEFAULT for dialogue) | 12 cr | ✓ |
-| Fast | 27 cr | ✓ |
-| Preview base | 58 cr | ✓ |
-| Preview Ultra | 87 cr | ✓ |
+**CLI essentials** (full table in `refs/model-lineup.md`):
+- Lite silent → `veo3_1_lite` (no flags)
+- Lite audio → `veo3_1_lite --generate_audio true`
+- Fast → `veo3_1 --model veo-3-1-fast`
+- Preview base → `veo3_1 --model veo-3-1-preview`
+- Preview Ultra → `veo3_1 --model veo-3-1-preview --quality ultra`
+- Kling 3.0 → `kling3_0` (no underscore between "kling" and "3"; see refs for pro/std/duration knobs)
 
-For opt-in A/B picks (count=2) on specific lines, double the cost/line. Editor can specify per-line at gate 5 — e.g. "L01 and L17 at count=2, rest count=1."
+**Aspect ratio default:** **9:16** for Organic / social-first, **16:9** for Paid / horizontal (YouTube, web, story-ad timelines). The Notion `Vertical` field is the strongest signal — Organic defaults 9:16, Auto-Forms / Home-Calls etc. default 16:9. Always confirm before firing. Full per-vertical detail in `refs/model-lineup.md`.
 
 If editor picks Preview, confirm: "Preview base is ~2.1× the cost of Fast; Preview Ultra is ~3.2× Fast — hero shot only?"
-
-**Map to CLI args:**
-- Veo 3.1 Lite silent (DEFAULT for silent) → `veo3_1_lite` positional (no `--model` flag, no `--generate_audio` flag) — 8 cr/clip
-- Veo 3.1 Lite with audio (DEFAULT for dialogue) → `veo3_1_lite` positional + `--generate_audio true` — 12 cr/clip
-- Veo 3.1 Fast → `veo3_1` positional + `--model veo-3-1-fast` — audio included, ~27 cr/clip
-- Veo 3.1 Preview (base) → `veo3_1` positional + `--model veo-3-1-preview` (no `--quality` flag = base default) — ~58 cr/clip
-- Veo 3.1 Preview (Ultra) → `veo3_1` positional + `--model veo-3-1-preview` + `--quality ultra` — ~87 cr/clip
-- Seedance 2.0 → `seedance_2_0` positional
-- Kling 3.0 → `kling3_0` positional (note: no underscore between "kling" and "3")
 
 **Always verify model IDs against the live CLI** before firing — run `higgsfield model list` if you're unsure. The CLI's actual job-set-types occasionally differ from intuition (e.g. `kling3_0` not `kling_3_0`).
 
 Lock the model name + CLI args for use in gates 7, 9, and step 10.
-
-**Kling 3.0 specifics** (verified 2026-05-07):
-- `mode: pro | std` — pro is +5 cr/clip but noticeably better identity preservation and motion control. Default to **pro for testimonial / character-continuity work**, std for ambient or background plates.
-- `sound: on | off` — Kling 3.0 generates dialogue audio with lip sync, comparable to Veo 3.1.
-- `duration: 5 | 10` — default 5; 10 is the right default for dialogue beats with breath room.
-- `aspect_ratio: 16:9 | 9:16 | 1:1`
-- Costs: 10 cr (5s std) / 20 cr (10s std) / **25 cr (10s pro)** — substantially cheaper than Veo 3.1 Fast for testimonial work where Kling's identity-lock from a reference image is often stronger.
-
-**Aspect ratio default by use case** (when the editor doesn't specify):
-- Organic / social-first (Instagram, TikTok, organic posts) → **9:16**
-- Paid / horizontal (YouTube, web, story-ad timelines) → **16:9**
-- Square / multi-platform → 1:1
-The Notion request's `Vertical` field is the strongest signal: "Organic" defaults 9:16, "Auto - Forms" / "Home - Calls" etc. default 16:9 unless stated otherwise. Always confirm before firing.
 
 ## Gate 6 — Master prompt
 
@@ -527,26 +486,45 @@ Use **2-letter state abbreviations** (FL/CO/PA/TX/etc.) for state-variation slug
 
 For state-variation manifests, **order rows by state → clip number** (matches how editors assemble each state's video, not how lines appear in the master script).
 
-**Output folder layout for state-variation runs — per-state subfolders:**
+**Output folder layout for state-variation runs — per-Batch subfolders, then per-State sub-subfolders (numbered):**
 
-State batches drop their clips into `<STATE_ABBR>/` subfolders inside `Elements/Footage/Veo/`. Editors assemble one state's video at a time, so co-locating all of one state's takes makes assembly trivial.
+State batches drop their clips into `Batch <N>/<NN>. <State Name>/` subfolders inside `Elements/Footage/Veo/`. The Batch grouping makes per-batch assembly (and per-batch QC) trivial; the numbered state subfolders match the order in the Notion request (so editors can find Iowa = `01.` under Batch 3 fast); and the full state name (not the 2-letter abbreviation) gives non-technical reviewers a clean file picker. Locked 2026-05-26 across the Karen HOA Auto + Home portfolios.
 
 ```
 Elements/Footage/Veo/
-├── FL/
-│   ├── cybertruck_state_b1_FL_L02_v01.mp4
-│   ├── ... (5 lines × 1 take = 5 files at count=1 default)
-├── CO/
-│   ├── cybertruck_state_b1_CO_L02_v01.mp4
+├── Batch 1/
+│   ├── 01. Florida/
+│   │   ├── Steve_L2_FL.mp4
+│   │   ├── Rachel_L3a_FL.mp4
+│   │   ├── ... (4 lines × 1 take = 4 files at count=1 default)
+│   ├── 02. Oklahoma/
+│   ├── 03. Pennsylvania/
+│   ├── 04. Colorado/
+│   └── 05. Texas/
+├── Batch 2/
+│   ├── 01. Virginia/
+│   ├── 02. Utah/
+│   ├── ... (10 states)
+│   └── 10. New Mexico/
+├── Batch 3/
 │   └── ...
-├── PA/
-│   └── ...
-└── <slug>_prompts.xlsx        ← manifest stays at the Veo root
+├── Broad/                          ← Broad-version clips (NOT state-specific)
+└── <slug>_prompts.xlsx              ← manifest stays at the Veo root
 ```
 
-**The Excel manifest stays at the Veo root** (not duplicated per state) — its rows reference the per-state filenames including the subfolder prefix in the `v01` column (e.g. `FL/cybertruck_state_b1_FL_L02_v01.mp4`). The `v02` column stays empty for count=1 fires; populated only for lines where the editor opted into count=2 at gate 5.
+**Numbering convention:**
+- Two-digit zero-padded prefix (`01.`, `02.`, ..., `10.`, `11.`) so Finder sorts correctly even when a batch has >9 states
+- Index within the batch matches the order in the Notion request's Copy section (e.g. Batch 3 Iowa=01, Georgia=02, Ohio=03, Nebraska=04, etc.)
+- Full state name with spaces preserved (`New Mexico`, not `NewMexico`)
 
-For BASE / BROAD runs (single state's worth of clips), Veo/ stays flat — no subfolders.
+**The Excel manifest stays at the Veo root** (not duplicated per batch or per state) — its rows reference the per-state filenames including the full subfolder prefix in the `v01` column (e.g. `Batch 1/01. Florida/Steve_L2_FL.mp4`). The `v02` column stays empty for count=1 fires; populated only for lines where the editor opted into count=2 at gate 5.
+
+**Filename convention varies by project family.** The Batch X/State subfolder layout above is the standard, but the per-clip filename inside each state folder is project-specific:
+- **Auto Karen HOA (and most newer projects):** `<Character>_L<NN>_<STATE_ABBR>.mp4` (e.g. `Steve_L2_VA.mp4`, `Rachel_L11_AZ.mp4`)
+- **Home Karen HOA (legacy convention):** `<line_num>_<character>_<beat-desc>_<STATE_ABBR>.mp4` (e.g. `2_steve_intro_OR.mp4`, `3a_rachel_standup_intro_PA.mp4`)
+- When firing into an existing project, match its existing filename convention. When starting fresh, use the Auto Karen HOA pattern.
+
+For BASE / BROAD runs (single shared script, no per-state variation), Veo/ stays flat — no Batch subfolders, no state subfolders. The Broad/ folder (next to the Batch X/ folders in a state-variation project) holds the non-state-varying clips that are shared across all states.
 
 **Status field values** (drives row color):
 - `"pending"` — not fired yet (grey) — use this for every row at gate 8 (except a test-approved L1 → `"✓"`)
@@ -583,7 +561,7 @@ Editor confirms → CLI fires (step 10).
 
 ## Step 10 — CLI fire (post-gate execution)
 
-Same CLI logic as `higgsfield-veo-batch`. Key load-bearing details below; consult that skill for full edge cases.
+Key load-bearing CLI details below.
 
 **Image preflight (auto-resize if oversize):**
 
@@ -626,8 +604,29 @@ The CLI command's image flags depend on the reference mode locked in at gate 4:
 | A — Single shared | `--image <shared_ref>` (same for every line) |
 | B — Per-line | `--image <line's LXX.png>` (different per line) |
 | C — Rotating pool | `--image <line's pool pick>` (different per line) |
-| D — Start + end | `--start-image <LXX_start> --end-image <LXX_end>` (no `--image` flag) |
+| D — Start + end (different bookends, motion) | `--start-image <LXX_start> --end-image <LXX_end>` (no `--image` flag) |
+| **D-locked — start=end same UUID (cinemagraph)** | `--start-image <UUID> --end-image <UUID>` (SAME UUID both flags) |
 | E — Mixed | per-line: `--image <LXX.png if exists, else pool pick>` |
+
+**Mode D-locked — studio-anchor cinemagraph pattern (locked 2026-05-26):**
+
+Verified on Home Karen HOA B3 Steve refire — Veo 3.1 Lite via Higgsfield CLI accepts both `--start-image` and `--end-image` flags. Passing the SAME UUID as both endpoints forces a true cinemagraph: only mouth/face animates, every other pixel essentially frozen. Single `--image` lets Veo drift (camera breathing, slight push-in, body micro-movements) which breaks the "talking photograph" look needed for news-anchor cinemagraphs.
+
+**When to use D-locked vs single `--image`** (per-character shot-type rule for news-segment / breaking-news projects):
+
+| Character / shot type | CLI flags | Rationale |
+|---|---|---|
+| Studio anchor at news desk (e.g. Steve) | `--start-image <X> --end-image <X>` (same UUID) | Cinemagraph — locked bookends, only face animates |
+| Field reporter live standup (e.g. Rachel on location) | `--image <X>` | Broadcast handheld micro-drift is desirable |
+| Couch interview (e.g. Adam, Marcus) | `--image <X>` | Natural seated micro-movements expected |
+| Phone-footage SOT (handheld) | `--image <X>` | Handheld feel mandatory |
+| Photo-style screensaver / intro card | `--start-image <X> --end-image <X>` (same UUID) | Locked frame like anchor |
+
+**Rule of thumb:** if the character is in a setting where they would naturally be motionless on a tripod-locked broadcast camera (anchor desk, podcast studio, photo screensaver), use D-locked. If they're handheld or in a setting where natural body micro-movement is part of the broadcast aesthetic (field reporter, couch interview, walking shot, phone footage), use single `--image`.
+
+This applies regardless of Gate 4 mode — even a Mode A "single shared ref" project can mix shot types per character (e.g. a project with one Steve ref + one Rachel ref runs Mode A for both but uses D-locked CLI flags for Steve clips and single `--image` for Rachel clips). The shot-type rule overrides the mode-letter rule for these characters.
+
+See `feedback_veo_start_end_keyframes_cinemagraph.md` for the empirical verification + the use-case matrix.
 
 **Concurrency model — pre-uploaded UUIDs + Python ThreadPool `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically and most jobs come back empty.
 
@@ -678,10 +677,15 @@ def fire_one(line_assignment, variation, ref_uuid_map, mcp_model, model_flag, as
         prompt = line_assignment["fullPrompt"]
 
     img_flags = []
-    if line_assignment.get("refMode") == "D":  # Start + end keyframes
+    shot_type = line_assignment.get("shot_type", "")  # "studio_anchor" / "field_standup" / "interview" / "phone_sot" / "screensaver" / "motion"
+    if line_assignment.get("refMode") == "D":  # Start + end keyframes — different bookends, motion
         img_flags.extend(["--start-image", ref_uuid_map[line_assignment["start_ref"]]])
         img_flags.extend(["--end-image", ref_uuid_map[line_assignment["end_ref"]]])
-    else:  # A / B / C / E — single --image
+    elif shot_type in ("studio_anchor", "screensaver"):  # D-locked cinemagraph — same UUID both endpoints
+        same_uuid = ref_uuid_map[line_assignment["ref"]]
+        img_flags.extend(["--start-image", same_uuid])
+        img_flags.extend(["--end-image", same_uuid])
+    else:  # Single --image — field standup, interview, phone SOT, motion
         img_flags.extend(["--image", ref_uuid_map[line_assignment["ref"]]])
 
     cmd = [
@@ -730,7 +734,7 @@ with ThreadPoolExecutor(max_workers=16) as ex:
 **Download results — call the checked-in helper (NOT inline shell, which triggers permission prompts every run):**
 
 For BASE / BROAD runs: write straight into `Elements/Footage/Veo/`.
-For state-variation runs: write into `Elements/Footage/Veo/<STATE_ABBR>/` subfolders (the helper auto-routes by detecting `_<XX>_L<NN>` state tags in the slug).
+For state-variation runs: write into `Elements/Footage/Veo/Batch <N>/<NN>. <State Name>/` subfolders (two-digit zero-padded state index matching Notion order, full state name with spaces). The `download_parallel.sh` helper auto-routes per the layout in Gate 8; custom Python download scripts must use the same `Batch N/NN. State/` path structure. See Gate 8 for the locked convention + filename pattern matrix.
 
 ```bash
 bash ~/.claude/skills/hvg-flow/download_parallel.sh "Elements/Footage/Veo" <slug1> <slug2> <slug3> ...
@@ -744,7 +748,7 @@ Pass each slug as a separate positional argument (one per fired clip variation, 
 
 This command IS statically allowlistable as `Bash(bash ~/.claude/skills/hvg-flow/*)` — no permission prompt after first approval.
 
-**Edge cases (consult `higgsfield-veo-batch` for full handling):**
+**Edge cases:**
 - NSFW false-positive (~20-30% on bald/turtleneck Chad-type characters): re-fire same prompt + ref
 - Rate limit hit: wait 60s, retry failed jobs
 - Image upload failure: auto-resize image, retry
@@ -756,7 +760,7 @@ After all clips download, **rewrite** `<slug>_prompts.xlsx` using the same `buil
 
 Update each prompt entry in the config:
 - `status`: `"✓"` if all expected mp4s exist on disk (just v01 at count=1 default; v01 + v02 at count=2 opt-in), `"Partial"` if some-but-not-all (count≥2 opt-in only), `"✗"` if none
-- `v01` / `v02`: actual filenames. **For state-variation runs, include the per-state subfolder prefix** (e.g. `FL/cybertruck_state_b1_FL_L02_v01.mp4`) so the editor can locate the file directly from the manifest. For BASE / BROAD runs, just the filename.
+- `v01` / `v02`: actual filenames. **For state-variation runs, include the full per-Batch + per-State subfolder prefix** (e.g. `Batch 1/01. Florida/Steve_L2_FL.mp4`) so the editor can locate the file directly from the manifest. For BASE / BROAD runs, just the filename.
 - `notes`: error reason for failed rows (e.g. "v01 missing — NSFW filter false positive"); empty for success
 
 Then run the helper exactly like in gate 8:
@@ -858,7 +862,6 @@ If audio QC ran, also list flagged-clip hotspots (per-L-number concentrations) �
 ## Cross-references
 
 - `higgsfield-image-generation` — for reference creation when gate 4 finds nothing
-- `higgsfield-veo-batch` — predecessor skill, still handles HVG.1 webapp manifest drops
-- `iphone-cameraroll-prompting` — for camera-roll b-roll prompt craft (separate workflow)
+- `nano-banana-prompting` — for camera-roll b-roll prompt craft (separate workflow)
 - Memory: `feedback_pfm_brand_clean_rules.md`, `feedback_pfm_character_master_format.md`, `feedback_higgsfield_workflow.md`, `feedback_veo_audio.md`, `feedback_hvg1_master_prompt_format.md`
 - Workflow context: `project_pfm_podcast_story_workflow.md`

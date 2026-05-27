@@ -1,3 +1,5 @@
+import { skills } from "@/content/skills";
+
 export default function Overview() {
   return (
     <section id="overview" className="my-20 scroll-mt-8">
@@ -28,8 +30,8 @@ export default function Overview() {
           <div className="flex items-center gap-4">
             <div className="w-16 shrink-0 text-3xl text-center">🎯</div>
             <div className="flex-1 border border-border rounded-lg p-4 bg-surface/50">
-              <div className="font-semibold">Skills <span className="text-xs font-mono text-muted ml-2">10 SKILL.md files</span></div>
-              <div className="text-sm text-muted">Structured workflows. <code>hvg-flow</code> + <code>hig-flow</code> for production pipelines; <code>veo-script-writing</code>, <code>lc-to-video-podcast</code>, <code>story-beats</code>, <code>breaking-news-story-ads</code>, <code>nano-banana-prompting</code>, <code>iphone-cameraroll-prompting</code> for writing/prompting. Loads on trigger phrase or context match.</div>
+              <div className="font-semibold">Skills <span className="text-xs font-mono text-muted ml-2">{skills.length} SKILL.md files</span></div>
+              <div className="text-sm text-muted">Structured workflows. <code>hvg-flow</code> + <code>hig-flow</code> for production pipelines; <code>veo-script-writing</code>, <code>lc-to-video-podcast</code>, <code>story-beats</code>, <code>breaking-news-story-ads</code>, <code>nano-banana-prompting</code> for writing/prompting. Loads on trigger phrase or context match.</div>
             </div>
           </div>
           <div className="text-2xl text-accent text-center">▼</div>
@@ -72,11 +74,11 @@ export default function Overview() {
               <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Read-only inspection of workspace state</span></div>
               <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Balance, transactions, models_explore lookups</span></div>
               <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Built-in via Claude Desktop connectors</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Filters break Veo (audio, frame-to-video) — not usable for firing</span></div>
+              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted"><strong className="text-text">FORBIDDEN for firing</strong> — MCP filters break Veo (audio, frame-to-video) and the CLI is ~10× faster</span></div>
             </div>
             <div className="mt-4 pt-3 border-t border-border">
               <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-1">Best for</div>
-              <div className="text-sm text-muted">Inspection only — checking credit balance, pulling cost transaction history, discovering model parameters. <strong className="text-text">Not used for firing any image or video gen</strong> — that&apos;s all CLI.</div>
+              <div className="text-sm text-muted">Inspection only — checking credit balance, pulling cost transaction history, discovering model parameters. <strong className="text-text">MCP firing is FORBIDDEN</strong> — every image and video gen goes through the CLI.</div>
             </div>
           </div>
 
@@ -103,7 +105,7 @@ export default function Overview() {
         </div>
 
         <div className="mt-4 text-xs text-muted italic">
-          PFM fires every image and video gen through the CLI — no exceptions. MCP is for read-only inspection (balance, transactions, workspace) only.
+          Canonical rule lives in memory at <code>feedback_higgsfield_workflow.md</code>. CLI for every fire; MCP firing FORBIDDEN; MCP use is read-only inspection only (balance, transactions, workspace).
         </div>
       </div>
 
@@ -201,7 +203,7 @@ export default function Overview() {
         <div className="border border-border rounded-lg p-5 bg-surface/30">
           <pre className="text-xs font-mono text-muted overflow-x-auto">
 {`6. Claude PFM/
-├── skills/                              ← 10 PFM skills, deployed to every editor
+├── skills/                              ← ${skills.length} PFM skills, deployed to every editor
 │   ├── hvg-flow/                          The video pipeline (9 gates, parallel waves)
 │   ├── hig-flow/                          The image pipeline (b-roll generation)
 │   ├── veo-script-writing/                Veo rule enforcement on scripts
@@ -209,9 +211,8 @@ export default function Overview() {
 │   ├── story-beats/                       PFM 6-beat story-ad skeleton
 │   ├── breaking-news-story-ads/           LATU news-wrapper framing
 │   ├── nano-banana-prompting/             NB Pro prompt patterns
-│   ├── iphone-cameraroll-prompting/       Real-phone-snap b-roll aesthetic
 │   ├── higgsfield-image-generation/       CLI-driven one-off image driver
-│   └── higgsfield-veo-batch/              Legacy HVG.1 manifest runner
+│   └── higgsfield-image-generation/       One-off image CLI fires (no Notion required)
 ├── context/                             ← Brand briefs per vertical (auto, home, CC)
 ├── settings.json                        ← Claude permission allowlist (46 entries)
 ├── CLAUDE.md                            ← Team brief, auto-loaded by Claude Code

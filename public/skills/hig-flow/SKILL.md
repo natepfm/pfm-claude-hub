@@ -1,13 +1,13 @@
 ---
 name: hig-flow
-description: PFM's Higgsfield Image Generator flow — end-to-end pipeline from a Notion request URL to delivered b-roll images, run by editors directly in Claude Code. Image counterpart to `hvg-flow`. Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder AND wants images (not video clips), or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference scan + auto-character-match → model lock → shot list + prompt craft → Excel manifest → preflight → CLI fire → report) and downloads images into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default model is Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt. Loads `iphone-cameraroll-prompting` skill by default for prompt craft style; editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic, etc.). NOT for: video generation (use `hvg-flow`), one-off image experiments without a Notion request (use `higgsfield-image-generation` skill — CLI-driven), training Soul Characters (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill walks 9 confirmation gates (cwd verification → brief intake / Notion fetch → reference scan + auto-character-match → model lock → shot list + prompt craft → Excel manifest → preflight → CLI fire → report) and downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt, iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
 ---
 
 # HIG Flow (PFM Image Generation)
 
 End-to-end Higgsfield image generation pipeline for PFM editors. Image counterpart to `hvg-flow`. Editor drops Notion request + project folder, Claude walks 9 confirmation gates, fires CLI batch, downloads images, writes Excel audit manifest.
 
-**Architecture:** Notion MCP for request fetch → `iphone-cameraroll-prompting` skill for default prompt style → Higgsfield CLI (`higgsfield generate create nano_banana_2`) for image generation → Excel manifest via sibling helper.
+**Architecture:** Notion MCP for request fetch → `nano-banana-prompting` skill for default prompt style → Higgsfield CLI (`higgsfield generate create nano_banana_2`) for image generation → Excel manifest via sibling helper.
 
 **Trigger phrases:** "run image generations" (primary), "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". Also auto-propose when a Notion URL is dropped in image-context (editor mentions b-roll, images, photos) while cwd is inside a Lucid Link project folder.
 
@@ -126,14 +126,14 @@ This is the conversational gate. Two paths converge here:
 **Path A — Claude proposes from script:**
 - Read the parsed Notion script
 - For each numbered line, decide if it warrants a unique b-roll image (most lines do; some pure-narration beats don't)
-- Apply `iphone-cameraroll-prompting` patterns by default (camera-roll iPhone aesthetic)
+- Apply `nano-banana-prompting` patterns by default (camera-roll iPhone aesthetic)
 - Apply PFM brand-clean rules from memory (`feedback_pfm_brand_clean_rules.md`) per vertical
 - Output a draft shot list with: shot ID, line match (if any), reference images, draft prompt
 - Show the editor: "Here's the proposed shot list — edit, cut, or add."
 
 **Path B — Editor describes shots inline:**
 - Editor provides plain-language shot descriptions ("hardware store, Chad loading lumber, candid iPhone snap; family at dinner table, kids laughing; close-up of a folded utility bill on a kitchen counter")
-- Claude expands each into a full prompt using `iphone-cameraroll-prompting` + brand-clean rules
+- Claude expands each into a full prompt using `nano-banana-prompting` + brand-clean rules
 - Show prompts back, get sign-off
 
 **Both paths usually mix:** editor says "Take a stab at the shot list, I'll cut and add."
@@ -146,10 +146,10 @@ This is the conversational gate. Two paths converge here:
 **Reference dispatch per shot:**
 - Editor specifies refs per shot ("L17 uses Ryan master + Ryan apartment setting"; "family_dinner uses Chad master + wife master")
 - Auto-default: character master ref(s) for any shot whose description names a character
-- If editor says "make this look different" (e.g. studio shot instead of camera roll), Claude departs from `iphone-cameraroll-prompting` defaults for that one shot
+- If editor says "make this look different" (e.g. studio shot instead of camera roll), Claude departs from `nano-banana-prompting` defaults for that one shot
 
 **Style override per shot (rare):**
-- Default style = camera-roll (`iphone-cameraroll-prompting` skill loaded)
+- Default style = camera-roll (`nano-banana-prompting` skill loaded)
 - Editor can override with: "S05 should be polished studio not camera-roll" — Claude adjusts that one shot's prompt accordingly
 
 **Save the shot list:**
@@ -401,7 +401,7 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 
 ## What NOT to do
 
-- **Don't write image prompts without `iphone-cameraroll-prompting` patterns** — that's the default style for PFM b-roll. Editor explicitly opts out per-shot if a different aesthetic is needed.
+- **Don't write image prompts without `nano-banana-prompting` patterns** — that's the default style for PFM b-roll. Editor explicitly opts out per-shot if a different aesthetic is needed.
 - **Don't skip PFM brand-clean rules** — every prompt's negative section needs the brand-clean stack from `feedback_pfm_brand_clean_rules.md` (no automaker badges for Auto, no carrier logos, no Apple dock on laptops, etc.).
 - **Don't fire** without showing the shot list at gate 6 and the preflight at gate 9.
 - **Don't generate character masters here** — masters are foundational, build them via the `higgsfield-image-generation` skill (CLI-driven) or follow `STORY-AD-IMAGE-WORKFLOW.md` Phase 1. HIG Flow assumes masters already exist in `Reference/`.
@@ -413,7 +413,7 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 ## Cross-references
 
 - `hvg-flow` — video counterpart to this skill (same architecture, different model + output)
-- `iphone-cameraroll-prompting` — loaded by default at gate 6 for prompt style
+- `nano-banana-prompting` — loaded by default at gate 6 for prompt style
 - `higgsfield-image-generation` — CLI-driven skill for one-off image experiments and character-master creation
 - `nano-banana-prompting` — NB-specific prompting patterns
 - `higgsfield-product-photoshoot` — for studio / product compositions (different skill if editor requests)

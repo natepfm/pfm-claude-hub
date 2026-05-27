@@ -220,7 +220,7 @@ If the brief is state-variant, use `### [Concept Name] — [Vertical] LC — Veo
 - **Upstream of `hvg-flow`** — this skill produces the script that lives in the Copy callout. `hvg-flow` reads that callout to build the per-clip Veo manifest and fire generations.
 - **Pairs with `veo-script-writing`** — that skill owns Veo's universal rules (no dashes, no caps, no named devices, 6-8s clips). This skill layers an LC-source workflow and podcast voice transformation on top.
 - **Hand off to `spanish-translation`** for a Spanish version once the English script is locked. Run that skill against the final numbered script, not against the source LC.
-- **Camera-roll b-roll** for the podcast (cutaways of the speaker's life — kitchen table, Best Buy register, etc.) uses `iphone-cameraroll-prompting` via `hig-flow`.
+- **Camera-roll b-roll** for the podcast (cutaways of the speaker's life — kitchen table, Best Buy register, etc.) uses `nano-banana-prompting` via `hig-flow`.
 
 ### Handoff to hvg-flow — DO NOT ask the editor to re-paste anything
 
