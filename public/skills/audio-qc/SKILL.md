@@ -1,6 +1,6 @@
 ---
 name: audio-qc
-description: PFM's audio quality check skill for Veo-generated mp4 clips. Two-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
+description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac), Phase 3 is unexpected-music detection (piggybacks on Phase 1's silence intervals + Phase 2's Whisper speech segments to flag non-speech audio energy — musical stings, musical beds, musical tails that Veo sometimes adds despite prompt-level negatives, runs in zero additional ffmpeg passes). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` and `higgsfield-veo-batch` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
 ---
 
 # Audio QC — PFM
@@ -45,6 +45,25 @@ When the project's Excel manifest is passed via `--manifest <slug>_prompts.xlsx`
    - If similarity < threshold (default 0.70) → escalate flag to `dialogue_mismatch`
 3. Report includes per-clip transcript + expected dialogue for any mismatches
 
+### Phase 3 — Unexpected music / non-speech audio (piggybacks on Phases 1 + 2, ~0s extra)
+
+Runs whenever Phase 2 runs (no extra flag needed). Uses the silence intervals Phase 1 already parsed + the speech segments Phase 2 already got from Whisper. Zero additional ffmpeg passes.
+
+Logic per clip:
+1. Compute non-silent regions (invert Phase 1's silence intervals across the clip duration)
+2. Subtract Whisper's speech segments — what's left is non-speech non-silent audio
+3. Filter regions shorter than 0.30s (drops breath / Whisper word-gap noise)
+4. Flag `unexpected_music` if any single region > 0.40s OR cumulative > 0.60s
+5. Escalation rule: only escalates a clip from `OK` → `unexpected_music`. If the clip already has `dialogue_mismatch` / `clipped` / `low_volume`, those stay as the primary flag and the music regions show up in the dedicated report section anyway (via the `has_unexpected_music` field).
+
+**What this catches:**
+- Cold-open musical stings (Veo's known tendency to add musical intros to dialogue clips — see `feedback_veo_audio_artifacts.md` for the prompt-level prevention rules)
+- Musical tails after dialogue ends
+- Musical beds with gaps where dialogue should fill (Whisper transcribes the dialogue cleanly, but audio energy persists in the gaps)
+- Any non-speech audio in a clip that's supposed to be dialogue-only
+
+**Caveat:** if Whisper missed any spoken words (silent voice, muffled audio, unusual accent), they'd appear as false-positive music regions. The 0.30s minimum-region filter mitigates short bursts; longer false positives need a spot-check. Bias is to over-flag rather than under-flag.
+
 **Flag values (combined):**
 | Flag | Means | Typical cause |
 |---|---|---|
@@ -54,6 +73,7 @@ When the project's Excel manifest is passed via `--manifest <slug>_prompts.xlsx`
 | `clipped` | max_volume > -0.5 dB | Distortion / harsh peaks (digital 0 dBFS clipping) |
 | `no_audio` | No audio stream | Veo Lite shipped silent (common — known issue) |
 | `dialogue_mismatch` | Transcript similarity < threshold | Wrong words, mid-syllable cut, voice drift, or Whisper mistranscription of dollar amounts / numbers |
+| `unexpected_music` | Non-speech audio detected (Phase 3) — single region > 0.40s OR cumulative > 0.60s of audio energy that Whisper didn't transcribe as speech | Cold-open musical sting, musical tail, musical bed, or other non-dialogue audio. Veo cold-open stings are the most common cause despite the prompt-level negatives in `feedback_veo_audio_artifacts.md` |
 | `error` | ffmpeg or Whisper failed | Corrupt file, codec issue, or model exception |
 
 **Empirical baseline (2026-05-26 Car Repo scan):**
@@ -138,6 +158,9 @@ Example:
 | `dialogue_mismatch` (isolated, transcript reads close to expected but with a wrong word) | Real wrong-word event — Veo synthesized a different word than the prompt asked for | Spot-check the transcript section of the report; if it really is a wrong-word case, re-fire as v03 |
 | `dialogue_mismatch` (similarity 0.7-0.9, transcript matches but for number/dollar-amount rendering) | Whisper mistranscription of digits — "fifteen hundred" heard as "1500" | Usually a false positive — verify by listening and accept the take. Consider lowering `--dialogue-threshold` for this project if it's frequent |
 | `dialogue_mismatch` (concentrated on one L#) | Either Veo consistently drops a phrase from that line, or the manifest's expected dialogue is out of sync with what was actually fired | Check the manifest vs the script; if script was edited mid-batch, manifest may be stale. Re-fire affected clips only if dialogue is genuinely missing words |
+| `unexpected_music` (single region at clip start, ~0.5-1.5s) | Cold-open musical sting — Veo's known tendency despite prompt negatives | Re-fire as v03 with the strengthened audio-block negatives from `feedback_veo_audio_artifacts.md`. If persistent across multiple takes of the same line, the prompt needs tightening at the script level |
+| `unexpected_music` (single region at clip end, last ~0.5-1.0s) | Musical tail after dialogue ends | Same recovery as cold-open sting — re-fire with strengthened negatives. Often pairs with `clipped` on the same clip when the tail peaks |
+| `unexpected_music` (multiple small regions throughout) | Possible musical bed under the dialogue, OR Whisper missed words (false positive) | Spot-check the actual clip — is there music under the dialogue, or did Whisper just stumble on a name / number / accent? If real music, re-fire; if Whisper miss, accept the take |
 | `error` | Corrupt download or Whisper exception | Re-download from the result JSON; if Whisper itself errored, re-run the scanner |
 
 ## Common scenarios

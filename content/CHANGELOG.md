@@ -8,6 +8,33 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-26
 
+### `audio-qc` Phase 3 — unexpected music / non-speech audio detection
+
+Audio QC now catches non-speech audio energy (musical stings, musical tails, musical beds) that Veo sometimes adds despite the prompt-level negatives in `feedback_veo_audio_artifacts.md`. Previously these slipped through — `dialogue_mismatch` only fired if the music corrupted the dialogue enough to drop similarity. Clean dialogue + music bleed went undetected.
+
+**How it works (zero-cost piggyback):**
+- Phase 1 already parses silence intervals via ffmpeg's `silencedetect` filter
+- Phase 2 already gets per-segment speech timestamps from Whisper's transcribe output
+- Phase 3 just does interval math — invert silence → non-silent regions, subtract speech segments → non-speech audio regions
+- Filter regions < 0.30s (drops breath / word-gap noise)
+- Flag `unexpected_music` if any single region > 0.40s OR cumulative > 0.60s
+
+No additional ffmpeg passes. No new model downloads. Runtime cost is essentially zero — adds to the same Phase 2 loop.
+
+**What it catches:**
+- Cold-open musical stings (~0.5-1.5s at clip start before dialogue)
+- Musical tails after dialogue ends
+- Musical beds with detectable speech gaps
+- Any non-speech audio in a dialogue-expected clip
+
+**Escalation rule:** only escalates `OK` → `unexpected_music`. Doesn't override `dialogue_mismatch` / `clipped` / `low_volume` as primary flag — those stay primary and music regions still show up in a dedicated report section via the `has_unexpected_music` field.
+
+**Caveat:** if Whisper missed any spoken words (silent voice, muffled audio, unusual accent), they'd appear as false-positive music. The 0.30s minimum-region filter handles short bursts; longer false positives need a spot-check. Bias is to over-flag.
+
+**Report changes:** new "Unexpected music / non-speech audio" section in `audio_qc_report_<date>.md` listing affected clips + per-clip music region timestamps. Recovery patterns added to the audio-qc skill body for cold-open sting / musical tail / musical bed.
+
+Auto-runs whenever Phase 2 runs (i.e. whenever `--manifest` is passed). Re-run `bash claude-pfm-update.sh` to pick it up.
+
 ### `visual-qc` skill — per-clip filmstrip pass for VSL slide defects
 
 New sibling skill to `audio-qc`. Catches what you can SEE that audio can't — background morphs, slide text garble, hallucinated overlays (the canonical L19 "Jake" label defect), hard cuts. Built primarily for VSL-style projects with per-line slide references where the LED screen and on-screen text MUST stay frozen across the 8s clip.
