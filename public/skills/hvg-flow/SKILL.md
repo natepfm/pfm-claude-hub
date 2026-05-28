@@ -1,11 +1,11 @@
 ---
 name: hvg-flow
-description: PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill walks 9 confirmation gates (cwd verification → Notion fetch → reference mode + per-line assignment → model lock → master prompt → optional L1 test → Excel manifest → preflight → CLI fire) and downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
+description: PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill runs setup SILENTLY (cwd check, Notion fetch + parse, model lock to Veo Lite count=1, master prompt draft, manifest write) and stops for the editor at only up to two confirmations — reference assignment (only when ambiguous) and a single consolidated preflight before firing — then downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
 ---
 
 # HVG Flow (PFM Video Generation)
 
-End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HVG.1 webapp + manifest dance: editor drops a Notion request URL inside a project folder, Claude walks 9 confirmation gates, fires the CLI batch, downloads clips, writes an Excel audit manifest.
+End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HVG.1 webapp + manifest dance: editor drops a Notion request URL inside a project folder, Claude runs setup silently and stops at up to two confirmations (reference assignment when ambiguous, then a consolidated preflight), fires the CLI batch, downloads clips, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
 
 **Architecture:** Notion MCP for request fetch → Higgsfield **CLI** (`higgsfield generate create nano_banana_2`) for any missing reference image creation → Higgsfield **CLI** (`higgsfield generate create veo3_1_fast`) for video generation → xlsx skill for the audit manifest. **CLI for ALL gens — never the MCP `generate_image` / `generate_video` tools** (MCP is read-only inspection only — `balance`, `transactions`, `models_explore`, `select_workspace`). See `feedback_higgsfield_workflow.md`.
 
@@ -16,18 +16,28 @@ End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HV
 - The editor drops or names a **PFM project folder path** (anything under `/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/...`) — including when the session opens with cwd already inside one
 - The editor pastes both a Notion URL AND a folder reference together
 
-**🛑 MANDATORY INITIATION BEHAVIOR — read carefully:**
+**🛑 EXECUTION MODEL — silent setup, minimal confirmation stops (updated 2026-05-27):**
 
-When any of the auto-initiation triggers above are detected, your **first response must be Gate 1 of this skill** — full stop. Do NOT:
-- Fetch the Notion page first to "get a head start"
-- Run `ls`, `pwd`, or any shell commands ahead of Gate 2's exact prompt
-- Try to parse the brief or guess at request shape (Format A/B/C)
-- Build prompts, scan refs, propose models, or speculate about state variations
-- Offer alternatives ("would you like me to run hvg-flow, or just summarize the brief?") — the answer is always: enter the protocol
+On a trigger (URL drop / folder ref / verb), enter the flow immediately — don't offer alternatives, don't ask "would you like me to…". The trigger IS the go. Then run with **silent setup and at most two confirmation stops**: pause only where a wrong call costs real credits, and hard-stop loud on any failure.
 
-The editor invoking the skill via trigger (URL drop, folder ref, or verb) is the confirmation to start. Your job is to walk them through 9 gates in order. Each gate's prompt is scripted below — say what's scripted, wait for the editor's reply, move to the next gate. **No freelancing between gates. No skipping gates. No combining gates.**
+**Run SILENTLY — do the work, don't stop for a yes:**
+- **Gate 1** — capture the Notion URL (from the message or session context).
+- **Gate 2** — context check (pwd / `Elements/` / CLI / auth). Print the one-line readback, keep going. HARD-STOP only if a check fails (see Gate 2 conditions).
+- **Gate 3** — fetch + parse the Notion request, including request shape (Format A/B/C) and state-variation detection. The parsed summary rolls into the preflight — don't stop for it.
+- **Gate 5** — lock the model: default **Veo 3.1 Lite, count=1**, silently. Only ask if the editor pre-specified a non-default model/count, or the brief clearly implies one (hero shot, etc.). The locked model always shows in the preflight.
+- **Gate 6** — draft the master prompt silently. A representative per-line prompt shows in the preflight for spot-check.
+- **Gate 7** — L1 test: skipped by default. Run it only if the editor asks, or the prompt is novel / high-risk.
+- **Gate 8** — write the Excel manifest silently (side-effect deliverable).
 
-If the editor's first message contains information that would normally come at Gate 3 or later (e.g., they paste the master prompt at session start), still acknowledge Gate 1 first, then mention you've already captured the master prompt and will reuse it at Gate 6 when you arrive there. Do not jump ahead.
+**STOP for confirmation — the only blocking gates:**
+- **Gate 4 — Reference assignment.** Auto-suggest the mode + per-line assignment from the folder scan. If it's unambiguous (one root-level ref → Mode A; every line has its own `LXX.png` → Mode B), state what you'll use and roll it straight into the preflight — NO separate stop. If it's ambiguous (multiple modes viable, missing refs, rotation strategy needed), THIS is a stop: surface the options as plain markdown and wait for the editor's pick.
+- **Gate 9 — Consolidated preflight → fire.** One block: parsed brief summary (+ state list for state-variation runs), reference plan, model + count, clip count, cost (have X → Y after), output folder, and one representative per-line prompt. Single **"Fire?"** — last stop before spend.
+
+**Net:** a clean project (unambiguous refs, default model) reaches a SINGLE confirmation — the preflight. A project needing a reference decision gets two. Never more.
+
+**Hard-stops fire loud regardless of mode** (safety rails, not gates): cwd not a PFM project folder · `Elements/` missing · CLI missing · auth expired · insufficient credits · missing refs (editor decides generate-vs-skip).
+
+**Silent ≠ off-script.** Run the defined steps in order — don't invent steps, don't fire random shell commands outside the flow, don't skip straight to firing without the preflight. Silent means "don't pause at setup," not "freelance." If the editor's first message already contains later-gate info (e.g. they paste a master prompt), use it when you reach that step — don't discard it, and don't jump ahead to fire either.
 
 **Mid-session handoffs — DO NOT re-ask for the Notion URL or project folder:**
 
@@ -35,7 +45,7 @@ If hvg-flow is being invoked mid-session — common cases are after `lc-to-video
 
 Example correct opening when chained mid-session:
 
-> Picking up the same Notion request (`<URL>`) in `<project folder pwd>`. Entering HVG Gate 1.
+> Picking up the same Notion request (`<URL>`) in `<project folder pwd>`. Running setup now.
 
 Example WRONG opening (do not produce this — it's redundant and frustrating):
 
@@ -43,15 +53,13 @@ Example WRONG opening (do not produce this — it's redundant and frustrating):
 
 The editor already gave you the URL once. Re-asking treats them like they're starting over. The only time you ask for a Notion URL is when the session genuinely starts cold with no prior context.
 
-**Speed expectation:** <2 minutes from session start to wave 1 firing on a clean project (refs already in place, master prompt ready to paste).
+**Speed expectation:** <90 seconds from trigger to the preflight on a clean project (refs in place, default model) — the old per-gate round-trips are now silent.
 
-**The 9-gate sequence is non-negotiable.** Every gate is a confirmation point — never skip ahead, never proceed past a gate without explicit editor confirmation. Gates exist to catch misconfigurations before they burn credits.
-
-**UI style — NEVER use the `AskUserQuestion` tool for gate confirmations.** All multi-choice questions in this skill (reference mode, model lock, rotation strategy, etc.) MUST be rendered as plain markdown text in the chat. The editor will type a reply like "A" or "Mode B" or "Veo Fast" — wait for it. The interactive question cards break the editor's flow (small target area, can't see context, mobile-unfriendly) and Sam explicitly does not want them. This applies to every gate.
+**UI style — NEVER use the `AskUserQuestion` tool.** The confirmation stops (reference assignment, preflight) are plain markdown chat — the editor types "Mode B" / "fire" / etc. Interactive cards break the editor's flow (small target, no context, mobile-unfriendly) and Sam doesn't want them.
 
 ---
 
-## Gate 1 — Session start
+## Gate 1 — Session start [SILENT]
 
 Editor has already done this part:
 1. Opened Claude Code in the specific project folder (Code tab → folder picker → Lucid Link path)
@@ -59,7 +67,7 @@ Editor has already done this part:
 
 Capture the URL from the editor's message OR from earlier in the session context (e.g., from a chained `lc-to-video-podcast` or `veo-script-writing` run). Don't proceed past gate 2 without a URL. **Only ask "Drop the Notion request URL to continue"** when the session genuinely has no URL anywhere in context — never as a default opener mid-conversation.
 
-## Gate 2 — Context check ("up to speed")
+## Gate 2 — Context check ("up to speed") [SILENT — hard-stop on failure]
 
 Fire these in parallel in a single message before responding:
 
@@ -86,7 +94,7 @@ If all four pass, single readback line:
 
 > Working in `<full pwd>`. Context ✓. Higgsfield: **X credits**. Notion ready. Pulling the request now.
 
-## Gate 3 — Notion request review
+## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
 Use `mcp__*notion-fetch` with the URL the editor dropped. Parse:
 
@@ -184,7 +192,7 @@ If the prose flag and the section headers disagree, surface the mismatch and let
 >
 > Confirm before I check refs?
 
-## Gate 4 — Reference mode + assignment
+## Gate 4 — Reference mode + assignment [STOP if ambiguous; else roll into preflight]
 
 Different project types use refs differently. The skill supports five modes; editor picks one explicitly.
 
@@ -212,7 +220,9 @@ When multiple files match the same line number (e.g. `L1 - Title Slide - v1.png`
 
 Report all four buckets to the editor.
 
-**Step 2 — Present as plain markdown text (NOT AskUserQuestion). Ask TWO things together — reference image(s) AND reference mode.** Always show all 5 mode options with plain-English explanations, even if some look obviously inapplicable — the editor decides, not you.
+**Per the Execution Model, this is a STOP only when the reference assignment is AMBIGUOUS.** If it's unambiguous — exactly one root-level ref (→ Mode A), or every script line has its own `LXX.png` (→ Mode B) — state the auto-assignment you'll use and roll it straight into the preflight (Gate 9). Don't stop here. The Step 2 ask below is for the ambiguous case: multiple modes viable, missing refs, or a rotation strategy is needed.
+
+**Step 2 (ambiguous case) — Present as plain markdown text (NOT AskUserQuestion). Ask TWO things together — reference image(s) AND reference mode.** Show all 5 mode options with plain-English explanations — the editor decides, not you.
 
 Render in chat:
 
@@ -267,9 +277,11 @@ The assignment table feeds gate 8 (Excel manifest's Reference(s) column) and ste
 
 PFM character master format (from memory `feedback_pfm_character_master_format.md`): full-body, plain studio backdrop, standing front-on, neutral pose, neutral wardrobe, 9:16. Don't generate cinematic in-scene shots as the master — only as derived b-roll.
 
-## Gate 5 — Model confirmation
+## Gate 5 — Model lock [SILENT — default Veo Lite count=1; ask only for non-default]
 
 **Default for SILENT b-roll: Veo 3.1 Lite at count=1** (8 cr/clip = 8 cr/line). **Default for DIALOGUE: Veo 3.1 Lite with `--generate_audio true` at count=1** (12 cr/clip = 12 cr/line). **`count=1` is the locked default** as of 2026-05-26 — editors can opt in to `count=2` (or higher) on specific lines where audio variance matters by saying so at this gate. A/B picks are no longer the default; refire-on-QC-fail is the new safety net (see Step 11 "Refire decisions" and `feedback_default_count_1.md`).
+
+**Per the Execution Model, this gate is SILENT by default:** lock Veo 3.1 Lite count=1 and move on — the model + count show in the preflight (Gate 9) for the editor to catch there. Surface the prompt below ONLY if the editor pre-specified a non-default model/count, or the brief clearly implies one (hero shot, tight lip-sync, etc.):
 
 > Model: **Veo 3.1 Lite** (default — silent at 8 cr/clip OR with audio at 12 cr/clip via `--generate_audio true`, `count=1` default). Confirm silent or audio, or want count=2 on any lines? Or different model?
 
@@ -291,7 +303,7 @@ If editor picks Preview, confirm: "Preview base is ~2.1× the cost of Fast; Prev
 
 Lock the model name + CLI args for use in gates 7, 9, and step 10.
 
-## Gate 6 — Master prompt
+## Gate 6 — Master prompt [SILENT — representative line shown at preflight]
 
 **Two prompt-shape modes — pick one with the editor before drafting:**
 
@@ -377,7 +389,7 @@ In step 10, the per-line `--prompt` value is the full bespoke prompt body for th
 
 Show 1-2 representative per-line prompts to the editor for spot-check before moving to gate 7.
 
-## Gate 7 — Optional test generation (L1)
+## Gate 7 — Optional test generation (L1) [SILENT — skipped unless editor asks]
 
 > Test-fire L1 (~12-27 cr depending on model, count=1 default) before committing the full batch? Worth it if the prompt is novel or the line is high-stakes. Reply `yes` (count=1 default), `yes count=2` (~double cost, see take-to-take audio variance), or `skip`.
 
@@ -394,7 +406,7 @@ Show 1-2 representative per-line prompts to the editor for spot-check before mov
 **Skip:**
 - Proceed to gate 8 with no L1 takes yet; full batch will fire L1 along with everything else.
 
-## Gate 8 — Excel manifest write
+## Gate 8 — Excel manifest write [SILENT]
 
 **The Excel manifest is REQUIRED, not optional — write it even when the editor is in prompt-craft mode and not firing the CLI.** Sam locked this in across the Purdentix batch (2026-05-13). Whenever you write Veo/Kling per-line prompts for a PFM project — whether the editor is firing them through the CLI in this same session, copy-pasting them somewhere else, or just collecting them for later — the spreadsheet **MUST** be written to the project folder at `Elements/Footage/Veo/<slug>_prompts.xlsx`. The editor uses this manifest as their canonical reference for the full prompt set; without it, the prompts only live in chat scrollback and can be lost when context compacts or the session ends.
 
@@ -537,7 +549,9 @@ For BASE / BROAD runs (single shared script, no per-state variation), Veo/ stays
 
 **Don't update this file mid-batch.** One write before fire (this gate), one rewrite after fire (step 11) — same helper, same config schema, just refreshed status / v01 / v02 / notes per row.
 
-## Gate 9 — Final preflight
+## Gate 9 — Consolidated preflight → fire [STOP]
+
+**This is the one consolidated confirmation stop.** It absorbs what the now-silent model lock (Gate 5) and master prompt (Gate 6) used to confirm separately — so the editor sees everything that's about to happen in one block and approves once.
 
 Pull current Higgsfield balance fresh:
 
@@ -545,11 +559,21 @@ Pull current Higgsfield balance fresh:
 higgsfield account status
 ```
 
-Calculate total clips: lines × count (minus L1's count if test was approved).
+Calculate total clips: lines × count (minus L1's count if a test was approved). Then show the full preflight in one block:
 
-> **<Model display name>** | <N prompts> × count=<C> = <X clips> | ~<Y> cr (have **<Z>** → <W> after) | Output: `Elements/Footage/Veo/` | Ref: `<filename>` ✓
->
-> Fire?
+> **Preflight — <Project name>**
+> Brief: <one-line, e.g. "Karen HOA Selling Christmas BN — 23 lines"> <append "· States: FL, CO, PA, TX, GA" for state-variation runs>
+> Reference: <mode + file(s), e.g. "Mode A — Jason - On Podcast Set.jpg" / "Mode E — per-line + pool">
+> Model: **<display name>**, count=<C>
+> Clips: <N prompts> × <C> = **<X clips>**
+> Cost: ~<Y> cr (have **<Z>** → <W> after)
+> Output: `Elements/Footage/Veo/`
+> ---
+> Representative prompt (L01): _<first ~2 lines of the actual L01 per-line prompt>_
+> ---
+> **Fire?**
+
+The representative-prompt line is the editor's chance to catch a prompt-level problem now that the master-prompt gate runs silent. Show one real per-line prompt (the L01 body), not the whole master JSON. For state-variation runs, also confirm the state list here is right — this is the last catch before a multi-state spend.
 
 **Hard-stop if balance < estimated cost:**
 

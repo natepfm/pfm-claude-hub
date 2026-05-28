@@ -145,9 +145,9 @@ export default function Overview() {
                 <div className="flex gap-2"><span className="text-accent">1.</span>Recognizes the trigger</div>
                 <div className="flex gap-2"><span className="text-accent">2.</span>Loads <code>hvg-flow</code> skill</div>
                 <div className="flex gap-2"><span className="text-accent">3.</span>Enters Gate 1 immediately</div>
-                <div className="flex gap-2"><span className="text-accent">4.</span>Walks all 9 gates in order</div>
+                <div className="flex gap-2"><span className="text-accent">4.</span>Runs setup silently, stops at up to 2 confirmations</div>
               </div>
-              <div className="text-xs text-muted mt-3 italic">No freelancing between gates — every confirmation is explicit.</div>
+              <div className="text-xs text-muted mt-3 italic">Most steps run silently — 2 confirmation stops max (reference assignment + preflight).</div>
             </div>
           </div>
         </div>
@@ -157,24 +157,24 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Panel 4: The 9 gates */}
+      {/* Panel 4: How the flow runs */}
       <div className="my-12">
-        <h3 className="text-xl font-bold mb-2">4. The 9 gates Claude walks with every editor</h3>
+        <h3 className="text-xl font-bold mb-2">4. How the flow runs — silent setup, up to 2 confirmation stops</h3>
         <p className="text-muted text-sm mb-5 max-w-3xl">
-          Each gate is a confirmation checkpoint. Claude doesn't move forward until the editor confirms. This catches misconfigurations before they burn credits.
+          Most steps run silently. Claude pauses for the editor at only two points — reference assignment (when it's ambiguous) and a consolidated preflight right before firing. Hard-stops (wrong folder, missing CLI, low credits) interrupt regardless. This keeps the credit-burning safety checks without nine round-trips. <span className="italic">(Updated 2026-05-27 — the 6 friction gates went silent.)</span>
         </p>
 
         <div className="space-y-2">
           {[
-            { num: 1, title: "Session start", what: "Capture the Notion URL and confirm the editor opened Claude Code in the right project folder." },
-            { num: 2, title: "Context check", what: "Verify cwd is inside Lucid Link, Higgsfield CLI is authenticated, project folder structure exists. Hard-stop on any failure." },
-            { num: 3, title: "Notion request review", what: "Fetch the brief via Notion MCP. Detect request shape (Format A/B/C). Surface clip count, state variations, MB attribution." },
-            { num: 4, title: "Reference scan + mode", what: "Scan Elements/Footage/Reference/. Ask the editor which reference image(s) and which of 5 reference modes (single shared, per-line, rotating pool, start+end frames, mixed)." },
-            { num: 5, title: "Model lock", what: "Confirm Veo 3.1 Fast (default), Quality, or Lite. Show per-clip cost." },
-            { num: 6, title: "Master prompt", what: "Ask for the master prompt for this project. Validate it. Show 1-2 sample per-line prompts for spot-check." },
-            { num: 7, title: "Optional L1 test fire", what: "Fire just line 1 first (count=2, ~44 cr) as a quality check before committing the full batch. Editor can skip." },
-            { num: 8, title: "Excel manifest write", what: "Build a per-project styled Excel — Summary + Prompts sheets with locked PFM colors, color-coded status, fixed-row layout. Lives in the project folder." },
-            { num: 9, title: "Final preflight → FIRE", what: "Show total clips, total cost, parallel wave size, estimated time. Editor types 'fire' to launch — last chance to cancel." },
+            { num: 1, title: "Session start", what: "[Silent] Capture the Notion URL from the message or session context." },
+            { num: 2, title: "Context check", what: "[Silent · hard-stop on fail] Verify cwd is inside Lucid Link, Higgsfield CLI is authenticated, project structure exists. One-line readback, then keep going." },
+            { num: 3, title: "Notion request review", what: "[Silent] Fetch the brief via Notion MCP, detect request shape (Format A/B/C) + state variations. Parsed summary rolls into the preflight." },
+            { num: 4, title: "Reference assignment", what: "[STOP if ambiguous] Scan Elements/Footage/Reference/, auto-suggest the mode + per-line assignment. Unambiguous → rolls into preflight. Ambiguous (multiple modes, missing refs, rotation strategy) → pause for the editor's pick." },
+            { num: 5, title: "Model lock", what: "[Silent] Default Veo 3.1 Lite, count=1. Only asks for a non-default model/count. Always shown in the preflight." },
+            { num: 6, title: "Master prompt", what: "[Silent] Draft the master prompt. A representative per-line prompt shows in the preflight for spot-check." },
+            { num: 7, title: "Optional L1 test", what: "[Silent] Skipped by default. Only fires if the editor asks or the prompt is novel / high-risk." },
+            { num: 8, title: "Excel manifest write", what: "[Silent] Build the per-project styled Excel (Summary + Prompts sheets, color-coded status). Lives in the project folder." },
+            { num: 9, title: "Consolidated preflight → FIRE", what: "[STOP] One block: brief summary, reference plan, model + count, clip count, cost, output folder, representative prompt. Editor types 'fire' — last stop before spend." },
           ].map((g) => (
             <div key={g.num} className="flex gap-4 items-start border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors">
               <div className="shrink-0 w-10 h-10 rounded-full bg-accent text-bg font-bold text-lg flex items-center justify-center">
@@ -189,7 +189,7 @@ export default function Overview() {
         </div>
 
         <div className="mt-4 p-4 bg-accentMuted border-l-4 border-accent rounded-r text-sm text-text">
-          After Gate 9, Claude fires the batch in parallel waves under the rate limit, downloads MP4s into <code>Elements/Footage/Veo/</code> with deterministic filenames, and updates the Excel manifest with status as jobs complete.
+          After the preflight, Claude fires the batch in parallel waves under the rate limit, downloads MP4s into <code>Elements/Footage/Veo/</code> with deterministic filenames, and updates the Excel manifest with status as jobs complete.
         </div>
       </div>
 
@@ -204,7 +204,7 @@ export default function Overview() {
           <pre className="text-xs font-mono text-muted overflow-x-auto">
 {`6. Claude PFM/
 ├── skills/                              ← ${skills.length} PFM skills, deployed to every editor
-│   ├── hvg-flow/                          The video pipeline (9 gates, parallel waves)
+│   ├── hvg-flow/                          The video pipeline (silent setup + 2 stops, parallel waves)
 │   ├── hig-flow/                          The image pipeline (b-roll generation)
 │   ├── veo-script-writing/                Veo rule enforcement on scripts
 │   ├── lc-to-video-podcast/               Long-copy → podcast monologue transform

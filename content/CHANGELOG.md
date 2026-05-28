@@ -8,6 +8,28 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-05-27
 
+### `hvg-flow` streamlined — silent setup, 2 confirmation stops (was 9 gates)
+
+Gate-by-gate confirmation was slower than just running the batch, especially for experienced editors who hit "yes, next" eight times before anything fired. The 6 friction gates now run **silently**; the flow stops for you at only the points where a wrong call costs real credits.
+
+**Runs silently now** (no stop, just does it):
+- cwd / CLI / auth check (hard-stops loud only if something's actually broken)
+- Notion fetch + parse (request shape, state variations)
+- model lock → defaults to Veo Lite count=1
+- master prompt draft
+- L1 test (skipped unless you ask)
+- Excel manifest write
+
+**Still stops for you** (the credit-burning decisions):
+- **Reference assignment** — but only when it's ambiguous. Unambiguous refs (one shared image, or every line has its own slide) roll straight into the preflight with no separate stop.
+- **Consolidated preflight** — one block showing everything about to happen (brief, refs, model + count, clip count, cost, output, a representative prompt) → single "Fire?"
+
+**Net:** a clean project reaches a *single* confirmation (the preflight). A project that needs a reference decision gets two. Never more than two. Hard-stops (bad folder, missing CLI, low credits, missing refs) still interrupt regardless.
+
+Nothing about safety changed — the preflight still shows full cost + a representative prompt before any spend, and for state-variation runs the state list shows there too. What's gone is the eight intermediate "confirm? confirm? confirm?" round-trips. Speed target: trigger → preflight in under 90 seconds on a clean project.
+
+`hig-flow` (the image pipeline) got the same treatment the same day — its shot list folds into the consolidated preflight, so the preflight doubles as shot-list sign-off (cut / add / tweak shots there before firing). Re-run `bash claude-pfm-update.sh` to pick up both.
+
 ### Complete system audit — final summary
 
 End-to-end pass over hub + skills + memory + Lucid Link mirror + source-of-truth drift. Twelve items closed (in execution order):

@@ -1,11 +1,11 @@
 ---
 name: hig-flow
-description: PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill walks 9 confirmation gates (cwd verification → brief intake / Notion fetch → reference scan + auto-character-match → model lock → shot list + prompt craft → Excel manifest → preflight → CLI fire → report) and downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt, iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=2, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt, iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
 ---
 
 # HIG Flow (PFM Image Generation)
 
-End-to-end Higgsfield image generation pipeline for PFM editors. Image counterpart to `hvg-flow`. Editor drops Notion request + project folder, Claude walks 9 confirmation gates, fires CLI batch, downloads images, writes Excel audit manifest.
+End-to-end Higgsfield image generation pipeline for PFM editors. Image counterpart to `hvg-flow`. Editor drops a Notion request (or describes the brief inline) + project folder, Claude runs setup silently and stops at up to two confirmations (character-reference assignment when ambiguous, then a consolidated preflight that doubles as shot-list sign-off), fires the CLI batch, downloads images, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
 
 **Architecture:** Notion MCP for request fetch → `nano-banana-prompting` skill for default prompt style → Higgsfield CLI (`higgsfield generate create nano_banana_2`) for image generation → Excel manifest via sibling helper.
 
@@ -13,13 +13,34 @@ End-to-end Higgsfield image generation pipeline for PFM editors. Image counterpa
 
 **Speed expectation:** <5 minutes from gate 9 fire to last download for a typical 10-15 shot batch. Images are ~30s each via NB Pro and parallelize cleanly.
 
-**The 9-gate sequence is non-negotiable.** Same gating discipline as `hvg-flow` — every gate confirms before proceeding.
+**🛑 EXECUTION MODEL — silent setup, minimal confirmation stops (updated 2026-05-27):**
 
-**UI style — NEVER use the `AskUserQuestion` tool for gate confirmations.** All multi-choice questions in this skill (reference mode, model lock, rotation strategy, etc.) MUST be rendered as plain markdown text in the chat. The editor will type a reply like "A" or "1k" — wait for it. The interactive question cards break the editor's flow and Sam explicitly does not want them. This applies to every gate.
+Same model as `hvg-flow`. On a trigger (URL drop / folder ref / "fire the b-roll" / etc.), enter the flow immediately — don't offer alternatives. Then run with **silent setup and at most two confirmation stops**: pause only where a wrong call costs real credits, hard-stop loud on any failure.
+
+**Run SILENTLY — do the work, don't stop for a yes:**
+- **Gate 1** — capture the URL / brief / inline shot hints.
+- **Gate 2** — context check (pwd / `Elements/` / CLI / auth). One-line readback, keep going. HARD-STOP only on failure.
+- **Gate 3** — fetch + parse the request (or read the editor's inline brief); extract character names for the gate-4 match. Rolls into the preflight.
+- **Gate 5** — lock the model: default **Nano Banana Pro (`nano_banana_2`), 1k, count=2**, silently. Only ask for a non-default model/resolution. Shown in the preflight.
+- **Gate 6** — draft the shot list + per-shot prompts silently (`nano-banana-prompting` style + brand-clean). Save the JSON to `Elements/Prompts/`. The FULL shot list shows in the preflight for approval — it's the deliverable definition, so the editor sees and signs off on every shot there.
+- **Gate 7** — already skipped by default (no L1 test for images).
+- **Gate 8** — write the Excel manifest silently.
+
+**STOP for confirmation — the only blocking gates:**
+- **Gate 4 — Reference / character match.** Auto-match named characters to ref files. If every named character resolves to exactly one master, state the mapping and roll it into the preflight — NO separate stop. If it's ambiguous (a character has no ref, or multiple candidate files), THIS is a stop: surface the gaps and ask (generate the missing master via `higgsfield-image-generation`, specify a path, or skip that shot).
+- **Gate 9 — Consolidated preflight → fire.** One block: brief summary, the FULL shot list (IDs + one-line descriptions), reference plan, model + resolution + count, image count, cost (have X → Y after), output folder. Single **"Fire?"** — last stop before spend. The shot list here IS the editor's sign-off on what gets made; the cost line is sign-off on the spend.
+
+**Net:** a clean project (all characters matched, default model) reaches a SINGLE confirmation — the preflight, which doubles as shot-list approval. A project with an unmatched character gets two. Never more.
+
+**Hard-stops fire loud regardless** (safety rails): cwd not a PFM project folder · `Elements/` missing · CLI missing · auth expired · insufficient credits · a named character with no reference (editor decides generate-vs-skip).
+
+**Silent ≠ off-script.** Run the defined steps in order; don't invent steps or fire outside the flow; don't skip the preflight. Mid-session: never re-ask for the URL / project folder if they're already in context.
+
+**UI style — NEVER use the `AskUserQuestion` tool.** The two confirmations are plain markdown chat — the editor types "1k" / "fire" / "drop shot 3, add a bill close-up" / etc. Interactive cards break the editor's flow and Sam doesn't want them.
 
 ---
 
-## Gate 1 — Session start
+## Gate 1 — Session start [SILENT]
 
 Editor has already done this part:
 1. Opened Claude Code in the specific project folder (Code tab → folder picker → Lucid Link path)
@@ -27,7 +48,7 @@ Editor has already done this part:
 
 Capture the URL + any inline shot hints from the editor's message.
 
-## Gate 2 — Context check ("up to speed")
+## Gate 2 — Context check ("up to speed") [SILENT — hard-stop on failure]
 
 Fire these in parallel before responding:
 
@@ -49,7 +70,7 @@ Same 4-layer cwd verification as `hvg-flow`:
 Single readback line:
 > Working in `<full pwd>`. Context ✓. Higgsfield: **X credits**. Notion ready. Pulling request now.
 
-## Gate 3 — Notion request review
+## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
 Fetch via `mcp__*notion-fetch`. Parse the standard fields:
 - `Task Name (Angle - Concept)` → project name → slug
@@ -74,7 +95,7 @@ Fetch via `mcp__*notion-fetch`. Parse the standard fields:
 >
 > Confirm before I check refs?
 
-## Gate 4 — Reference scan + auto-character-match
+## Gate 4 — Reference scan + auto-character-match [STOP only if a character is unmatched]
 
 ```bash
 ls -la Elements/Footage/Reference/ 2>/dev/null
@@ -85,15 +106,17 @@ ls -la Elements/Footage/Reference/ 2>/dev/null
 - For each name, fuzzy-match against filenames in `Reference/` (case-insensitive substring match — e.g. character "Chad" matches `Chad Chapman/`, `Chad - Master.png`, `chad-podcast.png`)
 - For each character, pick the master ref (look for `master`, `solo`, or just the named file at the root of their folder)
 
-Report mapping:
+**Per the Execution Model, this is a STOP only when a character is UNMATCHED.** If every named character resolves to exactly one master, note the mapping and roll it into the preflight — don't stop here. Stop only if a character has no ref (or multiple candidates), and surface just the gaps.
+
+Report mapping (info — only blocks if there's an unmatched character):
 
 > Character refs found:
 > - **Chad** → `Reference/Chad Chapman/Chad - Solo Master.png` ✓
-> - **Ryan** → not found — generate at gate 6 or specify path?
+> - **Ryan** → not found — generate via `higgsfield-image-generation`, specify a path, or skip Ryan's shots?
 > - **Luis** → `Reference/Luis - Master.png` ✓
-> - **Derek's sister** → not found
+> - **Derek's sister** → not found — skip or substitute?
 >
-> Continue to model lock?
+> (If every character is ✓, no stop — the mapping shows again in the preflight.)
 
 **Missing-ref handling:**
 - If a critical character is missing → ask the editor: "Generate now via the higgsfield-image-generation skill (CLI), or specify a path?"
@@ -101,7 +124,7 @@ Report mapping:
 
 PFM character master format (from memory): full-body, plain studio backdrop, neutral pose, neutral wardrobe, 9:16. The Reference folder usually has master + a few action variations + shirt library.
 
-## Gate 5 — Model lock
+## Gate 5 — Model lock [SILENT — default NB Pro 1k count=2]
 
 Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~5 cr/image at 1k resolution.
 
@@ -119,9 +142,11 @@ Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~5 cr/
 
 Lock the model + resolution + count for use in gates 6, 8, 9.
 
-## Gate 6 — Shot list + prompt craft
+## Gate 6 — Shot list + prompt craft [SILENT — full shot list shown at preflight for approval]
 
-This is the conversational gate. Two paths converge here:
+**Per the Execution Model, draft the shot list + prompts SILENTLY here — the editor approves the full list at the preflight (Gate 9), not at this gate.** The two paths below describe how to build the list; the "show the editor / get sign-off" steps move to the preflight, where the editor can cut / add / tweak shots before firing. (If the editor already gave an explicit shot list inline, just use it.)
+
+This is the prompt-craft gate. Two paths converge here:
 
 **Path A — Claude proposes from script:**
 - Read the parsed Notion script
@@ -178,13 +203,13 @@ JSON schema:
 
 Each shot fires count=2 → produces `<slug>_<shotId>_v01.png` and `<slug>_<shotId>_v02.png`.
 
-Editor approves the shot list → proceed to gate 7. (Note: gate 7 from `hvg-flow` — the optional L1 test fire — is **skipped by default** for HIG Flow because images are cheap and fast; editor reviews the post-batch results and re-fires individual shots if needed.)
+Draft silently → the full shot list is presented for the editor's approval at the consolidated preflight (Gate 9), not here. (Gate 7 — the `hvg-flow` optional L1 test fire — stays **skipped by default** for HIG Flow: images are cheap and fast, so the editor reviews post-batch results and re-fires individual shots if needed.)
 
 ## Gate 7 — (Skipped by default for HIG Flow)
 
 Image gens are cheap (~5 cr/image) and fast (~30s each). No test-fire gate. If the editor wants to spot-test one shot before firing the full batch, they can ask: "fire just shot S05 first" — and we'd run a one-off via the CLI (`higgsfield generate create nano_banana_2 ...`) per the `higgsfield-image-generation` skill conventions, then return.
 
-## Gate 8 — Excel manifest write
+## Gate 8 — Excel manifest write [SILENT]
 
 Use the helper script that ships with this skill:
 
@@ -245,7 +270,9 @@ rm "$CONFIG"
 
 **Don't update mid-batch.** One write before fire (this gate), one rewrite after fire (step 11).
 
-## Gate 9 — Final preflight
+## Gate 9 — Consolidated preflight → fire [STOP]
+
+**This is the one consolidated confirmation stop.** It absorbs what the now-silent model lock (Gate 5) and shot-list draft (Gate 6) used to confirm separately — the editor sees the full shot list AND the cost in one block and approves once. The shot list here IS the editor's sign-off on what gets made.
 
 Pull current Higgsfield balance fresh:
 
@@ -253,11 +280,23 @@ Pull current Higgsfield balance fresh:
 higgsfield account status
 ```
 
-Calculate total images: shots × count.
+Calculate total images: shots × count. Then show the full preflight in one block:
 
-> **<Model display name>** at **<resolution>** | <N shots> × count=<C> = <X images> | ~<Y> cr (have **<Z>** → <W> after) | Output: `Elements/Footage/Primary/B-Roll Photos/` | <K> unique refs in use ✓
->
-> Fire?
+> **Preflight — <Project name>**
+> Brief: <one-line, e.g. "Karen HOA b-roll — 12 shots">
+> Shot list:
+> 1. `L17_ryan_portrait` — Ryan, frustrated, kitchen
+> 2. `L24_chad_hardware_store` — Chad loading lumber, candid iPhone snap
+> 3. `family_dinner` — Chad + wife + kids laughing
+> … (all N shots — ID + one-line each)
+> Reference plan: <characters matched to masters, e.g. "Chad → Solo Master, Ryan → Master">
+> Model: **Nano Banana Pro**, 1k, count=<C>
+> Images: <N shots> × <C> = **<X images>**
+> Cost: ~<Y> cr (have **<Z>** → <W> after)
+> Output: `Elements/Footage/Primary/B-Roll Photos/`
+> **Fire?**
+
+The full shot list is the editor's chance to cut / add / tweak shots now that Gate 6 runs silent — it's the deliverable definition. Editor can reply "fire" or "drop shot 3, add a close-up of the utility bill, then fire."
 
 **Hard-stop if balance < estimated cost:**
 

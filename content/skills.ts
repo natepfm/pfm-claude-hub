@@ -11,7 +11,7 @@ export const skills: Skill[] = [
     name: "hvg-flow",
     title: "HVG Flow",
     description:
-      "End-to-end Veo video pipeline. Walks 9 confirmation gates from a Notion request URL to delivered Veo clips with manifest. The main editor workflow.",
+      "End-to-end Veo video pipeline from a Notion request URL to delivered Veo clips with manifest. Runs setup silently and stops at up to 2 confirmations (reference assignment + consolidated preflight). The main editor workflow.",
     worksIn: ["code"],
     category: "pipeline",
   },
@@ -19,7 +19,7 @@ export const skills: Skill[] = [
     name: "hig-flow",
     title: "HIG Flow",
     description:
-      "End-to-end Nano Banana b-roll pipeline. Image counterpart to hvg-flow. Defaults to NB Pro at 1k, count=2. 9 confirmation gates.",
+      "End-to-end Nano Banana b-roll pipeline. Image counterpart to hvg-flow. Defaults to NB Pro at 1k, count=2. Runs setup silently, stops at up to 2 confirmations (character match + a preflight that doubles as shot-list sign-off).",
     worksIn: ["code"],
     category: "pipeline",
   },
