@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const links = [
   { href: "/#update", label: "Update my skills" },
-  { href: "/#overview", label: "How it works" },
+  { href: "/#overview", label: "How to use" },
   { href: "/#setup-mac", label: "Setup · Mac" },
   { href: "/#setup-windows", label: "Setup · Windows" },
   { href: "/#skills", label: "Skills" },
