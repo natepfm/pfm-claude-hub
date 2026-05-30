@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const pages = [
   { href: "/", label: "Onboarding", icon: "🚀" },
   { href: "/claude", label: "Claude", icon: "🤖" },
+  { href: "/creatives", label: "Creatives", icon: "🎬" },
   { href: "/resources", label: "Resources", icon: "📚" },
 ];
 
@@ -26,7 +27,14 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
     { href: "#troubleshooting", label: "Troubleshooting" },
     { href: "#changelog", label: "Changelog" },
   ],
+  "/creatives": [
+    { href: "#types", label: "Creative types" },
+    { href: "#variations", label: "Variation types" },
+    { href: "#building-blocks", label: "Building blocks" },
+    { href: "#roadmap", label: "Roadmap" },
+  ],
   "/resources": [
+    { href: "#landers", label: "Landers" },
     { href: "#tools", label: "Tools & logins" },
     { href: "#brand", label: "Brand & guidelines" },
     { href: "#assets", label: "Shared assets" },
@@ -36,6 +44,7 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
 
 function baseRoute(pathname: string): string {
   if (pathname.startsWith("/claude")) return "/claude";
+  if (pathname.startsWith("/creatives")) return "/creatives";
   if (pathname.startsWith("/resources")) return "/resources";
   return "/";
 }

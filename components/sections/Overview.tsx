@@ -265,7 +265,8 @@ export default function Overview() {
 │   ├── nano-banana-prompting/             NB Pro prompt patterns
 │   ├── higgsfield-image-generation/       CLI-driven one-off image fires (no Notion needed)
 │   ├── audio-qc/                          Post-download audio QC — ffmpeg + Whisper + music detect
-│   └── visual-qc/                         Post-download visual QC — 5-frame filmstrips
+│   ├── visual-qc/                         Post-download visual QC — 5-frame filmstrips
+│   └── suno-songwriter/                   Ad script → Suno v5 song (lyrics + style)
 ├── context/                             ← Brand briefs per vertical (auto, home, CC)
 ├── settings.json                        ← Claude permission allowlist (46 entries)
 ├── CLAUDE.md                            ← Team brief, auto-loaded by Claude Code

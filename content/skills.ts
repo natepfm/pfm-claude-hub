@@ -89,4 +89,12 @@ export const skills: Skill[] = [
     worksIn: ["code"],
     category: "utility",
   },
+  {
+    name: "suno-songwriter",
+    title: "Suno Songwriter",
+    description:
+      "Turn an ad script into a Suno v5 song — lyrics + style block, hook-driven and offer-forward. The validated ad-to-song workflow; output feeds the downstream Veo claymation ad pipeline.",
+    worksIn: ["code", "cowork"],
+    category: "writing",
+  },
 ];

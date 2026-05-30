@@ -1,4 +1,5 @@
 import PlaceholderCard from "@/components/PlaceholderCard";
+import { landerGroups, landersSourceUrl } from "@/content/landers";
 
 export default function ResourcesPage() {
   return (
@@ -9,9 +10,45 @@ export default function ResourcesPage() {
           <span className="text-accent">Resources</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
-          The reference shelf — logins, brand briefs, shared assets, and how-to guides editors reach for during a project. (Draft frame — tell me what belongs here and I&apos;ll fill it in.)
+          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers are live below; the rest is a draft frame — tell me what belongs and I&apos;ll fill it in.
         </p>
       </header>
+
+      {/* Landers — by vertical (mirrors the Discount Landers Notion page) */}
+      <section id="landers" className="my-12 scroll-mt-8">
+        <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
+          <h2 className="text-2xl font-bold text-text">🛬 Landers</h2>
+        </div>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          The landing pages our ads point to, by vertical. Source of truth:{" "}
+          <a href={landersSourceUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accentHover underline">
+            Discount Landers in Notion ↗
+          </a>
+          .
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {landerGroups.map((g) => (
+            <div key={g.vertical} className="border border-border rounded-lg p-4 bg-surface/50">
+              <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-3">{g.vertical}</div>
+              <div className="space-y-3">
+                {g.landers.map((l) => (
+                  <div key={l.label}>
+                    <div className="text-sm font-medium text-text">{l.label}</div>
+                    <a
+                      href={l.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-mono text-accent hover:text-accentHover underline break-all"
+                    >
+                      {l.url}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Tools & logins */}
       <section id="tools" className="my-12 scroll-mt-8">
