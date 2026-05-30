@@ -31,7 +31,6 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
     { href: "#types", label: "Creative types" },
     { href: "#variations", label: "Variation types" },
     { href: "#building-blocks", label: "Building blocks" },
-    { href: "#roadmap", label: "Roadmap" },
   ],
   "/resources": [
     { href: "#landers", label: "Landers" },

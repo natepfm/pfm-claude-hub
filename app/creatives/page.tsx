@@ -2,34 +2,17 @@ import {
   creativeTypes,
   variationTypes,
   buildingBlocks,
-  statusMeta,
   type CreativeEntry,
-  type CreativeStatus,
 } from "@/content/creatives";
 
 const BLOCK_GROUPS = ["Scripts & structure", "Images & graphics", "QC"];
 
-function StatusBadge({ status }: { status: CreativeStatus }) {
-  const m = statusMeta[status];
-  return (
-    <span
-      className="text-[10px] uppercase tracking-widest font-semibold rounded px-1.5 py-0.5 border shrink-0"
-      style={{ color: m.color, borderColor: m.color + "66" }}
-    >
-      {m.label}
-    </span>
-  );
-}
-
 function EntryCard({ e }: { e: CreativeEntry }) {
   return (
     <div className="border border-border rounded-lg p-4 bg-surface/50">
-      <div className="flex items-start justify-between gap-2 mb-1">
-        <div className="font-semibold text-text">
-          {e.name}
-          {e.aka && <span className="text-xs text-muted font-normal ml-2">{e.aka}</span>}
-        </div>
-        <StatusBadge status={e.status} />
+      <div className="font-semibold text-text mb-1">
+        {e.name}
+        {e.aka && <span className="text-xs text-muted font-normal ml-2">{e.aka}</span>}
       </div>
       <div className="text-sm text-muted leading-relaxed">{e.description}</div>
       {e.appliesTo && (
@@ -43,10 +26,6 @@ function EntryCard({ e }: { e: CreativeEntry }) {
 }
 
 export default function CreativesPage() {
-  const roadmap = [...creativeTypes, ...variationTypes, ...buildingBlocks].filter(
-    (e) => e.status === "in-progress" || e.status === "planned"
-  );
-
   return (
     <div>
       <header className="mb-10">
@@ -55,16 +34,9 @@ export default function CreativesPage() {
           Creative <span className="text-accent">Library</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
-          Every creative type PFM produces and every variation we run — each mapped to the skill that builds it and where it stands. The source of truth lives in the team knowledge base; this page tracks it.
+          Every creative type PFM produces and every variation we run — each mapped to the skill that builds it. The source of truth lives in the team knowledge base; this page mirrors it.
         </p>
       </header>
-
-      {/* Status legend */}
-      <div className="flex flex-wrap gap-2 mb-12">
-        {(Object.keys(statusMeta) as CreativeStatus[]).map((s) => (
-          <StatusBadge key={s} status={s} />
-        ))}
-      </div>
 
       {/* Creative types */}
       <section id="types" className="my-12 scroll-mt-8">
@@ -114,35 +86,6 @@ export default function CreativesPage() {
             </div>
           </div>
         ))}
-      </section>
-
-      {/* Roadmap */}
-      <section id="roadmap" className="my-12 scroll-mt-8">
-        <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🛠️ Roadmap</h2>
-        </div>
-        <p className="text-muted text-sm mb-5 max-w-3xl">
-          What&apos;s being built or queued next — the rest above are live.
-        </p>
-        {roadmap.length === 0 ? (
-          <div className="text-sm text-muted">Nothing in flight right now — every creative in the library is established. In-progress and planned creatives show up here.</div>
-        ) : (
-          <div className="space-y-3">
-            {roadmap.map((e) => (
-              <div
-                key={e.name}
-                className="flex items-start gap-3 border border-border rounded-lg p-4 bg-surface/50"
-              >
-                <StatusBadge status={e.status} />
-                <div className="flex-1">
-                  <div className="font-semibold text-text">{e.name}</div>
-                  <div className="text-sm text-muted leading-relaxed mt-0.5">{e.description}</div>
-                  <div className="text-xs font-mono text-accent/90 mt-2">↳ {e.skill}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </section>
     </div>
   );

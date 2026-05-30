@@ -1,26 +1,16 @@
 // PFM Creative Library — the registry of creative TYPES, VARIATION types, and the
-// BUILDING BLOCKS each skill produces, mapped to skill + build status.
+// BUILDING BLOCKS each skill produces, mapped to the skill that builds it.
 // Source of truth: "6. Claude PFM/context/creative-library.md" (this mirrors it for the hub).
 // Reconciled 2026-05-29 from a knowledge-base inventory (memory · PFM CONTEXT · skills · hub).
-
-export type CreativeStatus = "built" | "in-progress" | "planned" | "manual";
 
 export interface CreativeEntry {
   name: string;
   aka?: string;
   description: string;
   skill: string; // skill that builds it, or "manual" / "none"
-  status: CreativeStatus;
   appliesTo?: string; // variation types only
   group?: string; // building blocks only
 }
-
-export const statusMeta: Record<CreativeStatus, { label: string; color: string }> = {
-  built: { label: "Established", color: "#34d399" },
-  "in-progress": { label: "In progress", color: "#FF6B35" },
-  planned: { label: "Planned", color: "#60a5fa" },
-  manual: { label: "Manual", color: "#a1a1aa" },
-};
 
 // ── Creative types: the deliverable ad formats ──────────────────────────────
 export const creativeTypes: CreativeEntry[] = [
@@ -30,7 +20,6 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "The core PFM format — a ~1:30–3:00 narrative ad on the 6-beat structure, built from per-line dialogue Veo clips of a character speaking to camera.",
     skill: "hvg-flow (via story-beats + veo-script-writing)",
-    status: "built",
   },
   {
     name: "Breaking News Story Ad",
@@ -38,7 +27,6 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "A story ad wrapped as a local 6pm news segment — anchor desk, field reporter, SOTs, chyrons / lower thirds.",
     skill: "breaking-news-story-ads",
-    status: "built",
   },
   {
     name: "Podcast Story Ad",
@@ -46,14 +34,12 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "A long-copy Facebook ad reworked as a dad-on-a-podcast monologue, delivered in 6-8s Veo clips.",
     skill: "lc-to-video-podcast → hvg-flow",
-    status: "built",
   },
   {
     name: "UGC Testimonial / Dialogue",
     description:
       "Talent-to-camera selfie-style ad with cold-open dialogue and a locked voice / audio block.",
     skill: "veo-script-writing + hvg-flow",
-    status: "built",
   },
   {
     name: "VSL",
@@ -61,7 +47,6 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "Long-form single-speaker pitch (40+ captioned lines) with per-line on-screen slides, run as hvg-flow Format B.",
     skill: "hvg-flow (Format B)",
-    status: "built",
   },
   {
     name: "Song Ad",
@@ -69,7 +54,6 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "An ad script turned into a Suno v5 song — hook-driven and offer-forward (feeds the Veo claymation ad pipeline).",
     skill: "suno-songwriter",
-    status: "built",
   },
   {
     name: "3D Pixar / Claymation Ad",
@@ -77,7 +61,6 @@ export const creativeTypes: CreativeEntry[] = [
     description:
       "Animated Pixar / claymation-style ad with recurring 3D characters (Marcus, Robert, Max the Dog) — spans character ads, podcasts, and music videos; song forms ride a Suno track.",
     skill: "hvg-flow (Veo) + suno-songwriter",
-    status: "built",
   },
 ];
 
@@ -90,7 +73,6 @@ export const variationTypes: CreativeEntry[] = [
       "Per-state swaps ([STATE] / [CITY] / [RATE]) where the speaker names the state — swap 2-5 clips + text, no full re-edit.",
     skill: "hvg-flow + notion-state-batches",
     appliesTo: "Story Ad · Breaking News · VSL",
-    status: "built",
   },
   {
     name: "State-Batch Continuation",
@@ -98,7 +80,6 @@ export const variationTypes: CreativeEntry[] = [
       "Sequential Notion batches that close the remaining states after Batch 1 validates (batch count + cadence vary by creative).",
     skill: "notion-state-batches",
     appliesTo: "State creatives",
-    status: "built",
   },
   {
     name: "Hook Variation",
@@ -107,7 +88,6 @@ export const variationTypes: CreativeEntry[] = [
       "Multiple opening sequences on the same concept — different angle or inciting trigger — tested separately for performance.",
     skill: "story-beats",
     appliesTo: "Story Ad · Breaking News",
-    status: "built",
   },
   {
     name: "Inciting-Incident / Skit Swap",
@@ -115,7 +95,6 @@ export const variationTypes: CreativeEntry[] = [
       "Same root cause with a different visible crisis — car repo vs smoking engine vs tow chase vs locksmith.",
     skill: "story-beats",
     appliesTo: "Story Ad",
-    status: "built",
   },
   {
     name: "Reaction-Hook Variant",
@@ -123,7 +102,6 @@ export const variationTypes: CreativeEntry[] = [
       "An alternative presell hook using reaction / response footage, built as a named variant batch.",
     skill: "notion-state-batches",
     appliesTo: "Breaking News · Story Ad",
-    status: "built",
   },
   {
     name: "Calls vs Forms",
@@ -132,7 +110,6 @@ export const variationTypes: CreativeEntry[] = [
       "Same skit re-cut for a form-fill lander vs a click-to-call lander; differs at Beat 5 + CTA wording.",
     skill: "veo-script-writing / iterate-creative",
     appliesTo: "All",
-    status: "built",
   },
   {
     name: "Vertical Pivot",
@@ -141,7 +118,6 @@ export const variationTypes: CreativeEntry[] = [
       "Reframe the same story for a different vertical — authority figure, mechanism, and rate floors re-anchored.",
     skill: "veo-script-writing / iterate-creative",
     appliesTo: "All",
-    status: "built",
   },
   {
     name: "Spanish Localization",
@@ -150,7 +126,6 @@ export const variationTypes: CreativeEntry[] = [
       "Same skit with a Spanish dialogue track + Spanish overlays, run as a separate Forms lead type.",
     skill: "spanish-translation",
     appliesTo: "All dialogue creatives",
-    status: "built",
   },
   {
     name: "Aspect-Ratio Variant",
@@ -159,7 +134,6 @@ export const variationTypes: CreativeEntry[] = [
       "Same creative at multiple ratios — 9:16 organic / social, 16:9 paid / YouTube. Each state batch ships both.",
     skill: "hvg-flow",
     appliesTo: "All",
-    status: "built",
   },
   {
     name: "Rate / Savings-Floor",
@@ -167,7 +141,6 @@ export const variationTypes: CreativeEntry[] = [
       "Swap the specific rate / savings number in dialogue to test value props ($39 vs $29/mo Auto).",
     skill: "manual",
     appliesTo: "Story Ad · VSL · Breaking News",
-    status: "manual",
   },
   {
     name: "Ending / CTA Swap",
@@ -175,21 +148,18 @@ export const variationTypes: CreativeEntry[] = [
       "Change how the story resolves or the CTA is framed — final beat, wording, or closing visual.",
     skill: "manual",
     appliesTo: "All",
-    status: "manual",
   },
   {
     name: "Music / Audio-Bed Swap",
     description: "Replace the music bed over the same cut for different emotional coloring.",
     skill: "manual (Suno)",
     appliesTo: "All with audio",
-    status: "manual",
   },
   {
     name: "Text-Overlay / Graphics Swap",
     description: "Different on-screen text, headlines, or CTAs over the same footage.",
     skill: "manual",
     appliesTo: "All video",
-    status: "manual",
   },
 ];
 
@@ -200,14 +170,12 @@ export const buildingBlocks: CreativeEntry[] = [
     name: "Story Beats",
     description: "Locked 6-beat skeleton with must-hit dialogue anchors, before the dialogue pass.",
     skill: "story-beats",
-    status: "built",
   },
   {
     group: "Scripts & structure",
     name: "Veo Script",
     description: "Numbered dialogue formatted for Veo — 6-8s lines, no dashes / caps, state tokens.",
     skill: "veo-script-writing",
-    status: "built",
   },
   {
     group: "Images & graphics",
@@ -215,28 +183,24 @@ export const buildingBlocks: CreativeEntry[] = [
     description:
       "Full-body neutral studio portrait — the locked identity reference for all downstream b-roll + Veo. Regenerate to recast.",
     skill: "hig-flow",
-    status: "built",
   },
   {
     group: "Images & graphics",
     name: "Camera-Roll B-Roll",
     description: "iPhone-camera-roll-style candids of characters, locked to script line numbers.",
     skill: "hig-flow",
-    status: "built",
   },
   {
     group: "Images & graphics",
     name: "Phone-Screen B-Roll",
     description: "Screen-only images (app UIs, alerts, posts) cut against reaction shots.",
     skill: "hig-flow",
-    status: "built",
   },
   {
     group: "Images & graphics",
     name: "Social-Proof Selfies",
     description: "Diverse multi-person candid selfies for social-proof beats.",
     skill: "hig-flow",
-    status: "built",
   },
   {
     group: "Images & graphics",
@@ -244,27 +208,23 @@ export const buildingBlocks: CreativeEntry[] = [
     description:
       "On-screen pitch slides carrying state rates / names / amounts; edit-swappable per state.",
     skill: "higgsfield-image-generation",
-    status: "built",
   },
   {
     group: "Images & graphics",
     name: "Lower-Thirds / Chyrons",
     description: "News-style lower thirds in the LATU News Canva brand kit.",
     skill: "breaking-news-story-ads (Canva)",
-    status: "built",
   },
   {
     group: "QC",
     name: "Audio QC",
     description: "ffmpeg physics + Whisper dialogue match + unexpected-music scan of a Veo batch.",
     skill: "audio-qc",
-    status: "built",
   },
   {
     group: "QC",
     name: "Visual QC",
     description: "5-frame filmstrips reviewed for background morphs, slide-text garble, hard cuts.",
     skill: "visual-qc",
-    status: "built",
   },
 ];

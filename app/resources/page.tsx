@@ -1,6 +1,45 @@
 import PlaceholderCard from "@/components/PlaceholderCard";
 import { landerGroups, landersSourceUrl } from "@/content/landers";
 
+// PFM Media Assets library folders — open in LinkYourFile (needs Lucid Link access).
+const sharedAssets = [
+  {
+    label: "New Editor Assets",
+    desc: "DaVinci assets to install during first-time setup.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvRGF2aW5jaSBBc3NldHMgLSBQRk0vTmV3IEVkaXRvciBBc3NldHMgRm9sZGVy",
+  },
+  {
+    label: "DaVinci Plug-Ins",
+    desc: "Snap Captions, Magic Zoom, transitions, timer bars.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvRGF2aW5jaSBBc3NldHMgLSBQRk0vUGx1Zy1JbnMgLSBEYXZpY2kgQXNzZXRz",
+  },
+  {
+    label: "Fonts",
+    desc: "The PFM font library.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvRm9udHMgLSBQRk0%3D",
+  },
+  {
+    label: "Music",
+    desc: "Music beds — commercial, TikTok, meme tracks.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvTXVzaWMgLSBQRk0%3D",
+  },
+  {
+    label: "Sound Effects",
+    desc: "Cinematic hits, impacts, phone sounds, and more.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvU291bmQgRWZmZWN0cyAtIFBGTQ%3D%3D",
+  },
+  {
+    label: "Stock B-Roll",
+    desc: "Stock footage library.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvU3RvY2sgQi1Sb2xsIC0gUEZN",
+  },
+  {
+    label: "UGC B-Roll",
+    desc: "UGC-style B-roll library.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvVUNHIEItUm9sbCAtIFBGTQ%3D%3D",
+  },
+];
+
 export default function ResourcesPage() {
   return (
     <div>
@@ -10,7 +49,7 @@ export default function ResourcesPage() {
           <span className="text-accent">Resources</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
-          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers are live below; the rest is a draft frame — tell me what belongs and I&apos;ll fill it in.
+          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers and shared assets are live below; the rest is a draft frame — tell me what belongs and I&apos;ll fill it in.
         </p>
       </header>
 
@@ -87,10 +126,25 @@ export default function ResourcesPage() {
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
           <h2 className="text-2xl font-bold text-text">🗂️ Shared assets</h2>
         </div>
-        <PlaceholderCard title="Where the reusable stuff lives">
-          Character masters, reference creatives, templates (DaVinci, Canva decks), b-roll libraries —
-          the paths or links editors pull from. Tell me what to list and where it lives.
-        </PlaceholderCard>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          The PFM Media Assets library — open each folder in LinkYourFile (needs Lucid Link access).
+        </p>
+        <div className="grid md:grid-cols-2 gap-3">
+          {sharedAssets.map((a) => (
+            <a
+              key={a.label}
+              href={a.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors"
+            >
+              <div className="font-semibold text-text">
+                {a.label} <span className="text-accent">↗</span>
+              </div>
+              <div className="text-sm text-muted leading-relaxed mt-0.5">{a.desc}</div>
+            </a>
+          ))}
+        </div>
       </section>
 
       {/* SOPs & guides */}
