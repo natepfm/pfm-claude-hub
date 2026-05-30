@@ -24,6 +24,14 @@ export const skills: Skill[] = [
     category: "pipeline",
   },
   {
+    name: "vsl-state-variations",
+    title: "VSL State Variations",
+    description:
+      "Per-state asset generation for a winning VSL — Phase 1 edit-swap slide images, then Phase 2 Veo Lite clips for every line. Downstream of an already-built broad / winner VSL; mirrors the Texas / Iowa templates.",
+    worksIn: ["code"],
+    category: "pipeline",
+  },
+  {
     name: "veo-script-writing",
     title: "Veo Script Writing",
     description:
