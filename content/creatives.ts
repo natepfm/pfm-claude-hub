@@ -71,7 +71,7 @@ export const variationTypes: CreativeEntry[] = [
     aka: "50-state",
     description:
       "Per-state swaps ([STATE] / [CITY] / [RATE]) where the speaker names the state — swap 2-5 clips + text, no full re-edit.",
-    skill: "hvg-flow + notion-state-batches",
+    skill: "hvg-flow + notion-state-batches · vsl-state-variations (VSL)",
     appliesTo: "Story Ad · Breaking News · VSL",
   },
   {
@@ -226,5 +226,48 @@ export const buildingBlocks: CreativeEntry[] = [
     name: "Visual QC",
     description: "5-frame filmstrips reviewed for background morphs, slide-text garble, hard cuts.",
     skill: "visual-qc",
+  },
+];
+
+// ── Verticals: the markets we run creatives for ─────────────────────────────
+export interface Vertical {
+  name: string;
+  offers?: string;
+  aka?: string;
+}
+
+export interface VerticalGroup {
+  group: string;
+  items: Vertical[];
+}
+
+export const verticals: VerticalGroup[] = [
+  {
+    group: "Insurance",
+    items: [
+      { name: "Auto", offers: "Forms · Calls" },
+      { name: "Home", offers: "Forms · Calls" },
+      { name: "Concealed Carry" },
+      { name: "Life", offers: "Forms" },
+      { name: "Medicare" },
+      { name: "Final Expense", offers: "Calls" },
+    ],
+  },
+  {
+    group: "Home Services",
+    items: [
+      { name: "HVAC" },
+      { name: "Windows", offers: "Forms" },
+      { name: "Bathroom", offers: "Forms" },
+      { name: "Home Services" },
+    ],
+  },
+  {
+    group: "Financial / Legal",
+    items: [
+      { name: "Loans" },
+      { name: "Debt Relief" },
+      { name: "MVA", aka: "Motor Vehicle Accident", offers: "Forms" },
+    ],
   },
 ];

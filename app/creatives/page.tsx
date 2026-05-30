@@ -2,6 +2,7 @@ import {
   creativeTypes,
   variationTypes,
   buildingBlocks,
+  verticals,
   type CreativeEntry,
 } from "@/content/creatives";
 
@@ -64,6 +65,30 @@ export default function CreativesPage() {
             <EntryCard key={e.name} e={e} />
           ))}
         </div>
+      </section>
+
+      {/* Verticals */}
+      <section id="verticals" className="my-12 scroll-mt-8">
+        <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
+          <h2 className="text-2xl font-bold text-text">🎯 Verticals</h2>
+        </div>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          The markets we run creatives for — every type + variation above maps onto one of these.
+        </p>
+        {verticals.map((g) => (
+          <div key={g.group} className="mb-6">
+            <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">{g.group}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {g.items.map((v) => (
+                <div key={v.name} className="border border-border rounded-lg px-3 py-2 bg-surface/50">
+                  <div className="text-sm font-medium text-text">{v.name}</div>
+                  {v.aka && <div className="text-[11px] text-muted">{v.aka}</div>}
+                  {v.offers && <div className="text-[11px] text-accent/80 mt-0.5">{v.offers}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       {/* Building blocks */}
