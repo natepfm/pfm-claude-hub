@@ -40,6 +40,29 @@ const sharedAssets = [
   },
 ];
 
+// SOPs & guides — Notion SOPs + Loom how-to videos.
+const sopGuides = [
+  {
+    group: "Core SOPs",
+    items: [
+      { label: "Master Folder Overview", kind: "Notion", url: "https://www.notion.so/powerfoxmedia/1-SOP-PFM-Media-Master-Folder-Overview-15216771e7808064a83ae4a5a24324b3" },
+      { label: "DaVinci Overview — watch first", kind: "Notion", url: "https://www.notion.so/powerfoxmedia/2-SOP-PFM-DaVinci-OverviWATCH-FIRST-15216771e78080cd85e6e48a120d85b7" },
+      { label: "Creating + Editing a Project", kind: "Notion", url: "https://www.notion.so/powerfoxmedia/4-SOP-Creating-Editing-a-Project-DaVinci-Workflow-15216771e78080989332df9aa2dfefe8" },
+      { label: "Using Notion", kind: "Loom", url: "https://www.loom.com/share/d2ac0381358448a4a2d1c76697d97aab" },
+    ],
+  },
+  {
+    group: "Workflow guides",
+    items: [
+      { label: "16:9 → 9:16 editing workflow", kind: "Loom", url: "https://www.loom.com/share/b12e68d30df2405db3256c31264cb91d" },
+      { label: "9:16 → 16:9 timeline conversion", kind: "Loom", url: "https://www.loom.com/share/bfaf1168b3dc4f239afe883461363fd6" },
+      { label: "Regenerating clip prompts for correct rates", kind: "Loom", url: "https://www.loom.com/share/451a97c53b4d48999608af1e73297059" },
+      { label: "Batch state-swap for repo stories", kind: "Loom", url: "https://www.loom.com/share/db5686d6975541209819fcbd6f20dbd7" },
+      { label: "Pixar-style ads — brain-dead guide", kind: "Loom", url: "https://www.loom.com/share/8726778a5fab430da2a3b30cad6b1d62" },
+    ],
+  },
+];
+
 export default function ResourcesPage() {
   return (
     <div>
@@ -49,7 +72,7 @@ export default function ResourcesPage() {
           <span className="text-accent">Resources</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
-          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers and shared assets are live below; the rest is a draft frame — tell me what belongs and I&apos;ll fill it in.
+          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers, shared assets, and SOP guides are live below; Tools &amp; logins and Brand &amp; guidelines are still draft frames — tell me what belongs and I&apos;ll fill them in.
         </p>
       </header>
 
@@ -152,11 +175,31 @@ export default function ResourcesPage() {
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
           <h2 className="text-2xl font-bold text-text">📖 SOPs &amp; guides</h2>
         </div>
-        <PlaceholderCard title="Step-by-step playbooks">
-          Repeatable processes that aren&apos;t Claude-specific — delivery / export settings, naming
-          conventions, QC checklists, how to hand off a finished project. Point me at the existing docs
-          (or describe them) and I&apos;ll write them up here.
-        </PlaceholderCard>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          Step-by-step playbooks — the core SOPs plus workflow how-tos.{" "}
+          <span className="text-muted/80">(Loom = video, Notion = written SOP.)</span>
+        </p>
+        {sopGuides.map((g) => (
+          <div key={g.group} className="mb-6">
+            <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">{g.group}</h3>
+            <div className="grid md:grid-cols-2 gap-3">
+              {g.items.map((it) => (
+                <a
+                  key={it.label}
+                  href={it.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between gap-2 border border-border rounded-lg p-3 bg-surface/50 hover:border-accent transition-colors"
+                >
+                  <span className="text-sm font-medium text-text">
+                    {it.label} <span className="text-accent">↗</span>
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted shrink-0">{it.kind}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
     </div>
   );
