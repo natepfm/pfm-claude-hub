@@ -48,6 +48,8 @@ Editor has already done this part:
 
 Capture the URL + any inline shot hints from the editor's message.
 
+**Project folder via LinkYourFile:** the editor can point at the project folder by dropping a **LinkYourFile link** instead of opening it in Code — decode the link's base64 `p=` param → the `/Volumes/ads/…` path, then `cd` there before the Gate 2 context check.
+
 ## Gate 2 — Context check ("up to speed") [SILENT — hard-stop on failure]
 
 Fire these in parallel before responding:

@@ -6,6 +6,32 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-30
+
+### Nano Banana + VSL fires now default to count=1
+
+`count=1` (one image per prompt) is now the default for **all** image gens — `hig-flow` b-roll and one-off `higgsfield-image-generation` at 1k, plus `vsl-state-variations` slides at 2k. (Veo video was already count=1.) Opt into `count=2` when you want a pick. Roughly halves image-batch credit cost; pairs with QC-before-refire.
+
+### Two new skills — `suno-songwriter` + `vsl-state-variations`
+
+Run **Update my skills** to get them.
+- **`suno-songwriter`** — turn an ad script into a Suno v5 song (lyrics + style block).
+- **`vsl-state-variations`** — generate per-state VSL variants (edit-swap slides + Veo Lite clips).
+
+## 2026-05-29
+
+### The hub is now a 4-page Editors Hub
+
+The single Claude page became four: **Onboarding** (first-day setup, built from the Editor Onboarding SOP), **Claude** (the pipeline — how to use it, setup, skills, troubleshooting), **Creatives** (the new Creative Library), and **Resources**.
+
+### Creative Library (Creatives tab)
+
+Every creative type we make (Story Ad, Breaking News, Podcast, UGC, VSL, Song Ad, 3D Pixar), the variations we test, the verticals, and the building blocks — each mapped to the skill that builds it.
+
+### Resources — Landers, Shared assets, SOPs & guides
+
+Landing pages by vertical, the shared PFM Media Assets folders (one click straight to LinkYourFile), and the SOP + Loom how-to library.
+
 ## 2026-05-27
 
 ### `hvg-flow` streamlined — silent setup, 2 confirmation stops (was 9 gates)

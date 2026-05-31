@@ -261,5 +261,5 @@ See **nano-banana-prompting** for more on setting-continuity prompt language.
 
 - The user wants prompts they can copy-paste themselves into the Higgsfield UI. Write the prompts and stop — driving the CLI is overkill for that.
 - The user is on a different image-generation platform (Midjourney, Runway, Sora). This skill is Higgsfield-specific.
-- The user wants video generation. Use `hvg-flow` (gated) or `higgsfield-veo-batch` (manifest-driven) — both also CLI-only.
+- The user wants video generation. Use `hvg-flow` (the gated video pipeline) — CLI-only, like this skill.
 - The CLI isn't installed in this session. If `which higgsfield` returns nothing, say so explicitly and ask Sam how to proceed. Do NOT silently fall back to MCP firing.

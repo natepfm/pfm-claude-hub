@@ -62,7 +62,7 @@ The editor already gave you the URL once. Re-asking treats them like they're sta
 ## Gate 1 — Session start [SILENT]
 
 Editor has already done this part:
-1. Opened Claude Code in the specific project folder (Code tab → folder picker → Lucid Link path)
+1. Opened Claude Code in the specific project folder (Code tab → folder picker → Lucid Link path) — **OR** dropped a **LinkYourFile link** to the project folder instead of opening it (decode the link's base64 `p=` param → the `/Volumes/ads/…` path, then `cd` there before the Gate 2 context check)
 2. Pasted the Notion request URL as their first message (optionally pasted a master prompt too)
 
 Capture the URL from the editor's message OR from earlier in the session context (e.g., from a chained `lc-to-video-podcast` or `veo-script-writing` run). Don't proceed past gate 2 without a URL. **Only ask "Drop the Notion request URL to continue"** when the session genuinely has no URL anywhere in context — never as a default opener mid-conversation.

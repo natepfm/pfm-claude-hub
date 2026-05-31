@@ -1,14 +1,14 @@
-# PFM Claude Hub
+# PFM Editors Hub
 
-The web dashboard for Power Fox Media editors — setup walkthroughs, skill updates, account migration, and changelog. Replaces the editor SOP PDFs.
+The web dashboard for Power Fox Media editors — a 4-page hub: **Onboarding** (`/`), **Claude** (`/claude` — Higgsfield pipeline setup, skills, troubleshooting, changelog), **Creatives** (`/creatives` — the Creative Library), and **Resources** (`/resources` — Landers by vertical, Shared assets, SOP & guides). Replaces the editor SOP PDFs.
 
-Live at: _(set after first Railway deploy)_
+Live at: `pfm-claude-hub-production.up.railway.app`
 
 ---
 
 ## Stack
 
-- Next.js 14 (App Router)
+- Next.js 16 (App Router)
 - Tailwind CSS
 - Markdown changelog rendered server-side
 - Hosted on Railway, auto-deployed from GitHub
@@ -62,7 +62,9 @@ No CLI, no `git` commands. Just save → commit → push.
 | File | What you'd change |
 |---|---|
 | `content/CHANGELOG.md` | New skill update, new feature shipped. Most-frequently edited file. |
-| `content/skills.ts` | Add or update a skill in the Skills section. |
+| `content/skills.ts` | Add or update a skill in the Skills section (the `/claude` page). |
+| `content/creatives.ts` | The Creative Library data behind the `/creatives` page (creative types + variations + building blocks → skill + status). |
+| `content/landers.ts` | Landers-by-vertical data behind the `/resources` page. |
 | `app/page.tsx` | Top-of-page hero + Quick Actions. |
 | `components/sections/SetupMac.tsx` | Mac setup walkthrough section. |
 | `components/sections/SetupWindows.tsx` | Windows setup walkthrough section. |
@@ -87,7 +89,7 @@ Quick sync command for the file copies (run from this repo's root):
 
 ```bash
 # Copy individual SKILL.md files
-for s in hvg-flow hig-flow veo-script-writing lc-to-video-podcast breaking-news-story-ads nano-banana-prompting higgsfield-image-generation audio-qc visual-qc story-beats; do
+for s in hvg-flow hig-flow veo-script-writing lc-to-video-podcast breaking-news-story-ads nano-banana-prompting higgsfield-image-generation audio-qc visual-qc story-beats suno-songwriter vsl-state-variations; do
   cp ~/.claude/skills/$s/SKILL.md public/skills/$s/SKILL.md
 done
 

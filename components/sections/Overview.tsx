@@ -22,7 +22,7 @@ export default function Overview() {
         <div className="mb-6 p-4 bg-accentMuted border-l-4 border-accent rounded-r text-sm text-text">
           <div className="font-semibold mb-1">Two things to get right first</div>
           <div className="text-muted">
-            <span className="text-text font-medium">1. Be in the project folder</span> — open the terminal inside the Lucid Link project folder so Claude can find <code>Elements/</code>. <span className="text-text font-medium">2. Be signed in to Higgsfield</span> — the CLI needs auth to fire anything. Both are checked automatically; if either&apos;s off, Claude stops and tells you before any spend.
+            <span className="text-text font-medium">1. Point Claude at the project folder</span> — open the terminal inside the Lucid Link project folder, <span className="italic">or</span> drop a <span className="text-text font-medium">LinkYourFile link</span> to the folder (Claude reads the path straight from the link). Either way it finds <code>Elements/</code>. <span className="text-text font-medium">2. Be signed in to Higgsfield</span> — the CLI needs auth to fire anything. Both are checked automatically; if either&apos;s off, Claude stops and tells you before any spend.
           </div>
         </div>
 
