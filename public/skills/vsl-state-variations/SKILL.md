@@ -36,7 +36,7 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
 ## Phase 1 — Slides
 - Each **state-specific line** gets its own reference image, edit-swapped off the Broad &
   Florida base. To see which lines have a slide, list any sibling state's folder.
-- Model: **Nano Banana Pro (`nano_banana_2`), 2k, count=1**, 16:9, edit-swap. (2k for full-screen slide detail; count=1 per the locked default — was count=2 until 2026-05-30.)
+- Model: **Nano Banana Pro (`nano_banana_2`), 2k, count=1**, 16:9, edit-swap. (2k for full-screen slide detail; count=1 per the universal default — Sam locked all VSL slides to count=1, 2026-05-30.)
 - Prompt: "keep composition/identity identical, change ONLY <tokens>, match
   font/weight/color/kerning/placement, preserve every other pixel."
 - **Swap ALL tokens**: state, city, person name, rate, savings. (Name MUST match the VO —
@@ -61,9 +61,9 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
   It bridges the slide manifest → hig-flow's `build_xlsx.py` (Summary + Shots sheets, status
   by one-take-enough coverage). Matches Minnesota's `vsl_minnesota_slides_shots.xlsx`. (Missed
   on Iowa/Nebraska/Oregon — backfilled 2026-05-29; never skip again.)
-- **One take per design (count=1, the locked default as of 2026-05-30).** Each design fires
-  once → one file. If its take delivered, the design is COVERED — move on. If it fails
-  (NSFW / 502 / timeout / bad swap), re-fire just that design. Count coverage by unique
+- **One take per design (count=1 — all VSL slides, Sam locked 2026-05-30).** Each design
+  fires once → one file. If it delivers, that design is COVERED — move on. If it fails
+  (NSFW / 502 / timeout / bad text swap), re-fire just that design. Count coverage by unique
   design, not raw image count. (If you ever opt into count=2, one good take still covers the
   design — see `feedback_count2_one_take_enough`.)
 
@@ -209,7 +209,12 @@ Home-specific conventions to honor:
   **house icon** (not a car). Keep the house icon locked in the edit-swap.
 - **ANNUAL rates**, not monthly. Slides read "$X,XXX PER YEAR" (the per-month figure is the
   smaller secondary number). Client/couple slides show yearly figures (e.g. $3,700/yr → $1,400/yr).
-- **count=1** (v01 per line) — same as Auto now (both on the count=1 default as of 2026-05-30; was count=2).
+- **count=1 for CLIPS** (fire each line ONCE; the retry ladder is the only path to a 2nd
+  attempt — initial → 1 plain refire → 1 SFW refire, then flag). CHANGED 2026-05-30: Home
+  clips were briefly fired count=2 to match the pre-existing Home states, but Sam corrected it —
+  **try to land a usable clip on the FIRST generation, don't auto-fire a redundant 2nd take.**
+  Applies to BOTH Auto and Home clips. **Phase-1 SLIDES are now count=1 too** (Sam locked all
+  VSL slides to count=1, 2026-05-30) — fire each design once; if Nano fumbles text, refire that design.
 - **Filename convention:** `vsl_avg_home_state_pitch_<st>_L01_v01.mp4` (slug prefix, zero-padded
   L number, `_2`/`_alt` suffixes for the title variants) — NOT Auto's `L1_<st>_v01.mp4`.
 - **Home baseline SCRIPT differs from Auto on ~18 of 41 lines** — pull the unchanged lines from
