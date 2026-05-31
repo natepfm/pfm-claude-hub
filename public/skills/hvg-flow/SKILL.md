@@ -847,6 +847,20 @@ After audio QC runs (or was declined), surface the visual QC offer in **plain ma
 
 **Never auto-fire visual QC without explicit confirmation.** Same gate discipline as audio QC.
 
+### Delivery comment offer (optional)
+
+After QC (or once it's declined), offer to post the delivery comment to the Notion request in **plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows`):
+
+> Want me to post the delivery comment to the Notion request? I'll build the LinkYourFile folder link and draft it in house format — `✅ Completed Creatives (#): <link>` plus any manual-fire notes for clips that still need a hand-fire. You'll see the exact comment and confirm before anything posts.
+>
+> Reply `yes` to draft it, or `no` / `skip` to finish here.
+
+**Handling:**
+- **`yes`** — load the `notion-asset-delivery` skill. It already has the request URL + project folder from this session (don't re-ask — see `feedback_pfm_no_redundant_notion_redrop`), pulls the manual-fire flags from the manifest/QC just run, builds the link, and stops at its own preflight confirm before posting.
+- **`no` / `skip`** — proceed to the final report.
+
+**Never auto-post.** Same gate discipline as the QC offers — the editor confirms the exact comment in the skill's preflight.
+
 ### Final report
 
 Then summarize for the editor:

@@ -98,6 +98,14 @@ export const skills: Skill[] = [
     category: "utility",
   },
   {
+    name: "notion-asset-delivery",
+    title: "Notion Asset Delivery",
+    description:
+      "Posts the delivery comment to a Notion request when creatives are done — \"✅ Completed Creatives (#): <link>\" plus any manual-fire notes. Auto-builds the LinkYourFile folder link (no more hand-making it) and composes the house-format comment, then posts only after one hard confirm — it never auto-posts. Auto-offered by hvg-flow at its final report; usable standalone otherwise.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
     name: "suno-songwriter",
     title: "Suno Songwriter",
     description:

@@ -6,6 +6,12 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-05-31
+
+### New skill — `notion-asset-delivery`
+
+Run **Update my skills** to get it. Posts the delivery comment to a Notion request when your creatives are done — `✅ Completed Creatives (#): <link>` plus any manual-fire notes. It auto-builds the LinkYourFile folder link (no more hand-making it) and drafts the comment in house format, then shows it to you and waits — it **never posts without your `post` confirmation**. Auto-offered by `hvg-flow` at the end of a batch; you can also run it standalone anytime ("post the delivery comment for this request").
+
 ## 2026-05-30
 
 ### Nano Banana + VSL fires now default to count=1
