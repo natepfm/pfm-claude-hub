@@ -1,6 +1,6 @@
 ---
 name: hig-flow
-description: PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=2, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=2 per prompt, iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=1, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=1 per prompt (editor opts into count=2 for a pick), iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
 ---
 
 # HIG Flow (PFM Image Generation)
@@ -21,7 +21,7 @@ Same model as `hvg-flow`. On a trigger (URL drop / folder ref / "fire the b-roll
 - **Gate 1** — capture the URL / brief / inline shot hints.
 - **Gate 2** — context check (pwd / `Elements/` / CLI / auth). One-line readback, keep going. HARD-STOP only on failure.
 - **Gate 3** — fetch + parse the request (or read the editor's inline brief); extract character names for the gate-4 match. Rolls into the preflight.
-- **Gate 5** — lock the model: default **Nano Banana Pro (`nano_banana_2`), 1k, count=2**, silently. Only ask for a non-default model/resolution. Shown in the preflight.
+- **Gate 5** — lock the model: default **Nano Banana Pro (`nano_banana_2`), 1k, count=1**, silently. `count=1` is the locked default — only ask for a non-default model/resolution, or if the editor wants `count=2` for a pick. Shown in the preflight.
 - **Gate 6** — draft the shot list + per-shot prompts silently (`nano-banana-prompting` style + brand-clean). Save the JSON to `Elements/Prompts/`. The FULL shot list shows in the preflight for approval — it's the deliverable definition, so the editor sees and signs off on every shot there.
 - **Gate 7** — already skipped by default (no L1 test for images).
 - **Gate 8** — write the Excel manifest silently.
@@ -124,11 +124,11 @@ Report mapping (info — only blocks if there's an unmatched character):
 
 PFM character master format (from memory): full-body, plain studio backdrop, neutral pose, neutral wardrobe, 9:16. The Reference folder usually has master + a few action variations + shirt library.
 
-## Gate 5 — Model lock [SILENT — default NB Pro 1k count=2]
+## Gate 5 — Model lock [SILENT — default NB Pro 1k count=1]
 
 Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~5 cr/image at 1k resolution.
 
-> Model: **NB Pro (`nano_banana_2`)**, **resolution 1k**, **count=2 per prompt** (~5 cr/image, ~10 cr/shot). Lock in, or different config?
+> Model: **NB Pro (`nano_banana_2`)**, **resolution 1k**, **count=1 per prompt** (~5 cr/image = ~5 cr/shot). Lock in, want count=2 for a pick, or different config?
 
 **Other models worth knowing:**
 - `nano_banana_flash` — cheaper, faster, sometimes better on heavy edits per `STORY-AD-IMAGE-WORKFLOW.md`. ~2 cr/image.
@@ -201,7 +201,7 @@ JSON schema:
 }
 ```
 
-Each shot fires count=2 → produces `<slug>_<shotId>_v01.png` and `<slug>_<shotId>_v02.png`.
+Each shot fires count=1 → produces `<slug>_<shotId>_v01.png`. (If the editor opted into count=2, also `<slug>_<shotId>_v02.png`.)
 
 Draft silently → the full shot list is presented for the editor's approval at the consolidated preflight (Gate 9), not here. (Gate 7 — the `hvg-flow` optional L1 test fire — stays **skipped by default** for HIG Flow: images are cheap and fast, so the editor reviews post-batch results and re-fires individual shots if needed.)
 
@@ -239,7 +239,7 @@ cat > "$CONFIG" <<EOF
     "modelDisplay":   "Nano Banana Pro",
     "mcpModel":       "nano_banana_2",
     "resolution":     "1k",
-    "countPerPrompt": 2,
+    "countPerPrompt": 1,
     "estCostPerImage": 5
   },
   "shots": [
@@ -360,7 +360,8 @@ def fire_one(shot, variation, ref_uuid_map):
     ]
     return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
 
-all_jobs = [(shot, v) for shot in shots for v in ("01", "02")]
+takes = ("01",)  # count=1 default; ("01", "02") if the editor opted into count=2
+all_jobs = [(shot, v) for shot in shots for v in takes]
 with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {ex.submit(fire_one, shot, v, ref_uuid_map): (shot, v) for shot, v in all_jobs}
     for fut in as_completed(futs):

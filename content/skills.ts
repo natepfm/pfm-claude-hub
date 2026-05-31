@@ -19,7 +19,7 @@ export const skills: Skill[] = [
     name: "hig-flow",
     title: "HIG Flow",
     description:
-      "End-to-end Nano Banana b-roll pipeline. Image counterpart to hvg-flow. Defaults to NB Pro at 1k, count=2. Runs setup silently, stops at up to 2 confirmations (character match + a preflight that doubles as shot-list sign-off).",
+      "End-to-end Nano Banana b-roll pipeline. Image counterpart to hvg-flow. Defaults to NB Pro at 1k, count=1 (count=2 opt-in for a pick). Runs setup silently, stops at up to 2 confirmations (character match + a preflight that doubles as shot-list sign-off).",
     worksIn: ["code"],
     category: "pipeline",
   },

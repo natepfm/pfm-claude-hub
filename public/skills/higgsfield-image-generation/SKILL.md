@@ -24,7 +24,7 @@ If the user wants prompts to copy-paste into the Higgsfield UI themselves, write
 **Before firing ANY Higgsfield image gen for PFM work** (one-off, test, re-fire, or exploratory), load and apply the conventions from `hig-flow` — even when the editor isn't going through hig-flow's structured 9-gate flow.
 
 Quick rules to self-impose every time:
-- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=2
+- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=1 (opt into `--count 2` for a pick)
 - Filename suffix: end every b-roll PNG with a unique 4-char hex tag (`_<hex>.png`) so DaVinci Resolve doesn't auto-group as image sequences
 - No iOS UI chrome in b-roll (no status bar, Camera Roll header, scrubbing strip, date stamps)
 - Brand-clean negatives stack matched to vertical (no automaker badges in vehicle shots, no Geico/Progressive in insurance, no GE/Whirlpool in appliances, no Apple/macOS dock on laptops, etc.)
@@ -60,7 +60,7 @@ If you're unsure about a model's CLI flags or params, call the read-only MCP `mo
 ## Cost reality (verified empirically)
 
 At `nano_banana_2`:
-- **1k resolution: ~2 credits per generation** (per result; count=2 → 4 credits/pair)
+- **1k resolution: ~2 credits per generation** (count=1 default ≈ 2 cr; count=2 opt-in ≈ 4 cr/pair)
 - **2k resolution: ~4-5 credits per generation**
 - 4k: more expensive, untested at scale
 
@@ -104,7 +104,7 @@ higgsfield generate create nano_banana_2 \
   --image ./Elements/Footage/Reference/Chad/Chad-Master.png \
   --aspect-ratio 9:16 \
   --resolution 1k \
-  --count 2 \
+  --count 1 \
   --wait --json
 ```
 
@@ -117,14 +117,14 @@ higgsfield generate create nano_banana_2 \
   --image <shirt_uuid> \
   --aspect-ratio 9:16 \
   --resolution 1k \
-  --count 2 \
+  --count 1 \
   --wait --json
 ```
 
 **Key flags:**
 - `--wait` — blocks until complete. No separate polling step needed (THIS is the big CLI win over MCP).
 - `--json` — emits machine-readable result with rawUrls so you can `jq` out the download URLs.
-- `--count 2` — produces 2 variants per fire. Default for PFM b-roll so editor has a pick.
+- `--count 1` — **default** (one image per fire). Opt into `--count 2` (or higher) when the editor wants multiple variants to pick from.
 - `--aspect-ratio 9:16` — vertical for camera-roll style. Use `4:3` for landscape phone shots, `1:1` for square, `16:9` for landscape video frame.
 - `--resolution 1k` — default. Bump to `2k` only for hero placements.
 
@@ -189,7 +189,7 @@ def fire_one(job):
         "--image", job["ref_uuid"],                # UUID, not local path
         "--aspect-ratio", "9:16",
         "--resolution", "1k",
-        "--count", "2",
+        "--count", "1",
         "--wait", "--wait-timeout", "5m", "--json",
     ]
     return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
