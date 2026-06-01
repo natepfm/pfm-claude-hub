@@ -437,7 +437,7 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
   - Design B, take 1 + take 2 → `L1 - Title Slide - <State> v2 - v1.png` + `... - v2.png`
   - The "v2" before the dash = design variant; the "v1/v2" after the dash = take number
 - **Identity preservation language is non-negotiable** for character slides — explicit "keep the person's identity, face, expression, clothing, pose, framing, lighting, background completely identical." NB Pro will subtly re-render the face if not told to lock identity.
-- **Output naming convention:** mirror the broad/winner folder's filename pattern with the state appended (e.g. `L1 - Title Slide - Colorado - v1.png` to match `L1 - Title Slide - v1.png`). Editor's After Effects timelines drop in by name.
+- **Output naming convention:** mirror the broad/winner folder's filename pattern with the state appended (e.g. `L1 - Title Slide - Colorado - v1.png` to match `L1 - Title Slide - v1.png`) so the editor can swap them in by exact filename.
 - **Output folder:** `Elements/Footage/Reference/Slide Images - <State>/` per editor's convention. Don't put state slides in the same folder as the broad/winner — keeps timelines clean.
 - **Resolution:** NB Pro 1k and 2k cost the same (~2 cr). Default to **2k** for full-screen slide work.
 

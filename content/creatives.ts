@@ -30,9 +30,15 @@ export const creativeTypes: CreativeEntry[] = [
   },
   {
     name: "Podcast Story Ad",
-    aka: "LC-to-Video",
     description:
-      "A long-copy Facebook ad reworked as a dad-on-a-podcast monologue, delivered in 6-8s Veo clips.",
+      "A dad-on-a-podcast monologue story ad delivered in 6-8s Veo clips — scripted from a brief.",
+    skill: "veo-script-writing → hvg-flow",
+  },
+  {
+    name: "LC-to-Video",
+    aka: "LC to Vid",
+    description:
+      "A long-copy Facebook ad that performed well, converted into a podcast story ad — a dad-on-a-podcast monologue delivered in 6-8s Veo clips.",
     skill: "lc-to-video-podcast → hvg-flow",
   },
   {
