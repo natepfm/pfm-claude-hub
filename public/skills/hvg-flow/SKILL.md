@@ -96,7 +96,7 @@ If all four pass, single readback line:
 
 ## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
-Use `mcp__*notion-fetch` with the URL the editor dropped. **Then immediately flip the request's Status → "In Progress"** — `notion-update-page` on the Status property, **silently (no confirm)**; this signals pickup (standing rule, see `feedback_notion_request_status_lifecycle`). If "In Progress" isn't a valid Status option on that data source, match the board's closest in-progress label and note it — never block the flow on a status hiccup. Then parse:
+Use `mcp__*notion-fetch` with the URL the editor dropped. **Then flip the request's Status → "In Progress" — but only if it's currently "Requested"** (leave any later status untouched) — `notion-update-page` on the Status property, **silently (no confirm)**; this signals pickup (standing rule, see `feedback_notion_request_status_lifecycle`). If "In Progress" isn't a valid Status option on that data source, match the board's closest in-progress label and note it — never block the flow on a status hiccup. Then parse:
 
 **From database properties:**
 - `Task Name (Angle - Concept)` → project name (drives slug)
