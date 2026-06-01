@@ -11,7 +11,7 @@ Per-state variant of a winning VSL. Two deliverables per state, fired in order:
 
 **Execution model — same as hvg-flow/hig-flow:** run setup SILENTLY (cwd check, Notion
 fetch + parse, sibling-state recon, ref upload, manifest), stop only at a consolidated
-preflight before each spend (slides, then clips). **On pickup — right after the Notion fetch — flip the request's Status → "In Progress", but only if it's currently "Requested"** (leave any later status untouched; `notion-update-page` on the Status property, silently / no confirm; standing rule, see `feedback_notion_request_status_lifecycle`; match the board's closest option if "In Progress" isn't exact, and never block on it). Never fire without the preflight. Render
+preflight before each spend (slides, then clips). **Status is hands-off — leave the request at "Requested" through gen + delivery** (do NOT flip it to "In Progress" on pickup; standing rule, see `feedback_notion_request_status_lifecycle` — Status moves → "Done" only on an explicit turn-in, handled by `notion-asset-delivery`). Never fire without the preflight. Render
 all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam dislikes them).
 
 ## Inputs / preconditions

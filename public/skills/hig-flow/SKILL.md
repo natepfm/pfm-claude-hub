@@ -74,7 +74,7 @@ Single readback line:
 
 ## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
-Fetch via `mcp__*notion-fetch`. **When started from a Notion request, flip its Status → "In Progress" — but only if it's currently "Requested"** (leave any later status untouched) — `notion-update-page` on the Status property, **silently (no confirm)**; signals pickup (standing rule, see `feedback_notion_request_status_lifecycle`). Skip if the editor gave a direct inline brief (no request). Match the board's closest in-progress label if "In Progress" isn't valid; never block on it. Then parse the standard fields:
+Fetch via `mcp__*notion-fetch`. **Do NOT touch the request's Status — leave it at "Requested."** Generating assets is a raw-asset handoff, not a status change; gen/delivery is hands-off on Status (standing rule, see `feedback_notion_request_status_lifecycle`) — Status moves → "Done" only on an explicit turn-in, which `notion-asset-delivery` handles. Then parse the standard fields:
 - `Task Name (Angle - Concept)` → project name → slug
 - `Vertical` (e.g. "Auto - Forms")
 - `MB`, `Priority`, `Status`
