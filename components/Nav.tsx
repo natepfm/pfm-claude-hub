@@ -25,7 +25,6 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
     { href: "#setup-windows", label: "Setup · Windows" },
     { href: "#skills", label: "Skills" },
     { href: "#editor", label: "Editor" },
-    { href: "#troubleshooting", label: "Troubleshooting" },
     { href: "#changelog", label: "Changelog" },
   ],
   "/creatives": [

@@ -6,7 +6,6 @@ import SetupMac from "@/components/sections/SetupMac";
 import SetupWindows from "@/components/sections/SetupWindows";
 import SkillsSection from "@/components/sections/SkillsSection";
 import EditorSection from "@/components/sections/EditorSection";
-import Troubleshooting from "@/components/sections/Troubleshooting";
 import ChangelogSection from "@/components/sections/ChangelogSection";
 
 function getLatestChangelogEntry() {
@@ -117,7 +116,6 @@ export default function ClaudePage() {
       <SetupWindows />
       <SkillsSection />
       <EditorSection />
-      <Troubleshooting />
       <ChangelogSection />
     </div>
   );
