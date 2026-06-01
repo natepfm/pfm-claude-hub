@@ -33,6 +33,8 @@ If a request is ambiguous (e.g., editor asks for a Veo script and there's also a
 
 Before writing the script, get the editor's read on these five things. Ask plainly in chat — no AskUserQuestion cards, Sam has disabled those for PFM flows.
 
+**If this run started from a Notion VTM request** (an "LC to Video —" page, not just a pasted LC), **flip its Status → "In Progress" first** — `notion-update-page` on the Status property, silently / no confirm (standing rule, see `feedback_notion_request_status_lifecycle`; match the board's option if "In Progress" isn't exact). Skip if the editor only pasted an LC with no request.
+
 1. **Source LC**. Paste the verbatim long-copy text, or confirm the Notion brief's Copy section contains it. This is the source of truth for every fact, number, and beat.
 2. **Vertical**. Loans, Auto, Home, Concealed Carry, etc. Affects brand-clean rules.
 3. **Brandless?** Most LC-to-Video Podcasts are brandless (the LC works because it doesn't name a lender/aggregator). Confirm.
