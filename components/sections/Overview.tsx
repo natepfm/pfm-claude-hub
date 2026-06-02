@@ -161,44 +161,62 @@ export default function Overview() {
           Auto-detection triggers the HVG protocol immediately. The editor doesn't need to invoke the skill explicitly — Claude recognizes the inputs and enters Gate 1 on its own.
         </p>
 
-        <div className="border border-border rounded-lg p-6 bg-surface/30">
-          <div className="grid md:grid-cols-3 gap-6 items-start">
-            {/* Inputs */}
-            <div>
-              <div className="text-xs uppercase tracking-widest text-accent mb-3 font-semibold">Editor input</div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 px-3 py-2 bg-surface2 border border-border rounded">
-                  <span className="text-lg">🔗</span>
-                  <span className="text-sm font-mono text-text">notion.so/...</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-surface2 border border-border rounded">
-                  <span className="text-lg">📁</span>
-                  <span className="text-sm font-mono text-text">/Volumes/ads/.../...</span>
-                </div>
-                <div className="text-xs text-muted mt-2 italic">Either one, or both together</div>
-              </div>
-            </div>
-
-            {/* Arrow */}
-            <div className="hidden md:flex items-center justify-center text-4xl text-accent">▶</div>
-            <div className="md:hidden text-center text-2xl text-accent">▼</div>
-
-            {/* Output */}
-            <div>
-              <div className="text-xs uppercase tracking-widest text-accent mb-3 font-semibold">Claude's response</div>
-              <div className="space-y-2 text-sm text-muted">
-                <div className="flex gap-2"><span className="text-accent">1.</span>Recognizes the trigger</div>
-                <div className="flex gap-2"><span className="text-accent">2.</span>Loads <code>hvg-flow</code> skill</div>
-                <div className="flex gap-2"><span className="text-accent">3.</span>Enters Gate 1 immediately</div>
-                <div className="flex gap-2"><span className="text-accent">4.</span>Runs setup silently, stops at up to 2 confirmations</div>
-              </div>
-              <div className="text-xs text-muted mt-3 italic">Most steps run silently — 2 confirmation stops max (reference assignment + preflight).</div>
-            </div>
-          </div>
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 480 378"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="A Notion link or project folder — either one or both — triggers Claude to auto-detect the request shape. It forks into Format A (story-ad / podcast, callout-based), Format B (VSL, page-headings to per-line slides), or Format C (live-action / monologue balanced into clips). All three converge into Gate 1, where the flow begins."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="p3Fork" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            </defs>
+            <rect x={66} y={14} width={160} height={46} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={146} y={35} fill="#fafafa" fontSize={13} fontWeight={600} textAnchor="middle">Notion link</text>
+            <text x={146} y={51} fill="#a1a1a1" fontSize={10} textAnchor="middle" fontFamily="monospace">notion.so/…</text>
+            <rect x={254} y={14} width={160} height={46} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={334} y={35} fill="#fafafa" fontSize={13} fontWeight={600} textAnchor="middle">Project folder</text>
+            <text x={334} y={51} fill="#a1a1a1" fontSize={10} textAnchor="middle" fontFamily="monospace">/Volumes/ads/…</text>
+            <text x={240} y={78} fill="#a1a1a1" fontSize={10} textAnchor="middle">either one, or both</text>
+            <line x1={240} y1={82} x2={240} y2={96} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <rect x={70} y={98} width={340} height={46} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={240} y={120} fill="#fafafa" fontSize={13} fontWeight={600} textAnchor="middle">Claude auto-detects</text>
+            <text x={240} y={136} fill="#a1a1a1" fontSize={10.5} textAnchor="middle">the trigger + the request shape</text>
+            <line x1={240} y1={144} x2={90} y2={172} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <line x1={240} y1={144} x2={240} y2={172} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <line x1={240} y1={144} x2={390} y2={172} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <rect x={12} y={176} width={148} height={104} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <rect x={24} y={190} width={22} height={22} rx={6} fill="#FF6B35" />
+            <text x={35} y={206} fill="#0a0a0a" fontSize={12} fontWeight="bold" textAnchor="middle">A</text>
+            <text x={54} y={206} fill="#fafafa" fontSize={12.5} fontWeight={600}>Format A</text>
+            <text x={24} y={238} fill="#cfcfcf" fontSize={10.5}>Story-ad / podcast</text>
+            <text x={24} y={262} fill="#a1a1a1" fontSize={10}>callout-based brief</text>
+            <rect x={166} y={176} width={148} height={104} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <rect x={178} y={190} width={22} height={22} rx={6} fill="#FF6B35" />
+            <text x={189} y={206} fill="#0a0a0a" fontSize={12} fontWeight="bold" textAnchor="middle">B</text>
+            <text x={208} y={206} fill="#fafafa" fontSize={12.5} fontWeight={600}>Format B</text>
+            <text x={178} y={238} fill="#cfcfcf" fontSize={10.5}>VSL</text>
+            <text x={178} y={258} fill="#a1a1a1" fontSize={10}>page-headings →</text>
+            <text x={178} y={272} fill="#a1a1a1" fontSize={10}>per-line slides</text>
+            <rect x={320} y={176} width={148} height={104} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <rect x={332} y={190} width={22} height={22} rx={6} fill="#FF6B35" />
+            <text x={343} y={206} fill="#0a0a0a" fontSize={12} fontWeight="bold" textAnchor="middle">C</text>
+            <text x={362} y={206} fill="#fafafa" fontSize={12.5} fontWeight={600}>Format C</text>
+            <text x={332} y={238} fill="#cfcfcf" fontSize={10.5}>Live-action /</text>
+            <text x={332} y={253} fill="#cfcfcf" fontSize={10.5}>monologue</text>
+            <text x={332} y={272} fill="#a1a1a1" fontSize={10}>balanced into clips</text>
+            <line x1={86} y1={280} x2={234} y2={304} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <line x1={240} y1={280} x2={240} y2={304} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <line x1={394} y1={280} x2={246} y2={304} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#p3Fork)" />
+            <rect x={120} y={306} width={240} height={40} rx={10} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
+            <text x={240} y={331} fill="#fafafa" fontSize={13} fontWeight="bold" textAnchor="middle">Gate 1 — enter the flow</text>
+            <text x={240} y={368} fill="#a1a1a1" fontSize={10} textAnchor="middle">one detection, three shapes — each changes how Gates 3–6 behave</text>
+          </svg>
         </div>
 
-        <div className="mt-4 text-sm text-muted">
-          Claude also auto-detects the request <strong className="text-text">shape</strong> from the Notion brief: <strong className="text-text">Format A</strong> (story-ad / podcast — callout-based), <strong className="text-text">Format B</strong> (VSL — page-heading-based with per-line slide directives), or <strong className="text-text">Format C</strong> (live-action / monologue-style brief that needs balancing into Veo clips). Each shape changes how Gates 3-6 behave.
+        <div className="mt-4 text-sm text-muted max-w-3xl">
+          The editor never invokes the skill — Claude recognizes the inputs, picks the shape, and enters Gate 1 on its own.
         </div>
       </div>
 
@@ -255,9 +273,92 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Panel 5: What's in 6. Claude PFM */}
+      {/* Panel 5: QC loop */}
       <div className="my-12">
-        <h3 className="text-xl font-bold mb-2">5. The team folder — <code>6. Claude PFM/</code> on Lucid Link</h3>
+        <h3 className="text-xl font-bold mb-2">5. Quality control — every clip is checked before it ships</h3>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          The moment a batch finishes downloading, Claude offers to QC it. Audio and visual passes run together, and every clip lands a verdict. Flagged clips refire automatically — capped at two retries — before anything escalates. Only clean clips reach the delivery comment.
+        </p>
+
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 470 322"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="After a batch downloads, audio QC and visual QC run together, producing a per-clip verdict of pass, fail, or verify. Passing clips flow to the delivery comment; failed clips loop back to refire (v02), capped at two retries before escalation. Every clip is checked before it ships."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="qcA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+              <marker id="qcF" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#c25b50" /></marker>
+            </defs>
+            <rect x={135} y={14} width={200} height={38} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={235} y={38} fill="#fafafa" fontSize={12.5} fontWeight={600} textAnchor="middle">Batch downloads</text>
+            <line x1={235} y1={52} x2={235} y2={72} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#qcA)" />
+            <rect x={110} y={74} width={250} height={54} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={235} y={97} fill="#fafafa" fontSize={12.5} fontWeight={600} textAnchor="middle">Audio QC + Visual QC</text>
+            <text x={235} y={115} fill="#a1a1a1" fontSize={9} textAnchor="middle">ffmpeg · Whisper · 5-frame filmstrips</text>
+            <line x1={235} y1={128} x2={235} y2={150} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#qcA)" />
+            <rect x={110} y={152} width={250} height={58} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={235} y={172} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">Per-clip verdict</text>
+            <circle cx={152} cy={192} r={5} fill="#5a9e74" />
+            <text x={163} y={196} fill="#cfcfcf" fontSize={10}>pass</text>
+            <circle cx={214} cy={192} r={5} fill="#c25b50" />
+            <text x={225} y={196} fill="#cfcfcf" fontSize={10}>fail</text>
+            <circle cx={272} cy={192} r={5} fill="#FF6B35" />
+            <text x={283} y={196} fill="#cfcfcf" fontSize={10}>verify</text>
+            <line x1={235} y1={210} x2={235} y2={236} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#qcA)" />
+            <text x={246} y={227} fill="#5a9e74" fontSize={9}>pass</text>
+            <rect x={135} y={238} width={200} height={38} rx={9} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
+            <text x={235} y={262} fill="#fafafa" fontSize={12.5} fontWeight={600} textAnchor="middle">Delivery comment</text>
+            <path d="M110,181 H46 V101 H110" fill="none" stroke="#c25b50" strokeWidth={1.5} strokeDasharray="5 4" markerEnd="url(#qcF)" />
+            <text x={52} y={136} fill="#c25b50" fontSize={9.5}>refire v02</text>
+            <text x={52} y={150} fill="#a1a1a1" fontSize={9}>2-retry cap</text>
+            <text x={235} y={306} fill="#a1a1a1" fontSize={10} textAnchor="middle">every clip is checked before it ships — flagged ones refire, then escalate</text>
+          </svg>
+        </div>
+      </div>
+
+      {/* Panel 6: Veo cost ladder */}
+      <div className="my-12">
+        <h3 className="text-xl font-bold mb-2">6. Veo cost per clip — picking the right rung</h3>
+        <p className="text-muted text-sm mb-5 max-w-3xl">
+          Every gen burns Higgsfield credits, and the model tier sets the price. PFM defaults to the cheapest rung — Veo Lite, one clip per prompt — and only climbs to Fast or Preview when a brief actually needs the extra quality.
+        </p>
+
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 470 278"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="Veo cost per clip in credits, default fires Lite at count one. Lite silent is 8 credits, Lite audio 12, Fast 27, Preview 58, and Preview Ultra 87. The two Lite rungs are the default; Fast and Preview are reserved for briefs that need the quality."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <text x={20} y={30} fill="#fafafa" fontSize={13} fontWeight={600}>Veo cost per clip — credits</text>
+            <text x={20} y={48} fill="#a1a1a1" fontSize={10}>PFM default fires Lite, count = 1</text>
+            <text x={18} y={90} fill="#cfcfcf" fontSize={11}>Lite · silent</text>
+            <rect x={150} y={74} width={24} height={24} rx={4} fill="#FF6B35" />
+            <text x={182} y={91} fill="#fafafa" fontSize={11} fontWeight={600}>8 cr</text>
+            <text x={18} y={128} fill="#cfcfcf" fontSize={11}>Lite · audio</text>
+            <rect x={150} y={112} width={36} height={24} rx={4} fill="#FF6B35" />
+            <text x={194} y={129} fill="#fafafa" fontSize={11} fontWeight={600}>12 cr</text>
+            <text x={18} y={166} fill="#cfcfcf" fontSize={11}>Fast</text>
+            <rect x={150} y={150} width={81} height={24} rx={4} fill="#2f2f2f" stroke="#3a3a3a" strokeWidth={1} />
+            <text x={239} y={167} fill="#fafafa" fontSize={11} fontWeight={600}>27 cr</text>
+            <text x={18} y={204} fill="#cfcfcf" fontSize={11}>Preview</text>
+            <rect x={150} y={188} width={173} height={24} rx={4} fill="#2f2f2f" stroke="#3a3a3a" strokeWidth={1} />
+            <text x={331} y={205} fill="#fafafa" fontSize={11} fontWeight={600}>58 cr</text>
+            <text x={18} y={242} fill="#cfcfcf" fontSize={11}>Preview · Ultra</text>
+            <rect x={150} y={226} width={260} height={24} rx={4} fill="#2f2f2f" stroke="#3a3a3a" strokeWidth={1} />
+            <text x={418} y={243} fill="#fafafa" fontSize={11} fontWeight={600}>87 cr</text>
+            <text x={20} y={266} fill="#a1a1a1" fontSize={9.5}>cheaper rung = default · Fast / Preview only when the brief needs the quality</text>
+          </svg>
+        </div>
+      </div>
+
+      {/* Panel 7: What's in 6. Claude PFM */}
+      <div className="my-12">
+        <h3 className="text-xl font-bold mb-2">7. The team folder — <code>6. Claude PFM/</code> on Lucid Link</h3>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           One folder, source of truth for the whole team. Every editor's Mac syncs from here. When something changes, one push updates everyone.
         </p>

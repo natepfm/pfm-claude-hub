@@ -33,6 +33,35 @@ export default function ClaudePage() {
         </p>
       </header>
 
+      {/* Pipeline ribbon — the whole flow at a glance */}
+      <div className="mb-10 border border-border rounded-lg bg-bg px-5 py-3 overflow-x-auto">
+        <svg
+          viewBox="0 0 820 72"
+          className="w-full h-auto block min-w-[680px]"
+          role="img"
+          aria-label="The whole pipeline at a glance: a Notion request goes to Claude, which fires Veo plus b-roll, then a DaVinci edit, ending in delivered creative."
+          style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+        >
+          <defs>
+            <marker id="ribA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+          </defs>
+          <rect x={12} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+          <text x={79.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">Notion request</text>
+          <line x1={149} y1={36} x2={175} y2={36} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ribA)" />
+          <rect x={177} y={14} width={135} height={44} rx={9} fill="#FF6B35" />
+          <text x={244.5} y={40} fill="#0a0a0a" fontSize={13} fontWeight="bold" textAnchor="middle">Claude</text>
+          <line x1={314} y1={36} x2={340} y2={36} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ribA)" />
+          <rect x={342} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+          <text x={409.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">Veo + b-roll</text>
+          <line x1={479} y1={36} x2={505} y2={36} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ribA)" />
+          <rect x={507} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+          <text x={574.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">DaVinci edit</text>
+          <line x1={644} y1={36} x2={670} y2={36} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ribA)" />
+          <rect x={672} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#FF6B35" strokeWidth={1.5} />
+          <text x={739.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">Delivered</text>
+        </svg>
+      </div>
+
       {/* Hero: Update my skills — the main action editors use day-to-day */}
       <section id="update" className="my-8 scroll-mt-8">
         <div className="border-2 border-accent rounded-xl bg-gradient-to-br from-accentMuted to-bg p-8 md:p-10 shadow-2xl">
