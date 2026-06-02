@@ -1,22 +1,5 @@
 import type { ReactNode } from "react";
 
-function StepBadge({ n }: { n: number }) {
-  return (
-    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-accent text-bg text-xs font-bold shrink-0">
-      {n}
-    </span>
-  );
-}
-
-function DownArrow({ label }: { label: string }) {
-  return (
-    <div className="flex items-center justify-center gap-2 py-2 text-accent">
-      <span className="text-xl leading-none">↓</span>
-      <span className="text-[11px] text-muted">{label}</span>
-    </div>
-  );
-}
-
 function CmdGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
@@ -49,54 +32,69 @@ export default function SystemDiagram() {
         </p>
       </div>
 
-      <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
-        {/* LEFT — the flow */}
-        <div className="border border-border rounded-lg bg-surface/40 p-6">
-          <div className="flex flex-col max-w-sm mx-auto">
-            {/* Master */}
-            <div className="border border-border rounded-lg p-4 bg-surface">
-              <div className="flex items-center gap-2 mb-1">
-                <StepBadge n={1} />
-                <span className="text-xs uppercase tracking-widest text-accent">Master Account</span>
-              </div>
-              <div className="text-sm text-muted mt-1">
-                Where every skill is <strong className="text-text">built &amp; maintained</strong> — the source of truth.
-              </div>
-            </div>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-center">
+        {/* LEFT — the diagram */}
+        <div className="border border-border rounded-lg bg-bg p-5">
+          <svg
+            viewBox="0 0 380 472"
+            className="w-full h-auto block max-w-md mx-auto"
+            role="img"
+            aria-label="Cycle diagram: skills are built on the master account, synced out through Lucid Link, and pulled by editors; the workflows editors propose loop back through Lucid Link to the master account to become new skills."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="pfmArrow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" />
+              </marker>
+            </defs>
 
-            <DownArrow label="ship · 3-mirror" />
+            {/* loop-back arc: Editor → Master, up the right side */}
+            <path d="M 264,422 C 356,414 356,54 268,48" fill="none" stroke="#FF6B35" strokeWidth="2" strokeDasharray="5 4" markerEnd="url(#pfmArrow)" />
+            <text x="361" y="243" fill="#FF6B35" fontSize="17" textAnchor="middle">↺</text>
 
-            {/* Lucid */}
-            <div className="border-2 border-accent rounded-lg p-4 bg-accentMuted">
-              <div className="flex items-center gap-2 mb-1">
-                <StepBadge n={2} />
-                <span className="text-xs uppercase tracking-widest text-accent">Lucid Link · shared</span>
-              </div>
-              <div className="font-mono text-sm text-text">6. Claude PFM/</div>
-              <div className="text-sm text-muted mt-1">
-                <code className="font-mono text-accent">skills/</code> out ·{" "}
-                <code className="font-mono text-accent">Skill Proposals/</code> in —{" "}
-                <strong className="text-text">the bridge.</strong>
-              </div>
-            </div>
+            {/* forward connectors */}
+            <line x1="144" y1="94" x2="144" y2="196" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#pfmArrow)" />
+            <line x1="144" y1="286" x2="144" y2="388" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#pfmArrow)" />
 
-            <DownArrow label="pull · update.sh" />
+            {/* edge labels (rect masks the line) */}
+            <rect x="108" y="135" width="72" height="18" rx="4" fill="#0a0a0a" />
+            <text x="144" y="148" fill="#a1a1a1" fontSize="10.5" textAnchor="middle" fontFamily="monospace">skills out</text>
+            <rect x="104" y="328" width="80" height="18" rx="4" fill="#0a0a0a" />
+            <text x="144" y="341" fill="#a1a1a1" fontSize="10.5" textAnchor="middle" fontFamily="monospace">update.sh</text>
 
-            {/* Editors */}
-            <div className="border border-border rounded-lg p-4 bg-surface">
-              <div className="flex items-center gap-2 mb-1">
-                <StepBadge n={3} />
-                <span className="text-xs uppercase tracking-widest text-accent">Editor Account</span>
-              </div>
-              <div className="text-sm text-muted mt-1">
-                Shared team account — editors <strong className="text-text">run the flows</strong> &amp; deliver assets.
-              </div>
-            </div>
-          </div>
+            {/* Node 1 — Master */}
+            <rect x="24" y="22" width="240" height="72" rx="12" fill="#141414" stroke="#2a2a2a" strokeWidth="1.5" />
+            <circle cx="48" cy="50" r="11" fill="#FF6B35" />
+            <text x="48" y="54" fill="#0a0a0a" fontSize="12" fontWeight="bold" textAnchor="middle">1</text>
+            <text x="68" y="52" fill="#FF6B35" fontSize="12.5" fontWeight="bold" letterSpacing="0.5">MASTER ACCOUNT</text>
+            <text x="68" y="72" fill="#a1a1a1" fontSize="11">builds + maintains every skill</text>
+
+            {/* Node 2 — Lucid Link (the bridge) */}
+            <rect x="24" y="202" width="240" height="82" rx="12" fill="#3a1f15" stroke="#FF6B35" strokeWidth="2" />
+            <circle cx="48" cy="230" r="11" fill="#FF6B35" />
+            <text x="48" y="234" fill="#0a0a0a" fontSize="12" fontWeight="bold" textAnchor="middle">2</text>
+            <text x="68" y="232" fill="#FF6B35" fontSize="12.5" fontWeight="bold" letterSpacing="0.5">LUCID LINK</text>
+            <text x="68" y="252" fill="#fafafa" fontSize="11">the shared bridge</text>
+            <text x="68" y="270" fill="#a1a1a1" fontSize="10.5" fontFamily="monospace">skills/ · Skill Proposals/</text>
+
+            {/* Node 3 — Editors */}
+            <rect x="24" y="392" width="240" height="72" rx="12" fill="#141414" stroke="#2a2a2a" strokeWidth="1.5" />
+            <circle cx="48" cy="420" r="11" fill="#FF6B35" />
+            <text x="48" y="424" fill="#0a0a0a" fontSize="12" fontWeight="bold" textAnchor="middle">3</text>
+            <text x="68" y="422" fill="#FF6B35" fontSize="12.5" fontWeight="bold" letterSpacing="0.5">EDITOR ACCOUNT</text>
+            <text x="68" y="442" fill="#a1a1a1" fontSize="11">run the flows · deliver assets</text>
+          </svg>
+
+          <p className="text-xs text-muted mt-3 leading-relaxed text-center">
+            <span className="text-accent">↺</span>{" "}
+            <strong className="text-text">The flywheel:</strong> editors propose workflows with{" "}
+            <code className="font-mono text-accent">propose-skill</code> → built on the master account →
+            shipped back to everyone, credited to the editor.
+          </p>
         </div>
 
         {/* RIGHT — command cheat-sheet */}
-        <aside className="mt-6 lg:mt-0 border border-border rounded-lg bg-surface p-5">
+        <aside className="mt-6 lg:mt-0 border border-border rounded-lg bg-bg p-5">
           <div className="text-xs uppercase tracking-widest text-accent mb-1">Quick start</div>
           <h3 className="text-lg font-bold mb-3">Say this to start a skill</h3>
           <div className="space-y-4">
@@ -130,23 +128,7 @@ export default function SystemDiagram() {
         </aside>
       </div>
 
-      {/* The flywheel — full width under both columns */}
-      <div className="mt-6 border border-accent/40 rounded-lg p-4 bg-surface/60">
-        <div className="flex items-start gap-3">
-          <span className="text-2xl leading-none text-accent shrink-0">↺</span>
-          <div className="text-sm text-muted leading-relaxed">
-            <strong className="text-text">The flywheel.</strong> An editor hits a repeatable workflow and
-            says <span className="text-text">&quot;this should be a skill&quot;</span> →{" "}
-            <code className="font-mono text-accent">propose-skill</code> drops a proposal in{" "}
-            <code className="font-mono text-accent">Skill Proposals/</code> → gets triaged + built on the
-            master account → it ships back to everyone on the next update,{" "}
-            <strong className="text-text">credited to the editor</strong>. The system compounds from what
-            the team discovers.
-          </div>
-        </div>
-      </div>
-
-      <p className="text-xs text-muted mt-4 text-center">
+      <p className="text-xs text-muted mt-6 text-center">
         📖 It&apos;s all documented here on <strong className="text-text">the Hub</strong> — reference,
         changelog &amp; downloads.
       </p>
