@@ -106,6 +106,14 @@ export const skills: Skill[] = [
     category: "utility",
   },
   {
+    name: "propose-skill",
+    title: "Propose a Skill",
+    description:
+      "Editor-facing — turn a repeatable workflow you keep doing into a Skill Proposal for the master system. Say \"this should be a skill\" and Claude reconstructs the workflow from your session, asks a few quick gaps, and drops a structured proposal in the shared Lucid inbox (6. Claude PFM/Skill Proposals/) for Sam to triage and build. You never write a SKILL.md — Claude captures it all. Approved proposals ship back to everyone via Update my skills, credited to you.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
     name: "suno-songwriter",
     title: "Suno Songwriter",
     description:

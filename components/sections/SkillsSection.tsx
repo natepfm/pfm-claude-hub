@@ -81,6 +81,15 @@ export default function SkillsSection() {
         </div>
       ))}
 
+      <div className="my-8 border border-accent rounded-lg p-6 bg-accentMuted">
+        <div className="text-xs uppercase tracking-widest text-accent mb-2">Contribute</div>
+        <h3 className="text-xl font-bold mb-2">Found a workflow worth a skill? Propose it.</h3>
+        <p className="text-sm text-muted leading-relaxed">
+          If you keep doing the same repeatable process in your projects, it should probably be a skill — no code required on your end. In your Claude Code session, just say{" "}
+          <strong className="text-text">&quot;this should be a skill&quot;</strong> (or &quot;make this a skill&quot; / &quot;propose a skill&quot;), and Claude reconstructs the workflow from what you just did, asks a couple quick questions, and drops a proposal in the shared <code className="font-mono text-accent">Skill Proposals</code> folder on Lucid Link. Sam reviews it and builds the keepers into real skills for the whole team, <strong className="text-text">credited to you</strong>. That is the <code className="font-mono text-accent">propose-skill</code> skill.
+        </p>
+      </div>
+
       <p className="text-sm text-muted border-t border-border pt-4 mt-6">
         <strong className="text-text">Updating from a downloaded file:</strong> if you uploaded an individual SKILL.md to Cowork manually (instead of using the .plugin bundle), re-download from here whenever a skill ships an update on the changelog below — Cowork only holds your last-uploaded copy.
       </p>

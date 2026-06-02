@@ -6,6 +6,12 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-01
+
+### New skill — `propose-skill` (contribute your workflows)
+
+Run **Update my skills** to get it. Found a repeatable process you keep doing in your projects? Say **"this should be a skill"** and Claude turns it into a Skill Proposal — it reconstructs the workflow from your session, asks a couple quick questions, and drops it in the shared **Skill Proposals** inbox on Lucid Link for Sam to review and build into a real skill for everyone. **You never write any code** — Claude captures the whole thing. If it ships, you'll pull it like any other skill, credited to you. This is how the system keeps getting better from what *you* discover.
+
 ## 2026-05-31
 
 ### New skill — `notion-asset-delivery`

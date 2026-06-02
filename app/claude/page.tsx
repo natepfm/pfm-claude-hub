@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import CopyBlock from "@/components/CopyBlock";
 import Overview from "@/components/sections/Overview";
+import SystemDiagram from "@/components/sections/SystemDiagram";
 import SetupMac from "@/components/sections/SetupMac";
 import SetupWindows from "@/components/sections/SetupWindows";
 import SkillsSection from "@/components/sections/SkillsSection";
@@ -112,6 +113,7 @@ export default function ClaudePage() {
 
       {/* Full sections */}
       <Overview />
+      <SystemDiagram />
       <SetupMac />
       <SetupWindows />
       <SkillsSection />
