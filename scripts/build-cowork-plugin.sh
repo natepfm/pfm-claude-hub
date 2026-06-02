@@ -71,6 +71,19 @@ for s in "${COWORK_SKILLS[@]}"; do
     echo "ERROR: missing source SKILL.md for '$s' at $SKILLS_SRC/$s/SKILL.md" >&2
     exit 1
   fi
+  # Cowork plugin validation rejects any skill whose frontmatter description > 1024 chars.
+  dlen=$(python3 - "$SKILLS_SRC/$s/SKILL.md" <<'PY'
+import sys, re
+fm = open(sys.argv[1], encoding='utf-8').read().split('---')
+fm = fm[1] if len(fm) >= 3 else ''
+m = re.search(r'(?m)^description:\s*(.+(?:\n(?!\w+:).*)*)', fm)
+print(len(m.group(1).strip()) if m else 0)
+PY
+)
+  if [ "$dlen" -gt 1024 ]; then
+    echo "ERROR: '$s' description is $dlen chars — over Cowork's 1024-char skill-description limit. Trim it before bundling." >&2
+    exit 1
+  fi
   mkdir -p "$STAGE/skills/$s"
   cp "$SKILLS_SRC/$s/SKILL.md" "$STAGE/skills/$s/SKILL.md"
 done
