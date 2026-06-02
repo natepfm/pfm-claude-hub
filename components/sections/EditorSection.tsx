@@ -11,6 +11,43 @@ export default function EditorSection() {
         </p>
       </div>
 
+      {/* claude-editor pipeline diagram */}
+      <div className="border border-border rounded-lg bg-bg p-5 mb-8 overflow-x-auto">
+        <div className="text-[11px] uppercase tracking-widest text-accent mb-3">The claude-editor pipeline</div>
+        <svg
+          viewBox="0 0 808 168"
+          className="w-full h-auto block min-w-[560px]"
+          role="img"
+          aria-label="The claude-editor pipeline. Claude automates Import (folder to DaVinci pool) and Assemble (manifest to script-ordered stringout); you then do the creative edit on the master — speed, b-roll, captions; then Claude runs Propagate (duplicate the master across states) and Export (batch-render the finished cuts)."
+          style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+        >
+          <defs>
+            <marker id="edPipe" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+          </defs>
+          <line x1={160} y1={88} x2={188} y2={88} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#edPipe)" />
+          <line x1={342} y1={88} x2={466} y2={88} stroke="#FF6B35" strokeWidth={2} strokeDasharray="5 4" markerEnd="url(#edPipe)" />
+          <line x1={620} y1={88} x2={648} y2={88} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#edPipe)" />
+          <text x={404} y={26} fill="#FF6B35" fontSize={11.5} fontWeight="bold" textAnchor="middle">✋ you edit the master</text>
+          <text x={404} y={40} fill="#a1a1a1" fontSize={9.5} textAnchor="middle">speed · b-roll · captions</text>
+          {[
+            { x: 8, n: 1, name: "Import", d1: "folder of clips", d2: "→ DaVinci pool" },
+            { x: 190, n: 2, name: "Assemble", d1: "manifest →", d2: "script stringout" },
+            { x: 468, n: 3, name: "Propagate", d1: "duplicate master", d2: "across states" },
+            { x: 650, n: 4, name: "Export", d1: "batch-render", d2: "finished cuts" },
+          ].map((b) => (
+            <g key={b.n}>
+              <rect x={b.x} y={42} width={150} height={96} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+              <circle cx={b.x + 22} cy={66} r={11} fill="#FF6B35" />
+              <text x={b.x + 22} y={70} fill="#0a0a0a" fontSize={12} fontWeight="bold" textAnchor="middle">{b.n}</text>
+              <text x={b.x + 40} y={70} fill="#fafafa" fontSize={12.5} fontWeight="bold">{b.name}</text>
+              <text x={b.x + 16} y={94} fill="#a1a1a1" fontSize={10.5}>{b.d1}</text>
+              <text x={b.x + 16} y={110} fill="#a1a1a1" fontSize={10.5}>{b.d2}</text>
+            </g>
+          ))}
+          <text x={404} y={160} fill="#a1a1a1" fontSize={10} textAnchor="middle">Claude automates each phase · you do the creative edit on the master in between</text>
+        </svg>
+      </div>
+
       <div className="space-y-3">
         {editorTools.map((t) => (
           <div key={t.name} className="border border-border rounded-lg p-5 bg-surface/50">
