@@ -70,38 +70,40 @@ export default function Overview() {
           Claude doesn't "know" PFM out of the box. Knowledge is layered in four levels, from general team patterns to per-project specifics. Each layer narrows what the model considers correct.
         </p>
 
-        <div className="space-y-3">
-          <div className="flex items-center gap-4">
-            <div className="w-16 shrink-0 text-3xl text-center">🧠</div>
-            <div className="flex-1 border border-border rounded-lg p-4 bg-surface/50">
-              <div className="font-semibold">Memory <span className="text-xs font-mono text-muted ml-2">~30 entries</span></div>
-              <div className="text-sm text-muted">Hard-won lessons from real production: brand-clean negatives by vertical, no [STATE LINE] tags, 6-8s line discipline, character master format, Veo audio quirks, etc. Always loaded, persists across sessions.</div>
-            </div>
-          </div>
-          <div className="text-2xl text-accent text-center">▼</div>
-          <div className="flex items-center gap-4">
-            <div className="w-16 shrink-0 text-3xl text-center">🎯</div>
-            <div className="flex-1 border border-border rounded-lg p-4 bg-surface/50">
-              <div className="font-semibold">Skills <span className="text-xs font-mono text-muted ml-2">{skills.length} SKILL.md files</span></div>
-              <div className="text-sm text-muted">Structured workflows. <code>hvg-flow</code> + <code>hig-flow</code> for production pipelines; <code>veo-script-writing</code>, <code>lc-to-video-podcast</code>, <code>story-beats</code>, <code>breaking-news-story-ads</code>, <code>nano-banana-prompting</code> for writing/prompting. Loads on trigger phrase or context match.</div>
-            </div>
-          </div>
-          <div className="text-2xl text-accent text-center">▼</div>
-          <div className="flex items-center gap-4">
-            <div className="w-16 shrink-0 text-3xl text-center">📚</div>
-            <div className="flex-1 border border-border rounded-lg p-4 bg-surface/50">
-              <div className="font-semibold">PFM Context <span className="text-xs font-mono text-muted ml-2">vertical briefs + canonical assets</span></div>
-              <div className="text-sm text-muted">Auto / Home Insurance / Concealed Carry vertical context. Brand voice rules, offer types, MB attribution patterns, character masters. Pulled when relevant to the request.</div>
-            </div>
-          </div>
-          <div className="text-2xl text-accent text-center">▼</div>
-          <div className="flex items-center gap-4">
-            <div className="w-16 shrink-0 text-3xl text-center">📎</div>
-            <div className="flex-1 border-2 border-accent rounded-lg p-4 bg-accentMuted">
-              <div className="font-semibold">Notion request <span className="text-xs font-mono text-muted ml-2">per-project brief</span></div>
-              <div className="text-sm text-muted">The actual spec for this specific run: copy lines, references, state variations, vertical, MB. Trumps everything above when there's a conflict, since it's project-specific.</div>
-            </div>
-          </div>
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 400 300"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="Four knowledge layers, broad at the top down to project-specific at the bottom: Memory, Skills, PFM Context, and the Notion request — which overrides the others on any conflict."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="ovStack" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" />
+              </marker>
+            </defs>
+            <line x1={24} y1={30} x2={24} y2={258} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ovStack)" />
+            <text x={24} y={20} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">broad</text>
+            {[
+              { name: "Memory", tag: "~30 entries", desc: "Hard-won production lessons, always loaded" },
+              { name: "Skills", tag: `${skills.length} skills`, desc: "Gen flows + writing / prompting workflows" },
+              { name: "PFM Context", tag: "vertical briefs", desc: "Vertical rules, brand voice, masters" },
+              { name: "Notion request", tag: "per project", desc: "This run's exact spec — wins on conflict", acc: true },
+            ].map((r, i) => {
+              const y = 18 + 66 * i;
+              return (
+                <g key={r.name}>
+                  <rect x={46} y={y} width={318} height={56} rx={10} fill={r.acc ? "#3a1f15" : "#141414"} stroke={r.acc ? "#FF6B35" : "#2a2a2a"} strokeWidth={r.acc ? 2 : 1.5} />
+                  <text x={62} y={y + 24} fill="#fafafa" fontSize={13} fontWeight={600}>{r.name}</text>
+                  <text x={348} y={y + 24} fill={r.acc ? "#FF6B35" : "#a1a1a1"} fontSize={9.5} textAnchor="end" fontFamily="monospace">{r.tag}</text>
+                  <text x={62} y={y + 43} fill="#a1a1a1" fontSize={10.5}>{r.desc}</text>
+                </g>
+              );
+            })}
+            <text x={24} y={284} fill="#FF6B35" fontSize={8.5} textAnchor="middle">specific</text>
+            <text x={205} y={296} fill="#a1a1a1" fontSize={10} textAnchor="middle">each layer narrows what counts as correct · the Notion request wins</text>
+          </svg>
         </div>
       </div>
 

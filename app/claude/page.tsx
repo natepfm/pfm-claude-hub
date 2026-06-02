@@ -114,8 +114,32 @@ export default function ClaudePage() {
       {/* Full sections */}
       <Overview />
       <SystemDiagram />
-      <SetupMac />
-      <SetupWindows />
+      <details id="setup-mac" className="my-12 border border-border rounded-xl bg-surface/30 overflow-hidden group scroll-mt-8">
+        <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-6 hover:bg-surface/40 transition-colors">
+          <div className="border-l-4 border-accent pl-4">
+            <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · macOS</div>
+            <div className="text-2xl font-bold">🍎 Setup on Mac</div>
+            <div className="text-muted text-sm mt-1">~10–45 min · first-time install · click to expand</div>
+          </div>
+          <span className="text-accent text-2xl shrink-0 transition-transform group-open:rotate-90 leading-none">▸</span>
+        </summary>
+        <div className="px-6 pb-6">
+          <SetupMac />
+        </div>
+      </details>
+      <details id="setup-windows" className="my-12 border border-border rounded-xl bg-surface/30 overflow-hidden group scroll-mt-8">
+        <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-6 hover:bg-surface/40 transition-colors">
+          <div className="border-l-4 border-accent pl-4">
+            <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · Windows</div>
+            <div className="text-2xl font-bold">🪟 Setup on Windows</div>
+            <div className="text-muted text-sm mt-1">~15–50 min · first-time install · click to expand</div>
+          </div>
+          <span className="text-accent text-2xl shrink-0 transition-transform group-open:rotate-90 leading-none">▸</span>
+        </summary>
+        <div className="px-6 pb-6">
+          <SetupWindows />
+        </div>
+      </details>
       <SkillsSection />
       <EditorSection />
       <ChangelogSection />

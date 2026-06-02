@@ -3,12 +3,7 @@ import Callout from "@/components/Callout";
 
 export default function SetupWindows() {
   return (
-    <section id="setup-windows" className="my-20 scroll-mt-8">
-      <div className="border-l-4 border-accent pl-4 mb-6">
-        <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · Windows</div>
-        <h2 className="text-3xl font-bold">Setup on Windows</h2>
-        <p className="text-muted mt-2">~15–50 minutes. More manual prereqs than Mac since there's no Homebrew equivalent.</p>
-      </div>
+    <section className="scroll-mt-8">
 
       <Callout type="info" title="Why we use Git Bash on Windows">
         Windows doesn't have a Unix-style terminal by default. <strong>Git for Windows</strong> ships with <strong>Git Bash</strong>, a terminal that runs the same scripts as Mac. Throughout this guide, every terminal command runs in Git Bash — NOT PowerShell or Command Prompt.

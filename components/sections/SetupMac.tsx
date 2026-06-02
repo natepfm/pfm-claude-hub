@@ -3,12 +3,7 @@ import Callout from "@/components/Callout";
 
 export default function SetupMac() {
   return (
-    <section id="setup-mac" className="my-20 scroll-mt-8">
-      <div className="border-l-4 border-accent pl-4 mb-6">
-        <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · macOS</div>
-        <h2 className="text-3xl font-bold">Setup on Mac</h2>
-        <p className="text-muted mt-2">~10–45 minutes depending on what you already have installed.</p>
-      </div>
+    <section className="scroll-mt-8">
 
       <Callout type="info" title="Where to start">
         <ul className="list-disc ml-6 space-y-1">
