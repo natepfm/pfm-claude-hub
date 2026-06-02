@@ -121,4 +121,20 @@ export const skills: Skill[] = [
     worksIn: ["code", "cowork"],
     category: "writing",
   },
+  {
+    name: "ugc-cinematic-prompt",
+    title: "UGC Cinematic Prompt",
+    description:
+      "Write Seedance 2.0 video prompts with a strict 11-block structure (STYLE, ENVIRONMENT, CHARACTER, PRODUCT, CONTEXT, ENERGY, CAMERA, LIGHTING, PHYSICS, AUDIO, TIME STAMPS). The user is authoritative — no forced default style; adapts to cinematic / UGC / anime / horror / etc. Scales beats to a chosen duration (15s hard cap). The prompt is the deliverable, with an optional Higgsfield CLI fire path (seedance_2_0 / kling3_0). Credit: Drake.",
+    worksIn: ["code"],
+    category: "video",
+  },
+  {
+    name: "reskin-trending-video",
+    title: "Reskin Trending Video",
+    description:
+      "Reskin a trending / reference clip into a brand-safe gen prompt that keeps the trend's structure and pacing but swaps the subject for your character. Inspects the ref first (ffmpeg contact sheet), flags IP/watermark/PII/brand-unsafe pitfalls, picks the engine (Seedance for concept reskins, Kling Motion Control for literal motion transfer), writes the body via ugc-cinematic-prompt with a REFERENCES block + spread exclusions, and hands over a post-pro plan for what won't render. Optional CLI fire. Credit: Drake.",
+    worksIn: ["code"],
+    category: "video",
+  },
 ];

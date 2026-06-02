@@ -6,6 +6,17 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-02
+
+### Two new skills — `reskin-trending-video` + `ugc-cinematic-prompt` (video gen)
+
+Run **Update my skills** to get them. Both came in through the **Skill Proposals** inbox — captured by **Drake**.
+
+- **`reskin-trending-video`** — drop a trending clip (TikTok / Reels / a competitor ad) and turn it into a brand-safe gen prompt that keeps the trend's structure + pacing but swaps the subject for *your* character. It inspects the reference first (an ffmpeg contact sheet so Claude actually looks at the clip), flags the pitfalls that get a reskin killed — watermarks, license plates / real PII, vapes / alcohol, recognizable IP — then picks the engine for you: **Seedance** when the action is describable or the body type changes, **Kling Motion Control** only for literal frame-exact motion transfer on a matching skeleton. Writes the prompt with a REFERENCES block + exclusions spread across the blocks (so the model copies the *timing*, not the watermark), and hands you a post-pro plan for the parts a generator can't render (phone screens, multi-cut sequences, trending audio).
+- **`ugc-cinematic-prompt`** — the Seedance 2.0 prompt-body format the reskin flow leans on, also usable standalone for any video prompt. A strict 11-block structure (STYLE, ENVIRONMENT, CHARACTER, PRODUCT, CONTEXT, ENERGY, CAMERA, LIGHTING, PHYSICS, AUDIO, TIME STAMPS), beats scaled to your chosen length (15s hard cap), no forced house style — whatever you ask for is the north star.
+
+Both deliver the **prompt** as the output, with an optional Higgsfield **CLI** fire path (`seedance_2_0` / `kling3_0`) so you can run it without leaving Claude. Code-only (they need ffmpeg + the Higgsfield CLI).
+
 ## 2026-06-01
 
 ### New skill — `propose-skill` (contribute your workflows)
