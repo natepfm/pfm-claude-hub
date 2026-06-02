@@ -393,13 +393,15 @@ Parse each result JSON for the image URL(s), download in parallel via `urllib.re
 
 Then rewrite the Excel manifest using the same helper + same config schema, with refreshed status / v01 / v02 / notes per shot.
 
-Final report:
+Final report — **always close with the two-link handoff** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
 
 > ✅ **X images delivered** to `Elements/Footage/Primary/B-Roll Photos/`
 > ❌ Y shots had failures: <list shotIds + reasons>
 > 💰 Final balance: M cr (delta: -K)
 > ⏱ Total elapsed: Z min
 > 📋 Manifest: `<slug>_shots.xlsx`
+> 📁 Path: `/Volumes/ads/…/Elements/Footage/Primary/B-Roll Photos`
+> 🔗 Open: [B-Roll Photos ↗](https://linkyourfile.com/link?p=…)
 
 If any shot looks off in review, editor can re-fire individual shots via the `higgsfield-image-generation` skill (CLI-driven) or by re-running this skill with a scoped-down shot list.
 

@@ -1,6 +1,6 @@
 ---
 name: notion-asset-delivery
-description: PFM's delivery-comment poster for the Notion Video Task Manager. Posts the house-format "✅ Completed Creatives (#): <LinkYourFile folder link>" comment (plus any manual-fire / status notes) to a VTM request — auto-building the LinkYourFile link from the folder path so the editor never hand-makes it. STATUS RULE (Sam 2026-06-01): a routine asset delivery leaves the request Status UNTOUCHED — dropping generated clips in the folder is a raw-asset handoff, not a finished creative, so the request stays "Requested." The skill sets Status → "Done" AND @-tags Dima V + Gabriel Moss ONLY when the editor explicitly asks to report a COMPLETED creative ("mark done", "report complete", "move to Done"). Use when an editor says "post the delivery comment", "deliver this to Notion", "drop the folder link on the request", "post completed creatives", "I'm done editing — post the delivery", or finishes a gen flow and wants to notify the requester — and, for the Done path, "mark <request> done" / "report this completed creative". Also auto-offered by hvg-flow at its final-report step; usable standalone anytime you have a delivered folder (after a vsl / hig batch or after an edit). The skill builds the link + composes the comment SILENTLY, then stops at ONE hard confirm (exact comment text + target request) before posting — it NEVER auto-posts. NOT for: building request pages or state batches (use notion-state-batches), generating the assets themselves (use hvg-flow / hig-flow / vsl-state-variations), or any comment other than a delivery notification.
+description: PFM's delivery-comment poster for the Notion Video Task Manager. Posts the right house-format delivery comment to a VTM request — `✅ Assets Generated [folder ↗](link)` for a raw-asset handoff (Status untouched, no count) or `✅ Completed Creatives (#): [folder ↗](link)` for a finished-creative turn-in (Status → Done + Dima V/Gabriel Moss tags) — auto-building the LinkYourFile link from the folder path so the editor never hand-makes it. STATUS RULE (Sam 2026-06-01): a routine asset delivery leaves the request Status UNTOUCHED — dropping generated clips in the folder is a raw-asset handoff, not a finished creative, so the request stays "Requested." The skill sets Status → "Done" AND @-tags Dima V + Gabriel Moss ONLY when the editor explicitly asks to report a COMPLETED creative ("mark done", "report complete", "move to Done"). Use when an editor says "post the delivery comment", "deliver this to Notion", "drop the folder link on the request", "post completed creatives", "I'm done editing — post the delivery", or finishes a gen flow and wants to notify the requester — and, for the Done path, "mark <request> done" / "report this completed creative". Also auto-offered by hvg-flow at its final-report step; usable standalone anytime you have a delivered folder (after a vsl / hig batch or after an edit). The skill builds the link + composes the comment SILENTLY, then stops at ONE hard confirm (exact comment text + target request) before posting — it NEVER auto-posts. NOT for: building request pages or state batches (use notion-state-batches), generating the assets themselves (use hvg-flow / hig-flow / vsl-state-variations), or any comment other than a delivery notification.
 ---
 
 # notion-asset-delivery
@@ -38,7 +38,7 @@ optional requester-mention below.)
 
 **Two distinct events — never conflate them (this is the trap that caused the Sarah bug):**
 1. **Asset generation / delivery** — Claude fires the clips/images, drops them in the folder, posts
-   the `✅ Completed Creatives (#)` comment. A raw-materials handoff; **Status stays "Requested."**
+   the **`✅ Assets Generated [folder ↗](link)`** comment (no count). A raw-materials handoff; **Status stays "Requested."**
    (The Sarah Herman clip batches were this — NOT a turn-in.)
 2. **Turning in the project** — the completed creative is reported/delivered (Sam's call). This is
    the **routine close-out that fires EVERY time a project is turned in — not a rare exception:**
@@ -46,41 +46,46 @@ optional requester-mention below.)
    Never skip the tags on a turn-in, and don't treat the Done path as unusual — every finished
    project ends here.
 
-## The locked comment format (Sam, 2026-05-31)
+## The two locked comment formats (Sam, 2026-06-01) — pick by event
+
+Two distinct labels, one per event. Pick by **intent** (which of the two events above), NOT by file count.
+
+**① Assets Generated** — a raw-asset handoff (gen flow finished / "post the assets" / "post the delivery"). **No count.** Status UNTOUCHED, no mandatory tags.
 
 ```
-✅ Completed Creatives (#): <LinkYourFile folder link>
+✅ Assets Generated [folder ↗](LinkYourFile link)
 <any notes, one tight line each>
 ```
 
-- **`(#)`** — number of completed creatives delivered. The skill counts the video files in the
-  folder as a **suggestion**; the editor sets the final number (a "creative" may be several files —
-  16:9 + 9:16, multiple hooks — so the raw file count is only a hint).
-- **`<LinkYourFile folder link>`** — auto-generated from the folder path (see Step 2). Rendered as a
-  short hyperlink (label = folder / state name), **never** a pasted raw path or a 200-char raw URL.
-- **`<notes>`** — optional. Manual-fire flags or any status note, in tight house style:
-  - `Note: **L19 still needs a manual fire** — it repeatedly hit Veo's NSFW filter.`
-  - `Update: **L40** also still needs a manual fire — same Veo NSFW-filter issue as L19.`
-- **DO NOT** include: dialogue text, slide-vs-CTA backstory, "originally fired against Florida"
-  context, a "— Claude, <date>" signature, or `⚠️`-heavy headers. Scannable status only —
-  teammates (Nicolai, Dima, etc.) read these. (See `feedback_notion_manual_flag_comment_format`.)
-
-**Completed-creative (Done-path) variant** — same line, with the two mandatory tags leading:
+**② Completed Creatives** — a finished-creative report / turn-in ("report this", "mark done", "turn it in", "<project> is done"). Carries the **mandatory Dima V + Gabriel Moss tags** (leading) and flips **Status → Done**. Takes the `(#)` count.
 
 ```
 <@Dima V> <@Gabriel Moss>
-✅ Completed Creatives (#): <LinkYourFile folder link>
+✅ Completed Creatives (#): [folder ↗](LinkYourFile link)
+<any notes, one tight line each>
 ```
 
-Optional leading `@`-mention of the requester (see Step 5) so they get notified — separate from the
-mandatory Dima V + Gabriel Moss tags, which appear ONLY on the Done path.
+**Shared rules (both formats):**
+- **`[folder ↗](link)`** — the LinkYourFile link, auto-generated from the folder path (see Step 2), rendered as a short hyperlink (label = folder / state name). **Never** a raw path or a 200-char raw URL.
+- **`(#)`** — count of completed creatives, on **② only**; the file count is a **suggestion** (a "creative" may be several files — 16:9 + 9:16, multiple hooks — so the raw count is a hint, the editor sets the final number). **① Assets Generated takes NO count.**
+- **`<notes>`** — optional, on either (most common on ① at handoff). Manual-fire flags / status notes in tight house style:
+  - `Note: **L19 still needs a manual fire** — it repeatedly hit Veo's NSFW filter.`
+  - `Update: **L40** also still needs a manual fire — same Veo NSFW-filter issue as L19.`
+- **DO NOT** include: dialogue text, slide-vs-CTA backstory, "originally fired against Florida" context, a "— Claude, <date>" signature, or `⚠️`-heavy headers. Scannable status only — teammates (Nicolai, Dima, etc.) read these. (See `feedback_notion_manual_flag_comment_format`.)
+- The **Dima V + Gabriel Moss tags appear ONLY on ②** (the Done path). An optional leading `@`-mention of the requester (Step 5) can go on either — separate from the mandatory pair.
 
-**Worked example** (Texas Auto VSL, 4 creatives, one line still needs a manual fire — routine
-delivery, Status stays "Requested"):
+**Worked examples:**
 
+① Asset handoff (Status stays "Requested"):
 ```
-✅ Completed Creatives (4): [Texas](https://linkyourfile.com/link?p=…)
+✅ Assets Generated [Texas](https://linkyourfile.com/link?p=…)
 Note: **L19 still needs a manual fire** — it repeatedly hit Veo's NSFW filter.
+```
+
+② Finished-creative turn-in (Status → Done):
+```
+<@Dima V> <@Gabriel Moss>
+✅ Completed Creatives (4): [Texas](https://linkyourfile.com/link?p=…)
 ```
 
 ## Inputs — gather from context first, ask only for what's missing
@@ -124,14 +129,15 @@ find "<absolute folder path>" -maxdepth 1 -type f \( -iname '*.mp4' -o -iname '*
 
 Surface it as a suggestion in the preflight ("I count N video files — how many completed
 creatives is that?"). **The editor's number wins** — never silently assume the file count is the
-creative count.
+creative count. **Count applies to the finished-creative turn-in (② Completed Creatives) only — the ① Assets Generated handoff takes no count, so skip this step for a handoff.**
 
 ## Step 4 — Compose the comment (silent)
 
-Assemble the markdown exactly in the locked format: the `✅ Completed Creatives (#):` line with the
-folder linked as a short label, then any notes lines (newline-separated, tight house style). Prefix
-with the optional requester `@`-mention from Step 5 if used. **If this is a completed-creative
-report (Done path), prepend the mandatory `<mention-user .../>` tags for Dima V AND Gabriel Moss.**
+Assemble the markdown in the right format **for the event** (see "The two locked comment formats"):
+- **Asset handoff (①)** → `✅ Assets Generated [folder ↗](link)` (no count) + any notes lines.
+- **Finished-creative turn-in (②)** → prepend the mandatory Dima V + Gabriel Moss `<mention-user .../>` tags, then `✅ Completed Creatives (#): [folder ↗](link)` + any notes.
+
+Notes lines are newline-separated, tight house style. Add the optional requester `@`-mention from Step 5 if used (either event).
 
 ## Step 5 — Preflight: show the exact comment, then WAIT (hard gate)
 
@@ -148,11 +154,11 @@ Show the editor, in **plain markdown chat** (NOT `AskUserQuestion` — see
 
 > Ready to post this to **<request title>**:
 >
-> > ✅ Completed Creatives (4): [Texas](https://linkyourfile.com/link?p=…)
+> > ✅ Assets Generated [Texas](https://linkyourfile.com/link?p=…)
 > > Note: **L19 still needs a manual fire** — it repeatedly hit Veo's NSFW filter.
 >
-> _Routine delivery — the request **Status stays "Requested"** (unchanged)._ Reply `post` to send
-> it, or tell me what to change (count, notes, tag, folder).
+> _Asset handoff — the request **Status stays "Requested"** (unchanged)._ Reply `post` to send
+> it, or tell me what to change (notes, tag, folder).
 
 For a **completed-creative report**, the closing line instead reads:
 

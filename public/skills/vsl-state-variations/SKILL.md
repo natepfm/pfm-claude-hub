@@ -146,6 +146,7 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
     on them. Fire the batch (1 plain), run one SFW pass (1 attempt), flag L19/L40 if still down,
     move on. (If a future tweak reliably cracks them, update this.)
 - Output: `Elements/Footage/Veo/<State>/` as `L<NN>_<st>_v01.mp4`.
+- **Two-link handoff (standing rule, `feedback_two_link_lucid_handoff`):** when reporting a delivered state, close with BOTH the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link for the clips folder `Elements/Footage/Veo/<State>/` (and the slides folder when relevant) — build via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`, render as `[<State> ↗](url)`. Lucid `/Volumes/ads/…` paths only.
 
 ## Firing engine — use the helper, don't hand-roll
 `fire_veo.py` (ships with this skill) encodes every lesson below. Drive it with a JSON

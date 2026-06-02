@@ -169,6 +169,7 @@ ls -la /path/to/project/Elements/Footage/Primary/B-Roll\ Photos/ | grep "L14"
 
 Confirm file count matches expected (count × number of fires). Report to user:
 - Filenames saved
+- **Two-link handoff (standing rule, `feedback_two_link_lucid_handoff`):** the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link to the download folder — build via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`, render as `[label ↗](url)`. Lucid `/Volumes/ads/…` paths only; if the download landed elsewhere, give the Path and say the clickable link doesn't apply.
 - Final balance (CLI: `higgsfield account status`)
 - Any silent losses (stuck or missing jobs — see below)
 

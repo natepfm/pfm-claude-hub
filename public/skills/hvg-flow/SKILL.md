@@ -851,7 +851,7 @@ After audio QC runs (or was declined), surface the visual QC offer in **plain ma
 
 After QC (or once it's declined), offer to post the delivery comment to the Notion request in **plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows`):
 
-> Want me to post the delivery comment to the Notion request? I'll build the LinkYourFile folder link and draft it in house format — `✅ Completed Creatives (#): <link>` plus any manual-fire notes for clips that still need a hand-fire. You'll see the exact comment and confirm before anything posts.
+> Want me to post the assets-generated comment to the Notion request? I'll build the LinkYourFile folder link and draft it in house format — `✅ Assets Generated [folder ↗](link)` plus any manual-fire notes for clips that still need a hand-fire. This is a raw-asset handoff, so the request **Status stays "Requested"** (not a turn-in). You'll see the exact comment and confirm before anything posts.
 >
 > Reply `yes` to draft it, or `no` / `skip` to finish here.
 
@@ -863,7 +863,7 @@ After QC (or once it's declined), offer to post the delivery comment to the Noti
 
 ### Final report
 
-Then summarize for the editor:
+Then summarize for the editor — and **always close with the two-link handoff** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
 
 > ✅ X clips delivered to `Elements/Footage/Veo/`
 > ❌ Y prompts had failures: <list slugs + reasons>
@@ -871,6 +871,8 @@ Then summarize for the editor:
 > ⏱ Total elapsed: Z minutes
 > 📋 Manifest: `<slug>_prompts.xlsx`
 > 🎧 Audio QC: `<summary if ran, else "skipped">`
+> 📁 Path: `/Volumes/ads/…/Elements/Footage/Veo`
+> 🔗 Open: [Veo ↗](https://linkyourfile.com/link?p=…)
 
 If failures or QC flags exist, list them in three buckets (assuming QC ran — see "Refire decisions" above):
 
