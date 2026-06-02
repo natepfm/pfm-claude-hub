@@ -57,11 +57,10 @@ export default function SystemDiagram() {
             <div className="border border-border rounded-lg p-4 bg-surface">
               <div className="flex items-center gap-2 mb-1">
                 <StepBadge n={1} />
-                <span className="text-xs uppercase tracking-widest text-accent">Master account</span>
+                <span className="text-xs uppercase tracking-widest text-accent">Master Account</span>
               </div>
-              <div className="font-mono text-sm text-text break-all">sams@powerfoxmedia.com</div>
               <div className="text-sm text-muted mt-1">
-                Sam + Claude <strong className="text-text">build &amp; maintain</strong> every skill.
+                Where every skill is <strong className="text-text">built &amp; maintained</strong> — the source of truth.
               </div>
             </div>
 
@@ -87,11 +86,10 @@ export default function SystemDiagram() {
             <div className="border border-border rounded-lg p-4 bg-surface">
               <div className="flex items-center gap-2 mb-1">
                 <StepBadge n={3} />
-                <span className="text-xs uppercase tracking-widest text-accent">Editor account · shared</span>
+                <span className="text-xs uppercase tracking-widest text-accent">Editor Account</span>
               </div>
-              <div className="font-mono text-sm text-text break-all">powerrfoxlogin@gmail.com</div>
               <div className="text-sm text-muted mt-1">
-                Editors <strong className="text-text">run the flows</strong> &amp; deliver assets.
+                Shared team account — editors <strong className="text-text">run the flows</strong> &amp; deliver assets.
               </div>
             </div>
           </div>
@@ -140,7 +138,7 @@ export default function SystemDiagram() {
             <strong className="text-text">The flywheel.</strong> An editor hits a repeatable workflow and
             says <span className="text-text">&quot;this should be a skill&quot;</span> →{" "}
             <code className="font-mono text-accent">propose-skill</code> drops a proposal in{" "}
-            <code className="font-mono text-accent">Skill Proposals/</code> → Sam triages + builds it on the
+            <code className="font-mono text-accent">Skill Proposals/</code> → gets triaged + built on the
             master account → it ships back to everyone on the next update,{" "}
             <strong className="text-text">credited to the editor</strong>. The system compounds from what
             the team discovers.
