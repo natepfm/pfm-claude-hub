@@ -160,6 +160,43 @@ export default function OnboardingPage() {
         </p>
       </header>
 
+      {/* First-day ribbon — the whole onboarding flow at a glance */}
+      <div className="mb-12 border border-border rounded-lg bg-bg px-5 py-3 overflow-x-auto">
+        <div className="text-[11px] uppercase tracking-widest text-accent mb-2">Your first day, in order</div>
+        <svg
+          viewBox="0 0 862 64"
+          className="w-full h-auto block min-w-[700px]"
+          role="img"
+          aria-label="The first-day flow, left to right: get your Accounts, install your Apps, add the DaVinci Plug-ins, set up Claude, watch the Training SOPs, then run your First task."
+          style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+        >
+          <defs>
+            <marker id="obRib" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+          </defs>
+          {[
+            { label: "Accounts", sub: "1Password first" },
+            { label: "Apps", sub: "DaVinci + tools" },
+            { label: "Plug-ins", sub: "Snap Captions…" },
+            { label: "Set up Claude", sub: "Mac / Windows" },
+            { label: "Training", sub: "5 SOPs in order" },
+            { label: "First task", sub: "build + deliver", goal: true },
+          ].map((n, i) => {
+            const x = 12 + i * 142;
+            const cx = x + 58;
+            return (
+              <g key={n.label}>
+                {i > 0 && (
+                  <line x1={x - 24} y1={32} x2={x - 2} y2={32} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obRib)" />
+                )}
+                <rect x={x} y={10} width={116} height={44} rx={9} fill={n.goal ? "#FF6B35" : "#141414"} stroke={n.goal ? "#FF6B35" : "#2a2a2a"} strokeWidth={1.5} />
+                <text x={cx} y={30} fill={n.goal ? "#0a0a0a" : "#fafafa"} fontSize={12.5} fontWeight={600} textAnchor="middle">{n.label}</text>
+                <text x={cx} y={45} fill={n.goal ? "#0a0a0a" : "#a1a1a1"} fontSize={9} textAnchor="middle">{n.sub}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
       {/* Welcome + page map */}
       <section id="welcome" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
@@ -251,6 +288,40 @@ export default function OnboardingPage() {
               <div className="text-xs text-muted/80 mt-2 border-t border-border pt-2">{app.access}</div>
             </div>
           ))}
+        </div>
+
+        {/* Two Chrome profiles — the setup that trips people up */}
+        <div className="mb-8 border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Chrome — two profiles, not one</div>
+          <svg
+            viewBox="0 0 460 210"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="Google Chrome runs two profiles. Profile 1 is your own PFM login; Profile 2 is the shared PFM account (its login is in 1Password). Add the 1Password extension to both profiles."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="obChrome" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            </defs>
+            <rect x={160} y={14} width={140} height={42} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={230} y={34} fill="#fafafa" fontSize={13} fontWeight="bold" textAnchor="middle">Google Chrome</text>
+            <text x={230} y={49} fill="#a1a1a1" fontSize={9.5} textAnchor="middle">two profiles</text>
+            <line x1={206} y1={56} x2={120} y2={92} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obChrome)" />
+            <line x1={254} y1={56} x2={340} y2={92} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obChrome)" />
+            <rect x={16} y={94} width={200} height={100} rx={11} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <circle cx={40} cy={120} r={10} fill="#FF6B35" />
+            <text x={40} y={124} fill="#0a0a0a" fontSize={11} fontWeight="bold" textAnchor="middle">1</text>
+            <text x={58} y={124} fill="#fafafa" fontSize={12.5} fontWeight={600}>Profile 1</text>
+            <text x={32} y={150} fill="#cfcfcf" fontSize={10.5}>Your own PFM login</text>
+            <text x={32} y={172} fill="#a1a1a1" fontSize={10}>+ 1Password extension</text>
+            <rect x={244} y={94} width={200} height={100} rx={11} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
+            <circle cx={268} cy={120} r={10} fill="#FF6B35" />
+            <text x={268} y={124} fill="#0a0a0a" fontSize={11} fontWeight="bold" textAnchor="middle">2</text>
+            <text x={286} y={124} fill="#fafafa" fontSize={12.5} fontWeight={600}>Profile 2</text>
+            <text x={260} y={150} fill="#cfcfcf" fontSize={10.5}>Shared PFM account</text>
+            <text x={260} y={172} fill="#a1a1a1" fontSize={10}>login in 1Password · + ext.</text>
+          </svg>
+          <div className="mt-3 text-xs text-muted">Add the 1Password extension to <strong className="text-text">both</strong> profiles — second-profile login lives in 1Password.</div>
         </div>
 
         <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-1">AI &amp; creative tools</h3>

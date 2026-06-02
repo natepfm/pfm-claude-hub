@@ -88,6 +88,37 @@ export default function ResourcesPage() {
           </a>
           .
         </p>
+
+        {/* Vertical → lander map */}
+        <div className="border border-border rounded-lg bg-bg p-5 mb-6 max-w-xl">
+          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Vertical → landing pages</div>
+          <svg
+            viewBox={`0 0 440 ${landerGroups.length * 56 + 16}`}
+            className="w-full h-auto block"
+            role="img"
+            aria-label={`Each vertical maps to its live landing pages: ${landerGroups.map((g) => `${g.vertical} has ${g.landers.length}`).join(", ")}.`}
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="rsLander" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            </defs>
+            {landerGroups.map((g, i) => {
+              const y = 12 + i * 56;
+              const cy = y + 20;
+              return (
+                <g key={g.vertical}>
+                  <rect x={12} y={y} width={150} height={40} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+                  <text x={87} y={cy + 5} fill="#fafafa" fontSize={13} fontWeight={600} textAnchor="middle">{g.vertical}</text>
+                  <line x1={164} y1={cy} x2={232} y2={cy} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#rsLander)" />
+                  <rect x={234} y={y} width={194} height={40} rx={9} fill="#3a1f15" stroke="#FF6B35" strokeWidth={1.5} />
+                  <text x={331} y={cy - 1} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">{g.landers.length} landing {g.landers.length === 1 ? "page" : "pages"}</text>
+                  <text x={331} y={cy + 13} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">{[...new Set(g.landers.map((l) => l.label.split(/[ —(]/)[0]))].join(" · ")}</text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-4">
           {landerGroups.map((g) => (
             <div key={g.vertical} className="border border-border rounded-lg p-4 bg-surface/50">

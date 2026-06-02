@@ -112,6 +112,45 @@ export default function CreativesPage() {
             <EntryCard key={e.name} e={e} />
           ))}
         </div>
+
+        {/* Reskin mini-flow — how a trend-copy gets built */}
+        <div className="mt-6 border border-border rounded-lg bg-bg p-5 overflow-x-auto">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[10px] uppercase tracking-widest text-bg bg-accent rounded px-1.5 py-0.5 font-semibold">New</span>
+            <div className="text-[11px] uppercase tracking-widest text-accent">Reskin flow — copy a trend with your character</div>
+          </div>
+          <svg
+            viewBox="0 0 820 88"
+            className="w-full h-auto block min-w-[680px]"
+            role="img"
+            aria-label="The reskin flow, left to right: inspect the reference clip, pick the engine (Seedance for concept, Kling for literal motion), write the 11-block prompt via ugc-cinematic-prompt, then optionally fire it through the Higgsfield CLI."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="crReskin" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            </defs>
+            {[
+              { label: "Inspect ref", sub: "ffmpeg contact sheet" },
+              { label: "Engine pick", sub: "Seedance / Kling" },
+              { label: "11-block prompt", sub: "ugc-cinematic-prompt" },
+              { label: "Fire (optional)", sub: "Higgsfield CLI · count 1", goal: true },
+            ].map((n, i) => {
+              const x = 12 + i * 202;
+              const cx = x + 88;
+              return (
+                <g key={n.label}>
+                  {i > 0 && (
+                    <line x1={x - 26} y1={40} x2={x - 2} y2={40} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#crReskin)" />
+                  )}
+                  <rect x={x} y={16} width={176} height={48} rx={10} fill={n.goal ? "#3a1f15" : "#141414"} stroke={n.goal ? "#FF6B35" : "#2a2a2a"} strokeWidth={n.goal ? 2 : 1.5} />
+                  <text x={cx} y={37} fill="#fafafa" fontSize={12.5} fontWeight={600} textAnchor="middle">{n.label}</text>
+                  <text x={cx} y={53} fill={n.goal ? "#FF6B35" : "#a1a1a1"} fontSize={9.5} textAnchor="middle">{n.sub}</text>
+                </g>
+              );
+            })}
+            <text x={410} y={82} fill="#a1a1a1" fontSize={10} textAnchor="middle">keeps the trend&apos;s structure + pacing · swaps the subject for a PFM character · brand-safe by default</text>
+          </svg>
+        </div>
       </section>
 
       {/* Variation types */}

@@ -68,6 +68,13 @@ export const creativeTypes: CreativeEntry[] = [
       "Animated Pixar / claymation-style ad with recurring 3D characters (Marcus, Robert, Max the Dog) — spans character ads, podcasts, and music videos; song forms ride a Suno track.",
     skill: "hvg-flow (Veo) + suno-songwriter",
   },
+  {
+    name: "Reskin / Trend-Copy",
+    aka: "trend reskin",
+    description:
+      "A trending or reference clip (TikTok / Reels / competitor ad) recreated brand-safe — same structure + pacing, subject swapped for a PFM character. Inspect the ref → pick the engine (Seedance for concept, Kling for literal motion) → write the prompt → optional CLI fire.",
+    skill: "reskin-trending-video → ugc-cinematic-prompt",
+  },
 ];
 
 // ── Variation types: creative / market variations we test ───────────────────
@@ -182,6 +189,13 @@ export const buildingBlocks: CreativeEntry[] = [
     name: "Veo Script",
     description: "Numbered dialogue formatted for Veo — 6-8s lines, no dashes / caps, state tokens.",
     skill: "veo-script-writing",
+  },
+  {
+    group: "Scripts & structure",
+    name: "Video Gen Prompt",
+    description:
+      "Seedance 2.0 11-block prompt (or a Kling motion-transfer setup) for AI video gens — the body a reskin or UGC clip fires from.",
+    skill: "ugc-cinematic-prompt",
   },
   {
     group: "Images & graphics",

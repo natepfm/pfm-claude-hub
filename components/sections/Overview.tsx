@@ -369,23 +369,28 @@ export default function Overview() {
 ├── skills/                              ← ${skills.length} PFM skills, deployed to every editor
 │   ├── hvg-flow/                          The video pipeline (silent setup + 2 stops, parallel waves)
 │   ├── hig-flow/                          The image pipeline (b-roll generation)
+│   ├── vsl-state-variations/              Per-state VSL slides + Veo clips
 │   ├── veo-script-writing/                Veo rule enforcement on scripts
 │   ├── lc-to-video-podcast/               Long-copy → podcast monologue transform
 │   ├── story-beats/                       PFM 6-beat story-ad skeleton
 │   ├── breaking-news-story-ads/           LATU news-wrapper framing
 │   ├── nano-banana-prompting/             NB Pro prompt patterns
 │   ├── higgsfield-image-generation/       CLI-driven one-off image fires (no Notion needed)
+│   ├── ugc-cinematic-prompt/              Seedance 2.0 11-block video prompt
+│   ├── reskin-trending-video/             Reskin a trend → brand-safe gen prompt
 │   ├── audio-qc/                          Post-download audio QC — ffmpeg + Whisper + music detect
 │   ├── visual-qc/                         Post-download visual QC — 5-frame filmstrips
+│   ├── notion-asset-delivery/             Posts the house-format delivery comment
+│   ├── propose-skill/                     Editor-facing — capture a workflow as a proposal
 │   └── suno-songwriter/                   Ad script → Suno v5 song (lyrics + style)
 ├── context/                             ← Brand briefs per vertical (auto, home, CC)
-├── settings.json                        ← Claude permission allowlist (46 entries)
+├── settings.json                        ← Claude permission allowlist (51 entries)
 ├── CLAUDE.md                            ← Team brief, auto-loaded by Claude Code
 ├── claude-pfm-setup.sh                  ← One-shot Mac installer
 ├── claude-pfm-setup-windows.sh          ← One-shot Windows installer
 ├── claude-pfm-account-switch.sh         ← Higgsfield CLI auth helper
 ├── claude-pfm-update.sh                 ← Pull latest skills from this folder
-└── pfm-writing-skills.plugin            ← Cowork plugin (6 writing skills bundled)`}
+└── pfm-cowork-skills.plugin             ← Cowork plugin (6 writing skills bundled)`}
           </pre>
         </div>
 
