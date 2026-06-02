@@ -114,52 +114,43 @@ export default function Overview() {
           Higgsfield exposes itself two ways. The choice matters for speed, cost, and feature access.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* MCP card */}
-          <div className="border border-border rounded-lg p-5 bg-surface/50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-3xl">📡</div>
-              <div>
-                <div className="text-lg font-bold">MCP</div>
-                <div className="text-xs font-mono text-muted">Model Context Protocol</div>
-              </div>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Read-only inspection of workspace state</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Balance, transactions, models_explore lookups</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Built-in via Claude Desktop connectors</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted"><strong className="text-text">FORBIDDEN for firing</strong> — MCP filters break Veo (audio, frame-to-video) and the CLI is ~10× faster</span></div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border">
-              <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-1">Best for</div>
-              <div className="text-sm text-muted">Inspection only — checking credit balance, pulling cost transaction history, discovering model parameters. <strong className="text-text">MCP firing is FORBIDDEN</strong> — every image and video gen goes through the CLI.</div>
-            </div>
-          </div>
-
-          {/* CLI card */}
-          <div className="border-2 border-accent rounded-lg p-5 bg-accentMuted">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="text-3xl">⚡</div>
-              <div>
-                <div className="text-lg font-bold">CLI</div>
-                <div className="text-xs font-mono text-muted">Higgsfield command line</div>
-              </div>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Batch firing in parallel waves</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">60-80 Veo clips in one run</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Full Veo 3.1 surface — audio, frame-to-video, all models</span></div>
-              <div className="flex gap-2"><span className="text-accent">→</span><span className="text-muted">Direct billing — no Claude-token enhancement charges on bare gens</span></div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-accent/50">
-              <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-1">Best for ← what PFM uses</div>
-              <div className="text-sm text-muted">The full production pipeline. <code>hvg-flow</code> + <code>hig-flow</code> both fire through the CLI. Faster, cheaper, more capable for batches.</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 text-xs text-muted italic">
-          Canonical rule lives in memory at <code>feedback_higgsfield_workflow.md</code>. CLI for every fire; MCP firing FORBIDDEN; MCP use is read-only inspection only (balance, transactions, workspace).
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 460 344"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="Claude talks to Higgsfield two ways. MCP is read-only inspection (balance, transactions, model lookups) and is never used to fire. The CLI fires every image and video gen — batch parallel waves, the full Veo 3.1 surface, direct billing. All generation goes through the CLI."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="ovBrA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+              <marker id="ovBrM" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#a1a1a1" /></marker>
+            </defs>
+            <rect x={185} y={14} width={90} height={40} rx={8} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={230} y={39} fill="#fafafa" fontSize={14} fontWeight="bold" textAnchor="middle">Claude</text>
+            <line x1={222} y1={54} x2={120} y2={100} stroke="#a1a1a1" strokeWidth={1.5} strokeDasharray="5 4" markerEnd="url(#ovBrM)" />
+            <text x={150} y={78} fill="#a1a1a1" fontSize={10} textAnchor="middle">inspect</text>
+            <line x1={238} y1={54} x2={340} y2={100} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ovBrA)" />
+            <text x={312} y={78} fill="#FF6B35" fontSize={10} fontWeight="bold" textAnchor="middle">fire</text>
+            <rect x={16} y={104} width={200} height={212} rx={12} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={34} y={132} fill="#fafafa" fontSize={15} fontWeight="bold">MCP</text>
+            <text x={34} y={150} fill="#a1a1a1" fontSize={10.5}>read-only inspection</text>
+            <line x1={34} y1={162} x2={198} y2={162} stroke="#2a2a2a" strokeWidth={1} />
+            <text x={34} y={186} fill="#a1a1a1" fontSize={11}>balance · transactions</text>
+            <text x={34} y={206} fill="#a1a1a1" fontSize={11}>models_explore lookups</text>
+            <text x={34} y={226} fill="#a1a1a1" fontSize={11}>built-in connectors</text>
+            <text x={34} y={292} fill="#fafafa" fontSize={11.5} fontWeight="bold">✗ never used to fire</text>
+            <rect x={244} y={104} width={200} height={212} rx={12} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
+            <text x={262} y={132} fill="#fafafa" fontSize={15} fontWeight="bold">CLI</text>
+            <text x={262} y={150} fill="#FF6B35" fontSize={10.5}>fires every gen</text>
+            <line x1={262} y1={162} x2={426} y2={162} stroke="#FF6B35" strokeWidth={1} opacity={0.4} />
+            <text x={262} y={186} fill="#cfcfcf" fontSize={11}>batch in parallel waves</text>
+            <text x={262} y={206} fill="#cfcfcf" fontSize={11}>60–80 clips per run</text>
+            <text x={262} y={226} fill="#cfcfcf" fontSize={11}>full Veo 3.1 surface</text>
+            <text x={262} y={246} fill="#cfcfcf" fontSize={11}>direct billing</text>
+            <text x={262} y={292} fill="#FF6B35" fontSize={11.5} fontWeight="bold">✓ every image + video gen</text>
+            <text x={230} y={334} fill="#a1a1a1" fontSize={10} textAnchor="middle">all generation fires through the CLI · MCP is read-only, never used to fire</text>
+          </svg>
         </div>
       </div>
 
