@@ -30,13 +30,13 @@ export default function SkillsSection() {
             <div className="text-xs uppercase tracking-widest text-accent mb-2">For Cowork</div>
             <h3 className="text-xl font-bold mb-2">Download the Cowork plugin</h3>
             <p className="text-sm text-muted leading-relaxed">
-              Bundles all six writing &amp; prompting skills (the ones marked{" "}
+              Bundles all six chat-mode skills (everything marked{" "}
               <span className="inline-block px-1.5 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
               ) into a single <code className="font-mono text-accent">.plugin</code> file. Upload once to your Cowork org and every team member sees the skills under <strong>Customize skills</strong>.
             </p>
           </div>
           <a
-            href="/pfm-writing-skills.plugin"
+            href="/pfm-cowork-skills.plugin"
             download
             className="inline-flex items-center gap-2 px-5 py-3 bg-accent text-bg font-semibold rounded hover:bg-accentHover transition-colors whitespace-nowrap"
           >
