@@ -213,35 +213,52 @@ export default function Overview() {
       <div className="my-12">
         <h3 className="text-xl font-bold mb-2">4. How the flow runs — silent setup, up to 2 confirmation stops</h3>
         <p className="text-muted text-sm mb-5 max-w-3xl">
-          Most steps run silently. Claude pauses for the editor at only two points — reference assignment (when it's ambiguous) and a consolidated preflight right before firing. Hard-stops (wrong folder, missing CLI, low credits) interrupt regardless. This keeps the credit-burning safety checks without nine round-trips. <span className="italic">(Updated 2026-05-27 — the 6 friction gates went silent.)</span>
+          Most gates run silently. Claude only stops for you at the two <span className="text-accent font-semibold">accent gates</span> — reference assignment (when it&apos;s ambiguous) and the preflight right before firing. Hard-stops (wrong folder, missing CLI, low credits) interrupt regardless.
         </p>
 
-        <div className="space-y-2">
-          {[
-            { num: 1, title: "Session start", what: "[Silent] Capture the Notion URL from the message or session context." },
-            { num: 2, title: "Context check", what: "[Silent · hard-stop on fail] Verify cwd is inside Lucid Link, Higgsfield CLI is authenticated, project structure exists. One-line readback, then keep going." },
-            { num: 3, title: "Notion request review", what: "[Silent] Fetch the brief via Notion MCP, detect request shape (Format A/B/C) + state variations. Parsed summary rolls into the preflight." },
-            { num: 4, title: "Reference assignment", what: "[STOP if ambiguous] Scan Elements/Footage/Reference/, auto-suggest the mode + per-line assignment. Unambiguous → rolls into preflight. Ambiguous (multiple modes, missing refs, rotation strategy) → pause for the editor's pick." },
-            { num: 5, title: "Model lock", what: "[Silent] Default Veo 3.1 Lite, count=1. Only asks for a non-default model/count. Always shown in the preflight." },
-            { num: 6, title: "Master prompt", what: "[Silent] Draft the master prompt. A representative per-line prompt shows in the preflight for spot-check." },
-            { num: 7, title: "Optional L1 test", what: "[Silent] Skipped by default. Only fires if the editor asks or the prompt is novel / high-risk." },
-            { num: 8, title: "Excel manifest write", what: "[Silent] Build the per-project styled Excel (Summary + Prompts sheets, color-coded status). Lives in the project folder." },
-            { num: 9, title: "Consolidated preflight → FIRE", what: "[STOP] One block: brief summary, reference plan, model + count, clip count, cost, output folder, representative prompt. Editor types 'fire' — last stop before spend." },
-          ].map((g) => (
-            <div key={g.num} className="flex gap-4 items-start border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors">
-              <div className="shrink-0 w-10 h-10 rounded-full bg-accent text-bg font-bold text-lg flex items-center justify-center">
-                {g.num}
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-text">{g.title}</div>
-                <div className="text-sm text-muted leading-relaxed mt-0.5">{g.what}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 p-4 bg-accentMuted border-l-4 border-accent rounded-r text-sm text-text">
-          After the preflight, Claude fires the batch in parallel waves under the rate limit, downloads MP4s into <code>Elements/Footage/Veo/</code> with deterministic filenames, and updates the Excel manifest with status as jobs complete.
+        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+          <svg
+            viewBox="0 0 400 582"
+            className="w-full h-auto block"
+            role="img"
+            aria-label="The gen flow's nine gates run top to bottom. Gates 4 (reference assignment) and 9 (preflight, fire) are editor confirmation stops shown in accent; the rest run silently. After gate 9 it fires in waves, downloads clips, and updates the manifest."
+            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
+          >
+            <defs>
+              <marker id="ovGate" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" />
+              </marker>
+            </defs>
+            {[
+              { n: 1, title: "Session start", tag: "silent" },
+              { n: 2, title: "Context check", tag: "hard-stop" },
+              { n: 3, title: "Notion request review", tag: "silent" },
+              { n: 4, title: "Reference assignment", tag: "STOP", stop: true },
+              { n: 5, title: "Model lock", tag: "silent" },
+              { n: 6, title: "Master prompt", tag: "silent" },
+              { n: 7, title: "Optional L1 test", tag: "silent" },
+              { n: 8, title: "Excel manifest write", tag: "silent" },
+              { n: 9, title: "Preflight → FIRE", tag: "STOP", stop: true },
+            ].map((g, i) => {
+              const y = 14 + 58 * i;
+              const cy = y + 21;
+              return (
+                <g key={g.n}>
+                  {i < 8 && (
+                    <line x1={200} y1={y + 42} x2={200} y2={y + 58} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ovGate)" />
+                  )}
+                  <rect x={30} y={y} width={340} height={42} rx={8} fill={g.stop ? "#3a1f15" : "#141414"} stroke={g.stop ? "#FF6B35" : "#2a2a2a"} strokeWidth={g.stop ? 2 : 1.5} />
+                  <rect x={42} y={cy - 13} width={26} height={26} rx={6} fill={g.stop ? "#FF6B35" : "#2a2a2a"} />
+                  <text x={55} y={cy + 5} fill={g.stop ? "#0a0a0a" : "#fafafa"} fontSize={13} fontWeight="bold" textAnchor="middle">{g.n}</text>
+                  <text x={82} y={cy + 5} fill="#fafafa" fontSize={13} fontWeight={600}>{g.title}</text>
+                  <text x={358} y={cy + 4} fill={g.stop ? "#FF6B35" : "#a1a1a1"} fontSize={9.5} textAnchor="end" fontFamily="monospace">{g.tag}</text>
+                </g>
+              );
+            })}
+            <line x1={200} y1={520} x2={200} y2={536} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ovGate)" />
+            <rect x={56} y={536} width={288} height={30} rx={15} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
+            <text x={200} y={555} fill="#a1a1a1" fontSize={11} textAnchor="middle" fontFamily="monospace">fires in waves → downloads → manifest</text>
+          </svg>
         </div>
       </div>
 
