@@ -1,6 +1,6 @@
 ---
 name: hvg-flow
-description: PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill runs setup SILENTLY (cwd check, Notion fetch + parse, model lock to Veo Lite count=1, master prompt draft, manifest write) and stops for the editor at only up to two confirmations — reference assignment (only when ambiguous) and a single consolidated preflight before firing — then downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
+description: 🔴 MANDATORY for ALL video gens in any PFM project folder — including one-off tests, manual refires, cinemagraph fires, single-clip variations, anchor wall fills, "let me try one quick." The ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI" in their message. Do NOT infer "small job → skip the gate" — that's the failure mode this skill exists to prevent. When in doubt, this skill runs. PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill runs setup SILENTLY (cwd check, Notion fetch + parse, model lock to Veo Lite count=1, master prompt draft, manifest write) and stops for the editor at only up to two confirmations — reference assignment (only when ambiguous) and a single consolidated preflight before firing — then downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
 ---
 
 # HVG Flow (PFM Video Generation)
@@ -389,6 +389,15 @@ In step 10, the per-line `--prompt` value is the full bespoke prompt body for th
 
 Show 1-2 representative per-line prompts to the editor for spot-check before moving to gate 7.
 
+### 🛑 Podcast / talking-head master — banned cues + number reads (Sam, hard 2026-06-01)
+
+Two locked rules for **ANY podcast / talking-head / lc-to-video creative** — anything where a single speaker delivers dialogue to camera (podcast hosts, news anchors, testimonial talent):
+
+1. **NEVER put "cinematic" or "soft film grain" in the master prompt.** On a dark studio backdrop with shallow depth of field + a warm key, those cues make Veo render **backlit floating dust motes / atmospheric particles** — a faint "dusty room" artifact that shows up on a chunk of clips. Use **"clean high-end broadcast look / podcast realism"** for the `style`, and keep `no floating dust, no dust particles, no dust motes, no atmospheric haze, no bokeh particles, no film grain` in the `negative_prompt` (alongside the no-on-screen-text negatives). Barry Blackk Moving States B3/B5 — cinematic+grain caused it; stripped from the master.
+2. **Conversational dollar figures → ASK to naturalize BEFORE firing.** If the dialogue carries spoken dollar amounts and they are NOT already written as natural host reads, **STOP at the preflight and ask Sam** — do NOT default to robotic full-thousands ("three thousand four hundred ninety-two"), which reads worst when several stack in one line. Natural **two-digit-pair** reads: $3,492 → "thirty-four ninety-two", $291 → "two ninety-one", $1,452 → "fourteen fifty-two". The natural read also dodges Veo's "[X] hundred" TTS-truncation bug. (The VSL "spell full thousands" rule is VSL-slide-TTS-only — it does NOT apply to podcast/talking-head dialogue.) **Then ROUND for naturalness (Sam, 2026-06-03):** even two-pair reads sound like *cents* on bigger numbers ($4,296 → "forty-two ninety-six" = $42.96) — so round yearly rates to nearest 10, and **≥$4,000 → nearest 100** for a clean "X hundred" ($4,164 → "forty-two hundred"); reword savings → "we've saved over $[floor to 50] dollars" ($668 → "over six hundred and fifty"); keep bare quote-lists exact. Verify number reads by ear/transcript (Whisper writes digits, so QC similarity tanks on number lines). Locked on B6 — apply B7+.
+
+See `project_pfm_podcast_story_workflow.md` Section H for the full lock.
+
 ## Gate 7 — Optional test generation (L1) [SILENT — skipped unless editor asks]
 
 > Test-fire L1 (~12-27 cr depending on model, count=1 default) before committing the full batch? Worth it if the prompt is novel or the line is high-stakes. Reply `yes` (count=1 default), `yes count=2` (~double cost, see take-to-take audio variance), or `skip`.
@@ -559,7 +568,7 @@ Pull current Higgsfield balance fresh:
 higgsfield account status
 ```
 
-Calculate total clips: lines × count (minus L1's count if a test was approved). Then show the full preflight in one block:
+Calculate total clips: lines × count (minus L1's count if a test was approved). **Build the LinkYourFile link BEFORE rendering the preflight** — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute output folder>"` — same helper used by the final report. The preflight Output MUST use the two-link format (raw Lucid Path + clickable Open link); a bare relative path is a Hard-Rule-5 violation. Then show the full preflight in one block:
 
 > **Preflight — <Project name>**
 > Brief: <one-line, e.g. "Karen HOA Selling Christmas BN — 23 lines"> <append "· States: FL, CO, PA, TX, GA" for state-variation runs>
@@ -567,7 +576,8 @@ Calculate total clips: lines × count (minus L1's count if a test was approved).
 > Model: **<display name>**, count=<C>
 > Clips: <N prompts> × <C> = **<X clips>**
 > Cost: ~<Y> cr (have **<Z>** → <W> after)
-> Output: `Elements/Footage/Veo/`
+> 📁 Path: `/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/…/Elements/Footage/Veo/`
+> 🔗 Open: [Veo ↗](https://linkyourfile.com/link?p=…)
 > ---
 > Representative prompt (L01): _<first ~2 lines of the actual L01 per-line prompt>_
 > ---
