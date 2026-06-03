@@ -3,6 +3,16 @@ name: vsl-state-variations
 description: PFM's per-state VSL asset-generation flow — produces both deliverables for a state variant of a winning VSL (the Chad-keynote "Average Auto State Cost Pitch" family): Phase 1 edit-swap slide images, then Phase 2 Veo Lite clips for every script line. Mirrors the locked Texas/Minnesota/Iowa templates. Use when an editor drops a Notion request titled "VSL - ... State Cost Pitch <State>" (or similar per-state VSL) alongside the shared VSL project folder, or says "run the VSL for <state>", "do the <state> VSL", "make the VSL slides and clips for <state>", "next VSL state". Sits downstream of an already-built broad/winner VSL (the Broad & Florida base slides + the keynote master prompt JSON must already exist in the project). NOT for: building the original winning VSL from scratch, non-VSL state batches (use notion-state-batches), or generic b-roll (use hig-flow) / one-off clips (use hvg-flow).
 ---
 
+> ## 🔴 Two-link Lucid handoff — MANDATORY at every download / save / report step
+>
+> Every time this skill saves, downloads, or reports an asset path — preflight Output, mid-flow "Saved as:" refire reports, intermediate Phase 1 / Phase 2 handoffs, final state delivery — render BOTH:
+> - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
+> - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
+>
+> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+
+---
+
 # VSL State Variations
 
 Per-state variant of a winning VSL. Two deliverables per state, fired in order:
@@ -145,7 +155,7 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
     passes. Expect these two to need hand-firing most states; not worth burning extra attempts
     on them. Fire the batch (1 plain), run one SFW pass (1 attempt), flag L19/L40 if still down,
     move on. (If a future tweak reliably cracks them, update this.)
-- Output: `Elements/Footage/Veo/<State>/` as `L<NN>_<st>_v01.mp4`.
+- Output: deliver to `Elements/Footage/Veo/<State>/` as `L<NN>_<st>_v01.mp4`. **Every delivery report — Phase 1 slides, Phase 2 clips, any intermediate refire** — renders the two-link block (📁 Path + 🔗 Open via `linkyourfile.py`). NEVER a bare relative path or filename list. Same helper, same format, every time.
 - **Two-link handoff (standing rule, `feedback_two_link_lucid_handoff`):** when reporting a delivered state, close with BOTH the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link for the clips folder `Elements/Footage/Veo/<State>/` (and the slides folder when relevant) — build via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`, render as `[<State> ↗](url)`. Lucid `/Volumes/ads/…` paths only.
 
 ## Firing engine — use the helper, don't hand-roll

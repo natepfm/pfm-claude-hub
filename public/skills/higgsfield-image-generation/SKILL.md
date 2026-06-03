@@ -3,6 +3,16 @@ name: higgsfield-image-generation
 description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfield generate create`) for one-off image work — single shots, ad-hoc variations, prompt tests. **No gated batch flow, no Excel manifest.** Fire generations, parse result URLs, download into the editor's project folder with PFM filename conventions. CLI-only firing; MCP firing is FORBIDDEN (see `feedback_higgsfield_workflow.md` — MCP is read-only inspection only). Use this skill for one-off variations of an existing character, ad-hoc b-roll for an active project, testing prompts before committing to a full batch, refiring failed shots, or character master tests. Triggers on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation that isn't a coordinated batch. NOT for: full batch image work where the editor wants a manifest + coordinated download + gated workflow — use `hig-flow` instead (the 9-gate flow, which accepts either a Notion request URL OR a direct editor brief). Pair with `nano-banana-prompting` for camera-roll prompt style.
 ---
 
+> ## 🔴 Two-link Lucid handoff — MANDATORY at every download / save / report step
+>
+> Every time this skill saves, downloads, or reports an asset path — a one-off CLI fire, a refire, a variation, a character master test — render BOTH:
+> - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
+> - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
+>
+> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+
+---
+
 # Higgsfield Image Generation (CLI-driven, one-off scope)
 
 This skill drives the Higgsfield CLI to actually generate images for **one-off work** — single shots, variations, ad-hoc b-roll, prompt tests. For **full Notion-request batches**, hand off to `hig-flow` instead (the 9-gate flow).
@@ -256,7 +266,7 @@ See **nano-banana-prompting** for more on setting-continuity prompt language.
 - **After a batch**: report new balance.
 - **When something fails silently** (stuck job, failed upload, missing variation): tell the user matter-of-factly and explain the recovery you're doing. Don't catastrophize a single missing image.
 - **When pre-uploading**: list the reference images and their UUIDs so the user can confirm.
-- **Filename callouts after download**: list the saved filenames so the user can find them in their folder. Don't make them guess.
+- **After every download** (single fire, refire, batch, anything): render the **two-link Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`. Listing bare filenames without those two lines is a CLAUDE.md Hard-Rule-5 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.
 
 ## When NOT to use this skill
 
