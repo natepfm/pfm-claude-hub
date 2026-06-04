@@ -32,6 +32,14 @@ export const skills: Skill[] = [
     category: "pipeline",
   },
   {
+    name: "pixar-state-music-video",
+    title: "Pixar State Music Video",
+    description:
+      "Per-state Pixar Best State Music Video asset generator (Auto + Home). Fires a 3D Pixar anthropomorphic state-outline mascot character master + 12 locked-structure scene frames via NB Pro using state-derived tokens (shape, signature terrain, body color, cap, vehicle), and preps the state-filled lyrics + ready-to-paste Suno style block. Semi-auto: skill auto-fires Higgsfield + preps Suno; human runs Suno take-gen + pick; Mark assembles the edit.",
+    worksIn: ["code"],
+    category: "pipeline",
+  },
+  {
     name: "veo-script-writing",
     title: "Veo Script Writing",
     description:
@@ -78,6 +86,14 @@ export const skills: Skill[] = [
     title: "Higgsfield Image Generation (CLI)",
     description:
       "Fire one-off image generations through the Higgsfield CLI. Pre-upload refs to UUIDs, fire via higgsfield generate create, download into project folder. CLI-only — the Higgsfield MCP is forbidden for actual firing (read-only inspection only).",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "pfm-character-master",
+    title: "PFM Character Master",
+    description:
+      "Generate scale-anchored character masters for any character — human, animal, mascot — as a single locked-format reference sheet showing the character at correct proportional scale next to a 5'10\" human silhouette anchor, in 5 angles (front / side / 3-quarter / back / sitting). Fires via Higgsfield NB Pro. The scale anchor is the load-bearing part: without it, NB Pro improvises and renders dogs at human-scale or kids at adult-height. Downstream b-roll prompts that include this master as a reference inherit the scale lock.",
     worksIn: ["code"],
     category: "image",
   },

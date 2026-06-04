@@ -6,6 +6,15 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-04
+
+### Two new skills — `pfm-character-master` + `pixar-state-music-video`
+
+Run **Update my skills** to get them.
+
+- **`pfm-character-master`** — generate a PFM character master sheet for *any* new character (human, animal, mascot, kid, antagonist, supporting talent) in PFM's locked format: 5 angles (front / side / 3-quarter / back / sitting) on a neutral light-grey backdrop, with a **5'10" human silhouette anchor next to the character at correct proportional scale**. The scale anchor is the load-bearing part — without it, NB Pro improvises and dogs come out at human-scale, kids at adult-height. Downstream b-roll prompts that use this master as a reference inherit the scale lock automatically.
+- **`pixar-state-music-video`** — per-state Pixar Best State Music Video asset generator (Auto + Home). Auto-fires a 3D Pixar anthropomorphic state-outline mascot + 12 locked-structure scene frames via NB Pro using state-derived tokens (signature terrain, body color, cap, vehicle), and preps the state-filled lyrics + a ready-to-paste Suno style block. Semi-auto: skill handles Higgsfield + Suno prompt; human runs Suno take-gen + pick; Mark assembles the edit. Validated blind on Oregon.
+
 ## 2026-06-02
 
 ### Two new skills — `reskin-trending-video` + `ugc-cinematic-prompt` (video gen)
