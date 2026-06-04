@@ -5,14 +5,14 @@ export default function EditorSection() {
     <section id="editor" className="my-20 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">Reference</div>
-        <h2 className="text-3xl font-bold">Editor</h2>
+        <h2 className="text-3xl font-bold drop-shadow-text-depth">Editor</h2>
         <p className="text-muted mt-2 max-w-3xl">
           Claude&apos;s <span className="text-text font-medium">in-app editing tools</span> — these drive DaVinci Resolve (and the rest of the edit stack) to turn a finished gen batch into an actual edit, distinct from the prompt &amp; gen skills above. This list grows as we build the editing side out.
         </p>
       </div>
 
       {/* claude-editor pipeline diagram */}
-      <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 mb-8 overflow-x-auto">
+      <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 mb-8 overflow-x-auto">
         <div className="text-[11px] uppercase tracking-widest text-accent mb-3">The claude-editor pipeline</div>
         <svg
           viewBox="0 0 808 168"
@@ -61,7 +61,7 @@ export default function EditorSection() {
               </div>
               <div className="flex gap-1.5 flex-wrap items-center">
                 {t.status === "live" ? (
-                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg">Live</span>
+                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-success text-bg">Live</span>
                 ) : (
                   <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">
                     In dev · Sam&apos;s machine

@@ -31,7 +31,7 @@ export default async function ChangelogSection() {
     <section id="changelog" className="my-20 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">What&apos;s new</div>
-        <h2 className="text-3xl font-bold">Changelog</h2>
+        <h2 className="text-3xl font-bold drop-shadow-text-depth">Changelog</h2>
         <p className="text-muted mt-2 max-w-3xl">
           Recent skill, script, and tooling changes — click a date to expand. When you see something that affects your machine, run the <strong>Update my skills</strong> command above.
         </p>
@@ -45,7 +45,7 @@ export default async function ChangelogSection() {
             <details
               key={e.date}
               open={i === 0}
-              className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 overflow-hidden"
+              className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden"
             >
               <summary className="cursor-pointer select-none px-4 py-3 flex items-baseline justify-between gap-4 hover:bg-surface/50 transition-colors marker:content-['']">
                 <span className="font-mono text-sm font-semibold text-accent whitespace-nowrap">{e.date}</span>

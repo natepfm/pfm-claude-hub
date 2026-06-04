@@ -5,7 +5,7 @@ export default function Overview() {
     <section id="overview" className="my-20 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">How to use</div>
-        <h2 className="text-3xl font-bold">The PFM Claude system</h2>
+        <h2 className="text-3xl font-bold drop-shadow-text-depth">The PFM Claude system</h2>
         <p className="text-muted mt-2 max-w-3xl">
           A purpose-built pipeline that turns a Notion request into delivered Veo clips and Nano Banana b-roll, with PFM&apos;s locked conventions applied at every step. Start with <strong className="text-text">what to say</strong> for each task; the deeper <span className="italic">how it works</span> sits right below.
         </p>
@@ -57,7 +57,7 @@ export default function Overview() {
       {/* Divider into the architecture deep-dive */}
       <div className="mt-16 mb-8 border-t border-border pt-8">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">Under the hood</div>
-        <h3 className="text-2xl font-bold">How the system actually works</h3>
+        <h3 className="text-2xl font-bold drop-shadow-text-depth">How the system actually works</h3>
         <p className="text-muted text-sm mt-2 max-w-3xl">
           The deeper picture — how Claude learns PFM&apos;s conventions, the two ways it talks to Higgsfield, what happens on a Notion drop, the run itself, and the team folder behind it all.
         </p>
@@ -70,7 +70,7 @@ export default function Overview() {
           Claude doesn't "know" PFM out of the box. Knowledge is layered in four levels, from general team patterns to per-project specifics. Each layer narrows what the model considers correct.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 400 300"
             className="w-full h-auto block"
@@ -114,7 +114,7 @@ export default function Overview() {
           Higgsfield exposes itself two ways. The choice matters for speed, cost, and feature access.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 460 344"
             className="w-full h-auto block"
@@ -161,7 +161,7 @@ export default function Overview() {
           Auto-detection triggers the HVG protocol immediately. The editor doesn't need to invoke the skill explicitly — Claude recognizes the inputs and enters Gate 1 on its own.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 480 378"
             className="w-full h-auto block"
@@ -227,7 +227,7 @@ export default function Overview() {
           Most gates run silently. Claude only stops for you at the two <span className="text-accent font-semibold">accent gates</span> — reference assignment (when it&apos;s ambiguous) and the preflight right before firing. Hard-stops (wrong folder, missing CLI, low credits) interrupt regardless.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 400 582"
             className="w-full h-auto block"
@@ -280,7 +280,7 @@ export default function Overview() {
           The moment a batch finishes downloading, Claude offers to QC it. Audio and visual passes run together, and every clip lands a verdict. Flagged clips refire automatically — capped at two retries — before anything escalates. Only clean clips reach the delivery comment.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 470 322"
             className="w-full h-auto block"
@@ -326,7 +326,7 @@ export default function Overview() {
           Every gen burns Higgsfield credits, and the model tier sets the price. PFM defaults to the cheapest rung — Veo Lite, one clip per prompt — and only climbs to Fast or Preview when a brief actually needs the extra quality.
         </p>
 
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <svg
             viewBox="0 0 470 278"
             className="w-full h-auto block"

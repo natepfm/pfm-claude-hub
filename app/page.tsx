@@ -152,8 +152,8 @@ export default function OnboardingPage() {
     <div>
       <header className="mb-12">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Onboarding</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight">
-          Welcome to <span className="text-accent">Power Fox Media</span>
+        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
+          Welcome to <span className="text-accent drop-shadow-text-glow-accent">Power Fox Media</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
           Everything a new editor needs to get up and running — accounts, apps, and the workflow — in one place. Work through it top to bottom on your first day, then keep it bookmarked as a reference.
@@ -161,7 +161,7 @@ export default function OnboardingPage() {
       </header>
 
       {/* First-day ribbon — the whole onboarding flow at a glance */}
-      <div className="mb-12 border border-border rounded-lg bg-bg px-5 py-3 overflow-x-auto">
+      <div className="mb-12 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 px-5 py-3 overflow-x-auto">
         <div className="text-[11px] uppercase tracking-widest text-accent mb-2">Your first day, in order</div>
         <svg
           viewBox="0 0 862 64"
@@ -200,23 +200,23 @@ export default function OnboardingPage() {
       {/* Welcome + page map */}
       <section id="welcome" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">👋 Welcome</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">👋 Welcome</h2>
         </div>
         <p className="text-text leading-relaxed max-w-3xl">
           You&apos;re joining the team behind PFM&apos;s story-ad pipeline — high-volume video creatives in the Auto, Home Insurance, and Concealed Carry verticals. This hub is your map: <strong className="text-text">Onboarding</strong> (this page) gets you set up, <strong className="text-text">Claude</strong> covers your AI production assistant, and <strong className="text-text">Resources</strong> is where the briefs and shared assets live.
         </p>
         <div className="mt-5 grid md:grid-cols-3 gap-4">
-          <Link href="/" className="block border-2 border-accent rounded-lg p-4 bg-accentMuted">
+          <Link href="/" className="block rounded-lg p-4 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
             <div className="text-2xl mb-1">🚀</div>
             <div className="font-semibold">Onboarding</div>
             <div className="text-xs text-muted">You are here — first-day setup</div>
           </Link>
-          <Link href="/claude" className="block border border-border rounded-lg p-4 hover:border-accent hover:bg-surface transition-colors">
+          <Link href="/claude" className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200">
             <div className="text-2xl mb-1">🤖</div>
             <div className="font-semibold">Claude</div>
             <div className="text-xs text-muted">Your AI production assistant</div>
           </Link>
-          <Link href="/resources" className="block border border-border rounded-lg p-4 hover:border-accent hover:bg-surface transition-colors">
+          <Link href="/resources" className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200">
             <div className="text-2xl mb-1">📚</div>
             <div className="font-semibold">Resources</div>
             <div className="text-xs text-muted">Briefs + shared assets</div>
@@ -233,12 +233,12 @@ export default function OnboardingPage() {
       {/* Day-one checklist */}
       <section id="checklist" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">✅ Day-one checklist</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">✅ Day-one checklist</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">Your first day, in order. Each step expands below.</p>
         <ol className="space-y-3">
           {checklist.map((c, i) => (
-            <li key={i} className="flex gap-4 items-start border border-border rounded-lg p-4 bg-surface/50">
+            <li key={i} className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
               <div className="shrink-0 w-8 h-8 rounded-full bg-accent text-bg font-bold flex items-center justify-center">
                 {i + 1}
               </div>
@@ -254,10 +254,10 @@ export default function OnboardingPage() {
       {/* Apps & accounts */}
       <section id="apps" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🔑 Apps &amp; accounts</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🔑 Apps &amp; accounts</h2>
         </div>
 
-        <div className="mb-6 p-4 bg-accentMuted border-l-4 border-accent rounded-r text-sm text-text">
+        <div className="mb-6 p-4 bg-glass-accent backdrop-blur-xl border-l-4 border-accent rounded-r ring-1 ring-accent/30 shadow-elev1 text-sm text-text">
           <div className="font-semibold mb-1">🔐 Set up 1Password first</div>
           <div className="text-muted">
             Every shared login lives in 1Password — get an invite (ask Sam or Doug) before anything else. This page lists what to install and how access is handled; for the exact credentials and detailed steps, follow the{" "}
@@ -270,7 +270,7 @@ export default function OnboardingPage() {
         <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">Core apps</h3>
         <div className="grid md:grid-cols-2 gap-3 mb-8">
           {coreApps.map((app) => (
-            <div key={app.name} className="border border-border rounded-lg p-4 bg-surface/50">
+            <div key={app.name} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
               <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="font-semibold text-text">{app.name}</span>
                 {app.href && (
@@ -291,7 +291,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Two Chrome profiles — the setup that trips people up */}
-        <div className="mb-8 border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="mb-8 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
           <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Chrome — two profiles, not one</div>
           <svg
             viewBox="0 0 460 210"
@@ -333,7 +333,7 @@ export default function OnboardingPage() {
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="block border border-border rounded-lg p-3 bg-surface/50 hover:border-accent transition-colors"
+              className="block rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
               <div className="font-semibold text-text text-sm">{t.name} <span className="text-accent">↗</span></div>
               <div className="text-xs text-muted leading-relaxed mt-0.5">{t.for}</div>
@@ -345,7 +345,7 @@ export default function OnboardingPage() {
       {/* Training path */}
       <section id="training" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🎓 Training path</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎓 Training path</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           Five short SOPs (each with a video) that take you from the file system to a finished, exported creative. Work through them in order — open each in Notion.
@@ -357,7 +357,7 @@ export default function OnboardingPage() {
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex gap-4 items-start border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors"
+              className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
               <div className="shrink-0 w-8 h-8 rounded-full bg-surface2 text-accent font-bold flex items-center justify-center">
                 {t.n}
@@ -379,7 +379,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="border border-border rounded-lg p-5 bg-surface/30">
+        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
           <div className="font-semibold text-text mb-1">📚 Courses <span className="text-xs font-normal text-muted">— do these out of office, as needed</span></div>
           <p className="text-sm text-muted mb-3">
             On{" "}
@@ -399,11 +399,11 @@ export default function OnboardingPage() {
       {/* Set up Claude — live handoff */}
       <section id="claude-setup" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🤖 Set up Claude</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🤖 Set up Claude</h2>
         </div>
         <Link
           href="/claude"
-          className="block border-2 border-accent rounded-xl bg-gradient-to-br from-accentMuted to-bg p-6 md:p-8 hover:shadow-2xl transition-shadow"
+          className="block rounded-xl bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40 p-6 md:p-8 hover:ring-accent/60 hover:-translate-y-0.5 transition-all duration-200"
         >
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🤖</span>

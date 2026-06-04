@@ -68,8 +68,8 @@ export default function ResourcesPage() {
     <div>
       <header className="mb-12">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Resources</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight">
-          <span className="text-accent">Resources</span>
+        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
+          <span className="text-accent drop-shadow-text-glow-accent">Resources</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
           The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers, shared assets, and SOP guides are live below; Tools &amp; logins and Brand &amp; guidelines are still draft frames — tell me what belongs and I&apos;ll fill them in.
@@ -79,7 +79,7 @@ export default function ResourcesPage() {
       {/* Landers — by vertical (mirrors the Discount Landers Notion page) */}
       <section id="landers" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🛬 Landers</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🛬 Landers</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The landing pages our ads point to, by vertical. Source of truth:{" "}
@@ -90,7 +90,7 @@ export default function ResourcesPage() {
         </p>
 
         {/* Vertical → lander map */}
-        <div className="border border-border rounded-lg bg-bg p-5 mb-6 max-w-xl">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 mb-6 max-w-xl">
           <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Vertical → landing pages</div>
           <svg
             viewBox={`0 0 440 ${landerGroups.length * 56 + 16}`}
@@ -121,7 +121,7 @@ export default function ResourcesPage() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {landerGroups.map((g) => (
-            <div key={g.vertical} className="border border-border rounded-lg p-4 bg-surface/50">
+            <div key={g.vertical} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
               <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-3">{g.vertical}</div>
               <div className="space-y-3">
                 {g.landers.map((l) => (
@@ -146,7 +146,7 @@ export default function ResourcesPage() {
       {/* Tools & logins */}
       <section id="tools" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🔗 Tools &amp; logins</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🔗 Tools &amp; logins</h2>
         </div>
         <p className="text-muted text-sm mb-4 max-w-3xl">
           Quick links to the tools editors open every day, with the right URL for each.
@@ -162,7 +162,7 @@ export default function ResourcesPage() {
       {/* Brand & guidelines */}
       <section id="brand" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🎨 Brand &amp; guidelines</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎨 Brand &amp; guidelines</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <PlaceholderCard title="Vertical briefs">
@@ -178,7 +178,7 @@ export default function ResourcesPage() {
       {/* Shared assets */}
       <section id="assets" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🗂️ Shared assets</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🗂️ Shared assets</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The PFM Media Assets library — open each folder in LinkYourFile (needs Lucid Link access).
@@ -190,7 +190,7 @@ export default function ResourcesPage() {
               href={a.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors"
+              className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
               <div className="font-semibold text-text">
                 {a.label} <span className="text-accent">↗</span>
@@ -204,7 +204,7 @@ export default function ResourcesPage() {
       {/* SOPs & guides */}
       <section id="sops" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">📖 SOPs &amp; guides</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">📖 SOPs &amp; guides</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           Step-by-step playbooks — the core SOPs plus workflow how-tos.{" "}
@@ -220,7 +220,7 @@ export default function ResourcesPage() {
                   href={it.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between gap-2 border border-border rounded-lg p-3 bg-surface/50 hover:border-accent transition-colors"
+                  className="flex items-center justify-between gap-2 rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
                 >
                   <span className="text-sm font-medium text-text">
                     {it.label} <span className="text-accent">↗</span>

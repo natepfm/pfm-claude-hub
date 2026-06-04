@@ -18,14 +18,14 @@ export default function SkillsSection() {
     <section id="skills" className="my-20 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">Reference</div>
-        <h2 className="text-3xl font-bold">Skills</h2>
+        <h2 className="text-3xl font-bold drop-shadow-text-depth">Skills</h2>
         <p className="text-muted mt-2 max-w-3xl">
           PFM's installed Claude skills. The <span className="inline-block px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg ml-1">Code</span> badge means the skill needs Claude Code locally (Higgsfield CLI, Lucid Link, Python helpers). The <span className="inline-block px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent ml-1">Cowork</span> badge means it works in pure chat mode and is included in the Cowork plugin.
         </p>
       </div>
 
       {/* Two surfaces — Claude Code vs Cowork */}
-      <div className="my-8 rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
+      <div className="my-8 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
         <svg
           viewBox="0 0 470 360"
           className="w-full h-auto block"
@@ -52,7 +52,7 @@ export default function SkillsSection() {
           <text x={32} y={240} fill="#a1a1a1" fontSize={10.5}>Needs the local stack:</text>
           <text x={32} y={256} fill="#a1a1a1" fontSize={10}>Higgsfield CLI · Lucid</text>
           <text x={32} y={270} fill="#a1a1a1" fontSize={10}>Link · Python</text>
-          <text x={32} y={302} fill="#FF6B35" fontSize={11} fontWeight="bold">✓ the only place gens fire</text>
+          <text x={32} y={302} fill="#34D399" fontSize={11} fontWeight="bold">✓ the only place gens fire</text>
           <rect x={246} y={106} width={210} height={214} rx={12} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
           <text x={264} y={134} fill="#fafafa" fontSize={15} fontWeight="bold">Cowork</text>
           <text x={264} y={152} fill="#a1a1a1" fontSize={10.5}>hosted chat</text>
@@ -67,7 +67,7 @@ export default function SkillsSection() {
         </svg>
       </div>
 
-      <div className="my-8 rounded-lg p-6 bg-gradient-to-br from-accentMuted to-bg shadow-glow-accent ring-1 ring-accent/40">
+      <div className="my-8 rounded-lg p-6 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="flex-1 min-w-[280px]">
             <div className="text-xs uppercase tracking-widest text-accent mb-2">For Cowork</div>
@@ -88,43 +88,54 @@ export default function SkillsSection() {
         </div>
       </div>
 
-      {Object.entries(byCategory).map(([cat, group]) => (
-        <div key={cat} className="my-10">
-          <h3 className="text-xl font-bold mb-3 text-accent">{categoryLabels[cat] ?? cat}</h3>
-          <div className="space-y-3">
-            {group.map((s) => (
-              <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200">
-                <div className="flex items-center justify-between gap-4 mb-1 flex-wrap">
-                  <div>
-                    <div className="text-lg font-semibold">{s.title}</div>
-                    <div className="text-xs font-mono text-muted">{s.name}</div>
-                  </div>
-                  <div className="flex gap-1.5 flex-wrap items-center">
-                    {s.worksIn.includes("code") && (
-                      <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg">Code</span>
-                    )}
-                    {s.worksIn.includes("cowork") && (
-                      <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
-                    )}
-                  </div>
-                </div>
-                <p className="text-sm text-muted mt-2 leading-relaxed">{s.description}</p>
-                <div className="mt-3">
-                  <a
-                    href={`/skills/${s.name}/SKILL.md`}
-                    download
-                    className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-accent transition-colors"
-                  >
-                    ⬇ Download SKILL.md
-                  </a>
-                </div>
+      <div className="space-y-3 my-8">
+        {Object.entries(byCategory).map(([cat, group]) => (
+          <details
+            key={cat}
+            className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden group"
+          >
+            <summary className="cursor-pointer select-none px-5 py-4 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors marker:content-['']">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <h3 className="text-xl font-bold text-accent drop-shadow-text-depth">{categoryLabels[cat] ?? cat}</h3>
+                <span className="text-xs font-mono text-muted">{group.length} {group.length === 1 ? "skill" : "skills"}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      ))}
+              <span className="text-accent text-xl shrink-0 transition-transform group-open:rotate-90 leading-none">▸</span>
+            </summary>
+            <div className="px-5 pb-5 pt-2 space-y-3 border-t border-white/[0.08]">
+              {group.map((s) => (
+                <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200">
+                  <div className="flex items-center justify-between gap-4 mb-1 flex-wrap">
+                    <div>
+                      <div className="text-lg font-semibold">{s.title}</div>
+                      <div className="text-xs font-mono text-muted">{s.name}</div>
+                    </div>
+                    <div className="flex gap-1.5 flex-wrap items-center">
+                      {s.worksIn.includes("code") && (
+                        <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg">Code</span>
+                      )}
+                      {s.worksIn.includes("cowork") && (
+                        <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted mt-2 leading-relaxed">{s.description}</p>
+                  <div className="mt-3">
+                    <a
+                      href={`/skills/${s.name}/SKILL.md`}
+                      download
+                      className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-accent transition-colors"
+                    >
+                      ⬇ Download SKILL.md
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))}
+      </div>
 
-      <div className="my-8 rounded-lg p-6 bg-gradient-to-br from-accentMuted to-bg shadow-glow-accent ring-1 ring-accent/40">
+      <div className="my-8 rounded-lg p-6 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Contribute</div>
         <h3 className="text-xl font-bold mb-2">Found a workflow worth a skill? Propose it.</h3>
         <p className="text-sm text-muted leading-relaxed">

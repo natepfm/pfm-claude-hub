@@ -23,7 +23,7 @@ export default function SystemDiagram() {
     <section id="how-it-works" className="my-20 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">Reference</div>
-        <h2 className="text-3xl font-bold">How the system works</h2>
+        <h2 className="text-3xl font-bold drop-shadow-text-depth">How the system works</h2>
         <p className="text-muted mt-2 max-w-3xl">
           One shared skill system across two Claude accounts, bridged by Lucid Link. Skills flow{" "}
           <em className="text-text not-italic">out</em> to the team; the repeatable workflows editors
@@ -34,7 +34,7 @@ export default function SystemDiagram() {
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-center">
         {/* LEFT — the diagram */}
-        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5">
+        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5">
           <svg
             viewBox="0 0 380 472"
             className="w-full h-auto block max-w-md mx-auto"
@@ -94,7 +94,7 @@ export default function SystemDiagram() {
         </div>
 
         {/* RIGHT — command cheat-sheet */}
-        <aside className="mt-6 lg:mt-0 rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5">
+        <aside className="mt-6 lg:mt-0 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5">
           <div className="text-xs uppercase tracking-widest text-accent mb-1">Quick start</div>
           <h3 className="text-lg font-bold mb-3">Say this to start a skill</h3>
           <div className="space-y-4">

@@ -56,7 +56,7 @@ export default function Nav() {
   const subs = subLinks[active] ?? [];
 
   return (
-    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-border px-6 py-10 bg-surface sticky top-0 self-start max-h-screen overflow-y-auto">
+    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-white/[0.08] px-6 py-10 bg-surface/60 backdrop-blur-2xl sticky top-0 self-start max-h-screen overflow-y-auto">
       <Link href="/" className="block mb-8">
         <div className="text-2xl font-bold tracking-tight">
           <span className="text-text">PFM </span>
@@ -119,7 +119,7 @@ export function MobileNav() {
   const active = baseRoute(pathname);
 
   return (
-    <div className="md:hidden sticky top-0 z-20 bg-surface border-b border-border">
+    <div className="md:hidden sticky top-0 z-20 bg-surface/70 backdrop-blur-2xl border-b border-white/[0.08]">
       <div className="px-4 py-3">
         <Link href="/" className="text-lg font-bold tracking-tight">
           <span className="text-text">PFM </span>

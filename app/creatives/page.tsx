@@ -10,7 +10,7 @@ const BLOCK_GROUPS = ["Scripts & structure", "Images & graphics", "QC"];
 
 function EntryCard({ e }: { e: CreativeEntry }) {
   return (
-    <div className="border border-border rounded-lg p-4 bg-surface/50">
+    <div className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
       <div className="font-semibold text-text mb-1">
         {e.name}
         {e.aka && <span className="text-xs text-muted font-normal ml-2">{e.aka}</span>}
@@ -31,8 +31,8 @@ export default function CreativesPage() {
     <div>
       <header className="mb-10">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Creatives</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight">
-          Creative <span className="text-accent">Library</span>
+        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
+          Creative <span className="text-accent drop-shadow-text-glow-accent">Library</span>
         </h1>
         <p className="text-muted text-lg max-w-2xl">
           Every creative type PFM produces and every variation we run — each mapped to the skill that builds it. The source of truth lives in the team knowledge base; this page mirrors it.
@@ -40,7 +40,7 @@ export default function CreativesPage() {
       </header>
 
       {/* Anatomy of a creative */}
-      <div className="border border-border rounded-lg bg-bg p-5 mb-12 overflow-x-auto">
+      <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 mb-12 overflow-x-auto">
         <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Anatomy of a creative</div>
         <svg
           viewBox="0 0 820 232"
@@ -104,7 +104,7 @@ export default function CreativesPage() {
       {/* Creative types */}
       <section id="types" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🎬 Creative types</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎬 Creative types</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">The base ad formats we produce.</p>
         <div className="grid md:grid-cols-2 gap-3">
@@ -114,7 +114,7 @@ export default function CreativesPage() {
         </div>
 
         {/* Reskin mini-flow — how a trend-copy gets built */}
-        <div className="mt-6 border border-border rounded-lg bg-bg p-5 overflow-x-auto">
+        <div className="mt-6 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 overflow-x-auto">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[10px] uppercase tracking-widest text-bg bg-accent rounded px-1.5 py-0.5 font-semibold">New</span>
             <div className="text-[11px] uppercase tracking-widest text-accent">Reskin flow — copy a trend with your character</div>
@@ -156,7 +156,7 @@ export default function CreativesPage() {
       {/* Variation types */}
       <section id="variations" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🔀 Variation types</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🔀 Variation types</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           Cross-cutting transformations we apply to a base creative.
@@ -171,7 +171,7 @@ export default function CreativesPage() {
       {/* Verticals */}
       <section id="verticals" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🎯 Verticals</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎯 Verticals</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The markets we run creatives for — every type + variation above maps onto one of these.
@@ -181,7 +181,7 @@ export default function CreativesPage() {
             <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">{g.group}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {g.items.map((v) => (
-                <div key={v.name} className="border border-border rounded-lg px-3 py-2 bg-surface/50">
+                <div key={v.name} className="rounded-lg px-3 py-2 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
                   <div className="text-sm font-medium text-text">{v.name}</div>
                   {v.aka && <div className="text-[11px] text-muted">{v.aka}</div>}
                   {v.offers && <div className="text-[11px] text-accent/80 mt-0.5">{v.offers}</div>}
@@ -195,7 +195,7 @@ export default function CreativesPage() {
       {/* Building blocks */}
       <section id="building-blocks" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-2 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text">🧱 Building blocks</h2>
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🧱 Building blocks</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The scripts, images, and QC each skill produces — the components that feed every creative above.

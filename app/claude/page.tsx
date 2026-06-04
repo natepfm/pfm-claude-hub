@@ -25,8 +25,8 @@ export default function ClaudePage() {
     <div>
       <header className="mb-12">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Claude</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight">
-          <span className="text-accent">Claude</span> + Higgsfield
+        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
+          <span className="text-accent drop-shadow-text-glow-accent">Claude</span> + Higgsfield
         </h1>
         <p className="text-muted text-lg max-w-2xl">
           Your AI production assistant. Everything for the Veo + Nano Banana pipeline — how to use it, first-time setup, the skills it runs, troubleshooting, and the changelog. Bookmark this page.
@@ -34,7 +34,7 @@ export default function ClaudePage() {
       </header>
 
       {/* Pipeline ribbon — the whole flow at a glance */}
-      <div className="mb-10 rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 px-5 py-3 overflow-x-auto">
+      <div className="mb-10 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 px-5 py-3 overflow-x-auto">
         <svg
           viewBox="0 0 820 72"
           className="w-full h-auto block min-w-[680px]"
@@ -57,21 +57,21 @@ export default function ClaudePage() {
           <rect x={507} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
           <text x={574.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">DaVinci edit</text>
           <line x1={644} y1={36} x2={670} y2={36} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#ribA)" />
-          <rect x={672} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#FF6B35" strokeWidth={1.5} />
-          <text x={739.5} y={40} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">Delivered</text>
+          <rect x={672} y={14} width={135} height={44} rx={9} fill="#141414" stroke="#34D399" strokeWidth={1.5} />
+          <text x={739.5} y={40} fill="#34D399" fontSize={12} fontWeight={600} textAnchor="middle">Delivered</text>
         </svg>
       </div>
 
       {/* Hero: Update my skills — the main action editors use day-to-day */}
       <section id="update" className="my-8 scroll-mt-8">
-        <div className="rounded-xl bg-gradient-to-br from-accentMuted to-bg p-8 md:p-10 shadow-glow-accent ring-1 ring-accent/50">
+        <div className="rounded-xl bg-glass-accent backdrop-blur-xl p-8 md:p-10 shadow-glow-accent ring-1 ring-accent/40">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-4xl">🔄</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-text">Update my skills</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-text drop-shadow-text-depth">Update my skills</h2>
           </div>
           {latest && (
             <p className="text-muted mb-6 ml-1">
-              <span className="inline-block px-2 py-0.5 mr-2 rounded text-xs font-mono bg-accent text-bg">
+              <span className="inline-block px-2 py-0.5 mr-2 rounded text-xs font-mono bg-success text-bg">
                 NEW {latest.date}
               </span>
               {latest.body.split("\n").find((l) => l.startsWith("### "))?.replace("### ", "") || "Latest skill changes shipped."}
@@ -143,7 +143,7 @@ export default function ClaudePage() {
       {/* Full sections */}
       <Overview />
       <SystemDiagram />
-      <details id="setup-mac" className="my-12 rounded-xl bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 overflow-hidden group scroll-mt-8">
+      <details id="setup-mac" className="my-12 rounded-xl bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden group scroll-mt-8">
         <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-6 hover:bg-surface/40 transition-colors">
           <div className="border-l-4 border-accent pl-4">
             <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · macOS</div>
@@ -156,7 +156,7 @@ export default function ClaudePage() {
           <SetupMac />
         </div>
       </details>
-      <details id="setup-windows" className="my-12 rounded-xl bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 overflow-hidden group scroll-mt-8">
+      <details id="setup-windows" className="my-12 rounded-xl bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden group scroll-mt-8">
         <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-6 hover:bg-surface/40 transition-colors">
           <div className="border-l-4 border-accent pl-4">
             <div className="text-xs uppercase tracking-widest text-accent mb-1">Onboarding · Windows</div>
