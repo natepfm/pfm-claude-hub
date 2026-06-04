@@ -20,60 +20,60 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             5. Vignette-masked dot-grid texture, opacity bumped. */}
         <div
           aria-hidden
-          className="fixed inset-0 -z-10 pointer-events-none"
+          className="fixed inset-0 z-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(140deg, #1a0f08 0%, #0a0a0a 35%, #0a0a0a 65%, #06100c 100%)",
+              "linear-gradient(140deg, #140e09 0%, #0a0a0a 40%, #0a0a0a 60%, #080d0b 100%)",
           }}
         />
         <div
           aria-hidden
-          className="fixed inset-0 -z-10 pointer-events-none"
+          className="fixed inset-0 z-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 100% 75% at 85% -5%, rgba(255,107,53,0.38) 0%, rgba(255,107,53,0.15) 32%, rgba(255,107,53,0.04) 55%, transparent 78%)",
+              "radial-gradient(ellipse 95% 70% at 85% -8%, rgba(255,107,53,0.20) 0%, rgba(255,107,53,0.07) 35%, transparent 72%)",
           }}
         />
         <div
           aria-hidden
-          className="fixed inset-0 -z-10 pointer-events-none"
+          className="fixed inset-0 z-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 85% 65% at 8% 105%, rgba(52,211,153,0.28) 0%, rgba(52,211,153,0.10) 35%, rgba(52,211,153,0.03) 60%, transparent 78%)",
+              "radial-gradient(ellipse 80% 60% at 8% 105%, rgba(52,211,153,0.14) 0%, rgba(52,211,153,0.045) 38%, transparent 74%)",
           }}
         />
-        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
           <div
             aria-hidden
-            className="absolute -top-40 -right-40 w-[820px] h-[820px] rounded-full opacity-80 animate-drift"
+            className="absolute -top-40 -right-40 w-[720px] h-[720px] rounded-full opacity-55 animate-drift"
             style={{
               background:
-                "radial-gradient(circle at 32% 32%, rgba(255,160,100,0.75), rgba(255,107,53,0.30) 42%, rgba(255,107,53,0.06) 65%, transparent 78%)",
-              filter: "blur(50px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute top-[40%] -left-48 w-[720px] h-[720px] rounded-full opacity-75 animate-drift-slow"
-            style={{
-              background:
-                "radial-gradient(circle at 38% 38%, rgba(100,240,190,0.65), rgba(52,211,153,0.25) 42%, rgba(52,211,153,0.06) 65%, transparent 78%)",
-              filter: "blur(60px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute bottom-[5%] right-[15%] w-[620px] h-[620px] rounded-full opacity-60 animate-drift-reverse"
-            style={{
-              background:
-                "radial-gradient(circle at 35% 32%, rgba(185,165,255,0.60), rgba(140,120,230,0.20) 45%, rgba(120,100,220,0.05) 65%, transparent 78%)",
+                "radial-gradient(circle at 32% 32%, rgba(255,150,95,0.50), rgba(255,107,53,0.18) 42%, transparent 72%)",
               filter: "blur(70px)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute top-[42%] -left-44 w-[620px] h-[620px] rounded-full opacity-45 animate-drift-slow"
+            style={{
+              background:
+                "radial-gradient(circle at 38% 38%, rgba(90,235,180,0.42), rgba(52,211,153,0.14) 42%, transparent 72%)",
+              filter: "blur(75px)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute bottom-[8%] right-[18%] w-[500px] h-[500px] rounded-full opacity-30 animate-drift-reverse"
+            style={{
+              background:
+                "radial-gradient(circle at 35% 32%, rgba(175,155,255,0.40), rgba(140,120,230,0.12) 45%, transparent 74%)",
+              filter: "blur(85px)",
             }}
           />
         </div>
         <div
           aria-hidden
-          className="fixed inset-0 -z-10 pointer-events-none opacity-[0.12]"
+          className="fixed inset-0 z-0 pointer-events-none opacity-[0.06]"
           style={{
             backgroundImage:
               "radial-gradient(circle, #fafafa 1px, transparent 1px)",
@@ -85,14 +85,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        <MobileNav />
-        <div className="flex min-h-screen">
-          <Nav />
-          <main className="flex-1 px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">{children}</main>
+        {/* Content layer — z-10 so it sits above the atmosphere (which is at z-0).
+            Without this wrapper, content would render at z-auto and the atmosphere divs
+            would cover it on every page. */}
+        <div className="relative z-10">
+          <MobileNav />
+          <div className="flex min-h-screen">
+            <Nav />
+            <main className="flex-1 px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">{children}</main>
+          </div>
+          <footer className="border-t border-white/[0.08] py-6 text-center text-sm text-muted backdrop-blur-sm">
+            Power Fox Media · Editors Hub · <a href="/claude#changelog" className="text-accent hover:text-accentHover">Changelog</a>
+          </footer>
         </div>
-        <footer className="border-t border-white/[0.08] py-6 text-center text-sm text-muted backdrop-blur-sm">
-          Power Fox Media · Editors Hub · <a href="/claude#changelog" className="text-accent hover:text-accentHover">Changelog</a>
-        </footer>
       </body>
     </html>
   );
