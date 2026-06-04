@@ -43,6 +43,12 @@ const sharedAssets = [
 // SOPs & guides — Notion SOPs + Loom how-to videos.
 const sopGuides = [
   {
+    group: "Claude setup",
+    items: [
+      { label: "Set Up ElevenLabs MCP — voice/TTS in Claude Code", kind: "Lucid", url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzYuIENsYXVkZSBQRk0vU09QIC0gU2V0IFVwIEVsZXZlbkxhYnMgTUNQLm1k" },
+    ],
+  },
+  {
     group: "Core SOPs",
     items: [
       { label: "Master Folder Overview", kind: "Notion", url: "https://www.notion.so/powerfoxmedia/1-SOP-PFM-Media-Master-Folder-Overview-15216771e7808064a83ae4a5a24324b3" },

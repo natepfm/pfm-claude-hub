@@ -8,6 +8,14 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-06-04
 
+### New — ElevenLabs MCP for Claude Code
+
+Claude Code can now drive ElevenLabs directly — list voices, fire TTS, design voices, the whole API — in any session on your Mac. ~5 minute one-time setup. Once wired, ask things like *"what voices are available?"* or *"generate TTS for 'hello' using Adam"* and Claude handles the API + saves the mp3s. Persists across every project — set up once, use everywhere.
+
+This is the foundation for a future batch TTS skill (`elevenlabs-tts`) that'll add per-line manifests + delivery folders + cost reports the way `hig-flow` / `hvg-flow` do. Coming when use cases firm up.
+
+**To set it up:** see the [Set Up ElevenLabs MCP SOP](/resources#sops) on Resources. Mac-only for now; Windows comes later if there's demand.
+
 ### Two new skills — `pfm-character-master` + `pixar-state-music-video`
 
 Run **Update my skills** to get them.
