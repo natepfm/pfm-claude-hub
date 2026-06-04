@@ -37,7 +37,7 @@ export default function Overview() {
             { icon: "✅", goal: "QC a finished batch", say: '"run audio QC" / "run visual QC" / "check the clips" — also auto-offered right after a batch downloads', skill: "audio-qc + visual-qc" },
             { icon: "🔁", goal: "One-off image or quick variation", say: '"another one of [character] but [variation]" / "make me a few variations"', skill: "higgsfield-image-generation" },
           ].map((t) => (
-            <div key={t.goal} className="border border-border rounded-lg p-4 bg-surface/50 hover:border-accent transition-colors">
+            <div key={t.goal} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">{t.icon}</span>
                 <span className="font-semibold text-text">{t.goal}</span>
@@ -70,7 +70,7 @@ export default function Overview() {
           Claude doesn't "know" PFM out of the box. Knowledge is layered in four levels, from general team patterns to per-project specifics. Each layer narrows what the model considers correct.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 400 300"
             className="w-full h-auto block"
@@ -114,7 +114,7 @@ export default function Overview() {
           Higgsfield exposes itself two ways. The choice matters for speed, cost, and feature access.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 460 344"
             className="w-full h-auto block"
@@ -161,7 +161,7 @@ export default function Overview() {
           Auto-detection triggers the HVG protocol immediately. The editor doesn't need to invoke the skill explicitly — Claude recognizes the inputs and enters Gate 1 on its own.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 480 378"
             className="w-full h-auto block"
@@ -227,7 +227,7 @@ export default function Overview() {
           Most gates run silently. Claude only stops for you at the two <span className="text-accent font-semibold">accent gates</span> — reference assignment (when it&apos;s ambiguous) and the preflight right before firing. Hard-stops (wrong folder, missing CLI, low credits) interrupt regardless.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 400 582"
             className="w-full h-auto block"
@@ -280,7 +280,7 @@ export default function Overview() {
           The moment a batch finishes downloading, Claude offers to QC it. Audio and visual passes run together, and every clip lands a verdict. Flagged clips refire automatically — capped at two retries — before anything escalates. Only clean clips reach the delivery comment.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 470 322"
             className="w-full h-auto block"
@@ -326,7 +326,7 @@ export default function Overview() {
           Every gen burns Higgsfield credits, and the model tier sets the price. PFM defaults to the cheapest rung — Veo Lite, one clip per prompt — and only climbs to Fast or Preview when a brief actually needs the extra quality.
         </p>
 
-        <div className="border border-border rounded-lg bg-bg p-5 max-w-xl">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
           <svg
             viewBox="0 0 470 278"
             className="w-full h-auto block"
@@ -363,7 +363,7 @@ export default function Overview() {
           One folder, source of truth for the whole team. Every editor's Mac syncs from here. When something changes, one push updates everyone.
         </p>
 
-        <div className="border border-border rounded-lg p-5 bg-surface/30">
+        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
           <pre className="text-xs font-mono text-muted overflow-x-auto">
 {`6. Claude PFM/
 ├── skills/                              ← ${skills.length} PFM skills, deployed to every editor

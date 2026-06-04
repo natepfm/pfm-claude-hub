@@ -45,7 +45,7 @@ export default async function ChangelogSection() {
             <details
               key={e.date}
               open={i === 0}
-              className="border border-border rounded-lg bg-surface/30 overflow-hidden"
+              className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 overflow-hidden"
             >
               <summary className="cursor-pointer select-none px-4 py-3 flex items-baseline justify-between gap-4 hover:bg-surface/50 transition-colors marker:content-['']">
                 <span className="font-mono text-sm font-semibold text-accent whitespace-nowrap">{e.date}</span>

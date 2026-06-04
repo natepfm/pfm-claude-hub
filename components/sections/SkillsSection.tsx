@@ -25,7 +25,7 @@ export default function SkillsSection() {
       </div>
 
       {/* Two surfaces — Claude Code vs Cowork */}
-      <div className="my-8 border border-border rounded-lg bg-bg p-5 max-w-xl">
+      <div className="my-8 rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 max-w-xl">
         <svg
           viewBox="0 0 470 360"
           className="w-full h-auto block"
@@ -67,7 +67,7 @@ export default function SkillsSection() {
         </svg>
       </div>
 
-      <div className="my-8 border border-accent rounded-lg p-6 bg-accentMuted">
+      <div className="my-8 rounded-lg p-6 bg-gradient-to-br from-accentMuted to-bg shadow-glow-accent ring-1 ring-accent/40">
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="flex-1 min-w-[280px]">
             <div className="text-xs uppercase tracking-widest text-accent mb-2">For Cowork</div>
@@ -93,7 +93,7 @@ export default function SkillsSection() {
           <h3 className="text-xl font-bold mb-3 text-accent">{categoryLabels[cat] ?? cat}</h3>
           <div className="space-y-3">
             {group.map((s) => (
-              <div key={s.name} className="border border-border rounded-lg p-5 bg-surface/50">
+              <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200">
                 <div className="flex items-center justify-between gap-4 mb-1 flex-wrap">
                   <div>
                     <div className="text-lg font-semibold">{s.title}</div>
@@ -124,7 +124,7 @@ export default function SkillsSection() {
         </div>
       ))}
 
-      <div className="my-8 border border-accent rounded-lg p-6 bg-accentMuted">
+      <div className="my-8 rounded-lg p-6 bg-gradient-to-br from-accentMuted to-bg shadow-glow-accent ring-1 ring-accent/40">
         <div className="text-xs uppercase tracking-widest text-accent mb-2">Contribute</div>
         <h3 className="text-xl font-bold mb-2">Found a workflow worth a skill? Propose it.</h3>
         <p className="text-sm text-muted leading-relaxed">

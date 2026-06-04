@@ -34,7 +34,7 @@ export default function SystemDiagram() {
 
       <div className="lg:grid lg:grid-cols-2 lg:gap-6 lg:items-center">
         {/* LEFT — the diagram */}
-        <div className="border border-border rounded-lg bg-bg p-5">
+        <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5">
           <svg
             viewBox="0 0 380 472"
             className="w-full h-auto block max-w-md mx-auto"
@@ -94,7 +94,7 @@ export default function SystemDiagram() {
         </div>
 
         {/* RIGHT — command cheat-sheet */}
-        <aside className="mt-6 lg:mt-0 border border-border rounded-lg bg-bg p-5">
+        <aside className="mt-6 lg:mt-0 rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5">
           <div className="text-xs uppercase tracking-widest text-accent mb-1">Quick start</div>
           <h3 className="text-lg font-bold mb-3">Say this to start a skill</h3>
           <div className="space-y-4">

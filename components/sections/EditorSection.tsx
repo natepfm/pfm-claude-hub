@@ -12,7 +12,7 @@ export default function EditorSection() {
       </div>
 
       {/* claude-editor pipeline diagram */}
-      <div className="border border-border rounded-lg bg-bg p-5 mb-8 overflow-x-auto">
+      <div className="rounded-lg bg-surface-gradient-soft shadow-elev1 ring-1 ring-border/50 p-5 mb-8 overflow-x-auto">
         <div className="text-[11px] uppercase tracking-widest text-accent mb-3">The claude-editor pipeline</div>
         <svg
           viewBox="0 0 808 168"
@@ -50,7 +50,7 @@ export default function EditorSection() {
 
       <div className="space-y-3">
         {editorTools.map((t) => (
-          <div key={t.name} className="border border-border rounded-lg p-5 bg-surface/50">
+          <div key={t.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200">
             <div className="flex items-center justify-between gap-4 mb-1 flex-wrap">
               <div>
                 <div className="text-lg font-semibold">
