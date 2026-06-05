@@ -8,6 +8,15 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-06-04
 
+### New slash command — `/report` (assets + creative)
+
+Run **Update my skills** to get it. Two paths picked by the argument:
+
+- **`/report assets`** — raw asset handoff. Posts `✅ Assets Generated [folder ↗](link)` to the Notion request. Status stays "Requested," no @-tags. Use after a Veo / b-roll / slide batch lands in the folder.
+- **`/report creative`** — finished-creative turn-in. Posts `<@Dima V> <@Gabriel Moss> ✅ Completed Creatives (#): [folder ↗](link)`, flips Status → Done, with the creative count. Use when you've finished editing and are shipping.
+
+Both paths route through the `notion-asset-delivery` skill — same LinkYourFile build, same rich-text @-mention format, same hard-confirm gate before anything posts. Auto-finds the Notion URL + delivered folder from session context (never re-asks).
+
 ### New slash command — `/check-notion`
 
 Run **Update my skills** to get it. Mid-session, type `/check-notion` and Claude refetches the Notion request you're working on and reports any updates since you last looked — new comments, status changes, body edits (revised dialogue, new state toggles), assignee/tag changes. Read-only: it never posts back to Notion. Useful between gen batches when you want to know if requirements shifted (a Dima comment on L17 dialogue, a status flip by someone else, etc.) without losing your place in the session.
