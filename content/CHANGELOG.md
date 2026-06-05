@@ -8,6 +8,12 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-06-04
 
+### New slash command — `/check-notion`
+
+Run **Update my skills** to get it. Mid-session, type `/check-notion` and Claude refetches the Notion request you're working on and reports any updates since you last looked — new comments, status changes, body edits (revised dialogue, new state toggles), assignee/tag changes. Read-only: it never posts back to Notion. Useful between gen batches when you want to know if requirements shifted (a Dima comment on L17 dialogue, a status flip by someone else, etc.) without losing your place in the session.
+
+It auto-finds the Notion URL from session context (your earlier messages, prior fetch calls, or a `_HANDOFF.md` in the project folder) — never re-asks if it's already in context.
+
 ### New — ElevenLabs MCP for Claude Code
 
 Claude Code can now drive ElevenLabs directly — list voices, fire TTS, design voices, the whole API — in any session on your Mac. ~5 minute one-time setup. Once wired, ask things like *"what voices are available?"* or *"generate TTS for 'hello' using Adam"* and Claude handles the API + saves the mp3s. Persists across every project — set up once, use everywhere.
