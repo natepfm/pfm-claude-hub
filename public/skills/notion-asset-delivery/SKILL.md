@@ -24,13 +24,12 @@ Sam caught it on the Sarah Herman state batches 2026-06-01 and had them reverted
 editor/Sam explicitly asks to **report a completed creative** ("mark this done", "report complete",
 "move it to Done"). When you do, the delivery comment **MUST @-tag BOTH** of these, every time:
 
-- **Dima V** — `<mention-user url="65ec1d09-9170-4f79-a5cd-9b955e411b61"/>`
-- **Gabriel Moss** — `<mention-user url="27dd872b-594c-81f8-bef8-0002275b5ee0"/>`
+- **Dima V** — user UUID `65ec1d09-9170-4f79-a5cd-9b955e411b61`
+- **Gabriel Moss** — user UUID `27dd872b-594c-81f8-bef8-0002275b5ee0`
 
-**⚠️ Mention syntax — pass the BARE UUID in `url=`, NEVER `user://<UUID>`.** `notion-create-comment`'s
-markdown parser prepends `user://` itself; passing `user://<UUID>` stores `user://user://<UUID>` and
-the tag silently fails — no chip, no notification (verified bug, 2026-06-01). So `url="65ec1d09-…"`,
-not `url="user://65ec1d09-…"`. Same rule for the optional requester mention in Step 5.
+**🔴 HARD RULE — mentions MUST be posted via `rich_text` array, NEVER markdown** (Sam 2026-06-04, verified on the SMA Houston VSL turn-in). The markdown `<mention-user url="...">` syntax renders in Notion as empty grey "@" pills with no name attached — looks broken, no notification fires, defeats the tag. ANY comment with an @-mention (Dima V, Gabriel Moss, requester, anyone) MUST use `notion-create-comment`'s `rich_text` parameter with explicit mention objects of the form `{"type":"mention","mention":{"type":"user","user":{"id":"<uuid>"}}}` — bare UUID in the `id` field, no `user://` prefix. See Step 6 for the exact payload shape.
+
+Plain `markdown=` is still fine for comments WITHOUT @-mentions (the default ① Assets Generated handoff with no requester tag).
 
 (House rule, Sam 2026-06-01 — mirrors his own completed-creative deliveries, e.g. the Spanish Car
 Chase Broad report. The two tags are mandatory on the Done path and are NOT the same as the
@@ -133,11 +132,12 @@ creative count. **Count applies to the finished-creative turn-in (② Completed 
 
 ## Step 4 — Compose the comment (silent)
 
-Assemble the markdown in the right format **for the event** (see "The two locked comment formats"):
-- **Asset handoff (①)** → `✅ Assets Generated [folder ↗](link)` (no count) + any notes lines.
-- **Finished-creative turn-in (②)** → prepend the mandatory Dima V + Gabriel Moss `<mention-user .../>` tags, then `✅ Completed Creatives (#): [folder ↗](link)` + any notes.
+Assemble the comment in the right format **for the event** (see "The two locked comment formats"):
+- **Asset handoff (①), no requester tag** → plain markdown is fine: `✅ Assets Generated [folder ↗](link)` (no count) + any notes lines.
+- **Finished-creative turn-in (②)** → MUST use `rich_text` array (mandatory Dima V + Gabriel Moss mentions) — see Step 6.
+- **Asset handoff (①) WITH an optional requester @-mention** → also MUST use `rich_text` array.
 
-Notes lines are newline-separated, tight house style. Add the optional requester `@`-mention from Step 5 if used (either event).
+Notes lines are newline-separated, tight house style. The mention-vs-no-mention decision drives the format choice — pick `rich_text` whenever there is ANY @-mention in the comment, plain markdown only when there is none.
 
 ## Step 5 — Preflight: show the exact comment, then WAIT (hard gate)
 
@@ -166,8 +166,8 @@ For a **completed-creative report**, the closing line instead reads:
 > Done**._ Reply `post` to send it, or tell me what to change.
 
 **Requester @-mention (optional):** to also notify the requester, `notion-fetch` the request page,
-read its **Assignee / People** property → the user's id + name, and prefix the comment with
-`<mention-user url="<id>"/>` (BARE UUID — never `user://<id>`; see the mention-syntax warning above). Confirm the name in the preflight. If there's no assignee, it's
+read its **Assignee / People** property → the user's id + name, and prepend a mention object to the
+`rich_text` array (force the comment onto the `rich_text` path even if it's a ① Assets Generated handoff — markdown mentions don't render). Confirm the name in the preflight. If there's no assignee, it's
 ambiguous, or the editor declines, **post without it** — the page comment still notifies followers.
 
 **Wait for an explicit `post` / `yes`.** Never post on inference. Posting a delivery comment is a
@@ -175,11 +175,34 @@ teammate-visible action — it requires the editor's explicit go every time.
 
 ## Step 6 — Post + confirm (status change ONLY on a completed-creative report)
 
-1. Post the comment with `notion-create-comment` (page-level):
+1. Post the comment with `notion-create-comment` (page-level). **Pick the parameter by whether the comment contains an @-mention:**
+
+**(a) No @-mentions — markdown is fine:**
 
 ```
 notion-create-comment(page_id="<request id>", markdown="<the composed comment>")
 ```
+
+**(b) ANY @-mention in the comment — MUST use rich_text array:**
+
+```
+notion-create-comment(page_id="<request id>", rich_text=[
+  {"type": "mention", "mention": {"type": "user", "user": {"id": "65ec1d09-9170-4f79-a5cd-9b955e411b61"}}},
+  {"type": "text", "text": {"content": " "}},
+  {"type": "mention", "mention": {"type": "user", "user": {"id": "27dd872b-594c-81f8-bef8-0002275b5ee0"}}},
+  {"type": "text", "text": {"content": "\n✅ Completed Creatives (4): "}},
+  {"type": "text", "text": {"content": "folder ↗", "link": {"url": "https://linkyourfile.com/link?p=..."}}}
+])
+```
+
+Key payload rules:
+- User mention = `{"type":"mention","mention":{"type":"user","user":{"id":"<uuid>"}}}` — bare UUID in `id`, no `user://` prefix
+- Space between mentions = a separate `text` block with `" "` (don't try to concatenate inside a mention)
+- Linked text = `text` block with `link.url` set (NOT markdown `[text](url)` — the rich_text path doesn't parse markdown)
+- Newlines = `\n` inside text content
+- For an ① Assets Generated handoff with a requester mention only, build the same shape but with one mention at the front and the `✅ Assets Generated ...` text + link blocks after.
+
+Verified working on the SMA Houston VSL turn-in (request `37216771-e780-8063-b3ab-f21b354f863e`, 2026-06-04). The markdown variant on that same request rendered as empty `@` pills — do not use it for mentions.
 
 2. **Status:**
    - **Routine delivery (default): do NOTHING to Status.** The request stays "Requested." This is
@@ -221,4 +244,5 @@ auto-flip and ask which option to use. Don't let a status hiccup block the deliv
 - `notion-state-batches` — builds the request pages (this skill closes them out).
 - Memory: `feedback_notion_request_status_lifecycle` (the status rule + Dima V / Gabriel Moss tag
   IDs), `feedback_notion_manual_flag_comment_format` (house format + the LinkYourFile link fact),
+  `feedback_notion_comment_rich_text_for_mentions` (rich_text-vs-markdown rule for mentions),
   `feedback_pfm_no_redundant_notion_redrop`, `feedback_no_askuserquestion_in_pfm_flows`.
