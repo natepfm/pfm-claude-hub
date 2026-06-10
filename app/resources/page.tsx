@@ -14,6 +14,16 @@ const sharedAssets = [
     url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvRGF2aW5jaSBBc3NldHMgLSBQRk0vUGx1Zy1JbnMgLSBEYXZpY2kgQXNzZXRz",
   },
   {
+    label: "Character Library",
+    desc: "Master reference images for every PFM AI character, organized by character + vertical.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvQUkgR2VuZXJhdGlvbiBBc3NldHMgLSBQRk0vQ2hhcmFjdGVyIExpYnJhcnk%3D",
+  },
+  {
+    label: "Prompts Library",
+    desc: "Battle-tested per-character prompt templates — anchors, podcast hosts, keynote, interviews.",
+    url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvQUkgR2VuZXJhdGlvbiBBc3NldHMgLSBQRk0vUHJvbXB0cyBMaWJyYXJ5",
+  },
+  {
     label: "Fonts",
     desc: "The PFM font library.",
     url: "https://linkyourfile.com/link?p=L1ZvbHVtZXMvYWRzL1BGTSBNRURJQSBNQVNURVIgRk9MREVSLzEuIFBGTSBNZWRpYSBBc3NldHMvRm9udHMgLSBQRk0%3D",

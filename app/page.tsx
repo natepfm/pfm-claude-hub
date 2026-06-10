@@ -14,7 +14,7 @@ const checklist = [
   },
   {
     title: "Install the DaVinci plug-ins",
-    desc: "From the New Editor Assets folder on Lucid Link — Snap Captions, Magic Zoom, transitions, timer bars. These power the PFM editing kit.",
+    desc: "From the New Editor Assets folder on Lucid Link — Snap Captions, Magic Zoom, transitions, timer bars. Then add the Higgsfield plug-in (AI gens right on your timeline) once DaVinci is installed and logged in.",
   },
   {
     title: "Set up Claude",
@@ -54,6 +54,12 @@ const coreApps = [
     for: "Our primary video editor.",
     href: "https://www.blackmagicdesign.com/products/davinciresolve",
     access: `Choose "Download Only" — don't register. Studio key from Sam; Blackmagic Cloud invite comes by email.`,
+  },
+  {
+    name: "Higgsfield DaVinci plug-in",
+    for: "Higgsfield gens, reframe, upscale, and BG removal right inside the Resolve timeline.",
+    href: "https://higgsfield.ai/plugins/davinci",
+    access: `Install AFTER DaVinci is set up and logged in — the installer adds it to Workspace → Workflow Integrations. Sign in with the shared PFM Google account (1Password).`,
   },
   {
     name: "Notion",
