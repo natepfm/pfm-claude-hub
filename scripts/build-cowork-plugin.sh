@@ -12,11 +12,13 @@ set -euo pipefail
 HUB="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_SRC="$HUB/public/skills"
 NAME="pfm-cowork-skills"
-VERSION="1.2.0"
+VERSION="1.3.2"
 OUT="$HUB/public/$NAME.plugin"
 
-# The chat-mode skills — keep in sync with worksIn:"cowork" in content/skills.ts
-COWORK_SKILLS=(veo-script-writing breaking-news-story-ads nano-banana-prompting story-beats lc-to-video-podcast suno-songwriter)
+# The Cowork-capable skills — keep in sync with worksIn:"cowork" in content/skills.ts.
+# stage-request is included for Dima's AGF staging (needs Lucid access granted in Cowork;
+# its Step 0 degrades gracefully if Lucid isn't mounted).
+COWORK_SKILLS=(stage-request veo-script-writing breaking-news-story-ads nano-banana-prompting story-beats lc-to-video-podcast suno-songwriter)
 
 TMP="$(mktemp -d)"
 STAGE="$TMP/$NAME"
@@ -26,7 +28,7 @@ cat > "$STAGE/.claude-plugin/plugin.json" <<JSON
 {
   "name": "$NAME",
   "version": "$VERSION",
-  "description": "Power Fox Media's chat-mode skills — every skill that runs in Cowork with no terminal, filesystem, or Higgsfield CLI: Veo script formatting, breaking-news ad framing, Nano Banana / Higgsfield prompting, podcast-style LC adaptation, PFM story beats, and Suno ad-to-song prompts.",
+  "description": "Power Fox Media's Cowork skills — AGF request staging (/stage request) plus the chat-mode writers: Veo script formatting, breaking-news ad framing, Nano Banana / Higgsfield prompting, podcast-style LC adaptation, PFM story beats, and Suno ad-to-song prompts. The writers need no tools; /stage request needs Lucid access (granted in Cowork) and degrades gracefully without it.",
   "author": { "name": "Power Fox Media" }
 }
 JSON
@@ -34,12 +36,13 @@ JSON
 cat > "$STAGE/README.md" <<'MD'
 # PFM Cowork Skills
 
-A Claude / Cowork plugin bundling **every Power Fox Media skill that runs in Cowork chat mode** — for non-editor team members (writers, strategists, MBs) with no terminal, no filesystem, and no Higgsfield CLI.
+A Claude / Cowork plugin for non-editor team members (writers, strategists, MBs). The writers run in pure chat mode (no terminal, filesystem, or Higgsfield CLI); **`/stage request`** additionally needs Lucid Link access (granted to the Cowork session) and degrades gracefully without it.
 
-## What's included (all chat-mode skills)
+## What's included
 
 | Skill | Use it when |
 |---|---|
+| **stage-request** (`/stage request`) | Staging a Video Task Manager request for AGF — resolve assets, set up the project folder, write the 🤖 section, then send to AGF or generate locally. Needs Lucid. |
 | **veo-script-writing** | Drafting / reviewing Veo 3.1 story-ad scripts; rebalancing into per-clip lines; formatting dialogue |
 | **breaking-news-story-ads** | Wrapping a story ad as a local 6pm news segment (LATU News); anchor copy, field reporter packages, chyrons |
 | **nano-banana-prompting** | Nano Banana Pro prompts — social-proof images, character-consistent scenes, candid iPhone-style photos |

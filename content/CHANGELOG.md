@@ -6,6 +6,18 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-11
+
+### New — `/stage request` staging for Asset Gen Flow (AGF)
+
+Run **Update my skills** to get it (Cowork users: re-install the plugin, now **v1.3.2**).
+
+`/stage request` takes a written Video Task Manager request and makes it fire-ready for AGF — it resolves the source creative's master prompt + reference images, sets up the project folder on Lucid, writes a verbatim per-line dialogue manifest + the 🤖 **Asset Generation** section, then routes the request: **send to AGF** (the office mini fires it hands-off) or **generate locally now**.
+
+Eligibility is **resolvability, not creative shape** — it stages any creative whose AI-generatable assets resolve: per-state batches, VSL→Calls conversions, single-state re-edit regens, vertical pivots. For a mixed edit+gen request it stages only the generatable subset and leaves the rest to the editor. Anything it can't resolve stays **Needs Staging** with the gaps named — it never guesses.
+
+---
+
 ## 2026-06-04
 
 ### New slash command — `/report` (assets + creative)

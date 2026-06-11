@@ -40,6 +40,14 @@ export const skills: Skill[] = [
     category: "pipeline",
   },
   {
+    name: "stage-request",
+    title: "Stage Request (AGF)",
+    description:
+      "Stage a Video Task Manager request for Asset Gen Flow. Resolves the source creative's master prompt + reference images, sets up the project folder on Lucid, writes the verbatim dialogue manifest + 🤖 Asset Generation section, then routes it — send to AGF (the office mini fires it hands-off) or generate locally now. Eligibility is resolvability, not creative shape: state batches, VSL→Calls conversions, single-state re-edit regens all qualify. Needs Lucid access for the file steps (handled gracefully in Cowork).",
+    worksIn: ["code", "cowork"],
+    category: "pipeline",
+  },
+  {
     name: "veo-script-writing",
     title: "Veo Script Writing",
     description:
