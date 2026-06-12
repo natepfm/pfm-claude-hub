@@ -8,6 +8,24 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-06-11
 
+### New skill — `veo-life` (bring stills to life)
+
+Run **Update my skills** to get it.
+
+`veo-life` turns your finished social-proof / b-roll **stills** into 6-second **cinemagraphs** — the person breathes and blinks, one background element drifts gently, and everything else (camera, expression, phone, on-screen text) stays planted. The result reads as a live photo, not a video performance, so it stops the scroll without breaking the candid look that makes social proof work.
+
+Point it at a folder, name the files, or blue-tag the keepers in Finder. It builds the per-still cinemagraph prompts, runs a gated preflight, fires the batch (Veo 3.1 Lite, audio-free), runs a 100% filmstrip QC pass, and delivers with a manifest. Already proven across SMA, SaveMaxHomes (EN + ES), and Auto Calls — 55 clips.
+
+**Say:** "bring these to life", "veo life", "cinemagraph these stills", "make the social proof move".
+
+### New skill — `podcast-guest-veo` (locked podcast-guest audio spec)
+
+Run **Update my skills** to get it.
+
+The locked voice + audio treatment for **podcast-guest talking heads** (Discount Pod Guy, Gavin Hollis, Jason Whitaker class) — the v2 spec validated on the Car Chase Podcast Roku Calls A/B. It kills the musical-tail and ambient-vacuum artifacts Veo adds to podcast clips, locks the dry / close / clean studio voice with a named dead-quiet room (no vacuum), and handles cold-open + clean-finish timing. Use it whenever you're writing or revising a podcast Veo master, or the audio sounds off on podcast clips.
+
+**Say:** "podcast master", "fix the podcast audio", "the audio sounds off on these podcast clips".
+
 ### New — `/stage request` staging for Asset Gen Flow (AGF)
 
 Run **Update my skills** to get it (Cowork users: re-install the plugin, now **v1.3.2**).
