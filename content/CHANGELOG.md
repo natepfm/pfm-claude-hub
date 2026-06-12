@@ -26,6 +26,20 @@ The locked voice + audio treatment for **podcast-guest talking heads** (Discount
 
 **Say:** "podcast master", "fix the podcast audio", "the audio sounds off on these podcast clips".
 
+### New — the CTV Breaking-News stack (6 skills)
+
+Run **Update my skills** to get them all.
+
+A per-state CTV breaking-news Calls variation used to be a scavenger hunt across clips, lower thirds, call graphics, and the anchor wall. Now it's one request in → everything out:
+
+- **`ctv-bn-variation`** — the orchestrator. Drop a CTV BN state-variation request URL and say "make the `<state>` version" — it produces the state Veo clips plus the full graphics suite below, in dependency order. Handles the fork where the state's tracking numbers are still TBD.
+- **`bn-lower-thirds`** — LATU lower thirds from the shared Canva decks: per-state HEADLINE strip + CALL NOW phone strip, text-fit verified so nothing bleeds into the NEW AT 11 block, exported transparent straight into the state's Graphics folder.
+- **`call-graphics`** — SaveMaxAuto Banner + EndCard with the real tracking number, fired from the 5-design template library. Every output is digit-verified so the phone number is never garbled.
+- **`anchor-wall-composite`** — takes the finished EndCard and renders it onto the video wall behind Steve, producing the locked reference frame his close-line cinemagraphs fire from.
+- **`ugc-talking-head-ref`** + **`ugc-talking-head-veo`** — new UGC presenter in two steps: `ref` generates the locked 9:16 "talking to a phone on a stand" character stills; once you pick your hero image, `veo` writes the locked master prompt + per-clip dialogue manifest, fire-ready.
+
+Every piece works standalone too — need just a lower third or just a banner number swap, ask for exactly that.
+
 ### New — `/stage request` staging for Asset Gen Flow (AGF)
 
 Run **Update my skills** to get it (Cowork users: re-install the plugin, now **v1.3.2**).
