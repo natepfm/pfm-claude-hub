@@ -6,6 +6,7 @@ import SystemDiagram from "@/components/sections/SystemDiagram";
 import SetupMac from "@/components/sections/SetupMac";
 import SetupWindows from "@/components/sections/SetupWindows";
 import SkillsSection from "@/components/sections/SkillsSection";
+import AssetGenSection from "@/components/sections/AssetGenSection";
 import EditorSection from "@/components/sections/EditorSection";
 import ChangelogSection from "@/components/sections/ChangelogSection";
 
@@ -170,6 +171,7 @@ export default function ClaudePage() {
         </div>
       </details>
       <SkillsSection />
+      <AssetGenSection />
       <EditorSection />
       <ChangelogSection />
     </div>
