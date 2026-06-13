@@ -3,7 +3,7 @@ export interface Skill {
   title: string;
   description: string;
   worksIn: ("code" | "cowork")[];
-  category: "pipeline" | "writing" | "image" | "video" | "utility";
+  category: "gen-auto" | "gen-manual" | "writing" | "image" | "video" | "utility";
 }
 
 export const skills: Skill[] = [
@@ -13,7 +13,7 @@ export const skills: Skill[] = [
     description:
       "End-to-end Veo video pipeline from a Notion request URL to delivered Veo clips with manifest. Runs setup silently and stops at up to 2 confirmations (reference assignment + consolidated preflight). The main editor workflow.",
     worksIn: ["code"],
-    category: "pipeline",
+    category: "gen-manual",
   },
   {
     name: "hig-flow",
@@ -21,7 +21,7 @@ export const skills: Skill[] = [
     description:
       "End-to-end Nano Banana b-roll pipeline. Image counterpart to hvg-flow. Defaults to NB Pro at 1k, count=1 (count=2 opt-in for a pick). Runs setup silently, stops at up to 2 confirmations (character match + a preflight that doubles as shot-list sign-off).",
     worksIn: ["code"],
-    category: "pipeline",
+    category: "gen-manual",
   },
   {
     name: "vsl-state-variations",
@@ -29,7 +29,7 @@ export const skills: Skill[] = [
     description:
       "Per-state asset generation for a winning VSL — Phase 1 edit-swap slide images, then Phase 2 Veo Lite clips for every line. Downstream of an already-built broad / winner VSL; mirrors the Texas / Iowa templates.",
     worksIn: ["code"],
-    category: "pipeline",
+    category: "gen-manual",
   },
   {
     name: "pixar-state-music-video",
@@ -37,7 +37,7 @@ export const skills: Skill[] = [
     description:
       "Per-state Pixar Best State Music Video asset generator (Auto + Home). Fires a 3D Pixar anthropomorphic state-outline mascot character master + 12 locked-structure scene frames via NB Pro using state-derived tokens (shape, signature terrain, body color, cap, vehicle), and preps the state-filled lyrics + ready-to-paste Suno style block. Semi-auto: skill auto-fires Higgsfield + preps Suno; human runs Suno take-gen + pick; Mark assembles the edit.",
     worksIn: ["code"],
-    category: "pipeline",
+    category: "gen-manual",
   },
   {
     name: "stage-request",
@@ -45,7 +45,7 @@ export const skills: Skill[] = [
     description:
       "Stage a Video Task Manager request for Asset Gen Flow. Resolves the source creative's master prompt + reference images, sets up the project folder on Lucid, writes the verbatim dialogue manifest + 🤖 Asset Generation section, then routes it — send to AGF (the office mini fires it hands-off) or generate locally now. Eligibility is resolvability, not creative shape: state batches, VSL→Calls conversions, single-state re-edit regens all qualify. Needs Lucid access for the file steps (handled gracefully in Cowork).",
     worksIn: ["code", "cowork"],
-    category: "pipeline",
+    category: "gen-auto",
   },
   {
     name: "veo-script-writing",

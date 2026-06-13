@@ -1,7 +1,8 @@
 import { skills } from "@/content/skills";
 
 const categoryLabels: Record<string, string> = {
-  pipeline: "Production pipelines",
+  "gen-manual": "Asset generation — manual (you fire it)",
+  "gen-auto": "Asset generation — automated (AGF · the mini)",
   writing: "Writing / script craft",
   image: "Image prompting + generation",
   video: "Video generation",
@@ -48,7 +49,7 @@ export default function SkillsSection() {
           <text x={32} y={152} fill="#FF6B35" fontSize={10.5}>editor&apos;s Mac</text>
           <line x1={32} y1={164} x2={206} y2={164} stroke="#FF6B35" strokeWidth={1} opacity={0.4} />
           <text x={32} y={190} fill="#e8e8e8" fontSize={11.5} fontWeight={600}>Runs every skill</text>
-          <text x={32} y={208} fill="#cfcfcf" fontSize={10}>pipeline · gen · QC · writing</text>
+          <text x={32} y={208} fill="#cfcfcf" fontSize={10}>gen (auto + manual) · QC · writing</text>
           <text x={32} y={240} fill="#a1a1a1" fontSize={10.5}>Needs the local stack:</text>
           <text x={32} y={256} fill="#a1a1a1" fontSize={10}>Higgsfield CLI · Lucid</text>
           <text x={32} y={270} fill="#a1a1a1" fontSize={10}>Link · Python</text>
@@ -63,7 +64,7 @@ export default function SkillsSection() {
           <text x={264} y={244} fill="#a1a1a1" fontSize={9} fontFamily="monospace">lc-to-video · suno</text>
           <text x={264} y={272} fill="#a1a1a1" fontSize={10.5}>Needs nothing — pure chat</text>
           <text x={264} y={302} fill="#fafafa" fontSize={11} fontWeight="bold">✗ no gens, no terminal</text>
-          <text x={235} y={346} fill="#a1a1a1" fontSize={10} textAnchor="middle">the 6 writing skills run in both — pipeline, gen + QC are Code-only</text>
+          <text x={235} y={346} fill="#a1a1a1" fontSize={10} textAnchor="middle">the 6 writing skills run in both — gen + QC are Code-only</text>
         </svg>
       </div>
 
