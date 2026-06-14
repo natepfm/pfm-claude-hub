@@ -60,7 +60,7 @@ export default function Nav() {
       <Link href="/" className="block mb-8">
         <div className="text-2xl font-bold tracking-tight">
           <span className="text-text">PFM </span>
-          <span className="text-accent">Editors</span>
+          <span className="font-black italic" style={{ color: "#FF6B35" }}>Editors</span>
         </div>
         <div className="text-xs text-muted mt-1 uppercase tracking-widest">Hub</div>
       </Link>
@@ -123,7 +123,7 @@ export function MobileNav() {
       <div className="px-4 py-3">
         <Link href="/" className="text-lg font-bold tracking-tight">
           <span className="text-text">PFM </span>
-          <span className="text-accent">Editors</span>
+          <span className="font-black italic" style={{ color: "#FF6B35" }}>Editors</span>
           <span className="text-muted text-xs uppercase tracking-widest ml-2">Hub</span>
         </Link>
       </div>
