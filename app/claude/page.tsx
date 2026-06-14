@@ -27,74 +27,31 @@ export default function ClaudePage() {
     <div>
       <header
         className="relative mb-12 overflow-hidden rounded-2xl ring-1 ring-white/10 px-6 py-12 md:px-10 md:py-16"
-        style={{ background: "linear-gradient(180deg, #18092f 0%, #0d0618 55%, #0a0a0a 100%)" }}
+        style={{ background: "linear-gradient(180deg, #18110a 0%, #110b07 58%, #0a0a0a 100%)" }}
       >
-        {/* synthwave sun — solid top, venetian-striped bottom */}
-        <div aria-hidden className="pointer-events-none absolute -top-4 right-6 md:right-14 opacity-80">
-          <svg width="190" height="190" viewBox="0 0 200 200" style={{ filter: "drop-shadow(0 0 40px rgba(255,46,126,0.55))" }}>
-            <defs>
-              <linearGradient id="sw-sun" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#FFE98A" />
-                <stop offset="0.45" stopColor="#FF8A3D" />
-                <stop offset="1" stopColor="#FF2E7E" />
-              </linearGradient>
-              <mask id="sw-sunmask">
-                <rect x="0" y="0" width="200" height="96" fill="#fff" />
-                <rect x="0" y="101" width="200" height="6" fill="#fff" />
-                <rect x="0" y="112" width="200" height="5" fill="#fff" />
-                <rect x="0" y="122" width="200" height="4" fill="#fff" />
-                <rect x="0" y="131" width="200" height="3.5" fill="#fff" />
-                <rect x="0" y="139" width="200" height="3" fill="#fff" />
-                <rect x="0" y="146" width="200" height="2.5" fill="#fff" />
-              </mask>
-            </defs>
-            <circle cx="100" cy="100" r="92" fill="url(#sw-sun)" mask="url(#sw-sunmask)" />
-          </svg>
+        {/* Memphis confetti */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <svg className="absolute top-8 right-10 md:right-16" width="78" height="78"><circle cx="39" cy="39" r="32" fill="none" stroke="#2DD4BF" strokeWidth="7" /></svg>
+          <svg className="absolute top-28 right-28 md:right-40" width="92" height="34"><path d="M3,4 L19,30 L35,4 L51,30 L67,4 L83,30" stroke="#FDE047" strokeWidth="6" fill="none" strokeLinecap="round" /></svg>
+          <svg className="absolute top-6 right-44 md:right-64" width="64" height="64"><polygon points="32,5 59,55 5,55" fill="none" stroke="#FF6B35" strokeWidth="6" /></svg>
+          <svg className="absolute bottom-8 right-12 md:right-24" width="96" height="40"><path d="M3,30 Q18,3 33,20 T63,16 T93,20" stroke="#F472B6" strokeWidth="7" fill="none" strokeLinecap="round" /></svg>
         </div>
 
-        {/* neon perspective grid floor */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,46,126,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.45) 1px, transparent 1px)",
-            backgroundSize: "44px 44px",
-            transform: "perspective(240px) rotateX(62deg)",
-            transformOrigin: "bottom center",
-            WebkitMaskImage: "linear-gradient(transparent 0%, #000 85%)",
-            maskImage: "linear-gradient(transparent 0%, #000 85%)",
-            opacity: 0.45,
-          }}
-        />
-
-        {/* faint CRT scanlines */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ backgroundImage: "repeating-linear-gradient(180deg, rgba(0,0,0,0.13) 0 1px, transparent 1px 3px)", opacity: 0.5 }}
-        />
-
         <div className="relative z-10">
-          <div
-            className="text-xs uppercase tracking-[0.3em] mb-3 font-semibold"
-            style={{ color: "#3FE6F0", textShadow: "0 0 12px rgba(63,230,240,0.65)" }}
-          >
+          <div className="text-xs uppercase tracking-[0.3em] mb-4 font-extrabold" style={{ color: "#2DD4BF" }}>
             Editors Hub · Claude
           </div>
           <h1
-            className="text-5xl md:text-7xl font-extrabold tracking-tight italic"
+            className="text-5xl md:text-7xl font-black tracking-tight italic"
             style={{
-              background: "linear-gradient(180deg, #FFE98A 0%, #FF8A3D 38%, #FF2E7E 72%, #B14DFF 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              filter: "drop-shadow(0 0 18px rgba(255,46,126,0.5)) drop-shadow(0 0 6px rgba(177,77,255,0.4))",
+              color: "#FF6B35",
+              textShadow:
+                "1px 1px 0 #c25125, 2px 2px 0 #b34a22, 3px 3px 0 #a34320, 4px 4px 0 #8a3819, 5px 5px 0 #7a3216, 6px 6px 0 #6b2c13, 7px 7px 0 #561f0d, 9px 9px 0 #0a0a0a",
             }}
           >
             Claude + Higgsfield
           </h1>
-          <p className="text-muted text-lg max-w-2xl mt-4">
+          <p className="text-muted text-lg max-w-2xl mt-6">
             Your AI production assistant. Everything for the Veo + Nano Banana pipeline — how to use it, first-time setup, the skills it runs, troubleshooting, and the changelog. Bookmark this page.
           </p>
         </div>
