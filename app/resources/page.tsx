@@ -1,5 +1,6 @@
 import PlaceholderCard from "@/components/PlaceholderCard";
 import { landerGroups, landersSourceUrl } from "@/content/landers";
+import PageHero from "@/components/PageHero";
 
 // PFM Media Assets library folders — open in LinkYourFile (needs Lucid Link access).
 const sharedAssets = [
@@ -82,15 +83,11 @@ const sopGuides = [
 export default function ResourcesPage() {
   return (
     <div>
-      <header className="mb-12">
-        <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Resources</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
-          <span className="text-accent drop-shadow-text-glow-accent">Resources</span>
-        </h1>
-        <p className="text-muted text-lg max-w-2xl">
-          The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers, shared assets, and SOP guides are live below; Tools &amp; logins and Brand &amp; guidelines are still draft frames — tell me what belongs and I&apos;ll fill them in.
-        </p>
-      </header>
+      <PageHero
+        eyebrow="Editors Hub · Resources"
+        title="Resources"
+        subtitle="The reference shelf — landers, logins, brand briefs, shared assets, and how-to guides editors reach for during a project. Landers, shared assets, and SOP guides are live below; Tools & logins and Brand & guidelines are still draft frames — tell me what belongs and I'll fill them in."
+      />
 
       {/* Landers — by vertical (mirrors the Discount Landers Notion page) */}
       <section id="landers" className="my-12 scroll-mt-8">

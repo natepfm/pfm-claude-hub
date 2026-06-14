@@ -5,6 +5,7 @@ import {
   verticals,
   type CreativeEntry,
 } from "@/content/creatives";
+import PageHero from "@/components/PageHero";
 
 const BLOCK_GROUPS = ["Scripts & structure", "Images & graphics", "QC"];
 
@@ -29,15 +30,11 @@ function EntryCard({ e }: { e: CreativeEntry }) {
 export default function CreativesPage() {
   return (
     <div>
-      <header className="mb-10">
-        <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Creatives</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
-          Creative <span className="text-accent drop-shadow-text-glow-accent">Library</span>
-        </h1>
-        <p className="text-muted text-lg max-w-2xl">
-          Every creative type PFM produces and every variation we run — each mapped to the skill that builds it. The source of truth lives in the team knowledge base; this page mirrors it.
-        </p>
-      </header>
+      <PageHero
+        eyebrow="Editors Hub · Creatives"
+        title="Creative Library"
+        subtitle="Every creative type PFM produces and every variation we run — each mapped to the skill that builds it. The source of truth lives in the team knowledge base; this page mirrors it."
+      />
 
       {/* Anatomy of a creative */}
       <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 mb-12 overflow-x-auto">

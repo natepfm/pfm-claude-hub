@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PageHero from "@/components/PageHero";
 
 const SOP_URL =
   "https://www.notion.so/powerfoxmedia/EDITOR-ONBOARDING-SOP-15216771e78080d6b609d29a04928a6f";
@@ -156,15 +157,11 @@ const courses = [
 export default function OnboardingPage() {
   return (
     <div>
-      <header className="mb-12">
-        <div className="text-xs uppercase tracking-widest text-accent mb-2">Editors Hub · Onboarding</div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight drop-shadow-text-depth">
-          Welcome to <span className="text-accent drop-shadow-text-glow-accent">Power Fox Media</span>
-        </h1>
-        <p className="text-muted text-lg max-w-2xl">
-          Everything a new editor needs to get up and running — accounts, apps, and the workflow — in one place. Work through it top to bottom on your first day, then keep it bookmarked as a reference.
-        </p>
-      </header>
+      <PageHero
+        eyebrow="Editors Hub · Onboarding"
+        title="Welcome to Power Fox Media"
+        subtitle="Everything a new editor needs to get up and running — accounts, apps, and the workflow — in one place. Work through it top to bottom on your first day, then keep it bookmarked as a reference."
+      />
 
       {/* First-day ribbon — the whole onboarding flow at a glance */}
       <div className="mb-12 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 px-5 py-3 overflow-x-auto">
