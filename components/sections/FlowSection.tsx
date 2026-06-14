@@ -60,66 +60,104 @@ export default function FlowSection() {
     <section id="flow" className="my-16 scroll-mt-8">
       <div className="border-l-4 border-accent pl-4 mb-6">
         <div className="text-xs uppercase tracking-widest text-accent mb-1">The whole flow</div>
-        <h2 className="text-3xl md:text-4xl font-bold drop-shadow-text-depth">From a Notion request to a delivered creative</h2>
-        <p className="text-muted mt-2 max-w-3xl">
-          One pipeline, end to end. A request comes in, gets staged, generates (automatically or by hand), passes QC, gets assembled, and ships. Here&apos;s the whole thing at a glance — each step is broken down below.
+        <h2 className="text-4xl md:text-5xl font-bold drop-shadow-text-depth">From a Notion request to a delivered creative</h2>
+        <p className="text-muted mt-3 max-w-3xl text-lg">
+          This is the whole system, end to end — a request comes in, gets staged, generates (automatically or by hand), passes QC, gets assembled, and ships. Here it is at a glance; every step is broken down below.
         </p>
       </div>
 
-      {/* ── The hero diagram ── */}
-      <div className="my-8 rounded-2xl bg-glass-light backdrop-blur-xl shadow-elev2 ring-1 ring-white/10 px-5 py-6 overflow-x-auto">
+      {/* ── The hero diagram (big, lit panel) ── */}
+      <div
+        className="relative my-10 rounded-2xl ring-1 ring-white/10 shadow-elev2 overflow-x-auto px-5 py-8 md:px-8 md:py-12"
+        style={{ background: "linear-gradient(180deg, #150a24 0%, #0c0713 58%, #0a0a0a 100%)" }}
+      >
+        {/* faint grid wash */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,107,53,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.05) 1px, transparent 1px)",
+            backgroundSize: "42px 42px",
+            WebkitMaskImage: "radial-gradient(ellipse at center, #000 35%, transparent 82%)",
+            maskImage: "radial-gradient(ellipse at center, #000 35%, transparent 82%)",
+          }}
+        />
+
         <svg
-          viewBox="0 0 900 214"
-          className="w-full h-auto block min-w-[780px]"
+          viewBox="0 0 1040 305"
+          className="relative w-full h-auto block min-w-[880px]"
           role="img"
-          aria-label="The full PFM creative pipeline, six stages left to right: 1 Notion request from the VTM, 2 Stage via /stage request, 3 Generate — which forks into AGF (automated, the office mini fires it) or HVG/HIG (manual, you fire it), with the specific skills varying by project, 4 QC and Report with auto-QC then delivered, 5 Assemble in DaVinci, 6 Deliver the final creative."
+          aria-label="The full PFM creative pipeline, six stages left to right connected by a gradient rail: 1 Notion request from the VTM, 2 Stage via /stage request, 3 Generate — the hub — which forks into AGF (automated, the office mini fires it) or HVG/HIG (manual, you fire it), with the specific skills varying by project, 4 QC and Report with auto-QC then delivered, 5 Assemble in DaVinci, 6 Deliver the final creative."
           style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
         >
           <defs>
-            <marker id="flowA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            <marker id="flowA" markerWidth="8" markerHeight="8" refX="5.5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
             <linearGradient id="hubGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#3a1f15" />
-              <stop offset="1" stopColor="#1a1210" />
+              <stop offset="0" stopColor="#41241a" />
+              <stop offset="1" stopColor="#180f0c" />
             </linearGradient>
+            <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#18181c" />
+              <stop offset="1" stopColor="#0e0e11" />
+            </linearGradient>
+            <linearGradient id="railGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#FF6B35" />
+              <stop offset="0.45" stopColor="#FF2E7E" />
+              <stop offset="0.72" stopColor="#B14DFF" />
+              <stop offset="1" stopColor="#34D399" />
+            </linearGradient>
+            <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="20" /></filter>
           </defs>
 
-          {/* spine arrows */}
+          {/* gradient journey rail behind the nodes */}
+          <line x1="28" y1="102" x2="1012" y2="102" stroke="url(#railGrad)" strokeWidth="3" opacity="0.5" strokeLinecap="round" />
+
+          {/* glow behind the Generate hub */}
+          <ellipse cx="436" cy="102" rx="120" ry="74" fill="#FF6B35" opacity="0.15" filter="url(#soft)" />
+
+          {/* directional arrows in the gaps */}
           {[0, 1, 2, 3, 4].map((i) => (
-            <line key={i} x1={140 + i * 148} y1={57} x2={160 + i * 148} y2={57} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#flowA)" />
+            <line key={i} x1={166 + i * 174} y1={102} x2={184 + i * 174} y2={102} stroke="#FF6B35" strokeWidth={2.5} markerEnd="url(#flowA)" />
           ))}
 
           {/* spine nodes */}
           {stages.map((s, i) => {
-            const nx = 12 + i * 148;
-            const cx = nx + 64;
+            const nx = 12 + i * 174;
+            const cx = nx + 76;
             const isHub = s.n === 3;
             const isDeliver = s.n === 6;
             return (
               <g key={s.n}>
-                <rect x={nx} y={18} width={128} height={78} rx={12} fill={isHub ? "url(#hubGrad)" : "#141414"} stroke={isHub ? "#FF6B35" : isDeliver ? "#34D399" : "#2a2a2a"} strokeWidth={isHub || isDeliver ? 2 : 1.5} />
-                <circle cx={nx + 16} cy={34} r={11} fill="#FF6B35" />
-                <text x={nx + 16} y={38} fill="#0a0a0a" fontSize={11} fontWeight="bold" textAnchor="middle">{s.n}</text>
-                <text x={cx} y={42} fontSize={16} textAnchor="middle">{s.icon}</text>
-                <text x={cx} y={64} fill={isDeliver ? "#34D399" : "#fafafa"} fontSize={12} fontWeight={700} textAnchor="middle">{s.title}</text>
-                <text x={cx} y={79} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">{s.spineSub}</text>
+                <rect
+                  x={nx} y={44} width={152} height={116} rx={14}
+                  fill={isHub ? "url(#hubGrad)" : "url(#cardGrad)"}
+                  stroke={isHub ? "#FF6B35" : isDeliver ? "#34D399" : "#2a2a2a"}
+                  strokeWidth={isHub ? 2.5 : isDeliver ? 2 : 1.5}
+                />
+                <circle cx={nx + 26} cy={70} r={16} fill={isDeliver ? "#34D399" : "#FF6B35"} />
+                <text x={nx + 26} y={75} fill="#0a0a0a" fontSize={15} fontWeight="bold" textAnchor="middle">{s.n}</text>
+                <text x={cx} y={107} fontSize={34} textAnchor="middle">{s.icon}</text>
+                <text x={cx} y={136} fill={isDeliver ? "#34D399" : "#fafafa"} fontSize={16} fontWeight={700} textAnchor="middle">{s.title}</text>
+                <text x={cx} y={153} fill="#a1a1a1" fontSize={10.5} textAnchor="middle">{s.spineSub}</text>
               </g>
             );
           })}
 
-          {/* generate fork (under stage 3, cx=372) */}
-          <line x1={372} y1={96} x2={372} y2={116} stroke="#FF6B35" strokeWidth={2} />
-          <line x1={372} y1={116} x2={281} y2={128} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#flowA)" />
-          <line x1={372} y1={116} x2={457} y2={128} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#flowA)" />
+          {/* Generate fork (under hub, cx=436) */}
+          <line x1={436} y1={160} x2={436} y2={186} stroke="#FF6B35" strokeWidth={2.5} />
+          <line x1={436} y1={186} x2={328} y2={202} stroke="#FF6B35" strokeWidth={2.5} markerEnd="url(#flowA)" />
+          <line x1={436} y1={186} x2={534} y2={202} stroke="#FF6B35" strokeWidth={2.5} markerEnd="url(#flowA)" />
 
-          <rect x={206} y={130} width={150} height={50} rx={10} fill="#141414" stroke="#FF6B35" strokeWidth={1.5} />
-          <text x={281} y={152} fill="#FF6B35" fontSize={11.5} fontWeight="bold" textAnchor="middle">AGF · automated</text>
-          <text x={281} y={167} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">the office mini fires it</text>
+          <rect x={238} y={204} width={180} height={60} rx={12} fill="url(#cardGrad)" stroke="#FF6B35" strokeWidth={1.5} />
+          <text x={328} y={230} fill="#FF6B35" fontSize={13.5} fontWeight="bold" textAnchor="middle">AGF · automated</text>
+          <text x={328} y={249} fill="#a1a1a1" fontSize={10} textAnchor="middle">the office mini fires it</text>
 
-          <rect x={372} y={130} width={170} height={50} rx={10} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-          <text x={457} y={152} fill="#fafafa" fontSize={11.5} fontWeight="bold" textAnchor="middle">HVG / HIG · manual</text>
-          <text x={457} y={167} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">you fire it in your session</text>
+          <rect x={434} y={204} width={204} height={60} rx={12} fill="url(#cardGrad)" stroke="#2a2a2a" strokeWidth={1.5} />
+          <text x={536} y={230} fill="#fafafa" fontSize={13.5} fontWeight="bold" textAnchor="middle">HVG / HIG · manual</text>
+          <text x={536} y={249} fill="#a1a1a1" fontSize={10} textAnchor="middle">you fire it in your session</text>
 
-          <text x={374} y={202} fill="#a1a1a1" fontSize={9} textAnchor="middle">Which gen skills run depends on the project — story ad · VSL · Pixar · breaking news · podcast · UGC · call graphics</text>
+          <text x={520} y={291} fill="#8a8a8a" fontSize={11} textAnchor="middle">Which gen skills run depends on the project — story ad · VSL · Pixar · breaking news · podcast · UGC · call graphics</text>
         </svg>
       </div>
 
