@@ -6,6 +6,18 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-13
+
+### New skill — `veo-voice-swap` (fix Max the Dog's voice through ElevenLabs)
+
+Run **Update my skills** to get it.
+
+Veo nails Max the Dog's Pixar animation and demeanor but his **voice** never comes out right. The house fix has always been to re-voice his clips through ElevenLabs — now it's one step. `veo-voice-swap` takes Max's finished clips and re-voices every talking line through our locked **"Max the DOG"** voice using speech-to-speech, which keeps the original timing and cadence so his mouth still matches (lip-sync holds — no drift).
+
+Point it at your Veo folder after the Max clips download. It re-voices only Max's talking clips, drops the new versions in a `VoiceSwapped/` subfolder (your Veo originals stay untouched), and flags any clip whose timing slipped so you can re-run just that one. Use the `VoiceSwapped/` versions in your edit. Works for any character with an ElevenLabs voice, but Max is the locked case — **every** Max creative gets the swap.
+
+**Say:** "swap Max's voice", "run the Max clips through ElevenLabs", "re-voice these", "fix the voice on these clips".
+
 ## 2026-06-11
 
 ### New skill — `veo-life` (bring stills to life)
