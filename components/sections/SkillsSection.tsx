@@ -9,6 +9,9 @@ const categoryLabels: Record<string, string> = {
   utility: "Utility",
 };
 
+// Display order for the expanded catalog (generation first, utility last).
+const categoryOrder = ["gen-manual", "gen-auto", "writing", "image", "video", "utility"];
+
 export default function SkillsSection() {
   const byCategory = skills.reduce((acc, s) => {
     (acc[s.category] ??= []).push(s);
@@ -89,51 +92,50 @@ export default function SkillsSection() {
         </div>
       </div>
 
-      <div className="space-y-3 my-8">
-        {Object.entries(byCategory).map(([cat, group]) => (
-          <details
-            key={cat}
-            className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden group"
-          >
-            <summary className="cursor-pointer select-none px-5 py-4 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors marker:content-['']">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <h3 className="text-xl font-bold text-accent drop-shadow-text-depth">{categoryLabels[cat] ?? cat}</h3>
-                <span className="text-xs font-mono text-muted">{group.length} {group.length === 1 ? "skill" : "skills"}</span>
-              </div>
-              <span className="text-accent text-xl shrink-0 transition-transform group-open:rotate-90 leading-none">▸</span>
-            </summary>
-            <div className="px-5 pb-5 pt-2 space-y-3 border-t border-white/[0.08]">
-              {group.map((s) => (
-                <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200">
-                  <div className="flex items-center justify-between gap-4 mb-1 flex-wrap">
-                    <div>
-                      <div className="text-lg font-semibold">{s.title}</div>
-                      <div className="text-xs font-mono text-muted">{s.name}</div>
-                    </div>
-                    <div className="flex gap-1.5 flex-wrap items-center">
-                      {s.worksIn.includes("code") && (
-                        <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg">Code</span>
-                      )}
-                      {s.worksIn.includes("cowork") && (
-                        <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted mt-2 leading-relaxed">{s.description}</p>
-                  <div className="mt-3">
-                    <a
-                      href={`/skills/${s.name}/SKILL.md`}
-                      download
-                      className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-accent transition-colors"
-                    >
-                      ⬇ Download SKILL.md
-                    </a>
-                  </div>
+      <div className="my-8 space-y-10">
+        {categoryOrder
+          .filter((cat) => byCategory[cat]?.length)
+          .map((cat) => {
+            const group = byCategory[cat];
+            return (
+              <div key={cat}>
+                <div className="flex items-baseline gap-3 flex-wrap mb-4 pb-2 border-b border-white/[0.08]">
+                  <h3 className="text-xl font-bold text-accent drop-shadow-text-depth">{categoryLabels[cat] ?? cat}</h3>
+                  <span className="text-xs font-mono text-muted">{group.length} {group.length === 1 ? "skill" : "skills"}</span>
                 </div>
-              ))}
-            </div>
-          </details>
-        ))}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {group.map((s) => (
+                    <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:ring-border transition-all duration-200 flex flex-col">
+                      <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                        <div>
+                          <div className="text-lg font-semibold">{s.title}</div>
+                          <div className="text-xs font-mono text-muted">{s.name}</div>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap items-center">
+                          {s.worksIn.includes("code") && (
+                            <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-bg">Code</span>
+                          )}
+                          {s.worksIn.includes("cowork") && (
+                            <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{s.description}</p>
+                      <div className="mt-3">
+                        <a
+                          href={`/skills/${s.name}/SKILL.md`}
+                          download
+                          className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-accent transition-colors"
+                        >
+                          ⬇ Download SKILL.md
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
       </div>
 
       <div className="my-8 rounded-lg p-6 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
