@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import CopyBlock from "@/components/CopyBlock";
-import Overview from "@/components/sections/Overview";
 import FlowSection from "@/components/sections/FlowSection";
 import SystemDiagram from "@/components/sections/SystemDiagram";
 import SetupMac from "@/components/sections/SetupMac";
@@ -139,7 +138,6 @@ export default function ClaudePage() {
       </section>
 
       {/* Full sections */}
-      <Overview />
       <SystemDiagram />
       <details id="setup-mac" className="my-12 rounded-xl bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 overflow-hidden group scroll-mt-8">
         <summary className="flex items-center justify-between gap-4 cursor-pointer list-none p-6 hover:bg-surface/40 transition-colors">

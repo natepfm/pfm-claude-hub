@@ -20,7 +20,6 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
   ],
   "/claude": [
     { href: "#update", label: "Update my skills" },
-    { href: "#overview", label: "How to use" },
     { href: "#how-it-works", label: "How it works" },
     { href: "#setup-mac", label: "Setup · Mac" },
     { href: "#setup-windows", label: "Setup · Windows" },
