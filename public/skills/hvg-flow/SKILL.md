@@ -5,6 +5,15 @@ description: 🔴 MANDATORY for ALL video gens in any PFM project folder — inc
 
 # HVG Flow (PFM Video Generation)
 
+## 🔘 Fire gate = clickable card (locked 2026-06-11)
+
+Present every **Fire?** confirmation via the **AskUserQuestion tool** — header `Fire?`, question "Preflight above — fire this batch?", options: **🔥 Fire** ("fire exactly as preflighted") and **Hold** ("don't fire — I'll say what to change"). Clicking 🔥 Fire IS the explicit fire confirmation (Hard Rule 3); a typed `fire` in chat also counts. This is the ONE sanctioned AskUserQuestion use in PFM flows — every other multi-choice stays plain markdown per the editor's standing preference.
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
+
 End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HVG.1 webapp + manifest dance: editor drops a Notion request URL inside a project folder, Claude runs setup silently and stops at up to two confirmations (reference assignment when ambiguous, then a consolidated preflight), fires the CLI batch, downloads clips, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
 
 **Architecture:** Notion MCP for request fetch → Higgsfield **CLI** (`higgsfield generate create nano_banana_2`) for any missing reference image creation → Higgsfield **CLI** (`higgsfield generate create veo3_1_fast`) for video generation → xlsx skill for the audit manifest. **CLI for ALL gens — never the MCP `generate_image` / `generate_video` tools** (MCP is read-only inspection only — `balance`, `transactions`, `models_explore`, `select_workspace`). See `feedback_higgsfield_workflow.md`.
@@ -55,7 +64,7 @@ The editor already gave you the URL once. Re-asking treats them like they're sta
 
 **Speed expectation:** <90 seconds from trigger to the preflight on a clean project (refs in place, default model) — the old per-gate round-trips are now silent.
 
-**UI style — NEVER use the `AskUserQuestion` tool.** The confirmation stops (reference assignment, preflight) are plain markdown chat — the editor types "Mode B" / "fire" / etc. Interactive cards break the editor's flow (small target, no context, mobile-unfriendly) and Sam doesn't want them.
+**UI style — plain markdown for every question EXCEPT the Fire? gate.** The reference-assignment stop and all other multi-choice are plain markdown chat — the editor types "Mode B" / etc. Interactive cards break the editor's flow (small target, no context, mobile-unfriendly) and Sam doesn't want them. **ONE exception (locked 2026-06-11): the preflight's Fire? confirmation uses an AskUserQuestion card** (🔥 Fire / Hold) so the editor clicks instead of typing — see the Fire gate section above.
 
 ---
 
@@ -873,7 +882,7 @@ After QC (or once it's declined), offer to post the delivery comment to the Noti
 
 ### Final report
 
-Then summarize for the editor — and **always close with the two-link handoff** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
+Then summarize for the editor — and **always close with the Lucid handoff (📁 Path + 🔗 Open — plus a 3rd 📲 Tappable line whenever you show a representative clip inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
 
 > ✅ X clips delivered to `Elements/Footage/Veo/`
 > ❌ Y prompts had failures: <list slugs + reasons>
@@ -896,6 +905,36 @@ If audio QC ran, also list flagged-clip hotspots (per-L-number concentrations) �
 
 ---
 
+## Optional — promote any clip's prompt to the central Prompts Library
+
+After the final report, the editor can choose to promote any of this batch's prompts to PFM's central `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` — for clips where the prompt nailed a recurring character (voice lock, performance rules, cinemagraph behavior, etc.) and should become a reusable template for future projects.
+
+**This step is OPTIONAL** — unlike `pfm-character-master`'s mandatory save offer, hvg-flow runs are usually large per-clip batches where most prompts stay project-local. Surface the option ONCE at the tail of the report; do not pester the editor across the batch and do not re-offer on refires.
+
+**Note:** the delivered Veo CLIPS themselves are not reference material — they're project-bound deliverables. The PROMPTS are the durable templates. Only the prompt promotion is offered here (no image-side promotion in hvg-flow — that lives in `hig-flow`).
+
+**Tail-of-report wording — paste after the two-link handoff:**
+
+> 💾 Want to promote any clip's prompt to the central Prompts Library?
+>   - **Prompt(s)** → `Prompts Library/<Role / Scene Type> - <Character>.md` (e.g. an L02 Steve cinemagraph or L06 Tony couch interview that nailed a recurring character and whose voice lock + scene rules should become a reusable template)
+>
+> Reply with the L-numbers (e.g. `promote L02, L24`) or `skip`.
+
+**On editor reply with L-numbers:**
+- For each clip, the prompt body that was fired (from the master prompt JSON in `Elements/Prompts/`) gets copied into a new `Prompts Library/<Role / Scene Type> - <Character>.md` entry mirroring existing entries' shape (metadata table → voice profile → when-to-use → how-to-use → filter notes if applicable → working JSON example → variants → provenance citing this project → pair-with). If the entry already exists for that character, the new clip is added to the entry's provenance + an alt-variant block, NOT a new file (no duplicate entries per character).
+- Update the Prompts Library `README.md` index table with the new row (or do nothing if the entry already existed).
+- Two-link Lucid handoff (Path + Open) for each new or updated entry.
+
+**On `skip`:** acknowledge ("Skipped central library promotion.") and move on. Don't re-prompt.
+
+**Hard constraints:**
+- Surface ONCE at the end of the report. NEVER mid-batch.
+- NEVER auto-promote without explicit L-numbers from the editor.
+- Two-link Lucid handoff applies to the new central-folder destinations too.
+- One entry per character — duplicate promotions roll into the existing file's provenance, not new files.
+
+---
+
 ## What NOT to do
 
 - **Don't use the Higgsfield MCP** `mcp__*generate_video` tool — it filters out the params we need (`input_image`, `mode: input_images`, `generate_audio`). CLI exclusively for video.
@@ -915,3 +954,4 @@ If audio QC ran, also list flagged-clip hotspots (per-L-number concentrations) �
 - `nano-banana-prompting` — for camera-roll b-roll prompt craft (separate workflow)
 - Memory: `feedback_pfm_brand_clean_rules.md`, `feedback_pfm_character_master_format.md`, `feedback_higgsfield_workflow.md`, `feedback_veo_audio.md`, `feedback_hvg1_master_prompt_format.md`
 - Workflow context: `project_pfm_podcast_story_workflow.md`
+- **Central libraries (optional promotion target — see the "Optional — promote any clip's prompt to the central Prompts Library" section above):** `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` (per-character prompt template library). Veo clips themselves are project-bound; only prompts promote.

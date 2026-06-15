@@ -5,6 +5,11 @@ description: Generate scale-anchored PFM character master images for ANY charact
 
 # PFM Character Master — Scale-Anchored Reference Sheets
 
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
+
 This skill produces PFM's locked character-master format for any character in a PFM creative — human, animal, animated, or mascot. One image, 5 angles, scale-anchored against a 5'10" human silhouette (or alternative anchor when the character itself IS human and the comparison silhouette plays a different role).
 
 The scale anchor is the load-bearing part. Without it, NB Pro improvises character size and renders dogs at human-scale (anthropomorphic actors), or children at adult-height, or "tall guy" characters at the same height as everyone else. The silhouette gives the model an explicit "this is how tall the character is relative to a standard 5'10" adult" reference, and downstream b-roll prompts that include this master as an `--image` reference inherit the scale lock.
@@ -189,6 +194,16 @@ Pass these as `--image` flags:
 
 For the very first character master in a brand new project with no prior PFM masters to anchor to, pass a single representative PFM hero frame from any prior project as the style ref.
 
+## Cowork mode — spec + prompt only, NEVER fire (Dima / any session without the Higgsfield CLI)
+
+Check first: if `which higgsfield` doesn't resolve (Claude Cowork sessions don't have the CLI), this session CANNOT fire. **Do NOT fall back to the Higgsfield MCP connector — MCP firing is forbidden, period** (hard PFM rule; MCP is read-only inspection only). Instead, the deliverable becomes the **fire-ready package**:
+
+1. Walk Steps 1–4 with the user exactly as normal and build the complete filled prompt from the template.
+2. Name the two reference images the fire needs (art-style ref + scale ref) with their exact Lucid paths — pick real existing files (check the central Character Library / the project's Reference folder); never invent filenames.
+3. **Write the package into the project** (Lucid access permitting): `Elements/Prompts/<Character>_master_prompt.md` containing the full prompt, both ref paths, the target output path + filename convention, and the one-line CLI fire command from the section below with everything filled in.
+4. Tell the user: any editor machine (or Sam's) fires this in ~2 minutes — and if this character was blocking a `/stage request` gap, re-run the stage once the master PNG lands and the gap clears.
+5. If the session has no Lucid access either: deliver the package in chat and note it on the Notion request's gap note instead.
+
 ## The CLI fire
 
 Single fire, NB Pro, 16:9, 1k. Output to `Elements/Footage/Reference/<Character> Master/`.
@@ -235,8 +250,44 @@ When in doubt, pick A. The individual masters already do the job; the family cha
 After a successful fire, EVERY mention of the output destination MUST show both:
 - **📁 Path:** raw `/Volumes/ads/…` path in backticks
 - **🔗 Open:** clickable LinkYourFile link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute path>"`
+- **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 
 This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Output: Elements/...` line is a violation.
+
+## 🔴 ALWAYS offer to save to the central libraries (every fire)
+
+**This is a HARD RULE — no skipping.** After the project-local save + Lucid handoff is reported, the LAST thing this skill does — before yielding back to the editor — is offer to also save the master + its prompt to PFM's central libraries. These are the team-wide source of truth so the next editor who needs this character (or a variant of them) doesn't re-derive the spec from scratch.
+
+**Central library locations:**
+- **Master image** → `/Volumes/ads/PFM MEDIA MASTER FOLDER/1. PFM Media Assets/AI Generation Assets - PFM/Character Library/<Character>/<Character> - Master.png`
+  - Per-character subfolder (Option B structure). Wife / family / guest variants of the same character go into the same folder (`<Character>/Wife - Master.png`, `<Character>/Guest Characters/<Guest>.png`)
+  - Strip the source hash + version suffix on copy: `Hero_Wife_Model_Sheet_v01_a4b2.png` → `Hero Wife - Master.png`
+  - If `<Character> - Master.png` already exists in the central folder, save as `<Character> - Master v02.png` (NEVER overwrite — same rule as the project-local v<NN> increment)
+- **Prompt entry** → `/Volumes/ads/PFM MEDIA MASTER FOLDER/1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/Character Master - <Character>.md`
+  - Mirror the structure of existing Prompts Library entries (`Field TV Anchor - Rachel Torres.md`, `Studio Anchor - Steve.md`): metadata table → visual spec (the 6 inputs the editor confirmed in Step 4) → working filled-in prompt (the exact body fired) → CLI fire snippet (the exact higgsfield command + ref UUIDs used) → provenance (the source project)
+  - Update the Prompts Library README index table with the new row
+  - If `Character Master - <Character>.md` already exists, save as `Character Master - <Character> v2.md` (no overwrites)
+
+**The offer format — paste this verbatim after the Lucid handoff, then STOP for the editor's reply:**
+
+> 💾 Also save to PFM central libraries?
+>   - **Image** → `Character Library/<Character>/`
+>   - **Prompt** → `Prompts Library/Character Master - <Character>.md`
+>
+> Reply `save both`, `image only`, `prompt only`, or `skip`.
+
+**On editor reply:**
+- `save both` — execute both copies, then report the two-link handoff for each new central-folder location
+- `image only` — execute the image copy, report its two-link handoff, skip the prompt
+- `prompt only` — write the prompt entry, update the README index, report the two-link handoff for the new .md
+- `skip` — acknowledge ("Skipped central libraries.") and move on
+
+**Hard constraints on this step:**
+- The offer is ALWAYS shown — even on re-fires, even on v02s, even when the editor said "skip" earlier in the session. New fire = new offer.
+- NEVER auto-save without the editor's explicit reply. This is an offer, not a default.
+- NEVER offer mid-process. Only at the end, after the fire is fully reported.
+- NEVER skip showing the offer because "the central library already has this character" — surface it ("⚠️ central library already has `<Character> - Master.png` — saving will create `v02`") and still let the editor decide.
+- The two-link Lucid handoff rule applies to the new central-folder destinations too (Path + Open link both required).
 
 ## What NOT to do
 
@@ -258,3 +309,6 @@ This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Outp
 - `nano-banana-prompting` — full Nano Banana prompt-craft reference
 - Memory: `feedback_higgsfield_workflow.md`, `feedback_higgsfield_cli_concurrency_race.md`, `feedback_pfm_character_master_format.md`, `feedback-two-link-lucid-handoff.md`
 - Reference examples in any PFM project: `Elements/Footage/Reference/Max Master/Max_Model_Sheet_*.png`, `Elements/Footage/Reference/Family Scale Reference/Family_Scale_Reference_*.png`
+- **Central libraries (offer to save here every fire — see the 🔴 ALWAYS offer section above):**
+  - `1. PFM Media Assets/AI Generation Assets - PFM/Character Library/` — per-character master image library (Option B: subfolder per character, wife + family + guest variants nested inside)
+  - `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` — per-character prompt template library (mirrors `Field TV Anchor - Rachel Torres.md` shape; index in the folder's `README.md`)

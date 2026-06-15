@@ -1,6 +1,6 @@
 ---
 name: higgsfield-image-generation
-description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfield generate create`) for one-off image work — single shots, ad-hoc variations, prompt tests. **No gated batch flow, no Excel manifest.** Fire generations, parse result URLs, download into the editor's project folder with PFM filename conventions. CLI-only firing; MCP firing is FORBIDDEN (see `feedback_higgsfield_workflow.md` — MCP is read-only inspection only). Use this skill for one-off variations of an existing character, ad-hoc b-roll for an active project, testing prompts before committing to a full batch, refiring failed shots, or character master tests. Triggers on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation that isn't a coordinated batch. NOT for: full batch image work where the editor wants a manifest + coordinated download + gated workflow — use `hig-flow` instead (the 9-gate flow, which accepts either a Notion request URL OR a direct editor brief). Pair with `nano-banana-prompting` for camera-roll prompt style.
+description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfield generate create`) for one-off image work — single shots, ad-hoc variations, prompt tests. **No gated batch flow, no Excel manifest.** Fire generations, parse result URLs, download into the editor's project folder with PFM filename conventions. CLI-only firing; MCP firing is FORBIDDEN (see `feedback_higgsfield_workflow.md` — MCP is read-only inspection only). Use this skill for one-off variations of an existing character, ad-hoc b-roll for an active project, testing prompts before committing to a full batch, refiring failed shots, or character master tests. Triggers on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation that isn't a coordinated batch. NOT for: full batch image work where the editor wants a manifest + coordinated download + gated workflow — use `hig-flow` instead (the 9-gate flow, which accepts either a Notion request URL OR a direct editor brief). 🔴 ALWAYS load `nano-banana-prompting` for the prompt body — mandatory for every fire including one-offs (locked 2026-06-10); editor explicitly asking for a different style is the only opt-out.
 ---
 
 > ## 🔴 Two-link Lucid handoff — MANDATORY at every download / save / report step
@@ -8,12 +8,18 @@ description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfie
 > Every time this skill saves, downloads, or reports an asset path — a one-off CLI fire, a refire, a variation, a character master test — render BOTH:
 > - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
 > - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
+> - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
 > Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
 
 ---
 
 # Higgsfield Image Generation (CLI-driven, one-off scope)
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
 
 This skill drives the Higgsfield CLI to actually generate images for **one-off work** — single shots, variations, ad-hoc b-roll, prompt tests. For **full Notion-request batches**, hand off to `hig-flow` instead (the 9-gate flow).
 
@@ -49,7 +55,9 @@ Quick rules to self-impose every time:
 
 Full convention list lives in `~/.claude/skills/hig-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
 
-For prompt craft (what to actually write in the prompt body), use the **nano-banana-prompting** skill alongside this one.
+### 🔴 Prompt craft — `nano-banana-prompting` is MANDATORY (locked 2026-06-10)
+
+Every prompt body fired through this skill MUST be written via the **`nano-banana-prompting`** skill — load it and pick the right mode (structured layered / broadcast-news / iPhone camera-roll) before drafting. **This applies to one-offs, quick tests, single refires, and "just one more" — the no-HIG path is NOT a license to freelance prompts.** The only exceptions: (a) the editor explicitly asks for a different prompting style, or (b) the prompt comes from a locked template in another skill (call-graphics designs, VSL slide edit-swaps, pixar builder, character-master format) — those templates ARE the approved prompt.
 
 ## Model lineup (the names are confusing)
 

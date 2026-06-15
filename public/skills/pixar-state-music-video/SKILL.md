@@ -8,12 +8,18 @@ description: PFM's per-state Pixar Best State Music Video asset generator (Auto 
 > Every time this skill saves, downloads, or reports an asset path — character master, scene frames, intermediate refires, final report — render BOTH:
 > - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
 > - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
+> - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
 > Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
 
 ---
 
 # Pixar State Music Video (Auto + Home)
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
 
 A 9:16 vertical music-video ad: a **3D Pixar anthropomorphic state-outline character** (e.g. forest-green Oregon in a navy "OREGON" cap) sings a state jingle ("Oregon is the BEST!") over **12 cut-to-the-beat b-roll scenes**. ~1 video per state. Part of the "Pixar Hank Universe." Two verticals share the SAME visuals — only the lyrics/reveal differ:
 - **Auto** → "$39 a month" reveal, keeps "Zero DUIs in 5 years"

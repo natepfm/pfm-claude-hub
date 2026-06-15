@@ -5,6 +5,15 @@ description: 🔴 MANDATORY for ALL image gens in any PFM project folder — inc
 
 # HIG Flow (PFM Image Generation)
 
+## 🔘 Fire gate = clickable card (locked 2026-06-11)
+
+Present every **Fire?** confirmation via the **AskUserQuestion tool** — header `Fire?`, question "Preflight above — fire this batch?", options: **🔥 Fire** ("fire exactly as preflighted") and **Hold** ("don't fire — I'll say what to change"). Clicking 🔥 Fire IS the explicit fire confirmation (Hard Rule 3); a typed `fire` in chat also counts. This is the ONE sanctioned AskUserQuestion use in PFM flows — every other multi-choice stays plain markdown per the editor's standing preference.
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
+
 End-to-end Higgsfield image generation pipeline for PFM editors. Image counterpart to `hvg-flow`. Editor drops a Notion request (or describes the brief inline) + project folder, Claude runs setup silently and stops at up to two confirmations (character-reference assignment when ambiguous, then a consolidated preflight that doubles as shot-list sign-off), fires the CLI batch, downloads images, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
 
 **Architecture:** Notion MCP for request fetch → `nano-banana-prompting` skill for default prompt style → Higgsfield CLI (`higgsfield generate create nano_banana_2`) for image generation → Excel manifest via sibling helper.
@@ -36,7 +45,7 @@ Same model as `hvg-flow`. On a trigger (URL drop / folder ref / "fire the b-roll
 
 **Silent ≠ off-script.** Run the defined steps in order; don't invent steps or fire outside the flow; don't skip the preflight. Mid-session: never re-ask for the URL / project folder if they're already in context.
 
-**UI style — NEVER use the `AskUserQuestion` tool.** The two confirmations are plain markdown chat — the editor types "1k" / "fire" / "drop shot 3, add a bill close-up" / etc. Interactive cards break the editor's flow and Sam doesn't want them.
+**UI style — plain markdown for every question EXCEPT the Fire? gate.** Multi-choice questions render as plain markdown chat — the editor types "1k" / "drop shot 3, add a bill close-up" / etc. Interactive cards break the editor's flow and Sam doesn't want them. **ONE exception (locked 2026-06-11): the Fire? confirmation uses an AskUserQuestion card** (🔥 Fire / Hold) so the editor clicks instead of typing — see the Fire gate section above.
 
 ---
 
@@ -394,7 +403,7 @@ Parse each result JSON for the image URL(s), download in parallel via `urllib.re
 
 Then rewrite the Excel manifest using the same helper + same config schema, with refreshed status / v01 / v02 / notes per shot.
 
-Final report — **always close with the two-link handoff** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
+Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open — plus a 3rd 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
 
 > ✅ **X images delivered** to `Elements/Footage/Primary/B-Roll Photos/`
 > ❌ Y shots had failures: <list shotIds + reasons>
@@ -405,6 +414,33 @@ Final report — **always close with the two-link handoff** (standing rule, `fee
 > 🔗 Open: [B-Roll Photos ↗](https://linkyourfile.com/link?p=…)
 
 If any shot looks off in review, editor can re-fire individual shots via the `higgsfield-image-generation` skill (CLI-driven) or by re-running this skill with a scoped-down shot list.
+
+## Optional — promote anything to the central PFM libraries
+
+After the final report, the editor can choose to promote any of this batch's images or prompts to PFM's central libraries — `1. PFM Media Assets/AI Generation Assets - PFM/Character Library/` (for keeper character or scene refs other projects will reuse) and `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` (for prompts that nailed a tricky character or scene type and deserve to become a reusable template).
+
+**This step is OPTIONAL** — unlike `pfm-character-master`'s mandatory save offer, hig-flow runs are usually large per-shot batches where most images stay project-local. Surface the option ONCE at the tail of the report; do not pester the editor across the batch and do not re-offer on refires.
+
+**Tail-of-report wording — paste after the two-link handoff:**
+
+> 💾 Want to promote any shot to PFM central libraries?
+>   - **Image(s)** → `Character Library/<Character>/` (e.g. a clean character-on-grey or canonical scene that other projects will reuse)
+>   - **Prompt(s)** → `Prompts Library/<Role / Scene Type> - <Character>.md` (e.g. a shot's prompt that nailed a tricky character or scene type and should become a reusable template)
+>
+> Reply with the shot IDs (e.g. `promote L17, g05`) or `skip`.
+
+**On editor reply with shot IDs:**
+- For each shot, ask which target(s) — `image`, `prompt`, or `both`
+- **Image promotion** → copy the delivered PNG into the per-character subfolder under `Character Library/` (Option B structure: per-character folder, wife/family/guest variants nested inside). Strip the source hash + version suffix on copy (`sma_houston_L17_v01.png` → `<Character> - Master.png` or a descriptive shot name). No overwrites — `v02` if a same-named file exists.
+- **Prompt promotion** → write a new `Prompts Library/<Role / Scene Type> - <Character>.md` entry mirroring existing entries' shape (metadata table → visual spec → working JSON prompt body → CLI fire snippet → provenance citing this project). Update the Prompts Library `README.md` index table with the new row.
+- Two-link Lucid handoff (Path + Open) for each new central-folder destination.
+
+**On `skip`:** acknowledge ("Skipped central libraries.") and move on. Don't re-prompt.
+
+**Hard constraints:**
+- Surface ONCE at the end of the report. NEVER mid-batch.
+- NEVER auto-promote without explicit shot IDs from the editor.
+- Two-link Lucid handoff applies to the new central-folder destinations too.
 
 ---
 
@@ -464,3 +500,4 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 - `higgsfield-product-photoshoot` — for studio / product compositions (different skill if editor requests)
 - Memory: `feedback_pfm_brand_clean_rules.md`, `feedback_pfm_character_master_format.md`, `feedback_higgsfield_workflow.md`, `feedback_shirt_rotation_pattern.md`, `feedback_selfie_arm_framing.md`, `feedback_social_proof_selfie_variety.md`, `feedback_folded_bill_aging_cue.md`, `feedback_image_review_context_budget.md`, `feedback_character_placement_one_ref_wins.md`
 - Reference workflow: `STORY-AD-IMAGE-WORKFLOW.md` (Phase 1 foundational asset workflow)
+- **Central libraries (optional promotion target — see the "Optional — promote anything to the central PFM libraries" section above):** `1. PFM Media Assets/AI Generation Assets - PFM/Character Library/` (per-character image library) and `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` (per-character prompt template library)
