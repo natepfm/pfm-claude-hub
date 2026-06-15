@@ -28,49 +28,6 @@ export default function SkillsSection() {
         </p>
       </div>
 
-      {/* Two surfaces — Claude Code vs Cowork */}
-      <div className="my-8 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
-        <svg
-          viewBox="0 0 470 360"
-          className="w-full h-auto block"
-          role="img"
-          aria-label="PFM skills split across two surfaces. Claude Code on the editor's Mac runs every skill — pipeline, gen, QC, writing — but needs the local stack (Higgsfield CLI, Lucid Link, Python); it is the only place gens fire. Cowork is hosted chat that runs the six chat-mode writing skills (veo-script, breaking-news, nano-banana, story-beats, lc-to-video, suno), needs nothing to run, but has no gens and no terminal. The six writing skills run in both; pipeline, gen, and QC are Code-only."
-          style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
-        >
-          <defs>
-            <marker id="skA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
-            <marker id="skM" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#a1a1a1" /></marker>
-          </defs>
-          <rect x={175} y={14} width={120} height={40} rx={8} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-          <text x={235} y={39} fill="#fafafa" fontSize={13} fontWeight="bold" textAnchor="middle">PFM skills</text>
-          <line x1={212} y1={54} x2={118} y2={102} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#skA)" />
-          <text x={150} y={82} fill="#FF6B35" fontSize={10} fontWeight="bold" textAnchor="middle">runs all</text>
-          <line x1={258} y1={54} x2={352} y2={102} stroke="#a1a1a1" strokeWidth={1.5} strokeDasharray="5 4" markerEnd="url(#skM)" />
-          <text x={324} y={82} fill="#a1a1a1" fontSize={10} textAnchor="middle">chat subset</text>
-          <rect x={14} y={106} width={210} height={214} rx={12} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
-          <text x={32} y={134} fill="#fafafa" fontSize={15} fontWeight="bold">Claude Code</text>
-          <text x={32} y={152} fill="#FF6B35" fontSize={10.5}>editor&apos;s Mac</text>
-          <line x1={32} y1={164} x2={206} y2={164} stroke="#FF6B35" strokeWidth={1} opacity={0.4} />
-          <text x={32} y={190} fill="#e8e8e8" fontSize={11.5} fontWeight={600}>Runs every skill</text>
-          <text x={32} y={208} fill="#cfcfcf" fontSize={10}>gen (auto + manual) · QC · writing</text>
-          <text x={32} y={240} fill="#a1a1a1" fontSize={10.5}>Needs the local stack:</text>
-          <text x={32} y={256} fill="#a1a1a1" fontSize={10}>Higgsfield CLI · Lucid</text>
-          <text x={32} y={270} fill="#a1a1a1" fontSize={10}>Link · Python</text>
-          <text x={32} y={302} fill="#34D399" fontSize={11} fontWeight="bold">✓ the only place gens fire</text>
-          <rect x={246} y={106} width={210} height={214} rx={12} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-          <text x={264} y={134} fill="#fafafa" fontSize={15} fontWeight="bold">Cowork</text>
-          <text x={264} y={152} fill="#a1a1a1" fontSize={10.5}>hosted chat</text>
-          <line x1={264} y1={164} x2={438} y2={164} stroke="#2a2a2a" strokeWidth={1} />
-          <text x={264} y={190} fill="#e8e8e8" fontSize={11.5} fontWeight={600}>The 6 chat-mode skills</text>
-          <text x={264} y={212} fill="#a1a1a1" fontSize={9} fontFamily="monospace">veo-script · breaking-news</text>
-          <text x={264} y={228} fill="#a1a1a1" fontSize={9} fontFamily="monospace">nano-banana · story-beats</text>
-          <text x={264} y={244} fill="#a1a1a1" fontSize={9} fontFamily="monospace">lc-to-video · suno</text>
-          <text x={264} y={272} fill="#a1a1a1" fontSize={10.5}>Needs nothing — pure chat</text>
-          <text x={264} y={302} fill="#fafafa" fontSize={11} fontWeight="bold">✗ no gens, no terminal</text>
-          <text x={235} y={346} fill="#a1a1a1" fontSize={10} textAnchor="middle">the 6 writing skills run in both — gen + QC are Code-only</text>
-        </svg>
-      </div>
-
       <div className="my-8 rounded-lg p-6 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="flex-1 min-w-[280px]">
