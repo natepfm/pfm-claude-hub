@@ -36,6 +36,13 @@ export default function SetupMac() {
         <p className="text-sm text-muted">
           Total time: ~10 min of waiting (Homebrew + Xcode CLT downloads), ~2 min of clicking through prompts. Safe to re-run on machines that already have parts installed — it skips what's there.
         </p>
+        <Callout type="warn" title='If it stops on a red "permission denied / EACCES" error'>
+          <p className="mb-2">
+            This happens when Node was installed the official way instead of via Homebrew — its global folder is owned by the system, so the installer can&apos;t write to it. The installer <strong className="text-text">now fixes this for you automatically</strong>: it pauses and asks for your Mac password (as you type, nothing shows on screen — that&apos;s normal), then keeps going.
+          </p>
+          <p className="mb-2">If it still gets stuck, run this once, then paste the installer command above again:</p>
+          <CopyBlock code={`sudo chown -R $(whoami) /usr/local/lib/node_modules /usr/local/bin /usr/local/share`} />
+        </Callout>
       </div>
 
       <div className="my-8">
