@@ -6,6 +6,16 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-06-25
+
+### Skill fix — Veo scripts never break mid-sentence (`veo-script-writing` + `lc-to-video-podcast`)
+
+Run **Update my skills** to get it.
+
+When a script gets chopped by word-count instead of by sentence, every clip starts mid-thought — and since each clip is its own Veo gen with its own TTS, the audio lands on a cold pickup and a false stop. It sounds robotic. Both Veo writing skills now carry a hard, top-line rule: **clip boundaries follow sentences, never the word count.** Every clip starts and ends on a complete sentence (a long one may only split before an *and / but / so / or* where the rest still stands on its own). When sentence integrity and the 17–22-word target collide, integrity wins — a clean short or slightly-long clip beats one that breaks a sentence. It ships with the real before/after that caught it, so the word-count target can't steamroll it again.
+
+**Nothing to say** — it applies automatically whenever Claude writes or rebalances a Veo script.
+
 ## 2026-06-13
 
 ### New skill — `labs-voice-swap` (fix Max the Dog's voice through ElevenLabs)
