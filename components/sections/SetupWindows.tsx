@@ -12,7 +12,7 @@ export default function SetupWindows() {
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">1. Prereqs — manual installs (one-time)</h3>
         <ol className="list-decimal ml-6 space-y-2 text-muted">
-          <li>Install <a href="https://claude.ai/download" className="text-accent hover:text-accentHover underline">Claude Desktop for Windows</a>, sign in with <strong className="text-text">powerfoxlogin@gmail.com</strong>.</li>
+          <li>Install <a href="https://claude.ai/download" className="text-accent hover:text-accentHover underline">Claude Desktop for Windows</a>, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
           <li>Install <a href="https://www.lucidlink.com/download" className="text-accent hover:text-accentHover underline">Lucid Link for Windows</a> + mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong>. It mounts as a drive letter — usually <code>L:</code> (could be <code>M:</code>, <code>N:</code> — check File Explorer).</li>
           <li>
             Install <a href="https://git-scm.com/download/win" className="text-accent hover:text-accentHover underline">Git for Windows</a>. Important options during install:

@@ -56,6 +56,35 @@ export default function ClaudePage() {
         </div>
       </header>
 
+      {/* Account migration banner — time-sensitive; remove once everyone has switched */}
+      <section className="my-8">
+        <div className="rounded-xl bg-glass-accent backdrop-blur-xl p-6 md:p-8 shadow-glow-accent ring-1 ring-accent/50">
+          <div className="flex items-start gap-3">
+            <span className="text-4xl leading-none">⚡</span>
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-text drop-shadow-text-depth">Switch to your own Claude account</h2>
+              <p className="text-muted mt-2 max-w-2xl">
+                We&apos;re retiring the shared login. Move to your own Team seat under your{" "}
+                <strong className="text-text">@powerfoxmedia.com</strong> email — your skills, automations, and files
+                all carry over. It&apos;s just a login swap + reconnecting a couple connectors (~10 min, one time).
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+                <a
+                  href="/PFM-Editor-SOP-Claude-Team-Switch.pdf"
+                  download
+                  className="inline-flex items-center gap-2 rounded-lg bg-accent text-bg font-semibold px-5 py-2.5 hover:bg-accentHover transition-colors shadow-elev1"
+                >
+                  ⬇ Download the switch SOP (PDF)
+                </a>
+                <span className="text-sm text-muted">
+                  Accept your invite → sign out → sign in with your email → reconnect → smoke test.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Hero: Update my skills — the main action editors use day-to-day */}
       <section id="update" className="my-8 scroll-mt-8">
         <div className="rounded-xl bg-glass-accent backdrop-blur-xl p-8 md:p-10 shadow-glow-accent ring-1 ring-accent/40">
