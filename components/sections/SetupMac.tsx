@@ -75,7 +75,7 @@ export default function SetupMac() {
           Canva is used to generate <strong className="text-text">lower-thirds graphics</strong> for breaking-news creatives (chyrons, person IDs, location tags, the LATU News brand stack). PFM uses a <strong className="text-text">single shared Canva account</strong> — Sam will share the login credentials separately.
         </p>
         <p className="text-sm text-muted mb-2">
-          Canva uses an <strong className="text-text">authorization-link flow</strong>, not the Settings → Connectors UI. Connect it from inside a Claude Code session:
+          Canva uses an <strong className="text-text">authorization-link flow</strong>, not the Customize → Connectors UI. Connect it from inside a Claude Code session:
         </p>
         <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
           <li>Open a Claude Code session (any project folder works for the auth step)</li>
