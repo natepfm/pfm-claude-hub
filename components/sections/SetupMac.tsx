@@ -58,6 +58,10 @@ export default function SetupMac() {
           Opens a browser for you to sign in with <strong className="text-text">your own email</strong> (the one Sam invited you with), sets the PowerFox enterprise workspace as your active workspace, and verifies.
         </p>
 
+        <Callout type="warn" title='Video fails with "not_enough_credits" but images still work?'>
+          Your CLI has <strong className="text-text">no billing workspace selected</strong>, so fires fall back to your free <strong className="text-text">private</strong> Higgsfield workspace (a few credits) — images and TTS squeak through, video dies. Re-pin the enterprise pool: re-run the <code>claude-pfm-account-switch.sh</code> command above (or <code>higgsfield workspace set e7479d4c-0d59-4be5-9057-abce9fe30f39</code>), then confirm <code>higgsfield workspace status</code> reads <strong className="text-text">Power Fox Media — enterprise</strong> — not your private one, and not the smaller “PowerFox” team workspace.
+        </Callout>
+
         <h4 className="font-semibold mt-4 mb-2">Connect the Higgsfield MCP in Claude Desktop</h4>
         <p className="text-sm text-muted mb-2">The Higgsfield MCP inside Claude Desktop has its own auth — separate from the CLI.</p>
         <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
