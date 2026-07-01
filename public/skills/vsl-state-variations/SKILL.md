@@ -166,7 +166,7 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
 
 ## Firing engine — use the helper, don't hand-roll
 `fire_veo.py` (ships with this skill) encodes every lesson below. Drive it with a JSON
-manifest of `{out, ref_uuid_key, dialogue}` rows + a `{key: uuid}` ref map. Flags: `--sfw`
+manifest of `{out, ref, dialogue}` rows (`ref` = key into the ref map; the code reads `c["ref"]`, NOT `ref_uuid_key`) + a `{key: uuid}` ref map. Flags: `--sfw`
 (SFW-reinforced master), `--attempts N`, `--workers N`, `--out-dir <Veo/State>`.
 - Higgsfield CLI returns a **JSON array**; result is on `[0]` with key **`result_url`**
   (status `completed`). Parse `json[0]["result_url"]`, NOT the list itself. (This bug threw

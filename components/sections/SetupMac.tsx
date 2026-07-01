@@ -65,8 +65,8 @@ export default function SetupMac() {
         <h4 className="font-semibold mt-4 mb-2">Connect the Higgsfield MCP in Claude Desktop</h4>
         <p className="text-sm text-muted mb-2">The Higgsfield MCP inside Claude Desktop has its own auth — separate from the CLI.</p>
         <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
-          <li>Open <strong className="text-text">Claude Desktop → Settings → Connectors → Higgsfield</strong></li>
-          <li>Click <strong className="text-text">Connect</strong> (or Disconnect + Reconnect if already connected) with your own email</li>
+          <li>Open <strong className="text-text">Claude Desktop → Customize → Connectors</strong> — Higgsfield is added org-wide, so it&apos;s already in your list (don&apos;t search the directory; it won&apos;t show there)</li>
+          <li>Click <strong className="text-text">Connect</strong> (or Disconnect + Connect if already connected) and sign in with your own email</li>
           <li>Restart Claude Desktop (⌘Q + reopen)</li>
         </ol>
 

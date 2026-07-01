@@ -87,6 +87,6 @@ The moment you think *"I keep doing this exact thing"* — a repeatable, multi-s
 - It does **NOT** require the editor to write any code or markdown — Claude writes the whole proposal.
 
 ## For Sam (triage, on the master machine)
-- **Two accounts:** editors run this on the shared **editor** Claude account `powerrfoxlogin@gmail.com`; Sam triages + builds on the **master** account `sams@powerfoxmedia.com` (this account). The shared **Lucid Link** folder is the bridge between the two accounts — that is why a proposal is written as a file, not handed off in-session.
+- **Accounts:** editors run this from their own **@powerfoxmedia.com Claude Team seat** (the shared editor login is retired); Sam triages + builds on the **master** account `sams@powerfoxmedia.com` (this account). The shared **Lucid Link** folder is the bridge between the two accounts — that is why a proposal is written as a file, not handed off in-session.
 - New proposals land in `6. Claude PFM/Skill Proposals/` (`<editor>_<slug>_<date>.md`). Review, then build the keepers into skills as usual: `skill-creator` → validate → 3-mirror (local + Lucid + hub) + changelog → announce in `#claude-pfm`, **crediting the editor** (the credit is the incentive that keeps proposals coming).
 - **Phase 2 (pinned):** mirror proposals into a Notion "Skill Submissions" board for structured triage + a Slack ping on submit.

@@ -6,6 +6,18 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-07-01
+
+### System update — your own Claude account, the full reference library, + instant gen reveals
+
+Run **Update my skills** to get it (then restart Claude Desktop).
+
+- **You're on your own Claude account now.** The shared login is retired — everyone signs into Claude Desktop with their own **@powerfoxmedia.com Team seat**. Haven't switched? Follow the **Account Switch SOP** (banner at the top of this page) before your next session.
+- **The PFM reference library now actually installs.** CLAUDE.md's "further reading" (creative rules, story-ad playbook, production flow, vertical compliance) never used to copy to your machine — the updater now ships the `context/` folder so your Claude can open what it cites.
+- **New hard rule for gens:** Claude shows every generation the moment it finishes — no more waiting on the whole batch, no more QC verdicts before you've seen your own gens. It also renders results in the Higgsfield widget for in-app review.
+- **Skill updates riding along:** `call-graphics` is now brand-agnostic (SaveMaxHomes registered alongside SMA), character masters locked to GPT Image 2 high, `vsl-state-variations` hardened static-camera + frozen-screen prompts, `bn-lower-thirds` page maps current, `add-ai-disclaimer` Roku Calls placement locked.
+- **Video failing with `not_enough_credits` while images work?** Your CLI lost its billing-workspace pin — one-command fix; see the new troubleshooting callout in Setup (Mac + Windows, step 3).
+
 ## 2026-06-25
 
 ### Skill fix — Veo scripts never break mid-sentence (`veo-script-writing` + `lc-to-video-podcast`)

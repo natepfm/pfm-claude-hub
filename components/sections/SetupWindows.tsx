@@ -53,10 +53,14 @@ export default function SetupWindows() {
           Opens a browser for you to sign in with <strong className="text-text">your own email</strong> (NOT a shared account), sets the PowerFox enterprise workspace as your active workspace, and verifies.
         </p>
 
+        <Callout type="warn" title='Video fails with "not_enough_credits" but images still work?'>
+          Your CLI has <strong className="text-text">no billing workspace selected</strong>, so fires fall back to your free <strong className="text-text">private</strong> Higgsfield workspace (a few credits) — images and TTS squeak through, video dies. Re-pin the enterprise pool: re-run the <code>claude-pfm-account-switch.sh</code> command above (or <code>higgsfield workspace set e7479d4c-0d59-4be5-9057-abce9fe30f39</code>), then confirm <code>higgsfield workspace status</code> reads <strong className="text-text">Power Fox Media — enterprise</strong> — not your private one, and not the smaller “PowerFox” team workspace.
+        </Callout>
+
         <h4 className="font-semibold mt-4 mb-2">Connect the Higgsfield MCP in Claude Desktop</h4>
         <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
-          <li>Open <strong className="text-text">Claude Desktop → Settings → Connectors → Higgsfield</strong></li>
-          <li>Click <strong className="text-text">Connect</strong> (or Disconnect + Reconnect if already connected) with your own email</li>
+          <li>Open <strong className="text-text">Claude Desktop → Customize → Connectors</strong> — Higgsfield is added org-wide, so it&apos;s already in your list (don&apos;t search the directory; it won&apos;t show there)</li>
+          <li>Click <strong className="text-text">Connect</strong> (or Disconnect + Connect if already connected) and sign in with your own email</li>
           <li>Restart Claude Desktop (close from system tray + reopen)</li>
         </ol>
       </div>

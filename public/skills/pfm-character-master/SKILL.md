@@ -206,19 +206,21 @@ Check first: if `which higgsfield` doesn't resolve (Claude Cowork sessions don't
 
 ## The CLI fire
 
-Single fire, NB Pro, 16:9, 1k. Output to `Elements/Footage/Reference/<Character> Master/`.
+**Model is ALWAYS `gpt_image_2` (GPT Image 2), `--quality high` — locked by Sam 2026-06-12 (`feedback_character_master_always_gpt_image_2`).** NB Pro (`nano_banana_2`) genericizes / softens the face on a master; GPT Image 2 holds identity and follows the 5-angle scale-anchored layout from prose. Default **3 takes** for a new character (editor picks the hero). Output to `Elements/Footage/Reference/<Character> Master/`.
 
 ```bash
-higgsfield generate create nano_banana_2 \
+higgsfield generate create gpt_image_2 \
   --prompt "<filled prompt from template above>" \
-  --image <art-style ref UUID> \
-  --image <scale ref UUID> \
+  --image <art-style / scale anchor ref UUID> \
   --aspect_ratio 16:9 \
   --resolution 1k \
+  --quality high \
   --wait --wait-timeout 8m --json
 ```
 
-**Pre-upload both reference images** before firing (`higgsfield upload create <path> --json`). Pass UUIDs, not local paths — per the locked Higgsfield CLI concurrency rule (`feedback_higgsfield_cli_concurrency_race.md`).
+**Pre-upload reference images** before firing (`higgsfield upload create <path> --json`). Pass UUIDs, not local paths — per the locked Higgsfield CLI concurrency rule (`feedback_higgsfield_cli_concurrency_race.md`). For a **photo-anchored** build (an actual likeness photo exists — see `character-studio`), pass the identity photos ONLY and drop the format-sheet anchor (it dilutes the face); the 5-angle layout comes from prose. For a **spec-driven** build (no photo), a style/scale anchor ref is still fine.
+
+**Download multi-take batches SERIALLY** with a size/verify check — parallel downloads race Lucid sync and silently drop files (`feedback_verify_veo_download_count`).
 
 **Cost:** ~2 credits per character master.
 
