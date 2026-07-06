@@ -109,6 +109,29 @@ const aiTools = [
   { name: "Sora 2", for: "Video generation.", href: "https://sora.chatgpt.com/explore" },
 ];
 
+const foxviewSteps = [
+  {
+    t: "Make sure LucidLink is mounted",
+    d: "You should see the “ads” drive in Finder. FoxView reads everything from Lucid, so it has to be connected first.",
+  },
+  {
+    t: "Open the FoxView folder on Lucid",
+    d: "In Finder: ads → PFM MEDIA MASTER FOLDER → 6. Claude PFM → FoxView.",
+  },
+  {
+    t: "Double-click “Install FoxView.command”",
+    d: "A small black window runs a few lines and says “✅ FoxView installed and launched.” It copies FoxView into your Applications folder and opens it — you can close the window.",
+  },
+  {
+    t: "First launch: if macOS blocks it",
+    d: "Right-click FoxView in your Applications folder → Open → Open. You only do this once.",
+  },
+  {
+    t: "Log in",
+    d: "Use your PFM email and the shared FoxView password (in 1Password / from Sam). Check “Remember me” to stay signed in.",
+  },
+];
+
 const training = [
   {
     n: 1,
@@ -342,6 +365,38 @@ export default function OnboardingPage() {
               <div className="text-xs text-muted leading-relaxed mt-0.5">{t.for}</div>
             </a>
           ))}
+        </div>
+      </section>
+
+      {/* FoxView — PFM's own media browser */}
+      <section id="foxview" className="my-12 scroll-mt-8">
+        <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
+          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🦊 FoxView</h2>
+          <span className="self-center text-[10px] uppercase tracking-widest text-bg bg-accent rounded px-1.5 py-0.5 font-semibold">PFM app</span>
+        </div>
+        <p className="text-text leading-relaxed max-w-3xl mb-5">
+          FoxView is PFM&apos;s own media browser for the Lucid drive — a{" "}
+          <strong className="text-text">Finder replacement built for editors</strong>, with Notion requests, review tools (scrub player, A/B compare, QC badges), and one-click asset handoff layered on top. It works just like Finder from minute one — the extra power is additive, nothing new to learn.
+        </p>
+
+        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 max-w-3xl">
+          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Install — about 2 minutes</div>
+          <ol className="space-y-3">
+            {foxviewSteps.map((s, i) => (
+              <li key={i} className="flex gap-3 items-start">
+                <div className="shrink-0 w-6 h-6 rounded-full bg-surface2 text-accent text-sm font-bold flex items-center justify-center">
+                  {i + 1}
+                </div>
+                <div className="flex-1">
+                  <div className="font-semibold text-text text-sm">{s.t}</div>
+                  <div className="text-sm text-muted leading-relaxed mt-0.5">{s.d}</div>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4 pt-3 border-t border-border text-xs text-muted">
+            <strong className="text-text">Updates:</strong> new version? Double-click “Install FoxView.command” again — it replaces the old one. · <strong className="text-text">Requires:</strong> LucidLink mounted. · Stuck? Message Sam.
+          </div>
         </div>
       </section>
 
