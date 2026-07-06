@@ -75,13 +75,11 @@ Create a brand-NEW project folder ONLY when the creative genuinely has no home: 
 1. `ls "/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/"` → find the vertical's actual `- Completed Creatives` folder by name.
 2. `ls` into it → find the current year folder, then the current month folder. Use the EXACT naming pattern you see. If the month folder doesn't exist yet, mirror the prior month's exact pattern.
 3. Look for a `[Template]` folder at the month level — if present, note the project-name pattern in use (e.g., `MM.DD.26 - <Type> - <Name>`).
-4. Create: `<month folder>/<MM.DD.YY> - <Project Name from the request title>/` with the standard skeleton:
+4. Create the project folder at `<month folder>/<MM.DD.YY> - <Project Name from the request title>/` with the **FULL canonical template — every folder, even the empty ones** (mirrors the `[Template]` reference project; locked by Sam 2026-06-17). Use the helper:
    ```
-   Creatives/
-   Elements/Prompts/
-   Elements/Footage/Reference/
-   Elements/Footage/Veo/
+   bash ~/.claude/skills/stage-request/scaffold_project.sh "<absolute new project folder path>"
    ```
+   Builds the complete tree — `Creatives/`, `Elements/Audio/{Music,SFX,VO}/`, `Elements/Footage/{B-Roll,Primary,Reference,Veo}/`, `Elements/Graphics/`, `Elements/Prompts/`. Idempotent: re-running it on an existing project just backfills any missing folders, never touches what's there.
 5. Copy in (cp, never mv — parents keep their assets):
    - Parent's master prompt JSON + master script → `Elements/Prompts/`
    - Parent's reference image(s) → `Elements/Footage/Reference/`
@@ -105,48 +103,67 @@ A LinkYourFile URL is `https://linkyourfile.com/link?p=<base64 of the absolute p
 
 On a machine with the script available, use it: `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute path>"`. Otherwise base64-encode the path directly (`echo -n "<path>" | base64` — then replace trailing `=` with `%3D`).
 
-## Step 5 — Write the 🤖 Asset Generation section
+## Step 5 — Write the 🤖 Asset Gen section (COMPACT format, locked by Sam 2026-06-11)
 
-Append this callout to the END of the request page (Notion markdown; keep this exact shape — the AGF fire cycle parses it):
+Write this callout at the **TOP of the request page** — first block under the title, above Instructions. New requests born from the VTM templates carry a blank scaffold there: fill it IN PLACE. Re-staging an already-staged request: update in place. Re-staging a request with the LEGACY verbose section (old numbered format, anywhere on the page): replace it with this compact format at the top. Never duplicate a section.
 
 ```
 <callout icon="🤖" color="gray_bg">
-	## Asset Generation
-	---
-	*Claude reads this section when it checks the request. Property = Ready means assets are staged and AGF may run the gen flow end-to-end (pull refs → fire → QC → refire flagged → deliver).*
-	- [x] **Ready for asset generation**
-	---
-	**1. Project Folder** — <one-liner: fresh build / variation of which parent>
-	📁 `<absolute Lucid path>`
-	🔗 [Open project folder ↗](<LinkYourFile URL>)
-	**2. Character Reference Images** — ref used on every prompt: `<exact filename(s)>` (<one-line visual description>)
-	🔗 [Elements/Footage/Reference ↗](<LinkYourFile URL>)
-	**3. Prompts** — <what's in there: master script + locked master JSON, where it came from> (reuse, do not re-derive)
-	🔗 [Elements/Prompts ↗](<LinkYourFile URL>)
-	**4. Model + Gens Per Line** — `<model>` <flags> · <aspect> · <duration> · count=1 per line
-	<base-vs-state line math> = **<N> clips** (~<N×rate> cr at <rate> cr/clip)
+	**Asset Gen** — staged ✅ <MM.DD> · **<N> clips ≈ <cr> cr**
+	<table header-row="false" header-column="true">
+<tr>
+<td>**📁 Project Folder**</td>
+<td>[<project folder name> ↗](<LinkYourFile>)</td>
+</tr>
+<tr>
+<td>**🖼 Character Refs**</td>
+<td>[Refs ↗](<LinkYourFile>) `<exact ref filename(s)>`</td>
+</tr>
+<tr>
+<td>**📝 Prompts**</td>
+<td>[Prompts ↗](<LinkYourFile>) `<master file>` • `<dialogue manifest>`</td>
+</tr>
+<tr>
+<td>**🎬 Fire**</td>
+<td>`<model>` <flags> · <aspect> · <duration> · count=1 · <W> wave(s)</td>
+</tr>
+<tr>
+<td>**🗒 Notes**</td>
+<td><one-line run context the editor / fire cycle should see at a glance — non-blocking FYIs. Em dash `—` when there's nothing run-specific.></td>
+</tr>
+	</table>
+	⚠️ <flags line — ONLY when needed: SMA disclaimer / descoped lines / editor-side remainder / graphics notes. Omit entirely when clean.>
+	### Staging details {toggle="true"}
+		📁 `<absolute Lucid path>`
+		<everything verbose lives here, collapsed: staged-from provenance (which parent/OG and why) · ref visual description · voice lock · disclosed transformations · descope reasoning · output layout if non-obvious>
 </callout>
 ```
 
-Rules for section 4 (the inline spec):
-- Model comes from the parent's master (typically `veo3_1_lite` — which ALWAYS carries `+ generate_audio true`, 12 cr/clip).
-- Count math: `<base lines fired once> + <state lines> × <number of states> = total clips`, count=1 per line (PFM default).
-- If the brand is SMA, add a line: `⚠ **SMA disclaimer required** — every final creative must include: "This advertisement contains synthetic performers created with artificial intelligence."`
-
-If the page already has a 🤖 Asset Generation section (re-staging), UPDATE it in place — never append a duplicate.
+Rules:
+- **The callout icon + bold first words ARE the title** — renders as "🤖 Asset Gen — staged ✅ …". No heading block, no explainer paragraph, no checkbox (the `Asset Gen` property is the only switch — one source of truth).
+- **Visible part = title line + the 2×2 table + optional ⚠️** + the collapsed Staging details toggle. Anything longer goes in the toggle — the fire cycle reads toggle content as section content.
+- **Filling a blank scaffold** (every new request is born with one, at the top): the scaffold's cells hold *italic hint text* and it carries a `How to stage this` toggle (editor instructions). On staging: replace each cell's hint with the real value, rewrite the title line to `staged ✅`, **delete the `How to stage this` toggle** and write the `Staging details` toggle in its place. An editor may have hand-filled some cells — verify their values (files exist on disk) and keep what's correct.
+- **The raw 📁 Lucid path lives in the toggle** (first line) — that satisfies the handoff rule on the page without bloating the visible section. In-chat handoffs still show the full 📁/🔗/🦊 set inline as always.
+- Model spec from the source master (typically `veo3_1_lite` — ALWAYS `+ generate_audio true`, 12 cr/clip). Clip-count math stays on the title line: `<N> clips ≈ <cr> cr`.
+- SMA brand → the ⚠️ line MUST include: **SMA disclaimer required** — "This advertisement contains synthetic performers created with artificial intelligence."
+- **🗒 Notes vs ⚠️ vs the toggle — three distinct lanes, don't blur them:**
+  - **🗒 Notes** (visible table row) = soft, non-blocking run context worth seeing at a glance: the look-lock approach ("2-look run: Commercial + Realism"), TTS quirks ("$-amounts spelled out for TTS"), character handling ("Chad runs NSFW-hot — cool down between waves"), wave rationale, recurring-holdout heads-up. FYI, not action-required. Keep it to ONE line; anything longer goes in the toggle.
+  - **⚠️ flags line** = HARD flags that change what ships or block a clean fire: SMA disclaimer, descoped lines, editor-side remainder, missing-piece warnings. Action-required.
+  - **Staging details toggle** = deep, collapsed provenance: staged-from, ref descriptions, voice lock, transformations, output layout.
+  - When in doubt: does it block or change the deliverable? → ⚠️. Is it just useful to know? → 🗒 Notes. Is it long/archival? → toggle. Nothing run-specific → Notes cell is an em dash `—`.
 
 ## Step 6 — Report + route (the fork — added by Sam 2026-06-10)
 
 Staging is done; now the editor chooses where it fires. Do NOT flip any property until they answer.
 
-1. Report the stage to the user: two-link handoff (📁 path + 🔗 link for the project folder), what was staged from where, and the clip/credit math.
-2. Then ask, **in plain markdown chat** (never an AskUserQuestion card — house rule):
+**⚠️ Oversized-batch check FIRST (mirrors the mini's hard ceiling, locked 2026-06-17):** if the staged batch exceeds **300 clips OR ~4,000 cr**, route (a) "Send to mini" will be REFUSED — the AGF cycle bounces anything over that ceiling back to Needs Staging (the guardrail against unattended runaway spend). When you're over the ceiling, say so up front and steer the editor to either **(1) split it into smaller batches** (each under the ceiling) and stage those, or **(2) fire route (b) supervised locally** (where the human preflight + `fire` gate covers the spend). Do NOT arm an oversized request to the mini — it will only bounce. (Ceiling is tunable but must stay in sync with the `agf` cycle skill's rail.)
 
-   > **Where should this fire?**
-   > **a. Send to AGF** — hands-off: the mini claims it within ~3 minutes and runs the full cycle (fire → QC → deliver), queued behind anything already generating.
-   > **b. Generate locally now** — fires in THIS session immediately, no queue. Good when the project can't wait.
+1. Report the stage to the user: Lucid handoff (📁 path + 🔗 link + 🦊 Fox.io link for the project folder), what was staged from where, and the clip/credit math.
+2. Then present the route as an **AskUserQuestion card** (sanctioned card #2, Sam 2026-06-11 — supersedes the old plain-markdown house rule for THIS fork only): header `Route`, question *"Staged — where should this fire?"*, options:
+   - **🤖 Send to mini** — "hands-off: the mini claims it within ~3 min and runs the full cycle (fire → QC → deliver), queued behind anything already generating"
+   - **💻 Generate locally** — "fires in THIS session immediately, no queue — for projects that can't wait"
 
-   Only offer (b) if this session can actually fire: Lucid mounted AND `which higgsfield` resolves. In a Cowork session (Dima) or any machine without the CLI, skip the fork — say it's staged and route (a) automatically.
+   A typed `a`/`b`/"send to mini"/"local" in chat counts the same. Only offer the card if this session can actually fire local: Lucid mounted AND `which higgsfield` resolves. In a Cowork session (Dima) or any machine without the CLI, skip the card entirely — say it's staged and route (a) automatically.
 3. Either route: do NOT touch the main `Status` property — that's the creative lifecycle, not AGF's.
 
 ### Route (a) — send to AGF
@@ -159,7 +176,7 @@ Set `Asset Gen` → **`Ready`** (update_properties: `{"Asset Gen": "Ready"}`), t
 2. **≥20 clips? Full preflight + explicit `fire` confirm before spend** (CLAUDE.md Hard Rule 3 — choosing (b) does not bypass the threshold). Under 20, the (b) answer IS the authorization — fire immediately.
 3. Fire the staged batch in this session under the AGF fire conventions: refs uploaded serially first → UUIDs; **smoke fire one clip + verify the full chain** before the rest; waves ≤64 at `max_workers=16`; count=1 per line; backgrounded shells; dialogue VERBATIM from the staged dialogue manifest; per-wave mp4 counts on disk vs expected.
 4. After counts verify, **offer** audio-qc (editor's call in an interactive session — don't auto-run it).
-5. Deliver exactly like AGF would: house delivery comment on the request (`✅ Assets Generated [folder ↗]` + any manual-fire `Note:` lines), two-link handoff in chat, then `Asset Gen` → **`Delivered`** + verify.
+5. Deliver exactly like AGF would: house delivery comment on the request (`✅ Assets Generated [folder ↗]` + any manual-fire `Note:` lines), full Lucid handoff (📁/🔗/🦊) in chat, then `Asset Gen` → **`Delivered`** + verify.
 6. If the local run dies partway: leave it at `Generating (Local)` and give the editor the recovery fork — resume here, or flip the property to `Ready` to hand the remainder to AGF (its resume logic diffs the folder against the expected math and fires only the gap).
 
 ## Gap path — when staging can't complete
@@ -173,9 +190,20 @@ Set `Asset Gen` → **`Needs Staging`** (if not already) and append a short note
 
 Then tell the user what an editor needs to create before `/stage request` can succeed. Never set `Ready` on a gap. Never invent or substitute assets (e.g., do NOT grab a different character's ref or a "close enough" prompt).
 
+### Missing character / reference image → recovery card (sanctioned card #3, Sam 2026-06-11)
+
+When the gap is specifically a **missing character or reference image** (the character has no master, or the ref the prompts point at can't be found), do NOT dead-end — after setting `Needs Staging` + writing the gap note, present an **AskUserQuestion card**: header `Missing ref`, question *"No reference image found for <character> — how do you want to handle it?"*, options:
+
+- **🆕 Make from scratch** — "build the character master + reference image now from a description" → chain into `pfm-character-master` (or `ugc-talking-head-ref` for UGC talking-head creatives), get the editor's pick, drop the master into the Character Library + the ref into the project, then RESUME staging from where it stopped
+- **🔗 Link existing** — "I'll give you a link/path to one already made" → editor pastes a Lucid path or LinkYourFile link; verify the file exists, copy it into the project's `Elements/`, resume staging
+- **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
+- **📤 Upload a ref image** — "I'll drop an image; build the character masters + reference from it" → editor attaches a photo; feed it to `pfm-character-master` as the source likeness, deliver the master set, then resume staging
+
+Whichever route resolves the ref: re-run the staging checks and continue to Step 6 — the request only leaves `Needs Staging` when staging actually completes. Non-character gaps (missing master prompt, out-of-scope shape) keep the plain Needs-Staging handoff above — no card.
+
 ## House rules that ride along
 
-- **Two-link handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile (CLAUDE.md Hard Rule 2).
+- **Lucid handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile + 🦊 Fox.io rail drop (`linkyourfile.py --fox-drop`) (CLAUDE.md Hard Rule 2).
 - **cp, never mv** — parent folders keep their assets.
 - **No Status changes, no @-tags, no delivery comments** — staging is not delivery.
 - **SMA = disclaimer warning** in the section (Hard Rule 4).
@@ -186,5 +214,5 @@ Then tell the user what an editor needs to create before `/stage request` can su
 
 - **Fire generations unprompted** — firing happens only via route (b) after the editor explicitly picks it at the Step 6 fork (or machine-side via the AGF cycle). Never start generating straight out of staging.
 - **Write the request** — notion-state-batches / iterate-creative do that.
-- **Create new characters, refs, or prompts** — gaps go to an editor; this skill only stages what exists.
+- **Create new characters, refs, or prompts SILENTLY** — character/ref creation happens ONLY as an editor-chosen route from the Missing-ref card (which chains to `pfm-character-master` / `ugc-talking-head-ref`); never invent or substitute assets without that explicit choice. Missing master PROMPTS still go to an editor — no card for those.
 - **Flip Status / post delivery comments / turn in creatives** — out of scope, always.

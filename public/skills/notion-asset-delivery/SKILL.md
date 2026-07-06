@@ -118,6 +118,8 @@ Prints the `https://linkyourfile.com/link?p=…` URL. The encoder is round-trip-
 PFM delivery links (`--selftest`) — the `p=` param is the standard-base64 of the path, URL-encoded.
 **Don't hand-build the link or paste a raw path** — always use the helper.
 
+The same helper also feeds Fox.io's **🦊 From Claude rail** (chat links can't reach local apps — foxio://, file://, and https bounces all fail or open the browser — so the rail is the click path): `--fox-drop "<path>" ["<label>"]` queues the folder there (opens in a NEW tab; clicking consumes the entry, unclicked entries expire in 7 days), and `--both "<path>" ["<label>"]` prints the 🔗 URL and queues the 🦊 drop in one call. `--foxio-raw` prints the raw `foxio://open?p=…` scheme (paste into Fox.io's Go-to box). The **Notion delivery comment itself stays LinkYourFile-only** (house format); the 🦊 rail drop belongs to the in-chat DELIVERY handoff (CLAUDE.md Hard Rule 2).
+
 ## Step 3 — Suggest the count (silent)
 
 Count video deliverables in the folder as a hint for `(#)`:

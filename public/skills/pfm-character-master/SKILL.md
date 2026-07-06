@@ -247,11 +247,12 @@ When you add a new character to a project that already has a Family Scale Refere
 
 When in doubt, pick A. The individual masters already do the job; the family chart is a nice-to-have.
 
-## Two-link Lucid handoff (every fire)
+## Lucid handoff — 📁 + 🔗 + 🦊 (every fire)
 
 After a successful fire, EVERY mention of the output destination MUST show both:
 - **📁 Path:** raw `/Volumes/ads/…` path in backticks
 - **🔗 Open:** clickable LinkYourFile link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute path>"`
+- **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
 - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 
 This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Output: Elements/...` line is a violation.
@@ -279,9 +280,9 @@ This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Outp
 > Reply `save both`, `image only`, `prompt only`, or `skip`.
 
 **On editor reply:**
-- `save both` — execute both copies, then report the two-link handoff for each new central-folder location
-- `image only` — execute the image copy, report its two-link handoff, skip the prompt
-- `prompt only` — write the prompt entry, update the README index, report the two-link handoff for the new .md
+- `save both` — execute both copies, then report the Lucid handoff (📁/🔗/🦊) for each new central-folder location
+- `image only` — execute the image copy, report its Lucid handoff (📁/🔗/🦊), skip the prompt
+- `prompt only` — write the prompt entry, update the README index, report the Lucid handoff (📁/🔗/🦊) for the new .md
 - `skip` — acknowledge ("Skipped central libraries.") and move on
 
 **Hard constraints on this step:**
@@ -289,7 +290,7 @@ This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Outp
 - NEVER auto-save without the editor's explicit reply. This is an offer, not a default.
 - NEVER offer mid-process. Only at the end, after the fire is fully reported.
 - NEVER skip showing the offer because "the central library already has this character" — surface it ("⚠️ central library already has `<Character> - Master.png` — saving will create `v02`") and still let the editor decide.
-- The two-link Lucid handoff rule applies to the new central-folder destinations too (Path + Open link both required).
+- The Lucid handoff rule applies to the new central-folder destinations too (Path + Open + 🦊 Fox.io links all required).
 
 ## What NOT to do
 

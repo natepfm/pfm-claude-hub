@@ -1,6 +1,6 @@
 ---
 name: hvg-flow
-description: 🔴 MANDATORY for ALL video gens in any PFM project folder — including one-off tests, manual refires, cinemagraph fires, single-clip variations, anchor wall fills, "let me try one quick." The ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI" in their message. Do NOT infer "small job → skip the gate" — that's the failure mode this skill exists to prevent. When in doubt, this skill runs. PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill runs setup SILENTLY (cwd check, Notion fetch + parse, model lock to Veo Lite count=1, master prompt draft, manifest write) and stops for the editor at only up to two confirmations — reference assignment (only when ambiguous) and a single consolidated preflight before firing — then downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
+description: 🔴 MANDATORY for a PFM project's INITIAL asset generation — the batch gen that STARTS a project (Notion request → delivered Veo clips). Do NOT infer "small initial gen → skip the gate"; the ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI". **NOT for regens / refires / fixes on an already-generated project — those fire DIRECT (no gate, no check-and-ask); the gated flow is for starting a project, not iterating on it (Sam, locked 2026-06-17).** When in doubt on an initial gen, this skill runs. PFM's Higgsfield Video Generation flow — end-to-end pipeline from a Notion Video Task Manager URL to delivered Veo clips, run by editors directly in Claude Code (no webapp). Handles three request shapes — (1) story-ad / podcast BASE creation (Format A: callout-based Notion request, single shared reference); (2) VSL BASE creation (Format B: page-heading-based Notion request with per-line `Slide:` directives, supporting per-line / rotating-pool / start+end / mixed reference modes); (3) state-variation runs (auto-detects `## <State> Fill` sections + state-tagged clip numbers from Instructions, fires the tagged subset across all states in the batch). Use this skill when an editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run video generations", "run the HVG flow", "run HVG", "fire the batch", "fire the gens", "let's start generations", "kick off the Veo run". The skill runs setup SILENTLY (cwd check, Notion fetch + parse, model lock to Veo Lite count=1, master prompt draft, manifest write) and stops for the editor at only up to two confirmations — reference assignment (only when ambiguous) and a single consolidated preflight before firing — then downloads clips into `Elements/Footage/Veo/` with deterministic filenames. NOT for: one-off clips without a Notion request (use `higgsfield-generate`).
 ---
 
 # HVG Flow (PFM Video Generation)
@@ -103,9 +103,20 @@ If all four pass, single readback line:
 
 > Working in `<full pwd>`. Context ✓. Higgsfield: **X credits**. Notion ready. Pulling the request now.
 
+**🗂 Scaffold the full project template (silent, idempotent — locked 2026-06-17).** Now that Gate 2 confirmed a valid project, run `bash ~/.claude/skills/stage-request/scaffold_project.sh "$(pwd)"` before going further — it backfills the COMPLETE canonical tree (`Creatives/` + `Elements/{Audio/{Music,SFX,VO}, Footage/{B-Roll,Primary,Reference,Veo}, Graphics, Prompts}`) so the project ALWAYS mirrors the full template, **never only the folders that happen to hold assets.** It's `mkdir -p` — it never touches existing files. (CLAUDE.md: new project folders = the FULL canonical template.)
+
 ## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
-Use `mcp__*notion-fetch` with the URL the editor dropped. **Do NOT touch the request's Status — leave it at "Requested."** Generating assets is a raw-asset handoff, not a status change; gen/delivery is hands-off on Status (standing rule, see `feedback_notion_request_status_lifecycle`) — Status moves → "Done" only on an explicit turn-in, which `notion-asset-delivery` handles. Then parse:
+Use `mcp__*notion-fetch` with the URL the editor dropped. **Do NOT touch the request's Status — leave it at "Requested."** Generating assets is a raw-asset handoff, not a status change; gen/delivery is hands-off on Status (standing rule, see `feedback_notion_request_status_lifecycle`) — Status moves → "Done" only on an explicit turn-in, which `notion-asset-delivery` handles.
+
+**🔒 AGF interlock — read the `Asset Gen` property FIRST, before parsing anything else (locked 2026-06-17).** AGF (the office mini) and this manual flow share ONE field — the request's `Asset Gen` property — and it decides who owns the fire. The moment the page is fetched, read it and branch:
+- **`Ready`** — armed to the mini (its watcher claims `=="Ready"` on the next ~3-min poll). **STOP.** Tell the editor it's armed and offer **(a)** let the mini run it hands-off, or **(b)** take it local now. If (b): FIRST set `Asset Gen → Generating (Local)` (`notion-update-page` update_properties) and **re-fetch-verify it stuck** — if it came back `Generating`, the mini won the race → back off and let it run. Continue only once `Generating (Local)` is confirmed.
+- **`Generating`** — the mini is firing this batch RIGHT NOW. **STOP, do not fire** — guaranteed double-spend. Editor lets it finish (it QCs + delivers) or stops the mini's run first.
+- **`Generating (Local)`** — a local fire is already in progress or died partway. **STOP** — resume the gap (diff folder vs expected), never blind re-fire.
+- **`Delivered`** — already generated + delivered. **STOP + confirm** a re-fire (new spend) before proceeding.
+- **`Needs Staging` / blank / `Failed` / no `Asset Gen` property (direct-brief run)** — not owned by AGF → proceed normally (note it if it was a `Failed` mini run).
+
+With the AGF interlock clear, parse:
 
 **From database properties:**
 - `Task Name (Angle - Concept)` → project name (drives slug)
@@ -304,7 +315,7 @@ PFM character master format (from memory `feedback_pfm_character_master_format.m
 - Preview Ultra → `veo3_1 --model veo-3-1-preview --quality ultra`
 - Kling 3.0 → `kling3_0` (no underscore between "kling" and "3"; see refs for pro/std/duration knobs)
 
-**Aspect ratio default:** **9:16** for Organic / social-first, **16:9** for Paid / horizontal (YouTube, web, story-ad timelines). The Notion `Vertical` field is the strongest signal — Organic defaults 9:16, Auto-Forms / Home-Calls etc. default 16:9. Always confirm before firing. Full per-vertical detail in `refs/model-lineup.md`.
+**Aspect ratio default: ALWAYS 9:16 (vertical) — even when the project / `Vertical` is 16:9 (locked 2026-06-17).** Do NOT infer 16:9 from the `Vertical` field. Fire 9:16 unless the editor / request **explicitly** asks for 16:9, or it's an inherently-horizontal format (VSL slides, CTV / anchor-wall). Confirm at the preflight. Full model/CLI detail in `refs/model-lineup.md`.
 
 If editor picks Preview, confirm: "Preview base is ~2.1× the cost of Fast; Preview Ultra is ~3.2× Fast — hero shot only?"
 
@@ -577,7 +588,7 @@ Pull current Higgsfield balance fresh:
 higgsfield account status
 ```
 
-Calculate total clips: lines × count (minus L1's count if a test was approved). **Build the LinkYourFile link BEFORE rendering the preflight** — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute output folder>"` — same helper used by the final report. The preflight Output MUST use the two-link format (raw Lucid Path + clickable Open link); a bare relative path is a Hard-Rule-5 violation. Then show the full preflight in one block:
+Calculate total clips: lines × count (minus L1's count if a test was approved). **Build the LinkYourFile link BEFORE rendering the preflight** — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute output folder>"` — same helper used by the final report. The preflight Output shows 📁 Path + 🔗 Open (the 🦊 rail drop fires at DELIVERY, not preflight); a bare relative path is a Hard-Rule-2 violation. Then show the full preflight in one block:
 
 > **Preflight — <Project name>**
 > Brief: <one-line, e.g. "Karen HOA Selling Christmas BN — 23 lines"> <append "· States: FL, CO, PA, TX, GA" for state-variation runs>
@@ -599,6 +610,8 @@ The representative-prompt line is the editor's chance to catch a prompt-level pr
 > ⚠️ Not enough credits — need <Y>, have <Z>. Top up the Higgsfield account before firing.
 
 Editor confirms → CLI fires (step 10).
+
+**🔒 AGF lock — the instant the editor confirms Fire, before the first CLI call (if this run has a Notion request):** set `Asset Gen → Generating (Local)` via `notion-update-page` update_properties, then re-fetch-verify it stuck. This is the lock that keeps the mini's hands off for the whole fire (its watcher matches only `Ready`/`Generating`, never `Generating (Local)`). Direct-brief run with no `Asset Gen` property → skip, nothing to lock.
 
 ---
 
@@ -799,6 +812,8 @@ This command IS statically allowlistable as `Bash(bash ~/.claude/skills/hvg-flow
 
 ## Step 11 — Excel update + audio QC offer + final report
 
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, for a fire UNDER 20 items (locked 2026-06-17 · hardened mechanically 2026-07-01).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display`), labeled (clip, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-clip backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → skip per-file streaming; one report at completion** (per-file would be noise). The totals / QC / manifest report below still runs at the end either way.
+
 After all clips download, **rewrite** `<slug>_prompts.xlsx` using the same `build_xlsx.py` helper from gate 8 — same config schema, just refreshed status / v01 / v02 / notes per row. The helper overwrites the file cleanly; both Summary and Prompts sheets get rebuilt in one shot.
 
 Update each prompt entry in the config:
@@ -880,9 +895,17 @@ After QC (or once it's declined), offer to post the delivery comment to the Noti
 
 **Never auto-post.** Same gate discipline as the QC offers — the editor confirms the exact comment in the skill's preflight.
 
+### AGF state close (if this run had a Notion request)
+
+If you claimed the `Generating (Local)` lock at Gate 9, close the state now — mirrors `stage-request` route (b):
+- **Clean finish** (clips fired + counts verified, delivery handled or declined): set `Asset Gen → Delivered` + re-fetch-verify.
+- **Run died partway:** leave it at `Generating (Local)` and give the editor the recovery fork — resume here, or flip `Asset Gen → Ready` to hand the remaining gap to the mini (its resume logic diffs the folder vs expected, fires only the gap).
+
+(Direct-brief run with no `Asset Gen` property → nothing to close.)
+
 ### Final report
 
-Then summarize for the editor — and **always close with the Lucid handoff (📁 Path + 🔗 Open — plus a 3rd 📲 Tappable line whenever you show a representative clip inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
+Then summarize for the editor — and **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 Fox.io — plus a 📲 Tappable line whenever you show a representative clip inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
 
 > ✅ X clips delivered to `Elements/Footage/Veo/`
 > ❌ Y prompts had failures: <list slugs + reasons>
@@ -892,6 +915,7 @@ Then summarize for the editor — and **always close with the Lucid handoff (�
 > 🎧 Audio QC: `<summary if ran, else "skipped">`
 > 📁 Path: `/Volumes/ads/…/Elements/Footage/Veo`
 > 🔗 Open: [Veo ↗](https://linkyourfile.com/link?p=…)
+> 🦊 Fox.io: Veo → From Claude rail
 
 If failures or QC flags exist, list them in three buckets (assuming QC ran — see "Refire decisions" above):
 
@@ -913,7 +937,7 @@ After the final report, the editor can choose to promote any of this batch's pro
 
 **Note:** the delivered Veo CLIPS themselves are not reference material — they're project-bound deliverables. The PROMPTS are the durable templates. Only the prompt promotion is offered here (no image-side promotion in hvg-flow — that lives in `hig-flow`).
 
-**Tail-of-report wording — paste after the two-link handoff:**
+**Tail-of-report wording — paste after the Lucid handoff:**
 
 > 💾 Want to promote any clip's prompt to the central Prompts Library?
 >   - **Prompt(s)** → `Prompts Library/<Role / Scene Type> - <Character>.md` (e.g. an L02 Steve cinemagraph or L06 Tony couch interview that nailed a recurring character and whose voice lock + scene rules should become a reusable template)
@@ -923,14 +947,14 @@ After the final report, the editor can choose to promote any of this batch's pro
 **On editor reply with L-numbers:**
 - For each clip, the prompt body that was fired (from the master prompt JSON in `Elements/Prompts/`) gets copied into a new `Prompts Library/<Role / Scene Type> - <Character>.md` entry mirroring existing entries' shape (metadata table → voice profile → when-to-use → how-to-use → filter notes if applicable → working JSON example → variants → provenance citing this project → pair-with). If the entry already exists for that character, the new clip is added to the entry's provenance + an alt-variant block, NOT a new file (no duplicate entries per character).
 - Update the Prompts Library `README.md` index table with the new row (or do nothing if the entry already existed).
-- Two-link Lucid handoff (Path + Open) for each new or updated entry.
+- Lucid handoff (Path + Open + 🦊 Fox.io) for each new or updated entry.
 
 **On `skip`:** acknowledge ("Skipped central library promotion.") and move on. Don't re-prompt.
 
 **Hard constraints:**
 - Surface ONCE at the end of the report. NEVER mid-batch.
 - NEVER auto-promote without explicit L-numbers from the editor.
-- Two-link Lucid handoff applies to the new central-folder destinations too.
+- The Lucid handoff (📁/🔗/🦊) applies to the new central-folder destinations too.
 - One entry per character — duplicate promotions roll into the existing file's provenance, not new files.
 
 ---

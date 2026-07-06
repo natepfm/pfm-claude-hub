@@ -6,6 +6,22 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-07-06
+
+### New skill — `human-ad-copy` (copy that doesn't sound like AI)
+
+Run **Update my skills** to get it.
+
+Long copy, primary text, headlines, hooks: the fastest way to kill a story ad is copy that smells like ChatGPT. `human-ad-copy` is the final pass that catches it — the full catalog of AI-writing tells adapted for direct-response ads, 15 proven copy frameworks (First Person, Testimonial, Urgency, Hook, and the rest of the swipe sheet), and a one-command scanner that flags banned words, em dashes, and "it's not just X, it's Y" patterns before anything ships. Say "humanize this", "de-slop this", or "check this for AI tells" — or just write copy and Claude runs it as the final pass automatically. PFM compliance language ("could save", monthly/yearly rates only) always wins over any copy rule. Adapted from Caleb Kruse (Mr. Paid Social) with his tell-catalog, frameworks, and scanner intact.
+
+### System update — 🦊 deliveries now land in Fox.io's "From Claude" rail
+
+Run **Update my skills** to get it (then restart Claude Desktop).
+
+- **When Claude delivers assets, they now also land inside Fox.io.** A new "🦊 From Claude" section at the top of the Fox.io sidebar lists every delivery (plus a small toast when one arrives). Click an entry and the folder opens in a **new tab**; the entry clears itself once opened. Chat apps can't hand a click to a local app, so the rail replaces link-clicking entirely.
+- **No Fox.io on your machine yet?** Nothing changes for you — the 📁 path and 🔗 LinkYourFile links work exactly as before, and the rail lights up the day Fox.io rolls out to the team.
+- Under the hood: the link helper gained `--fox-drop` / `--both` modes, delivery skills + house Hard Rule 2 updated. Notion delivery comments and Slack posts are unchanged (LinkYourFile only there).
+
 ## 2026-07-01
 
 ### System update — your own Claude account, the full reference library, + instant gen reveals

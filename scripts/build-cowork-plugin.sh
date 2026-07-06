@@ -12,13 +12,13 @@ set -euo pipefail
 HUB="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_SRC="$HUB/public/skills"
 NAME="pfm-cowork-skills"
-VERSION="1.3.2"
+VERSION="1.4.0"
 OUT="$HUB/public/$NAME.plugin"
 
 # The Cowork-capable skills — keep in sync with worksIn:"cowork" in content/skills.ts.
 # stage-request is included for Dima's AGF staging (needs Lucid access granted in Cowork;
 # its Step 0 degrades gracefully if Lucid isn't mounted).
-COWORK_SKILLS=(stage-request veo-script-writing breaking-news-story-ads nano-banana-prompting story-beats lc-to-video-podcast suno-songwriter)
+COWORK_SKILLS=(stage-request veo-script-writing breaking-news-story-ads nano-banana-prompting story-beats lc-to-video-podcast suno-songwriter human-ad-copy)
 
 TMP="$(mktemp -d)"
 STAGE="$TMP/$NAME"
@@ -28,7 +28,7 @@ cat > "$STAGE/.claude-plugin/plugin.json" <<JSON
 {
   "name": "$NAME",
   "version": "$VERSION",
-  "description": "Power Fox Media's Cowork skills — AGF request staging (/stage request) plus the chat-mode writers: Veo script formatting, breaking-news ad framing, Nano Banana / Higgsfield prompting, podcast-style LC adaptation, PFM story beats, and Suno ad-to-song prompts. The writers need no tools; /stage request needs Lucid access (granted in Cowork) and degrades gracefully without it.",
+  "description": "Power Fox Media's Cowork skills — AGF request staging (/stage request) plus the chat-mode writers: Veo script formatting, breaking-news ad framing, Nano Banana / Higgsfield prompting, podcast-style LC adaptation, PFM story beats, Suno ad-to-song prompts, and human-ad-copy de-slopping (AI-tell catalog + 15 copy frameworks). The writers need no tools; /stage request needs Lucid access (granted in Cowork) and degrades gracefully without it.",
   "author": { "name": "Power Fox Media" }
 }
 JSON
@@ -49,6 +49,7 @@ A Claude / Cowork plugin for non-editor team members (writers, strategists, MBs)
 | **story-beats** | Beating out a PFM story ad from a reference or original idea — 6-beat baseline with dialogue anchors |
 | **lc-to-video-podcast** | Converting a Facebook long-copy ad into a Veo-numbered podcast monologue script |
 | **suno-songwriter** | Turning an ad script into a Suno v5 song — lyrics + style block |
+| **human-ad-copy** | Final pass on any written copy (LC, primary text, headlines, hooks) — kill the AI tells, write with one of the 15 copy frameworks. "Humanize this" / "de-slop this" |
 
 ## What's NOT included (and why)
 
@@ -89,6 +90,10 @@ PY
   fi
   mkdir -p "$STAGE/skills/$s"
   cp "$SKILLS_SRC/$s/SKILL.md" "$STAGE/skills/$s/SKILL.md"
+  # Ship a skill's reference library / helper scripts when it has them (e.g. human-ad-copy).
+  for sub in references scripts; do
+    if [ -d "$SKILLS_SRC/$s/$sub" ]; then cp -R "$SKILLS_SRC/$s/$sub" "$STAGE/skills/$s/$sub"; fi
+  done
 done
 
 rm -f "$OUT"

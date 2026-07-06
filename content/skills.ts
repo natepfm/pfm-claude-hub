@@ -80,6 +80,14 @@ export const skills: Skill[] = [
     category: "writing",
   },
   {
+    name: "human-ad-copy",
+    title: "Human Ad Copy",
+    description:
+      "Make written ad copy read fully human — the WP:AISIGNS AI-tell catalog adapted for direct-response ads, a mechanical tell-scanner, and 15 copy frameworks. Final pass on LC, primary text, headlines, and hooks. Adapted from Caleb Kruse (Mr. Paid Social); PFM compliance language always wins.",
+    worksIn: ["code", "cowork"],
+    category: "writing",
+  },
+  {
     name: "nano-banana-prompting",
     title: "Nano Banana Prompting",
     description:

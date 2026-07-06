@@ -1,6 +1,6 @@
 ---
 name: hig-flow
-description: 🔴 MANDATORY for ALL image gens in any PFM project folder — including one-off tests, manual refires, character master tests, single-shot variations, "let me try one quick," "just one more." The ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI" in their message. Do NOT infer "small job → skip the gate" — that's the failure mode this skill exists to prevent. When in doubt, this skill runs. PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=1, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=1 per prompt (editor opts into count=2 for a pick), iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: 🔴 MANDATORY for a PFM project's INITIAL asset generation — the batch gen that STARTS a project (brief / Notion request → delivered b-roll images). Do NOT infer "small initial gen → skip the gate"; the ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI". **NOT for regens / refires / fixes on an already-generated project — those fire DIRECT (no gate, no check-and-ask); the gated flow is for starting a project, not iterating on it (Sam, locked 2026-06-17).** When in doubt on an initial gen, this skill runs. PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=1, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=1 per prompt (editor opts into count=2 for a pick), iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
 ---
 
 # HIG Flow (PFM Image Generation)
@@ -81,9 +81,20 @@ Same 4-layer cwd verification as `hvg-flow`:
 Single readback line:
 > Working in `<full pwd>`. Context ✓. Higgsfield: **X credits**. Notion ready. Pulling request now.
 
+**🗂 Scaffold the full project template (silent, idempotent — locked 2026-06-17).** Now that Gate 2 confirmed a valid project, run `bash ~/.claude/skills/stage-request/scaffold_project.sh "$(pwd)"` before going further — it backfills the COMPLETE canonical tree (`Creatives/` + `Elements/{Audio/{Music,SFX,VO}, Footage/{B-Roll,Primary,Reference,Veo}, Graphics, Prompts}`) so the project ALWAYS mirrors the full template, **never only the folders that happen to hold assets.** It's `mkdir -p` — it never touches existing files. (CLAUDE.md: new project folders = the FULL canonical template.)
+
 ## Gate 3 — Notion request review [SILENT — parsed summary rolls into preflight]
 
-Fetch via `mcp__*notion-fetch`. **Do NOT touch the request's Status — leave it at "Requested."** Generating assets is a raw-asset handoff, not a status change; gen/delivery is hands-off on Status (standing rule, see `feedback_notion_request_status_lifecycle`) — Status moves → "Done" only on an explicit turn-in, which `notion-asset-delivery` handles. Then parse the standard fields:
+Fetch via `mcp__*notion-fetch`. **Do NOT touch the request's Status — leave it at "Requested."** Generating assets is a raw-asset handoff, not a status change; gen/delivery is hands-off on Status (standing rule, see `feedback_notion_request_status_lifecycle`) — Status moves → "Done" only on an explicit turn-in, which `notion-asset-delivery` handles.
+
+**🔒 AGF interlock — read the `Asset Gen` property FIRST, before parsing anything else (locked 2026-06-17).** AGF (the office mini) and this manual flow share ONE field — the request's `Asset Gen` property — and it decides who owns the fire. The moment the page is fetched, read it and branch:
+- **`Ready`** — armed to the mini (its watcher claims `=="Ready"` on the next ~3-min poll). **STOP.** Tell the editor it's armed and offer **(a)** let the mini run it hands-off, or **(b)** take it local now. If (b): FIRST set `Asset Gen → Generating (Local)` (`notion-update-page` update_properties) and **re-fetch-verify it stuck** — if it came back `Generating`, the mini won the race → back off and let it run. Continue only once `Generating (Local)` is confirmed.
+- **`Generating`** — the mini is firing this image batch RIGHT NOW. **STOP, do not fire** — guaranteed double-spend. Editor lets it finish (it QCs + delivers) or stops the mini's run first.
+- **`Generating (Local)`** — a local fire is already in progress or died partway. **STOP** — resume the gap (diff folder vs expected), never blind re-fire.
+- **`Delivered`** — already generated + delivered. **STOP + confirm** a re-fire (new spend) before proceeding.
+- **`Needs Staging` / blank / `Failed` / no `Asset Gen` property (direct-brief run)** — not owned by AGF → proceed normally (note it if it was a `Failed` mini run).
+
+With the AGF interlock clear, parse the standard fields:
 - `Task Name (Angle - Concept)` → project name → slug
 - `Vertical` (e.g. "Auto - Forms")
 - `MB`, `Priority`, `Status`
@@ -151,7 +162,7 @@ Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~5 cr/
 - 2k → higher detail; use for hero shots, slide graphics, marketing-quality images
 - 4k → only when editor explicitly requests (4× cost)
 
-Lock the model + resolution + count for use in gates 6, 8, 9.
+Lock the model + resolution + count for use in gates 6, 8, 9. **Aspect default = 9:16 (vertical), ALWAYS — even for a 16:9 project; fire 16:9 / other ONLY if the editor or request explicitly asks (locked 2026-06-17).**
 
 ## Gate 6 — Shot list + prompt craft [SILENT — full shot list shown at preflight for approval]
 
@@ -291,7 +302,7 @@ Pull current Higgsfield balance fresh:
 higgsfield account status
 ```
 
-Calculate total images: shots × count. **Build the LinkYourFile link BEFORE rendering the preflight** — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute output folder>"` — same helper used by the final report. The preflight Output MUST use the two-link format (raw Lucid Path + clickable Open link); a bare relative path is a Hard-Rule-5 violation. Then show the full preflight in one block:
+Calculate total images: shots × count. **Build the LinkYourFile link BEFORE rendering the preflight** — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute output folder>"` — same helper used by the final report. The preflight Output shows 📁 Path + 🔗 Open (the 🦊 rail drop fires at DELIVERY, not preflight); a bare relative path is a Hard-Rule-2 violation. Then show the full preflight in one block:
 
 > **Preflight — <Project name>**
 > Brief: <one-line, e.g. "Karen HOA b-roll — 12 shots">
@@ -315,6 +326,8 @@ The full shot list is the editor's chance to cut / add / tweak shots now that Ga
 > ⚠️ Not enough credits — need <Y>, have <Z>. Top up the Higgsfield account before firing.
 
 Editor confirms → CLI fires.
+
+**🔒 AGF lock — the instant the editor confirms Fire, before the first CLI call (if this run has a Notion request):** set `Asset Gen → Generating (Local)` via `notion-update-page` update_properties, then re-fetch-verify it stuck. This is the lock that keeps the mini's hands off for the whole fire (its watcher matches only `Ready`/`Generating`, never `Generating (Local)`). Direct-brief run with no `Asset Gen` property → skip, nothing to lock.
 
 ---
 
@@ -399,11 +412,21 @@ Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock a
 
 ## Step 11 — Download + Excel update + report
 
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, for a fire UNDER 20 items (locked 2026-06-17 · hardened mechanically 2026-07-01).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display` / `show_generations`), labeled (shot, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-shot backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → skip per-file streaming; one report at completion** (per-file would be noise). The totals / QC / manifest report below still runs at the end either way.
+
 Parse each result JSON for the image URL(s), download in parallel via `urllib.request` or `curl` to `Elements/Footage/Primary/B-Roll Photos/<slug>_<shotId>_v<NN>.png`.
 
 Then rewrite the Excel manifest using the same helper + same config schema, with refreshed status / v01 / v02 / notes per shot.
 
-Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open — plus a 3rd 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
+### AGF state close (if this run had a Notion request)
+
+If you claimed the `Generating (Local)` lock at Gate 9, close the state now — mirrors `stage-request` route (b):
+- **Clean finish** (images fired + counts verified, delivery handled or declined): set `Asset Gen → Delivered` + re-fetch-verify.
+- **Run died partway:** leave it at `Generating (Local)` and give the editor the recovery fork — resume here, or flip `Asset Gen → Ready` to hand the remaining gap to the mini (its resume logic diffs the folder vs expected, fires only the gap).
+
+(Direct-brief run with no `Asset Gen` property → nothing to close.)
+
+Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 Fox.io — plus a 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
 
 > ✅ **X images delivered** to `Elements/Footage/Primary/B-Roll Photos/`
 > ❌ Y shots had failures: <list shotIds + reasons>
@@ -412,6 +435,7 @@ Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open �
 > 📋 Manifest: `<slug>_shots.xlsx`
 > 📁 Path: `/Volumes/ads/…/Elements/Footage/Primary/B-Roll Photos`
 > 🔗 Open: [B-Roll Photos ↗](https://linkyourfile.com/link?p=…)
+> 🦊 Fox.io: B-Roll Photos → From Claude rail
 
 If any shot looks off in review, editor can re-fire individual shots via the `higgsfield-image-generation` skill (CLI-driven) or by re-running this skill with a scoped-down shot list.
 
@@ -421,7 +445,7 @@ After the final report, the editor can choose to promote any of this batch's ima
 
 **This step is OPTIONAL** — unlike `pfm-character-master`'s mandatory save offer, hig-flow runs are usually large per-shot batches where most images stay project-local. Surface the option ONCE at the tail of the report; do not pester the editor across the batch and do not re-offer on refires.
 
-**Tail-of-report wording — paste after the two-link handoff:**
+**Tail-of-report wording — paste after the Lucid handoff:**
 
 > 💾 Want to promote any shot to PFM central libraries?
 >   - **Image(s)** → `Character Library/<Character>/` (e.g. a clean character-on-grey or canonical scene that other projects will reuse)
@@ -433,14 +457,14 @@ After the final report, the editor can choose to promote any of this batch's ima
 - For each shot, ask which target(s) — `image`, `prompt`, or `both`
 - **Image promotion** → copy the delivered PNG into the per-character subfolder under `Character Library/` (Option B structure: per-character folder, wife/family/guest variants nested inside). Strip the source hash + version suffix on copy (`sma_houston_L17_v01.png` → `<Character> - Master.png` or a descriptive shot name). No overwrites — `v02` if a same-named file exists.
 - **Prompt promotion** → write a new `Prompts Library/<Role / Scene Type> - <Character>.md` entry mirroring existing entries' shape (metadata table → visual spec → working JSON prompt body → CLI fire snippet → provenance citing this project). Update the Prompts Library `README.md` index table with the new row.
-- Two-link Lucid handoff (Path + Open) for each new central-folder destination.
+- Lucid handoff (Path + Open + 🦊 Fox.io) for each new central-folder destination.
 
 **On `skip`:** acknowledge ("Skipped central libraries.") and move on. Don't re-prompt.
 
 **Hard constraints:**
 - Surface ONCE at the end of the report. NEVER mid-batch.
 - NEVER auto-promote without explicit shot IDs from the editor.
-- Two-link Lucid handoff applies to the new central-folder destinations too.
+- The Lucid handoff (📁/🔗/🦊) applies to the new central-folder destinations too.
 
 ---
 

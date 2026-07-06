@@ -3,14 +3,24 @@ name: higgsfield-image-generation
 description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfield generate create`) for one-off image work — single shots, ad-hoc variations, prompt tests. **No gated batch flow, no Excel manifest.** Fire generations, parse result URLs, download into the editor's project folder with PFM filename conventions. CLI-only firing; MCP firing is FORBIDDEN (see `feedback_higgsfield_workflow.md` — MCP is read-only inspection only). Use this skill for one-off variations of an existing character, ad-hoc b-roll for an active project, testing prompts before committing to a full batch, refiring failed shots, or character master tests. Triggers on "generate this image", "fire off these prompts", "let's run this through Higgsfield", "make me a few variations", "another one of [character] but [variation]", or any ad-creative b-roll generation that isn't a coordinated batch. NOT for: full batch image work where the editor wants a manifest + coordinated download + gated workflow — use `hig-flow` instead (the 9-gate flow, which accepts either a Notion request URL OR a direct editor brief). 🔴 ALWAYS load `nano-banana-prompting` for the prompt body — mandatory for every fire including one-offs (locked 2026-06-10); editor explicitly asking for a different style is the only opt-out.
 ---
 
-> ## 🔴 Two-link Lucid handoff — MANDATORY at every download / save / report step
+> ## 🔴 Lucid handoff (📁 + 🔗 + 🦊) — MANDATORY at every download / save / report step
 >
 > Every time this skill saves, downloads, or reports an asset path — a one-off CLI fire, a refire, a variation, a character master test — render BOTH:
 > - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
 > - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
+> - **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
 > - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
-> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-2 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+
+> ## 🔴 Hard Rule 5 — STREAM every gen the INSTANT it lands (locked 2026-06-30 · hardened mechanically 2026-07-01)
+>
+> The moment ANY generation's result URL exists, surface it to the editor — **📲 tappable CloudFront link + the Higgsfield widget (`job_display` / `show_generations`)** — labeled (shot, take) — BEFORE downloading, BEFORE any QC read, BEFORE checking the next result. The editor sees raw gens first and decides; your verdicts come AFTER the reveal, below it, never as a gate.
+>
+> **Mechanical enforcement — the fire mechanism itself must emit each result as it completes:**
+> - **Batches under 20:** fire each gen as its OWN backgrounded task, or use the ThreadPool skeleton below with `as_completed` printing each `LANDED` line the second it resolves — and relay each to the editor immediately. **NEVER one silent multi-gen `--wait` shell that only returns when the slowest gen finishes. NEVER hold finished gens to present a picked/QC'd set.**
+> - **20+ items:** one report at batch completion (matches Hard Rule 3 scale — per-file streaming is noise there).
+> - If your fire command can't expose per-gen results, restructure it before firing. A batch that reports only at the end is a Rule 5 violation even if every other convention was followed.
 
 ---
 
@@ -187,7 +197,7 @@ ls -la /path/to/project/Elements/Footage/Primary/B-Roll\ Photos/ | grep "L14"
 
 Confirm file count matches expected (count × number of fires). Report to user:
 - Filenames saved
-- **Two-link handoff (standing rule, `feedback_two_link_lucid_handoff`):** the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link to the download folder — build via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`, render as `[label ↗](url)`. Lucid `/Volumes/ads/…` paths only; if the download landed elsewhere, give the Path and say the clickable link doesn't apply.
+- **Lucid handoff (standing rule, `feedback_two_link_lucid_handoff`):** the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link AND a **🦊 Fox.io** rail drop for the download folder — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --both "<absolute folder>" "<label>"` prints the 🔗 URL and queues the 🦊 drop in one call; render `[label ↗](url)` + `🦊 Fox.io: <label> → From Claude rail`. Lucid `/Volumes/ads/…` paths only; if the download landed elsewhere, give the Path and say the clickable link doesn't apply.
 - Final balance (CLI: `higgsfield account status`)
 - Any silent losses (stuck or missing jobs — see below)
 
@@ -215,11 +225,18 @@ def fire_one(job):
 
 with ThreadPoolExecutor(max_workers=16) as ex:
     futs = {ex.submit(fire_one, j): j for j in jobs}
-    for fut in futs:
+    for fut in as_completed(futs):        # 🔴 Rule 5: handle each gen the MOMENT it finishes
+        job = futs[fut]
         result = fut.result()
         parsed = json.loads(result.stdout) if result.returncode == 0 else None
-        # ... extract rawUrls, queue downloads
+        url = parsed["results"][0]["rawUrl"] if parsed and parsed.get("results") else None
+        print(f"LANDED {job['label']}: {url}", flush=True)   # streamed to the shell output AS IT LANDS
+        # download this one now — do NOT wait for the rest of the batch
 ```
+
+(import line: `from concurrent.futures import ThreadPoolExecutor, as_completed`)
+
+**While the backgrounded batch shell runs, tail its output — every `LANDED` line gets relayed to the editor IMMEDIATELY** (📲 tappable + widget), before the next one resolves. The end-of-batch message is just counts + balance; the reveals already happened live.
 
 **Self-check before any concurrent CLI fire:**
 1. Are any `--image` flags pointing at local file paths? → If yes, pre-upload first and swap to UUIDs.
@@ -274,7 +291,8 @@ See **nano-banana-prompting** for more on setting-continuity prompt language.
 - **After a batch**: report new balance.
 - **When something fails silently** (stuck job, failed upload, missing variation): tell the user matter-of-factly and explain the recovery you're doing. Don't catastrophize a single missing image.
 - **When pre-uploading**: list the reference images and their UUIDs so the user can confirm.
-- **After every download** (single fire, refire, batch, anything): render the **two-link Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`. Listing bare filenames without those two lines is a CLAUDE.md Hard-Rule-5 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.
+- **As every gen lands** (Rule 5): relay its 📲 tappable link + widget immediately — the editor never waits for the batch to see a finished gen.
+- **After every download** (single fire, refire, batch, anything): render the **Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` + 🦊 **Fox.io:** rail drop via the same helper with `--fox-drop` (render `🦊 Fox.io: <label> → From Claude rail`). Listing bare filenames without those lines is a CLAUDE.md Hard-Rule-2 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.
 
 ## When NOT to use this skill
 
