@@ -169,4 +169,188 @@ export const skills: Skill[] = [
     worksIn: ["code"],
     category: "video",
   },
+  {
+    name: "ugc-interview-flow",
+    title: "UGC Interview Flow (No-Cuts)",
+    description:
+      "PFM's fake-continuous one-take pipeline (by Zach Hustead): a host walks a location interviewing the cast, generated as Seedance clips chained off each clip's real last frame with pixel-gated joints — the editor butt-joins them into one seamless take. Handles full demographic matrices off one script.",
+    worksIn: ["code"],
+    category: "gen-manual",
+  },
+  {
+    name: "iphone-broll",
+    title: "iPhone B-Roll",
+    description:
+      "Camera-roll b-roll sets: identity-swap an existing creative's whole photo set to a new character, or build a fresh set from the script's beats. Locked masters + environment plates, never the original images as refs.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "jre-swap",
+    title: "JRE Swap",
+    description:
+      "Put a new character onto the existing JRE-style podcast set by recreating the locked reference frame with only the person swapped — set, framing, and composition match previous creatives exactly.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "social-proof-phone-quote",
+    title: "Social Proof Phone Quote",
+    description:
+      "The customer-holding-their-phone-with-the-quote shot: person + phone + readable branded quote page in ONE generation, using the screen graphic as reference one. Never post-composited.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "broadcast-news-stills",
+    title: "Broadcast News Stills",
+    description:
+      "Anchor-desk shots, field-reporter standups, and sit-down interviews that read as freeze-frames from a real local broadcast — the b-roll for breaking-news creatives.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "object-inserts",
+    title: "Object Inserts",
+    description:
+      "No-people cutaways: the bill on the counter, keys on the table, hands on the wheel. Lived-in anti-stock texture shots between talking beats — no character reference needed.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "assetgen-rokuctv-calls-breakingnews",
+    title: "Roku CTV BN Pipeline",
+    description:
+      "End-to-end asset factory for a Roku CTV Calls Breaking News variant: standups, banner + end card, chyrons, wall composites, both close halves — one job, digit-verified, additively imported to DaVinci. Alias: /ag.rctv.c.bn.",
+    worksIn: ["code"],
+    category: "gen-manual",
+  },
+  {
+    name: "ag.rctv.c.bn",
+    title: "/ag.rctv.c.bn (alias)",
+    description:
+      "Typing shortcut that loads the Roku CTV Breaking News pipeline.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
+    name: "call-graphics",
+    title: "Call Graphics",
+    description:
+      "Banner + EndCard phone graphics for any Calls creative, from the brand's template library, with the tracking number rendered digit-perfect and verified.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "anchor-wall-composite",
+    title: "Anchor Wall Composite",
+    description:
+      "Composites the verified EndCard onto the studio anchor's video wall — the locked reference frame for close-line clips. Breaking-news creatives only.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "bn-lower-thirds",
+    title: "BN Lower Thirds (FROZEN)",
+    description:
+      "⚠️ Frozen: was Canva-based and PFM has exited Canva — rebuild on the HTML render method is pending. Don't run; ask Sam for BN strips.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "ctv-bn-variation",
+    title: "CTV BN Variation (retired)",
+    description:
+      "Retired 07-09 — superseded by the Roku CTV BN Pipeline. This stub redirects automatically.",
+    worksIn: ["code"],
+    category: "gen-manual",
+  },
+  {
+    name: "labs-voice-swap",
+    title: "Labs Voice Swap",
+    description:
+      "Replace a generated clip's voice with an ElevenLabs library voice via speech-to-speech — timing preserved so lip-sync holds. Every Max the Dog creative goes through this.",
+    worksIn: ["code"],
+    category: "video",
+  },
+  {
+    name: "podcast-guest-veo",
+    title: "Podcast Guest Veo",
+    description:
+      "The locked voice/audio prompt treatment for podcast-guest characters — keeps the voice clean and consistent across every clip of a guest.",
+    worksIn: ["code"],
+    category: "video",
+  },
+  {
+    name: "ugc-talking-head-ref",
+    title: "UGC Talking Head Ref",
+    description:
+      "Generates the locked UGC presenter reference still — the paused-mid-sentence phone-video look that makes AI presenters read as real people.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "ugc-talking-head-veo",
+    title: "UGC Talking Head Veo",
+    description:
+      "Writes the locked Veo master prompt + verbatim dialogue manifest that turns a UGC reference still into talking clips.",
+    worksIn: ["code"],
+    category: "video",
+  },
+  {
+    name: "veo-life",
+    title: "Veo Life",
+    description:
+      "Brings finished stills to life as 6-second locked-camera cinemagraph clips (breathing, blinks, one atmospheric motion, no audio).",
+    worksIn: ["code"],
+    category: "video",
+  },
+  {
+    name: "pixar-mascot-broll",
+    title: "Pixar Mascot B-Roll",
+    description:
+      "Turns a VSL script into Pixar-3D vignettes where the brand mascot acts out selected lines — gpt_image_2 with the canon mascot as reference, ready for Kling image-to-video.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
+    name: "character-board",
+    title: "Character Board",
+    description:
+      "Rebuilds the visual tile index of all AI characters from the Character Library so anyone can browse the cast at a glance.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
+    name: "naturalize-numbers",
+    title: "Naturalize Numbers",
+    description:
+      "Converts dollar digits in a script to natural spoken reads (forty-seven hundred, three ninety-one) so the AI voice never reads like a robot. The single owner of the spoken-number rules.",
+    worksIn: ["code", "cowork"],
+    category: "writing",
+  },
+  {
+    name: "notion-state-batches",
+    title: "Notion State Batches",
+    description:
+      "Fans a completed Batch 1 out to Batches 2-6 in the Video Task Manager, covering all 50 states with the locked cadence and per-state fills.",
+    worksIn: ["code", "cowork"],
+    category: "writing",
+  },
+  {
+    name: "find-skills",
+    title: "Find Skills (external)",
+    description:
+      "Searches the public skills registry for external community skills — explicit ask only; PFM internal skills always take precedence. Editors propose, never install.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
+    name: "add-ai-disclaimer",
+    title: "Add AI Disclaimer",
+    description:
+      "Burns the required AI-performer disclaimer onto finished videos in the locked house style — auto-detects vertical vs horizontal, re-encodes clean, never touches the source.",
+    worksIn: ["code"],
+    category: "utility",
+  },
 ];
