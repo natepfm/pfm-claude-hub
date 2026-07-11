@@ -19,9 +19,11 @@ const subLinks: Record<string, { href: string; label: string }[]> = {
   "/onboarding": [
     { href: "#welcome", label: "Welcome" },
     { href: "#checklist", label: "Day-one checklist" },
-    { href: "#apps", label: "Apps & accounts" },
+    { href: "#toolkit", label: "Your toolkit" },
+    { href: "#foxview", label: "FoxView" },
     { href: "#training", label: "Training path" },
-    { href: "#claude-setup", label: "Set up Claude" },
+    { href: "#claude-setup", label: "Meet Claude" },
+    { href: "#self-setup", label: "Self-setup" },
   ],
   "/claude": [
     { href: "#update", label: "Update my skills" },

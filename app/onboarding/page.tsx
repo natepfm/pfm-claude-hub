@@ -4,26 +4,28 @@ import PageHero from "@/components/PageHero";
 const SOP_URL =
   "https://www.notion.so/powerfoxmedia/EDITOR-ONBOARDING-SOP-15216771e78080d6b609d29a04928a6f";
 
+// New model (07.10.26): local editors' laptops are PRE-BUILT before day one.
+// The editor arrives to a working system — day one is orientation, not install.
 const checklist = [
   {
-    title: "Get your accounts",
-    desc: "Get into 1Password first (ask Sam or Doug for an invite) — every shared login lives there. Then connect LucidLink, join both Slack workspaces (Trend + PFM), accept your Notion invite, and sign into the shared Google account.",
+    title: "Sign in + confirm you're connected",
+    desc: "Your accounts are already created and most apps are already signed in. Open Claude, Slack, Notion, and check Finder for the “ads” drive (LucidLink). If any app asks you to log in, your credentials are in the Password Vault (Notion → Shared) — grab them from Sam.",
   },
   {
-    title: "Install your apps",
-    desc: "DaVinci Resolve Studio 19, Adobe Creative Cloud, Notion, Canva, ChatGPT, Chrome (two profiles), and LinkYourFile. Full list with links below.",
+    title: "Run your onboarding check",
+    desc: "Open a Terminal and run the read-only check — it proves your machine is production-ready (skills, Lucid mount, tools) in a few seconds and spends nothing. Sam will point you to the one-line command.",
   },
   {
-    title: "Install the DaVinci plug-ins",
-    desc: "From the New Editor Assets folder on Lucid Link — Snap Captions, Magic Zoom, transitions, timer bars. Then add the Higgsfield plug-in (AI gens right on your timeline) once DaVinci is installed and logged in.",
-  },
-  {
-    title: "Set up Claude",
-    desc: "Your AI production assistant for Veo clips + Nano Banana b-roll. Full Mac / Windows walkthrough on the Claude page.",
+    title: "Install FoxView (2 min)",
+    desc: "PFM's own media browser for the Lucid drive — the Finder replacement you'll live in. Quick install below (or already done for you — just log in).",
   },
   {
     title: "Watch the training SOPs in order",
-    desc: "Start with the DaVinci Overview (watch first). Five short videos take you from the file system to your first finished export.",
+    desc: "Five short videos take you from the file system to your first finished export. Start with the DaVinci Overview. This is the real work of day one — the setup is already handled.",
+  },
+  {
+    title: "Meet Claude",
+    desc: "Your AI production assistant is already installed and loaded with the PFM skills. Head to the Claude page to learn how it turns a Notion request into delivered clips + b-roll.",
   },
   {
     title: "Run your first task",
@@ -31,82 +33,62 @@ const checklist = [
   },
 ];
 
-const coreApps = [
-  {
-    name: "1Password",
-    for: "Password manager — the key to every shared login below. Set this up first.",
-    href: "https://1password.com/downloads/",
-    access: `Ask Sam or Doug for a team invite, then add the Chrome extension to both profiles.`,
-  },
+// What's on the machine + where each login lives. In the pre-built model the editor
+// doesn't install these — this is a reference of the toolkit and its credentials.
+const toolkit = [
   {
     name: "LucidLink Classic",
     for: "Our media file system — every asset and project lives here, mounted at /Volumes/ads.",
-    href: "https://www.lucidlink.com/download-lucidlink-classic",
-    access: `Filespace + login sent to you directly. Ask Doug (tech) for help with Mac permissions.`,
+    access: `Signed in for you. Your filespace login lives in the Password Vault.`,
   },
   {
-    name: "Slack",
-    for: "Team comms. You'll be invited to two workspaces — Trend and PFM.",
-    href: "https://slack.com/downloads",
-    access: `Invites arrive by email.`,
+    name: "DaVinci Resolve Studio",
+    for: "Our primary video editor, with the PFM plug-ins (Snap Captions, Magic Zoom, transitions) pre-installed.",
+    access: `Installed + Studio-activated. Blackmagic Cloud invite comes by email on day one.`,
   },
   {
-    name: "DaVinci Resolve Studio 19",
-    for: "Our primary video editor.",
-    href: "https://www.blackmagicdesign.com/products/davinciresolve",
-    access: `Choose "Download Only" — don't register. Studio key from Sam; Blackmagic Cloud invite comes by email.`,
+    name: "Claude",
+    for: "Your AI production assistant — drives Veo clips + Nano Banana b-roll from a Notion request.",
+    access: `Installed with the full PFM skill set. Signed in on your Team seat.`,
   },
   {
-    name: "Higgsfield DaVinci plug-in",
-    for: "Higgsfield gens, reframe, upscale, and BG removal right inside the Resolve timeline.",
-    href: "https://higgsfield.ai/plugins/davinci",
-    access: `Install AFTER DaVinci is set up and logged in — the installer adds it to Workspace → Workflow Integrations. Sign in with the shared PFM Google account (1Password).`,
+    name: "Higgsfield",
+    for: "The image + video generation engine Claude fires for you.",
+    access: `CLI installed; logged into the PowerFox workspace (editors only).`,
   },
   {
     name: "Notion",
-    for: "The task board (Creative Status Board) — where every request lives.",
-    href: "https://www.notion.com/desktop",
-    access: `Invite sent to your PFM email. Favorite the Creative Status Board.`,
+    for: "The Video Task Manager — where every request lives.",
+    access: `Signed in on your PFM email. Favorite the board.`,
   },
   {
-    name: "Adobe Creative Cloud",
-    for: "Photoshop, After Effects, and the rest of the suite.",
-    href: "https://creativecloud.adobe.com/apps/download/creative-cloud",
-    access: `Login in 1Password.`,
+    name: "Slack",
+    for: "Team comms — Trend + PFM workspaces.",
+    access: `Both invites accepted for you.`,
   },
   {
-    name: "Canva",
-    for: "Decks + graphics (e.g. state lower-thirds).",
-    href: "https://www.canva.com/download/mac/",
-    access: `Login from Dima.`,
-  },
-  {
-    name: "ChatGPT (desktop)",
-    for: "General-purpose AI assistant.",
-    href: "https://chatgpt.com/download",
-    access: `Shared PFM account in 1Password.`,
-  },
-  {
-    name: "Google Chrome",
-    for: "Your PFM login plus a second shared PFM profile.",
-    href: "https://www.google.com/chrome/",
-    access: `Second-profile login in 1Password. Add the 1Password extension to both profiles.`,
+    name: "Chrome",
+    for: "Your PFM login, plus the shared PFM profile alongside it.",
+    access: `Both profiles signed in. Shared-profile login is in the Password Vault.`,
   },
   {
     name: "LinkYourFile",
     for: "Large-file transfer to and from Lucid Link.",
-    href: "https://www.linkyourfile.com/",
-    access: `License key from Dima.`,
+    access: `Installed. Your license key is in the Password Vault.`,
+  },
+  {
+    name: "Adobe Creative Cloud",
+    for: "Photoshop, After Effects, and the rest of the suite.",
+    access: `Installed. Login in the Password Vault.`,
   },
 ];
 
+// The gen tools Claude orchestrates — reference, not install targets.
 const aiTools = [
   { name: "Higgsfield", for: "Image + video gens — what Claude drives for you.", href: "https://higgsfield.ai/" },
   { name: "Flow / Veo 3", for: "Google's video generation.", href: "https://labs.google/flow/about" },
   { name: "ElevenLabs", for: "AI voiceover.", href: "https://elevenlabs.io/app/home" },
   { name: "HeyGen", for: "AI avatars.", href: "https://www.heygen.com/" },
-  { name: "Arcads", for: "UGC-style ad generation (credentials from David).", href: "https://app.arcads.ai/" },
-  { name: "Sora 2", for: "Video generation.", href: "https://sora.chatgpt.com/explore" },
 ];
 
 const foxviewSteps = [
@@ -128,7 +110,7 @@ const foxviewSteps = [
   },
   {
     t: "Log in",
-    d: "Use your PFM email and the shared FoxView password (in 1Password / from Sam). Check “Remember me” to stay signed in.",
+    d: "Use your PFM email and the shared FoxView password (from Sam / the Password Vault). Check “Remember me” to stay signed in.",
   },
 ];
 
@@ -143,7 +125,7 @@ const training = [
   {
     n: 2,
     title: "PFM DaVinci Overview",
-    desc: "DaVinci setup, Power Bins, asset management, and installing the plug-ins.",
+    desc: "DaVinci setup, Power Bins, asset management, and the plug-ins (already installed on your machine).",
     href: "https://www.notion.so/15216771e78080cd85e6e48a120d85b7",
     flag: "Watch first",
   },
@@ -183,28 +165,28 @@ export default function OnboardingPage() {
       <PageHero
         eyebrow="Editors Hub · Onboarding"
         title="Welcome to Power Fox Media"
-        subtitle="Everything a new editor needs to get up and running — accounts, apps, and the workflow — in one place. Work through it top to bottom on your first day, then keep it bookmarked as a reference."
+        subtitle="Your machine is already set up — accounts, apps, DaVinci, and Claude are ready to go. This page gets you oriented and to your first creative. Keep it bookmarked as a reference."
       />
 
-      {/* First-day ribbon — the whole onboarding flow at a glance */}
+      {/* First-day ribbon — the new pre-built flow at a glance */}
       <div className="mb-12 rounded-lg bg-surface shadow-elev1 ring-1 ring-ink px-5 py-3 overflow-x-auto">
         <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-2">Your first day, in order</div>
         <svg
           viewBox="0 0 862 64"
           className="w-full h-auto block min-w-[700px]"
           role="img"
-          aria-label="The first-day flow, left to right: get your Accounts, install your Apps, add the DaVinci Plug-ins, set up Claude, watch the Training SOPs, then run your First task."
+          aria-label="The first-day flow, left to right: sign in and confirm you're connected, run your onboarding Check, install FoxView, watch the Training SOPs, meet Claude, then run your First task."
           style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
         >
           <defs>
             <marker id="obRib" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#EA580C" /></marker>
           </defs>
           {[
-            { label: "Accounts", sub: "1Password first" },
-            { label: "Apps", sub: "DaVinci + tools" },
-            { label: "Plug-ins", sub: "Snap Captions…" },
-            { label: "Set up Claude", sub: "Mac / Windows" },
+            { label: "Sign in", sub: "confirm connected" },
+            { label: "Check", sub: "prove it works" },
+            { label: "FoxView", sub: "2-min install" },
             { label: "Training", sub: "5 SOPs in order" },
+            { label: "Meet Claude", sub: "already installed" },
             { label: "First task", sub: "build + deliver", goal: true },
           ].map((n, i) => {
             const x = 12 + i * 142;
@@ -223,20 +205,25 @@ export default function OnboardingPage() {
         </svg>
       </div>
 
-      {/* Welcome + page map */}
+      {/* Welcome + the pre-built model */}
       <section id="welcome" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
           <h2 className="font-heading font-bold text-[26px] text-text">👋 Welcome</h2>
         </div>
         <p className="text-text leading-relaxed max-w-3xl">
-          You&apos;re joining the team behind PFM&apos;s story-ad pipeline — high-volume video creatives in the Auto, Home Insurance, and Concealed Carry verticals. This hub is your map: <strong className="text-text">Onboarding</strong> (this page) gets you set up, <strong className="text-text">Claude</strong> covers your AI production assistant, and <strong className="text-text">Resources</strong> is where the briefs and shared assets live.
+          You&apos;re joining the team behind PFM&apos;s story-ad pipeline — high-volume video creatives in the Auto, Home Insurance, and Concealed Carry verticals. This hub is your map: <strong className="text-text">Onboarding</strong> (this page) gets you oriented, <strong className="text-text">Claude</strong> covers your AI production assistant, and <strong className="text-text">Resources</strong> is where the briefs and shared assets live.
         </p>
-        {/* Hub navigation trio lives on the Dashboard now */}
+        <div className="mt-5 p-4 bg-accentMuted border border-ink shadow-elev1 text-sm text-text max-w-3xl">
+          <div className="font-semibold mb-1">✅ Your laptop arrives ready</div>
+          <div className="text-muted">
+            Sam builds your machine before your first day — accounts created, apps installed and signed in, DaVinci + plug-ins in place, and Claude loaded with the full PFM skill set. You don&apos;t install anything. Day one is about getting oriented and shipping your first creative, not setup. Every shared login lives in the <strong className="text-text">Password Vault</strong> (Notion → Shared) — ask Sam if an app ever asks you to sign in.
+          </div>
+        </div>
         <p className="text-sm text-muted mt-5">
-          This page is the short version. The complete walkthrough — exact credentials, LucidLink mount-point setup, Blackmagic Cloud, and the training videos — lives in the{" "}
+          The complete behind-the-scenes runbook (how the machine gets built) lives in the{" "}
           <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
-            full Editor Onboarding SOP in Notion ↗
-          </a>.
+            Editor Onboarding SOP in Notion ↗
+          </a>. You won&apos;t need it — it&apos;s Sam&apos;s checklist.
         </p>
       </section>
 
@@ -245,7 +232,7 @@ export default function OnboardingPage() {
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
           <h2 className="font-heading font-bold text-[26px] text-text">✅ Day-one checklist</h2>
         </div>
-        <p className="text-muted text-sm mb-5 max-w-3xl">Your first day, in order. Each step expands below.</p>
+        <p className="text-muted text-sm mb-5 max-w-3xl">Your first day, in order — orientation and your first creative. The install work is already done for you.</p>
         <ol className="space-y-3">
           {checklist.map((c, i) => (
             <li key={i} className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
@@ -261,82 +248,34 @@ export default function OnboardingPage() {
         </ol>
       </section>
 
-      {/* Apps & accounts */}
-      <section id="apps" className="my-12 scroll-mt-8">
+      {/* Your toolkit — reference, not install */}
+      <section id="toolkit" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="font-heading font-bold text-[26px] text-text">🔑 Apps &amp; accounts</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🧰 Your toolkit</h2>
         </div>
 
         <div className="mb-6 p-4 bg-accentMuted border border-ink shadow-elev1 text-sm text-text">
-          <div className="font-semibold mb-1">🔐 Set up 1Password first</div>
+          <div className="font-semibold mb-1">🔐 Where your logins live</div>
           <div className="text-muted">
-            Every shared login lives in 1Password — get an invite (ask Sam or Doug) before anything else. This page lists what to install and how access is handled; for the exact credentials and detailed steps, follow the{" "}
-            <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
-              full SOP in Notion ↗
-            </a>.
+            These are all installed and signed in on your machine — this is just a reference of what&apos;s there and where each credential lives if you&apos;re ever asked. Every shared login is in the{" "}
+            <strong className="text-text">Password Vault</strong> (Notion → Shared) — ask Sam for access.
           </div>
         </div>
 
-        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-3">Core apps</h3>
+        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-3">On your machine</h3>
         <div className="grid md:grid-cols-2 gap-3 mb-8">
-          {coreApps.map((app) => (
+          {toolkit.map((app) => (
             <div key={app.name} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="font-semibold text-text">{app.name}</span>
-                {app.href && (
-                  <a
-                    href={app.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-accentDeep font-medium hover:text-accentHover underline underline-offset-2 shrink-0"
-                  >
-                    download ↗
-                  </a>
-                )}
-              </div>
+              <div className="font-semibold text-text mb-1">{app.name}</div>
               <div className="text-sm text-muted leading-relaxed">{app.for}</div>
               <div className="text-xs text-muted/80 mt-2 border-t border-border pt-2">{app.access}</div>
             </div>
           ))}
         </div>
 
-        {/* Two Chrome profiles — the setup that trips people up */}
-        <div className="mb-8 rounded-lg bg-surface shadow-elev1 ring-1 ring-ink p-5 max-w-xl">
-          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-3">Chrome — two profiles, not one</div>
-          <svg
-            viewBox="0 0 460 210"
-            className="w-full h-auto block"
-            role="img"
-            aria-label="Google Chrome runs two profiles. Profile 1 is your own PFM login; Profile 2 is the shared PFM account (its login is in 1Password). Add the 1Password extension to both profiles."
-            style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
-          >
-            <defs>
-              <marker id="obChrome" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#EA580C" /></marker>
-            </defs>
-            <rect x={160} y={14} width={140} height={42} rx={0} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={1.5} />
-            <text x={230} y={34} fill="#1A1A1A" fontSize={13} fontWeight="bold" textAnchor="middle">Google Chrome</text>
-            <text x={230} y={49} fill="#52525B" fontSize={9.5} textAnchor="middle">two profiles</text>
-            <line x1={206} y1={56} x2={120} y2={92} stroke="#EA580C" strokeWidth={2} markerEnd="url(#obChrome)" />
-            <line x1={254} y1={56} x2={340} y2={92} stroke="#EA580C" strokeWidth={2} markerEnd="url(#obChrome)" />
-            <rect x={16} y={94} width={200} height={100} rx={0} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={1.5} />
-            <circle cx={40} cy={120} r={10} fill="#EA580C" />
-            <text x={40} y={124} fill="#FFFFFF" fontSize={11} fontWeight="bold" textAnchor="middle">1</text>
-            <text x={58} y={124} fill="#1A1A1A" fontSize={12.5} fontWeight={600}>Profile 1</text>
-            <text x={32} y={150} fill="#52525B" fontSize={10.5}>Your own PFM login</text>
-            <text x={32} y={172} fill="#52525B" fontSize={10}>+ 1Password extension</text>
-            <rect x={244} y={94} width={200} height={100} rx={0} fill="#FFEDD5" stroke="#EA580C" strokeWidth={2} />
-            <circle cx={268} cy={120} r={10} fill="#EA580C" />
-            <text x={268} y={124} fill="#FFFFFF" fontSize={11} fontWeight="bold" textAnchor="middle">2</text>
-            <text x={286} y={124} fill="#1A1A1A" fontSize={12.5} fontWeight={600}>Profile 2</text>
-            <text x={260} y={150} fill="#52525B" fontSize={10.5}>Shared PFM account</text>
-            <text x={260} y={172} fill="#52525B" fontSize={10}>login in 1Password · + ext.</text>
-          </svg>
-          <div className="mt-3 text-xs text-muted">Add the 1Password extension to <strong className="text-text">both</strong> profiles — second-profile login lives in 1Password.</div>
-        </div>
-
-        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-1">AI &amp; creative tools</h3>
-        <p className="text-xs text-muted mb-3">Most use the shared PFM Google account or 1Password. Higgsfield is the one Claude drives for gens.</p>
-        <div className="grid md:grid-cols-3 gap-3">
+        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-1">AI gen tools Claude orchestrates</h3>
+        <p className="text-xs text-muted mb-3">You rarely touch these directly — Claude fires them for you. Here&apos;s what&apos;s under the hood.</p>
+        <div className="grid md:grid-cols-2 gap-3">
           {aiTools.map((t) => (
             <a
               key={t.name}
@@ -360,7 +299,7 @@ export default function OnboardingPage() {
         </div>
         <p className="text-text leading-relaxed max-w-3xl mb-5">
           FoxView is PFM&apos;s own media browser for the Lucid drive — a{" "}
-          <strong className="text-text">Finder replacement built for editors</strong>, with Notion requests, review tools (scrub player, A/B compare, QC badges), and one-click asset handoff layered on top. It works just like Finder from minute one — the extra power is additive, nothing new to learn.
+          <strong className="text-text">Finder replacement built for editors</strong>, with Notion requests, review tools (scrub player, A/B compare, QC badges), and one-click asset handoff layered on top. It works just like Finder from minute one — the extra power is additive, nothing new to learn. It may already be installed for you; if so, just log in.
         </p>
 
         <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-ink max-w-3xl">
@@ -390,7 +329,7 @@ export default function OnboardingPage() {
           <h2 className="font-heading font-bold text-[26px] text-text">🎓 Training path</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
-          Five short SOPs (each with a video) that take you from the file system to a finished, exported creative. Work through them in order — open each in Notion.
+          Five short SOPs (each with a video) that take you from the file system to a finished, exported creative. This is the real work of day one — work through them in order, open each in Notion.
         </p>
         <div className="space-y-3 mb-8">
           {training.map((t) => (
@@ -428,7 +367,7 @@ export default function OnboardingPage() {
             <a href="https://courses.tmsmedia.io/login" target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
               courses.tmsmedia.io ↗
             </a>{" "}
-            (login in the SOP / 1Password). Complete in this order:
+            (login in the Password Vault). Complete in this order:
           </p>
           <ol className="ml-5 list-decimal text-sm text-muted space-y-1">
             {courses.map((c) => (
@@ -438,10 +377,10 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      {/* Set up Claude — live handoff */}
+      {/* Meet Claude — already installed */}
       <section id="claude-setup" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="font-heading font-bold text-[26px] text-text">🤖 Set up Claude</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🤖 Meet Claude</h2>
         </div>
         <Link
           href="/claude"
@@ -449,14 +388,32 @@ export default function OnboardingPage() {
         >
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🤖</span>
-            <div className="text-2xl font-bold text-text">Install Claude + the PFM pipeline →</div>
+            <div className="text-2xl font-bold text-text">How Claude runs the PFM pipeline →</div>
           </div>
           <p className="text-muted max-w-2xl">
-            Claude is your AI production assistant — it turns a Notion request into delivered Veo clips
-            and Nano Banana b-roll. The Claude page has the full Mac / Windows install walkthrough, how
-            to use it, the skills it runs, and troubleshooting. <span className="text-accent font-medium">Go to the Claude page →</span>
+            Claude is your AI production assistant — already installed on your machine and loaded with the PFM skills. It turns a Notion request into delivered Veo clips and Nano Banana b-roll. The Claude page shows how to use it, the skills it runs, how to pull updates, and troubleshooting. <span className="text-accent font-medium">Go to the Claude page →</span>
           </p>
         </Link>
+      </section>
+
+      {/* Self-setup — the secondary path for VAs / remote / re-setup */}
+      <section id="self-setup" className="my-12 scroll-mt-8">
+        <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
+          <h2 className="font-heading font-bold text-[26px] text-text">🛠 Setting up a machine yourself?</h2>
+          <span className="self-center font-mono text-[10px] uppercase tracking-[0.08em] text-muted bg-surface2 border border-ink px-1.5 py-0.5 font-medium">Most editors skip this</span>
+        </div>
+        <p className="text-text leading-relaxed max-w-3xl mb-4">
+          Local editors&apos; laptops are pre-built, so you won&apos;t normally do this. It&apos;s here for <strong className="text-text">remote / VA setups, a second machine, or a re-install.</strong> Once LucidLink is mounted and you&apos;re signed into Claude, one Terminal command installs the whole PFM stack (Homebrew, Node, Higgsfield CLI, ffmpeg, Whisper, and every team skill):
+        </p>
+        <div className="rounded-lg p-4 bg-surface shadow-elev1 ring-1 ring-ink max-w-3xl font-mono text-xs text-text overflow-x-auto">
+          bash &quot;/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-setup.sh&quot;
+        </div>
+        <p className="text-sm text-muted mt-3 max-w-3xl">
+          It ends with a verification checklist and a card of the few logins it can&apos;t do for you (Higgsfield, the Claude Notion connector). Remote VAs follow the dedicated VA path — ask Nicolai. Full details in the{" "}
+          <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
+            Onboarding SOP ↗
+          </a>.
+        </p>
       </section>
     </div>
   );
