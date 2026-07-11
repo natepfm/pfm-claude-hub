@@ -4,6 +4,8 @@ export interface Skill {
   description: string;
   worksIn: ("code" | "cowork")[];
   category: "gen-auto" | "gen-manual" | "writing" | "image" | "video" | "utility";
+  /** Omitted = live. Drives the dashboard counts + status column. */
+  status?: "frozen" | "retired";
 }
 
 export const skills: Skill[] = [
@@ -256,6 +258,7 @@ export const skills: Skill[] = [
       "⚠️ Frozen: was Canva-based and PFM has exited Canva — rebuild on the HTML render method is pending. Don't run; ask Sam for BN strips.",
     worksIn: ["code"],
     category: "image",
+    status: "frozen",
   },
   {
     name: "ctv-bn-variation",
@@ -264,6 +267,7 @@ export const skills: Skill[] = [
       "Retired 07-09 — superseded by the Roku CTV BN Pipeline. This stub redirects automatically.",
     worksIn: ["code"],
     category: "gen-manual",
+    status: "retired",
   },
   {
     name: "labs-voice-swap",

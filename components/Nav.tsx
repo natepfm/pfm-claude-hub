@@ -4,14 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const pages = [
-  { href: "/", label: "Onboarding", icon: "🚀" },
+  { href: "/", label: "Dashboard", icon: "📊" },
   { href: "/claude", label: "Claude", icon: "🤖" },
   { href: "/creatives", label: "Creatives", icon: "🎬" },
   { href: "/resources", label: "Resources", icon: "📚" },
+  { href: "/onboarding", label: "Onboarding", icon: "🚀" },
 ];
 
 const subLinks: Record<string, { href: string; label: string }[]> = {
   "/": [
+    { href: "#stats", label: "Stats" },
+    { href: "#skills", label: "Skills registry" },
+  ],
+  "/onboarding": [
     { href: "#welcome", label: "Welcome" },
     { href: "#checklist", label: "Day-one checklist" },
     { href: "#apps", label: "Apps & accounts" },
@@ -46,6 +51,7 @@ function baseRoute(pathname: string): string {
   if (pathname.startsWith("/claude")) return "/claude";
   if (pathname.startsWith("/creatives")) return "/creatives";
   if (pathname.startsWith("/resources")) return "/resources";
+  if (pathname.startsWith("/onboarding")) return "/onboarding";
   return "/";
 }
 
@@ -133,13 +139,12 @@ export function MobileNav() {
             <li key={p.href} className="flex-1">
               <Link
                 href={p.href}
-                className={`flex items-center justify-center gap-1.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+                className={`flex items-center justify-center py-2.5 font-mono text-[10px] uppercase tracking-[0.04em] transition-colors ${
                   isActive
                     ? "bg-accentMuted text-text font-medium"
                     : "text-muted"
                 }`}
               >
-                <span className="text-xs">{p.icon}</span>
                 {p.label}
               </Link>
             </li>
