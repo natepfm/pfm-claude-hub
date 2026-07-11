@@ -1,56 +1,62 @@
 const stages = [
   {
-    n: 1,
+    n: "01",
     icon: "📋",
-    accent: "#2DD4BF",
+    strip: "bg-accent",
+    node: "bg-accentMuted",
     title: "Notion request",
-    tag: "from the VTM",
+    tag: "From the VTM",
     body: "Every creative begins as a request in the Video Task Manager — the brief, the script / copy, the vertical, and the 🤖 Asset Gen grid that the rest of the flow fills in.",
     skills: [],
   },
   {
-    n: 2,
+    n: "02",
     icon: "🗂️",
-    accent: "#FDE047",
+    strip: "bg-tintBlue",
+    node: "bg-tintBlue",
     title: "Stage",
     tag: "/stage request",
     body: "Say “stage request” and Claude preps it — resolves the source creative's master prompt + reference images, builds the project folder on Lucid, writes the verbatim dialogue manifest, fills the 🤖 grid, then routes it: hand to the mini, or fire it yourself.",
     skills: ["stage-request"],
   },
   {
-    n: 3,
+    n: "03",
     icon: "⚡",
-    accent: "#F472B6",
+    strip: "bg-successMuted",
+    node: "bg-successMuted",
     title: "Generate",
-    tag: "the hub — two ways to fire",
+    tag: "The hub — two ways to fire",
     body: "Same engine, same conventions; the only difference is who pulls the trigger.",
     skills: ["hvg-flow", "hig-flow", "vsl-state-variations", "pixar-state-music-video", "breaking-news-story-ads", "podcast-guest-veo", "call-graphics", "veo-life", "+ more"],
     hub: true,
   },
   {
-    n: 4,
+    n: "04",
     icon: "✅",
-    accent: "#2DD4BF",
+    strip: "bg-accent",
+    node: "bg-accentMuted",
     title: "QC + Report",
-    tag: "auto-QC → delivered",
+    tag: "Auto-QC → delivered",
     body: "Every batch passes QC — audio-qc (silence / clipping / dialogue / stray music) and visual-qc (per-clip filmstrip defects). Flagged clips refire. Then assets land in the folder and get reported: a delivery comment + a ping in #pfm-asset-gen.",
     skills: ["audio-qc", "visual-qc", "notion-asset-delivery"],
   },
   {
-    n: 5,
+    n: "05",
     icon: "🎬",
-    accent: "#FDE047",
+    strip: "bg-tintBlue",
+    node: "bg-tintBlue",
     title: "Assemble",
-    tag: "in DaVinci",
+    tag: "In DaVinci",
     body: "With the generated assets in hand, the editor builds the creative in DaVinci. claude-editor imports the batch and lays the script-ordered stringout; the editor takes it home — captions, speed, b-roll, grade.",
     skills: ["claude-editor"],
   },
   {
-    n: 6,
+    n: "06",
     icon: "📦",
-    accent: "#34D399",
+    strip: "bg-successMuted",
+    node: "bg-successMuted",
     title: "Deliver",
-    tag: "final creative",
+    tag: "Final creative",
     body: "The finished creative is turned in — delivery comment posted, status moved to Done, the requester tagged for review. From a line on a Notion board to a delivered creative.",
     skills: ["report", "notion-asset-delivery"],
   },
@@ -59,105 +65,89 @@ const stages = [
 export default function FlowSection() {
   return (
     <section id="flow" className="my-16 scroll-mt-8">
-      <div className="border-l-4 border-accent pl-4 mb-6">
-        <div className="text-xs uppercase tracking-widest mb-1 font-extrabold" style={{ color: "#2DD4BF" }}>The whole flow</div>
-        <h2 className="text-4xl md:text-5xl font-black drop-shadow-text-depth italic tracking-tight">From a Notion request to a delivered creative</h2>
-        <p className="text-muted mt-3 max-w-3xl text-lg">
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 border border-ink bg-surface px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-text mb-5">
+          <span aria-hidden className="inline-block w-2 h-2 bg-accent" />
+          The whole flow
+        </div>
+        <h2 className="font-heading font-bold text-3xl md:text-5xl text-text leading-[1.1]">
+          From a Notion request to a <em>delivered creative.</em>
+        </h2>
+        <p className="text-muted mt-4 max-w-3xl text-lg">
           This is the whole system, end to end — top to bottom. A request comes in, gets staged, generates (automatically or by hand), passes QC, gets assembled, and ships.
         </p>
       </div>
 
-      {/* ── Vertical Memphis timeline ── */}
-      <div
-        className="relative my-10 rounded-2xl ring-1 ring-white/10 shadow-elev2 overflow-hidden px-5 py-10 md:px-12 md:py-14"
-        style={{ background: "linear-gradient(180deg, #18110a 0%, #110b07 60%, #0a0a0a 100%)" }}
-      >
-        {/* Memphis confetti */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-90">
-          <svg className="absolute top-6 right-8" width="70" height="70"><circle cx="35" cy="35" r="29" fill="none" stroke="#2DD4BF" strokeWidth="6" /></svg>
-          <svg className="absolute top-10 right-28 hidden md:block" width="84" height="32"><path d="M3,4 L17,28 L31,4 L45,28 L59,4 L73,28" stroke="#FDE047" strokeWidth="5" fill="none" strokeLinecap="round" /></svg>
-          <svg className="absolute bottom-10 right-10" width="86" height="36"><path d="M3,28 Q17,3 31,19 T59,15 T85,19" stroke="#F472B6" strokeWidth="6" fill="none" strokeLinecap="round" /></svg>
-          <svg className="absolute bottom-16 left-8 hidden md:block" width="54" height="54"><polygon points="27,4 50,48 4,48" fill="none" stroke="#FF6B35" strokeWidth="5" /></svg>
-        </div>
+      {/* ── Timeline — accent rail, square nodes, hard-shadow cards ── */}
+      <ol className="relative ml-1 md:ml-2 border-l-2 border-accent">
+        {stages.map((s) => (
+          <li key={s.n} className="relative pl-8 md:pl-10 pb-10 last:pb-0">
+            {/* square node on the rail */}
+            <span
+              aria-hidden
+              className={`absolute -left-[7px] top-7 h-3 w-3 border border-ink ${s.node}`}
+            />
 
-        <ol className="relative">
-          {stages.map((s, i) => {
-            const isLast = i === stages.length - 1;
-            return (
-              <li key={s.n} className="relative flex gap-5 md:gap-7 pb-12 last:pb-0">
-                {/* bold orange rail to next node */}
-                {!isLast && (
-                  <span
-                    aria-hidden
-                    className="absolute top-[58px] bottom-0 w-[4px] rounded-full left-[26px] md:left-[27px]"
-                    style={{ background: "#FF6B35" }}
-                  />
-                )}
+            <div className="max-w-2xl bg-surface border border-ink shadow-elev2">
+              {/* colored top strip */}
+              <div aria-hidden className={`h-1.5 border-b border-ink ${s.strip}`} />
 
-                {/* chunky Memphis node */}
-                <div className="relative z-10 shrink-0">
-                  <div
-                    className="grid place-items-center rounded-full h-[58px] w-[58px] text-3xl"
-                    style={{ background: "#FF6B35", border: "3px solid #0a0a0a", boxShadow: `5px 5px 0 ${s.accent}` }}
-                  >
-                    <span>{s.icon}</span>
-                  </div>
-                  <span
-                    className="absolute -top-2 -left-2 h-6 w-6 grid place-items-center rounded-full text-[11px] font-black"
-                    style={{ background: s.accent, color: "#0a0a0a", border: "2px solid #0a0a0a" }}
-                  >
+              <div className="p-5 md:p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="grid place-items-center h-8 w-8 border border-ink bg-surface font-mono text-[11px] font-medium text-text">
                     {s.n}
                   </span>
+                  <h3 className="font-heading font-bold text-2xl text-text leading-tight">
+                    {s.icon} {s.title}
+                  </h3>
                 </div>
 
-                {/* content */}
-                <div className="min-w-0 pt-1">
-                  <div className="text-[11px] font-extrabold uppercase tracking-[0.18em] mb-1" style={{ color: s.accent }}>
-                    Step {s.n} · {s.tag}
+                <p className="text-sm md:text-[15px] text-muted leading-relaxed">{s.body}</p>
+
+                {/* Generate hub — the fork */}
+                {s.hub && (
+                  <div className="mt-4 grid sm:grid-cols-2 gap-3">
+                    <div className="p-4 bg-accentMuted border border-ink">
+                      <div className="text-sm font-semibold text-text">🤖 AGF · automated</div>
+                      <div className="text-xs text-muted mt-0.5">The office mini claims <strong className="text-text">Ready</strong> requests and fires hands-off.</div>
+                    </div>
+                    <div className="p-4 bg-tintBlue border border-ink">
+                      <div className="text-sm font-semibold text-text">💻 HVG / HIG · manual</div>
+                      <div className="text-xs text-muted mt-0.5">You fire in your own session — <span className="font-mono text-accentDeep">hvg-flow</span> (video) / <span className="font-mono text-accentDeep">hig-flow</span> (images).</div>
+                    </div>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-black italic text-text leading-tight">{s.title}</h3>
-                  <p className="text-sm md:text-[15px] text-muted mt-2 max-w-2xl leading-relaxed">{s.body}</p>
+                )}
 
-                  {/* Generate hub — the fork */}
-                  {s.hub && (
-                    <div className="mt-4 grid sm:grid-cols-2 gap-3 max-w-2xl">
-                      <div className="rounded-xl p-4" style={{ background: "rgba(255,107,53,0.08)", border: "2px solid #FF6B35", boxShadow: "4px 4px 0 #2DD4BF" }}>
-                        <div className="text-sm font-black" style={{ color: "#FF8A4D" }}>🤖 AGF · automated</div>
-                        <div className="text-xs text-muted mt-0.5">The office mini claims <strong className="text-text">Ready</strong> requests and fires hands-off.</div>
-                      </div>
-                      <div className="rounded-xl p-4" style={{ background: "rgba(45,212,191,0.06)", border: "2px solid #2DD4BF", boxShadow: "4px 4px 0 #FF6B35" }}>
-                        <div className="text-sm font-black" style={{ color: "#5EEAD4" }}>💻 HVG / HIG · manual</div>
-                        <div className="text-xs text-muted mt-0.5">You fire in your own session — <span className="font-mono text-accent">hvg-flow</span> (video) / <span className="font-mono text-accent">hig-flow</span> (images).</div>
-                      </div>
-                    </div>
-                  )}
+                {/* skills */}
+                {s.skills.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted/70 mr-1">{s.hub ? "gen skills vary by project" : "skills"}</span>
+                    {s.skills.map((sk) => (
+                      <span
+                        key={sk}
+                        className={`text-xs font-mono px-2 py-0.5 ${sk === "+ more" ? "text-muted" : "bg-surface2 text-muted border border-borderInput"}`}
+                      >
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-                  {/* skills */}
-                  {s.skills.length > 0 && (
-                    <div className="mt-3 flex flex-wrap items-center gap-1.5 max-w-2xl">
-                      <span className="text-[10px] uppercase tracking-wide text-muted/70 mr-1">{s.hub ? "gen skills vary by project" : "skills"}</span>
-                      {s.skills.map((sk) => (
-                        <span
-                          key={sk}
-                          className={`text-xs font-mono px-2 py-0.5 rounded ${sk === "+ more" ? "text-muted" : "bg-surface text-text/80 ring-1 ring-border/50"}`}
-                        >
-                          {sk}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {s.hub && (
-                    <p className="text-xs text-muted mt-3">
-                      Full breakdown of the two lanes + the Asset Gen statuses is in <a href="#asset-gen" className="text-accent hover:text-accentHover underline">Asset Generation</a> below.
-                    </p>
-                  )}
+                {/* mono accent tagline — the reference card footer */}
+                <div className="mt-4 pt-3 border-t border-border font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-accentDeep">
+                  {s.tag}
                 </div>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+
+                {s.hub && (
+                  <p className="text-xs text-muted mt-3">
+                    Full breakdown of the two lanes + the Asset Gen statuses is in <a href="#asset-gen" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Asset Generation</a> below.
+                  </p>
+                )}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

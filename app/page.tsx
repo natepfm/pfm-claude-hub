@@ -187,8 +187,8 @@ export default function OnboardingPage() {
       />
 
       {/* First-day ribbon — the whole onboarding flow at a glance */}
-      <div className="mb-12 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 px-5 py-3 overflow-x-auto">
-        <div className="text-[11px] uppercase tracking-widest text-accent mb-2">Your first day, in order</div>
+      <div className="mb-12 rounded-lg bg-surface shadow-elev1 ring-1 ring-ink px-5 py-3 overflow-x-auto">
+        <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-2">Your first day, in order</div>
         <svg
           viewBox="0 0 862 64"
           className="w-full h-auto block min-w-[700px]"
@@ -197,7 +197,7 @@ export default function OnboardingPage() {
           style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
         >
           <defs>
-            <marker id="obRib" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+            <marker id="obRib" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#EA580C" /></marker>
           </defs>
           {[
             { label: "Accounts", sub: "1Password first" },
@@ -212,11 +212,11 @@ export default function OnboardingPage() {
             return (
               <g key={n.label}>
                 {i > 0 && (
-                  <line x1={x - 24} y1={32} x2={x - 2} y2={32} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obRib)" />
+                  <line x1={x - 24} y1={32} x2={x - 2} y2={32} stroke="#EA580C" strokeWidth={2} markerEnd="url(#obRib)" />
                 )}
-                <rect x={x} y={10} width={116} height={44} rx={9} fill={n.goal ? "#FF6B35" : "#141414"} stroke={n.goal ? "#FF6B35" : "#2a2a2a"} strokeWidth={1.5} />
-                <text x={cx} y={30} fill={n.goal ? "#0a0a0a" : "#fafafa"} fontSize={12.5} fontWeight={600} textAnchor="middle">{n.label}</text>
-                <text x={cx} y={45} fill={n.goal ? "#0a0a0a" : "#a1a1a1"} fontSize={9} textAnchor="middle">{n.sub}</text>
+                <rect x={x} y={10} width={116} height={44} rx={0} fill={n.goal ? "#EA580C" : "#FFFFFF"} stroke={n.goal ? "#EA580C" : "#D1D5DB"} strokeWidth={1.5} />
+                <text x={cx} y={30} fill={n.goal ? "#FFFFFF" : "#1A1A1A"} fontSize={12.5} fontWeight={600} textAnchor="middle">{n.label}</text>
+                <text x={cx} y={45} fill={n.goal ? "#FFFFFF" : "#52525B"} fontSize={9} textAnchor="middle">{n.sub}</text>
               </g>
             );
           })}
@@ -226,31 +226,38 @@ export default function OnboardingPage() {
       {/* Welcome + page map */}
       <section id="welcome" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">👋 Welcome</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">👋 Welcome</h2>
         </div>
         <p className="text-text leading-relaxed max-w-3xl">
           You&apos;re joining the team behind PFM&apos;s story-ad pipeline — high-volume video creatives in the Auto, Home Insurance, and Concealed Carry verticals. This hub is your map: <strong className="text-text">Onboarding</strong> (this page) gets you set up, <strong className="text-text">Claude</strong> covers your AI production assistant, and <strong className="text-text">Resources</strong> is where the briefs and shared assets live.
         </p>
-        <div className="mt-5 grid md:grid-cols-3 gap-4">
-          <Link href="/" className="block rounded-lg p-4 bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40">
-            <div className="text-2xl mb-1">🚀</div>
-            <div className="font-semibold">Onboarding</div>
-            <div className="text-xs text-muted">You are here — first-day setup</div>
+        <div className="mt-6 grid md:grid-cols-3 gap-5">
+          {/* Numbered color-block cards — the persimmons service-card pattern */}
+          <Link href="/" className="block border border-ink bg-accentMuted shadow-elev2">
+            <div className="px-4 py-2 border-b border-ink font-mono text-[11px] font-medium text-text">01</div>
+            <div className="p-4">
+              <div className="font-heading font-bold text-xl text-text mb-1">🚀 Onboarding</div>
+              <div className="text-xs text-muted">You are here — first-day setup</div>
+            </div>
           </Link>
-          <Link href="/claude" className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200">
-            <div className="text-2xl mb-1">🤖</div>
-            <div className="font-semibold">Claude</div>
-            <div className="text-xs text-muted">Your AI production assistant</div>
+          <Link href="/claude" className="block border border-ink bg-tintBlue shadow-elev2 hover:shadow-elev3 hover:-translate-y-0.5 transition-all duration-200">
+            <div className="px-4 py-2 border-b border-ink font-mono text-[11px] font-medium text-text">02</div>
+            <div className="p-4">
+              <div className="font-heading font-bold text-xl text-text mb-1">🤖 Claude</div>
+              <div className="text-xs text-muted">Your AI production assistant</div>
+            </div>
           </Link>
-          <Link href="/resources" className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200">
-            <div className="text-2xl mb-1">📚</div>
-            <div className="font-semibold">Resources</div>
-            <div className="text-xs text-muted">Briefs + shared assets</div>
+          <Link href="/resources" className="block border border-ink bg-successMuted shadow-elev2 hover:shadow-elev3 hover:-translate-y-0.5 transition-all duration-200">
+            <div className="px-4 py-2 border-b border-ink font-mono text-[11px] font-medium text-text">03</div>
+            <div className="p-4">
+              <div className="font-heading font-bold text-xl text-text mb-1">📚 Resources</div>
+              <div className="text-xs text-muted">Briefs + shared assets</div>
+            </div>
           </Link>
         </div>
         <p className="text-sm text-muted mt-5">
           This page is the short version. The complete walkthrough — exact credentials, LucidLink mount-point setup, Blackmagic Cloud, and the training videos — lives in the{" "}
-          <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accentHover underline">
+          <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
             full Editor Onboarding SOP in Notion ↗
           </a>.
         </p>
@@ -259,13 +266,13 @@ export default function OnboardingPage() {
       {/* Day-one checklist */}
       <section id="checklist" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">✅ Day-one checklist</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">✅ Day-one checklist</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">Your first day, in order. Each step expands below.</p>
         <ol className="space-y-3">
           {checklist.map((c, i) => (
-            <li key={i} className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
-              <div className="shrink-0 w-8 h-8 rounded-full bg-accent text-bg font-bold flex items-center justify-center">
+            <li key={i} className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
+              <div className="shrink-0 w-8 h-8 rounded-full bg-accent text-white font-bold flex items-center justify-center">
                 {i + 1}
               </div>
               <div className="flex-1">
@@ -280,23 +287,23 @@ export default function OnboardingPage() {
       {/* Apps & accounts */}
       <section id="apps" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🔑 Apps &amp; accounts</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🔑 Apps &amp; accounts</h2>
         </div>
 
-        <div className="mb-6 p-4 bg-glass-accent backdrop-blur-xl border-l-4 border-accent rounded-r ring-1 ring-accent/30 shadow-elev1 text-sm text-text">
+        <div className="mb-6 p-4 bg-accentMuted border border-ink shadow-elev1 text-sm text-text">
           <div className="font-semibold mb-1">🔐 Set up 1Password first</div>
           <div className="text-muted">
             Every shared login lives in 1Password — get an invite (ask Sam or Doug) before anything else. This page lists what to install and how access is handled; for the exact credentials and detailed steps, follow the{" "}
-            <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accentHover underline">
+            <a href={SOP_URL} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
               full SOP in Notion ↗
             </a>.
           </div>
         </div>
 
-        <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">Core apps</h3>
+        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-3">Core apps</h3>
         <div className="grid md:grid-cols-2 gap-3 mb-8">
           {coreApps.map((app) => (
-            <div key={app.name} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
+            <div key={app.name} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
               <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="font-semibold text-text">{app.name}</span>
                 {app.href && (
@@ -304,7 +311,7 @@ export default function OnboardingPage() {
                     href={app.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-accent hover:text-accentHover underline shrink-0"
+                    className="text-xs text-accentDeep font-medium hover:text-accentHover underline underline-offset-2 shrink-0"
                   >
                     download ↗
                   </a>
@@ -317,8 +324,8 @@ export default function OnboardingPage() {
         </div>
 
         {/* Two Chrome profiles — the setup that trips people up */}
-        <div className="mb-8 rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 max-w-xl">
-          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Chrome — two profiles, not one</div>
+        <div className="mb-8 rounded-lg bg-surface shadow-elev1 ring-1 ring-ink p-5 max-w-xl">
+          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-3">Chrome — two profiles, not one</div>
           <svg
             viewBox="0 0 460 210"
             className="w-full h-auto block"
@@ -327,30 +334,30 @@ export default function OnboardingPage() {
             style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
           >
             <defs>
-              <marker id="obChrome" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+              <marker id="obChrome" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#EA580C" /></marker>
             </defs>
-            <rect x={160} y={14} width={140} height={42} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-            <text x={230} y={34} fill="#fafafa" fontSize={13} fontWeight="bold" textAnchor="middle">Google Chrome</text>
-            <text x={230} y={49} fill="#a1a1a1" fontSize={9.5} textAnchor="middle">two profiles</text>
-            <line x1={206} y1={56} x2={120} y2={92} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obChrome)" />
-            <line x1={254} y1={56} x2={340} y2={92} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#obChrome)" />
-            <rect x={16} y={94} width={200} height={100} rx={11} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-            <circle cx={40} cy={120} r={10} fill="#FF6B35" />
-            <text x={40} y={124} fill="#0a0a0a" fontSize={11} fontWeight="bold" textAnchor="middle">1</text>
-            <text x={58} y={124} fill="#fafafa" fontSize={12.5} fontWeight={600}>Profile 1</text>
-            <text x={32} y={150} fill="#cfcfcf" fontSize={10.5}>Your own PFM login</text>
-            <text x={32} y={172} fill="#a1a1a1" fontSize={10}>+ 1Password extension</text>
-            <rect x={244} y={94} width={200} height={100} rx={11} fill="#3a1f15" stroke="#FF6B35" strokeWidth={2} />
-            <circle cx={268} cy={120} r={10} fill="#FF6B35" />
-            <text x={268} y={124} fill="#0a0a0a" fontSize={11} fontWeight="bold" textAnchor="middle">2</text>
-            <text x={286} y={124} fill="#fafafa" fontSize={12.5} fontWeight={600}>Profile 2</text>
-            <text x={260} y={150} fill="#cfcfcf" fontSize={10.5}>Shared PFM account</text>
-            <text x={260} y={172} fill="#a1a1a1" fontSize={10}>login in 1Password · + ext.</text>
+            <rect x={160} y={14} width={140} height={42} rx={0} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={1.5} />
+            <text x={230} y={34} fill="#1A1A1A" fontSize={13} fontWeight="bold" textAnchor="middle">Google Chrome</text>
+            <text x={230} y={49} fill="#52525B" fontSize={9.5} textAnchor="middle">two profiles</text>
+            <line x1={206} y1={56} x2={120} y2={92} stroke="#EA580C" strokeWidth={2} markerEnd="url(#obChrome)" />
+            <line x1={254} y1={56} x2={340} y2={92} stroke="#EA580C" strokeWidth={2} markerEnd="url(#obChrome)" />
+            <rect x={16} y={94} width={200} height={100} rx={0} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={1.5} />
+            <circle cx={40} cy={120} r={10} fill="#EA580C" />
+            <text x={40} y={124} fill="#FFFFFF" fontSize={11} fontWeight="bold" textAnchor="middle">1</text>
+            <text x={58} y={124} fill="#1A1A1A" fontSize={12.5} fontWeight={600}>Profile 1</text>
+            <text x={32} y={150} fill="#52525B" fontSize={10.5}>Your own PFM login</text>
+            <text x={32} y={172} fill="#52525B" fontSize={10}>+ 1Password extension</text>
+            <rect x={244} y={94} width={200} height={100} rx={0} fill="#FFEDD5" stroke="#EA580C" strokeWidth={2} />
+            <circle cx={268} cy={120} r={10} fill="#EA580C" />
+            <text x={268} y={124} fill="#FFFFFF" fontSize={11} fontWeight="bold" textAnchor="middle">2</text>
+            <text x={286} y={124} fill="#1A1A1A" fontSize={12.5} fontWeight={600}>Profile 2</text>
+            <text x={260} y={150} fill="#52525B" fontSize={10.5}>Shared PFM account</text>
+            <text x={260} y={172} fill="#52525B" fontSize={10}>login in 1Password · + ext.</text>
           </svg>
           <div className="mt-3 text-xs text-muted">Add the 1Password extension to <strong className="text-text">both</strong> profiles — second-profile login lives in 1Password.</div>
         </div>
 
-        <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-1">AI &amp; creative tools</h3>
+        <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-1">AI &amp; creative tools</h3>
         <p className="text-xs text-muted mb-3">Most use the shared PFM Google account or 1Password. Higgsfield is the one Claude drives for gens.</p>
         <div className="grid md:grid-cols-3 gap-3">
           {aiTools.map((t) => (
@@ -359,7 +366,7 @@ export default function OnboardingPage() {
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
+              className="block rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
               <div className="font-semibold text-text text-sm">{t.name} <span className="text-accent">↗</span></div>
               <div className="text-xs text-muted leading-relaxed mt-0.5">{t.for}</div>
@@ -371,20 +378,20 @@ export default function OnboardingPage() {
       {/* FoxView — PFM's own media browser */}
       <section id="foxview" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🦊 FoxView</h2>
-          <span className="self-center text-[10px] uppercase tracking-widest text-bg bg-accent rounded px-1.5 py-0.5 font-semibold">PFM app</span>
+          <h2 className="font-heading font-bold text-[26px] text-text">🦊 FoxView</h2>
+          <span className="self-center font-mono text-[10px] uppercase tracking-[0.08em] text-white bg-accent border border-ink px-1.5 py-0.5 font-medium">PFM app</span>
         </div>
         <p className="text-text leading-relaxed max-w-3xl mb-5">
           FoxView is PFM&apos;s own media browser for the Lucid drive — a{" "}
           <strong className="text-text">Finder replacement built for editors</strong>, with Notion requests, review tools (scrub player, A/B compare, QC badges), and one-click asset handoff layered on top. It works just like Finder from minute one — the extra power is additive, nothing new to learn.
         </p>
 
-        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 max-w-3xl">
-          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Install — about 2 minutes</div>
+        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-ink max-w-3xl">
+          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-3">Install — about 2 minutes</div>
           <ol className="space-y-3">
             {foxviewSteps.map((s, i) => (
               <li key={i} className="flex gap-3 items-start">
-                <div className="shrink-0 w-6 h-6 rounded-full bg-surface2 text-accent text-sm font-bold flex items-center justify-center">
+                <div className="shrink-0 w-6 h-6 rounded-full bg-surface2 text-accentDeep text-sm font-bold flex items-center justify-center">
                   {i + 1}
                 </div>
                 <div className="flex-1">
@@ -403,7 +410,7 @@ export default function OnboardingPage() {
       {/* Training path */}
       <section id="training" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎓 Training path</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🎓 Training path</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           Five short SOPs (each with a video) that take you from the file system to a finished, exported creative. Work through them in order — open each in Notion.
@@ -415,9 +422,9 @@ export default function OnboardingPage() {
               href={t.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
+              className="flex gap-4 items-start rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
-              <div className="shrink-0 w-8 h-8 rounded-full bg-surface2 text-accent font-bold flex items-center justify-center">
+              <div className="shrink-0 w-8 h-8 rounded-full bg-surface2 text-accentDeep font-bold flex items-center justify-center">
                 {t.n}
               </div>
               <div className="flex-1">
@@ -425,7 +432,7 @@ export default function OnboardingPage() {
                   <span className="font-semibold text-text">{t.title}</span>
                   <span className="text-xs">🎬</span>
                   {t.flag && (
-                    <span className="text-[10px] uppercase tracking-widest text-bg bg-accent rounded px-1.5 py-0.5 font-semibold">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-white bg-accent border border-ink px-1.5 py-0.5 font-medium">
                       {t.flag}
                     </span>
                   )}
@@ -437,11 +444,11 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
+        <div className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
           <div className="font-semibold text-text mb-1">📚 Courses <span className="text-xs font-normal text-muted">— do these out of office, as needed</span></div>
           <p className="text-sm text-muted mb-3">
             On{" "}
-            <a href="https://courses.tmsmedia.io/login" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accentHover underline">
+            <a href="https://courses.tmsmedia.io/login" target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
               courses.tmsmedia.io ↗
             </a>{" "}
             (login in the SOP / 1Password). Complete in this order:
@@ -457,11 +464,11 @@ export default function OnboardingPage() {
       {/* Set up Claude — live handoff */}
       <section id="claude-setup" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🤖 Set up Claude</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🤖 Set up Claude</h2>
         </div>
         <Link
           href="/claude"
-          className="block rounded-xl bg-glass-accent backdrop-blur-xl shadow-glow-accent ring-1 ring-accent/40 p-6 md:p-8 hover:ring-accent/60 hover:-translate-y-0.5 transition-all duration-200"
+          className="block bg-accentMuted border border-ink shadow-glow-accent p-6 md:p-8 hover:-translate-y-0.5 transition-all duration-200"
         >
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">🤖</span>

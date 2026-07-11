@@ -5,10 +5,10 @@ interface Props {
 }
 
 const styles = {
-  info:    { border: "border-accent",       bg: "bg-accentMuted",       icon: "💡" },
-  warn:    { border: "border-yellow-500",   bg: "bg-yellow-950/40",     icon: "⚠️" },
-  danger:  { border: "border-red-500",      bg: "bg-red-950/40",        icon: "🛑" },
-  success: { border: "border-emerald-500",  bg: "bg-emerald-950/40",    icon: "✅" },
+  info:    { border: "border-accent",   bg: "bg-accentMuted",   icon: "💡" },
+  warn:    { border: "border-warning",  bg: "bg-amber-100/70",  icon: "⚠️" },
+  danger:  { border: "border-red-500",  bg: "bg-red-100/60",    icon: "🛑" },
+  success: { border: "border-success",  bg: "bg-successMuted",  icon: "✅" },
 };
 
 export default function Callout({ type = "info", title, children }: Props) {

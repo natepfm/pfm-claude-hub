@@ -12,10 +12,10 @@ export default function SetupWindows() {
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">1. Prereqs — manual installs (one-time)</h3>
         <ol className="list-decimal ml-6 space-y-2 text-muted">
-          <li>Install <a href="https://claude.ai/download" className="text-accent hover:text-accentHover underline">Claude Desktop for Windows</a>, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
-          <li>Install <a href="https://www.lucidlink.com/download" className="text-accent hover:text-accentHover underline">Lucid Link for Windows</a> + mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong>. It mounts as a drive letter — usually <code>L:</code> (could be <code>M:</code>, <code>N:</code> — check File Explorer).</li>
+          <li>Install <a href="https://claude.ai/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Claude Desktop for Windows</a>, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
+          <li>Install <a href="https://www.lucidlink.com/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Lucid Link for Windows</a> + mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong>. It mounts as a drive letter — usually <code>L:</code> (could be <code>M:</code>, <code>N:</code> — check File Explorer).</li>
           <li>
-            Install <a href="https://git-scm.com/download/win" className="text-accent hover:text-accentHover underline">Git for Windows</a>. Important options during install:
+            Install <a href="https://git-scm.com/download/win" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Git for Windows</a>. Important options during install:
             <ul className="list-disc ml-6 mt-1 space-y-0.5">
               <li>"Select Components" — leave defaults checked (Git Bash, Git GUI, Add to PATH).</li>
               <li>"Adjusting your PATH environment" — pick the <strong className="text-text">recommended middle option</strong>: "Git from the command line and also from 3rd-party software".</li>
@@ -23,9 +23,9 @@ export default function SetupWindows() {
             </ul>
             After install, search <strong className="text-text">Git Bash</strong> in the Start menu. That's your terminal from here on.
           </li>
-          <li>Install <a href="https://nodejs.org" className="text-accent hover:text-accentHover underline">Node.js LTS</a> — default install options.</li>
+          <li>Install <a href="https://nodejs.org" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Node.js LTS</a> — default install options.</li>
           <li>
-            Install Python 3 — easiest path is the <strong className="text-text">Microsoft Store</strong> (search "Python 3.12" and click Get). Alternative: <a href="https://www.python.org/downloads/" className="text-accent hover:text-accentHover underline">python.org installer</a> — if you go that route, check <strong className="text-text">"Add python.exe to PATH"</strong> on the first installer screen.
+            Install Python 3 — easiest path is the <strong className="text-text">Microsoft Store</strong> (search "Python 3.12" and click Get). Alternative: <a href="https://www.python.org/downloads/" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">python.org installer</a> — if you go that route, check <strong className="text-text">"Add python.exe to PATH"</strong> on the first installer screen.
           </li>
         </ol>
       </div>

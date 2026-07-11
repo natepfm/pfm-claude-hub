@@ -92,19 +92,19 @@ export default function ResourcesPage() {
       {/* Landers — by vertical (mirrors the Discount Landers Notion page) */}
       <section id="landers" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🛬 Landers</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🛬 Landers</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The landing pages our ads point to, by vertical. Source of truth:{" "}
-          <a href={landersSourceUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accentHover underline">
+          <a href={landersSourceUrl} target="_blank" rel="noopener noreferrer" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
             Discount Landers in Notion ↗
           </a>
           .
         </p>
 
         {/* Vertical → lander map */}
-        <div className="rounded-lg bg-glass-light backdrop-blur-xl shadow-elev1 ring-1 ring-white/10 p-5 mb-6 max-w-xl">
-          <div className="text-[11px] uppercase tracking-widest text-accent mb-3">Vertical → landing pages</div>
+        <div className="rounded-lg bg-surface shadow-elev1 ring-1 ring-ink p-5 mb-6 max-w-xl">
+          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep mb-3">Vertical → landing pages</div>
           <svg
             viewBox={`0 0 440 ${landerGroups.length * 56 + 16}`}
             className="w-full h-auto block"
@@ -113,19 +113,19 @@ export default function ResourcesPage() {
             style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
           >
             <defs>
-              <marker id="rsLander" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#FF6B35" /></marker>
+              <marker id="rsLander" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6 Z" fill="#EA580C" /></marker>
             </defs>
             {landerGroups.map((g, i) => {
               const y = 12 + i * 56;
               const cy = y + 20;
               return (
                 <g key={g.vertical}>
-                  <rect x={12} y={y} width={150} height={40} rx={9} fill="#141414" stroke="#2a2a2a" strokeWidth={1.5} />
-                  <text x={87} y={cy + 5} fill="#fafafa" fontSize={13} fontWeight={600} textAnchor="middle">{g.vertical}</text>
-                  <line x1={164} y1={cy} x2={232} y2={cy} stroke="#FF6B35" strokeWidth={2} markerEnd="url(#rsLander)" />
-                  <rect x={234} y={y} width={194} height={40} rx={9} fill="#3a1f15" stroke="#FF6B35" strokeWidth={1.5} />
-                  <text x={331} y={cy - 1} fill="#fafafa" fontSize={12} fontWeight={600} textAnchor="middle">{g.landers.length} landing {g.landers.length === 1 ? "page" : "pages"}</text>
-                  <text x={331} y={cy + 13} fill="#a1a1a1" fontSize={8.5} textAnchor="middle">{[...new Set(g.landers.map((l) => l.label.split(/[ —(]/)[0]))].join(" · ")}</text>
+                  <rect x={12} y={y} width={150} height={40} rx={0} fill="#FFFFFF" stroke="#D1D5DB" strokeWidth={1.5} />
+                  <text x={87} y={cy + 5} fill="#1A1A1A" fontSize={13} fontWeight={600} textAnchor="middle">{g.vertical}</text>
+                  <line x1={164} y1={cy} x2={232} y2={cy} stroke="#EA580C" strokeWidth={2} markerEnd="url(#rsLander)" />
+                  <rect x={234} y={y} width={194} height={40} rx={0} fill="#FFEDD5" stroke="#EA580C" strokeWidth={1.5} />
+                  <text x={331} y={cy - 1} fill="#1A1A1A" fontSize={12} fontWeight={600} textAnchor="middle">{g.landers.length} landing {g.landers.length === 1 ? "page" : "pages"}</text>
+                  <text x={331} y={cy + 13} fill="#52525B" fontSize={8.5} textAnchor="middle">{[...new Set(g.landers.map((l) => l.label.split(/[ —(]/)[0]))].join(" · ")}</text>
                 </g>
               );
             })}
@@ -134,7 +134,7 @@ export default function ResourcesPage() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {landerGroups.map((g) => (
-            <div key={g.vertical} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50">
+            <div key={g.vertical} className="rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink">
               <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-3">{g.vertical}</div>
               <div className="space-y-3">
                 {g.landers.map((l) => (
@@ -144,7 +144,7 @@ export default function ResourcesPage() {
                       href={l.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-mono text-accent hover:text-accentHover underline break-all"
+                      className="text-xs font-mono text-accentDeep font-medium hover:text-accentHover underline underline-offset-2 break-all"
                     >
                       {l.url}
                     </a>
@@ -159,7 +159,7 @@ export default function ResourcesPage() {
       {/* Tools & logins */}
       <section id="tools" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🔗 Tools &amp; logins</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🔗 Tools &amp; logins</h2>
         </div>
         <p className="text-muted text-sm mb-4 max-w-3xl">
           Quick links to the tools editors open every day, with the right URL for each.
@@ -175,7 +175,7 @@ export default function ResourcesPage() {
       {/* Brand & guidelines */}
       <section id="brand" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🎨 Brand &amp; guidelines</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🎨 Brand &amp; guidelines</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <PlaceholderCard title="Vertical briefs">
@@ -191,7 +191,7 @@ export default function ResourcesPage() {
       {/* Shared assets */}
       <section id="assets" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">🗂️ Shared assets</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">🗂️ Shared assets</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           The PFM Media Assets library — open each folder in LinkYourFile (needs Lucid Link access).
@@ -203,7 +203,7 @@ export default function ResourcesPage() {
               href={a.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
+              className="block rounded-lg p-4 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
             >
               <div className="font-semibold text-text">
                 {a.label} <span className="text-accent">↗</span>
@@ -217,7 +217,7 @@ export default function ResourcesPage() {
       {/* SOPs & guides */}
       <section id="sops" className="my-12 scroll-mt-8">
         <div className="flex items-baseline gap-4 mb-4 border-b border-border pb-2">
-          <h2 className="text-2xl font-bold text-text drop-shadow-text-depth">📖 SOPs &amp; guides</h2>
+          <h2 className="font-heading font-bold text-[26px] text-text">📖 SOPs &amp; guides</h2>
         </div>
         <p className="text-muted text-sm mb-5 max-w-3xl">
           Step-by-step playbooks — the core SOPs plus workflow how-tos.{" "}
@@ -225,7 +225,7 @@ export default function ResourcesPage() {
         </p>
         {sopGuides.map((g) => (
           <div key={g.group} className="mb-6">
-            <h3 className="text-sm uppercase tracking-wide text-accent font-semibold mb-3">{g.group}</h3>
+            <h3 className="font-mono text-xs uppercase tracking-[0.08em] text-accentDeep font-medium mb-3">{g.group}</h3>
             <div className="grid md:grid-cols-2 gap-3">
               {g.items.map((it) => (
                 <a
@@ -233,7 +233,7 @@ export default function ResourcesPage() {
                   href={it.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between gap-2 rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-border/50 hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
+                  className="flex items-center justify-between gap-2 rounded-lg p-3 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:-translate-y-0.5 hover:ring-accent/50 transition-all duration-200"
                 >
                   <span className="text-sm font-medium text-text">
                     {it.label} <span className="text-accent">↗</span>

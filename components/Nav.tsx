@@ -55,30 +55,30 @@ export default function Nav() {
   const subs = subLinks[active] ?? [];
 
   return (
-    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-white/[0.08] px-6 py-10 bg-surface/60 backdrop-blur-2xl sticky top-0 self-start max-h-screen overflow-y-auto">
+    <nav className="hidden md:flex flex-col w-60 shrink-0 border-r border-ink px-6 py-10 bg-surface sticky top-0 self-start max-h-screen overflow-y-auto">
       <Link href="/" className="block mb-8">
-        <div className="text-2xl font-bold tracking-tight">
+        <div className="font-heading font-bold text-2xl">
           <span className="text-text">PFM </span>
-          <span className="font-black italic" style={{ color: "#FF6B35" }}>Editors</span>
+          <span className="italic text-accent">Editors</span>
         </div>
-        <div className="text-xs text-muted mt-1 uppercase tracking-widest">Hub</div>
+        <div className="font-mono text-[10px] text-muted mt-1 uppercase tracking-[0.08em]">Hub</div>
       </Link>
 
-      {/* Primary pages */}
-      <ul className="space-y-1 mb-6">
+      {/* Primary pages — boxed toolbar cells */}
+      <ul className="mb-6 border border-ink divide-y divide-ink">
         {pages.map((p) => {
           const isActive = active === p.href;
           return (
             <li key={p.href}>
               <Link
                 href={p.href}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2.5 font-mono text-xs uppercase tracking-[0.08em] transition-colors ${
                   isActive
-                    ? "bg-accentMuted text-text font-semibold border-l-2 border-accent"
-                    : "text-muted hover:text-text hover:bg-surface2"
+                    ? "bg-accentMuted text-text font-medium"
+                    : "text-muted hover:text-text hover:bg-bg"
                 }`}
               >
-                <span>{p.icon}</span>
+                <span className="text-sm">{p.icon}</span>
                 {p.label}
               </Link>
             </li>
@@ -89,7 +89,7 @@ export default function Nav() {
       {/* Contextual "on this page" links */}
       {subs.length > 0 && (
         <>
-          <div className="text-[10px] uppercase tracking-widest text-muted/70 px-3 mb-2">On this page</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-muted/70 px-3 mb-2">On this page</div>
           <ul className="space-y-0.5 border-l border-border ml-3 pl-2">
             {subs.map((l) => (
               <li key={l.href}>
@@ -118,28 +118,28 @@ export function MobileNav() {
   const active = baseRoute(pathname);
 
   return (
-    <div className="md:hidden sticky top-0 z-20 bg-surface/70 backdrop-blur-2xl border-b border-white/[0.08]">
+    <div className="md:hidden sticky top-0 z-20 bg-surface border-b border-ink">
       <div className="px-4 py-3">
-        <Link href="/" className="text-lg font-bold tracking-tight">
+        <Link href="/" className="font-heading font-bold text-lg">
           <span className="text-text">PFM </span>
-          <span className="font-black italic" style={{ color: "#FF6B35" }}>Editors</span>
-          <span className="text-muted text-xs uppercase tracking-widest ml-2">Hub</span>
+          <span className="italic text-accent">Editors</span>
+          <span className="font-mono font-normal text-muted text-[10px] uppercase tracking-[0.08em] ml-2">Hub</span>
         </Link>
       </div>
-      <ul className="flex border-t border-border">
+      <ul className="flex border-t border-ink divide-x divide-ink">
         {pages.map((p) => {
           const isActive = active === p.href;
           return (
             <li key={p.href} className="flex-1">
               <Link
                 href={p.href}
-                className={`flex items-center justify-center gap-1.5 py-2.5 text-sm transition-colors ${
+                className={`flex items-center justify-center gap-1.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
                   isActive
-                    ? "text-accent font-semibold border-b-2 border-accent"
+                    ? "bg-accentMuted text-text font-medium"
                     : "text-muted"
                 }`}
               >
-                <span>{p.icon}</span>
+                <span className="text-xs">{p.icon}</span>
                 {p.label}
               </Link>
             </li>

@@ -18,17 +18,18 @@ export default function CopyBlock({ code, label }: Props) {
 
   return (
     <div className="my-4">
-      {label && <div className="text-xs uppercase tracking-widest text-muted mb-2">{label}</div>}
-      <div className="relative bg-surface2 border border-border rounded-md overflow-hidden group">
-        <pre className="px-4 py-3 pr-28 text-sm font-mono text-text overflow-x-auto whitespace-pre-wrap break-all">
+      {label && <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">{label}</div>}
+      {/* Terminal block — the one deliberately dark surface in Persimmon Clean v2 */}
+      <div className="relative bg-darkSurface rounded-md overflow-hidden group">
+        <pre className="px-4 py-3 pr-28 text-sm font-mono text-[#E8E3DA] overflow-x-auto whitespace-pre-wrap break-all">
           <code>{code}</code>
         </pre>
         <button
           onClick={handleCopy}
-          className={`absolute top-2 right-2 px-3 py-1.5 text-xs font-semibold rounded transition-all ${
+          className={`absolute top-2 right-2 px-3 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.06em] transition-all ${
             copied
-              ? "bg-accent text-bg"
-              : "bg-surface text-text border border-border hover:bg-accent hover:text-bg hover:border-accent"
+              ? "bg-accent text-white"
+              : "bg-white/10 text-white hover:bg-accent"
           }`}
         >
           {copied ? "Copied ✓" : "Copy"}

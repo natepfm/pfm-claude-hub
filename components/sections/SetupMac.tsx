@@ -16,8 +16,8 @@ export default function SetupMac() {
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">1. Prereqs — install Claude Desktop + Lucid Link</h3>
         <ol className="list-decimal ml-6 space-y-1 text-muted">
-          <li>Download <a href="https://claude.ai/download" className="text-accent hover:text-accentHover underline">Claude Desktop</a>, install, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
-          <li>Install <a href="https://www.lucidlink.com/download" className="text-accent hover:text-accentHover underline">Lucid Link</a> and mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong> filespace at <code>/Volumes/ads/</code>.</li>
+          <li>Download <a href="https://claude.ai/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Claude Desktop</a>, install, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
+          <li>Install <a href="https://www.lucidlink.com/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Lucid Link</a> and mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong> filespace at <code>/Volumes/ads/</code>.</li>
           <li>Make sure Notion is installed and you're signed in.</li>
         </ol>
         <Callout type="warn" title='Expected: "Git is required for local sessions" error'>
