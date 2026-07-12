@@ -99,6 +99,8 @@ const config: Config = {
         "surface-gradient-soft":
           "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 100%)",
         "accent-gradient": "linear-gradient(180deg, #FFEDD5 0%, #FFF7EF 100%)",
+        "header-gradient":
+          "linear-gradient(120deg, #D47A4B 0%, #E19A69 52%, #CA7046 100%)",
         "glass-light":
           "linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.6) 100%)",
         "glass-accent":

@@ -28,15 +28,15 @@ export default function TopNav() {
   const active = baseRoute(pathname);
 
   return (
-    <header className="sticky top-0 z-20 bg-surface border-b border-ink">
-      <div className="px-4 md:px-6 py-3">
-        <Link href="/" className="font-heading font-bold text-lg md:text-xl">
-          <span className="text-text">PFM </span>
-          <span className="italic text-accent">Editors</span>
-          <span className="font-mono font-normal text-muted text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
+    <header className="sticky top-0 z-20 bg-header-gradient border-b border-ink text-ink">
+      <div className="flex justify-center px-4 md:px-6 py-3.5">
+        <Link href="/" className="font-heading font-bold text-xl md:text-2xl text-ink">
+          <span>PFM </span>
+          <span className="italic">Editors</span>
+          <span className="font-mono font-semibold text-ink/70 text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
         </Link>
       </div>
-      <ul className="flex overflow-x-auto border-t border-ink divide-x divide-ink">
+      <ul className="nav-scrollbar flex overflow-x-auto border-t border-ink/70 divide-x divide-ink/70">
         {pages.map((p) => {
           const isActive = active === p.href;
           return (
@@ -45,8 +45,8 @@ export default function TopNav() {
                 href={p.href}
                 className={`flex min-h-11 items-center justify-center px-2 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.08em] transition-colors ${
                   isActive
-                    ? "bg-accentMuted text-text font-medium"
-                    : "text-muted hover:text-text hover:bg-bg"
+                    ? "bg-black/15 text-ink font-bold"
+                    : "text-ink/75 hover:text-ink hover:bg-white/20"
                 }`}
               >
                 {p.label}

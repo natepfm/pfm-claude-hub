@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 import CopyBlock from "@/components/CopyBlock";
+import { distributedSkillRows } from "@/content/skillsRegistry";
 
 const EDITORS_ON_CLAUDE = 13;
 const WORKFLOW_STAGES = 6;
@@ -46,6 +47,11 @@ export default function DashboardPage() {
       <section aria-label="System status">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-surface border border-ink shadow-elev1 p-5">
+            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Skills live</div>
+            <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{distributedSkillRows.length}</div>
+            <Link href="/skills" className="text-xs mt-1.5 inline-block text-successHover font-medium hover:text-accentHover underline underline-offset-2">open Skills →</Link>
+          </div>
+          <div className="bg-surface border border-ink shadow-elev1 p-5">
             <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Workflow stages</div>
             <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{WORKFLOW_STAGES}</div>
             <div className="text-xs mt-1.5 text-muted">request → delivered creative</div>
@@ -59,11 +65,6 @@ export default function DashboardPage() {
             <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Editors on Claude</div>
             <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{EDITORS_ON_CLAUDE}</div>
             <div className="text-xs mt-1.5 text-muted">full team</div>
-          </div>
-          <div className="bg-surface border border-ink shadow-elev1 p-5">
-            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Latest system change</div>
-            <div className="font-heading font-bold text-2xl mt-3 tabular-nums">{changelog.date ?? "—"}</div>
-            <div className="text-xs mt-2 text-successHover">▲ live on the hub</div>
           </div>
         </div>
       </section>

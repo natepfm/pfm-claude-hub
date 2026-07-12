@@ -31,7 +31,7 @@ export default function WorkflowPage() {
               <h2 className="font-heading font-bold text-2xl md:text-3xl text-text">Switch to your own Claude account</h2>
               <p className="text-muted mt-2 max-w-2xl">
                 We&apos;re retiring the shared login. Move to your own Team seat under your{" "}
-                <strong className="text-text">@powerfoxmedia.com</strong> email — your skills, automations, and files
+                <strong className="text-text">@powerfoxmedia.com</strong>{" "}email — your skills, automations, and files
                 all carry over. It&apos;s just a login swap + reconnecting a couple connectors (~10 min, one time).
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">

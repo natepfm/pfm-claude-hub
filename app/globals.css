@@ -46,6 +46,16 @@ body {
   background: #b6b1a8;
 }
 
+/* The mobile top nav remains swipeable without adding a bright scrollbar to
+   the orange masthead. */
+.nav-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* prose styling for changelog markdown */
 .prose-pfm h1 { @apply font-heading text-3xl font-bold mt-8 mb-4 text-text; }
 .prose-pfm h2 { @apply font-heading text-2xl font-bold mt-8 mb-3 text-text border-b border-ink pb-2; }
