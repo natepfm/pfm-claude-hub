@@ -236,6 +236,30 @@ export const skills: Skill[] = [
     category: "utility",
   },
   {
+    name: "assetgen-rokuctv-calls-qvc",
+    title: "Roku CTV QVC Pipeline",
+    description:
+      "End-to-end asset factory for the SaveMaxAuto Live shopping-channel (QVC-style) 16:9 creative: cast + set lock, host clips off approved scene frames, ElevenLabs caller VOs, full graphics package, digit-verified, additively imported to DaVinci. Alias: /ag.rctv.c.qvc.",
+    worksIn: ["code"],
+    category: "gen-manual",
+  },
+  {
+    name: "ag.rctv.c.qvc",
+    title: "/ag.rctv.c.qvc (alias)",
+    description:
+      "Typing shortcut that loads the Roku CTV QVC Live pipeline.",
+    worksIn: ["code"],
+    category: "utility",
+  },
+  {
+    name: "qvc-screen-graphics",
+    title: "QVC Screen Graphics",
+    description:
+      "The QVC overlay package — ticking savings board, checklist, caller counter, deal card, lower-thirds, channel bug. HTML/CSS templates rendered by headless Chrome: exact digits, native alpha, zero credits; PIL keyframe engine renders animated alpha MOVs.",
+    worksIn: ["code"],
+    category: "image",
+  },
+  {
     name: "call-graphics",
     title: "Call Graphics",
     description:
