@@ -6,10 +6,10 @@ Live: [pfm-claude-hub-production.up.railway.app](https://pfm-claude-hub-producti
 
 ## Pages
 
-- **Dashboard** (`/`) — live counts, latest release, update command, registry overview
-- **Claude** (`/claude`) — request-to-delivery flow, setup, team skill catalog, editor tools, changelog
-- **Skills** (`/skills`) — canonical 63-entry searchable/filterable skills tracker
-- **Creatives** (`/creatives`) — creative formats, variations, verticals, building blocks
+- **Dashboard** (`/`) — system status, latest release, and Mac/Windows update commands
+- **Workflow** (`/workflow`) — request-to-delivery system, setup, generation lanes, editor tools, changelog
+- **Skills** (`/skills`) — updates, canonical 63-entry tracker, downloads, and Cowork plugin
+- **Creatives** (`/creatives`) — locked Notion property taxonomy and Full/Display/Compact naming
 - **Resources** (`/resources`) — landers, shared assets, and SOPs
 - **Onboarding** (`/onboarding`) — first-day setup and training path
 
@@ -48,7 +48,7 @@ All skill-facing surfaces derive from:
 
 `content/skillsRegistry.ts`
 
-It controls Dashboard counts, the Skills tracker, the Claude catalog, statuses, Cowork membership, and public download paths. `content/skills.ts` is a compatibility re-export; do not add data there.
+It controls the Skills tracker, statuses, Cowork membership, and public download paths. `content/skills.ts` is a compatibility re-export; do not add data there.
 
 Current audited state: 63 tracked entries, 42 team-live skills, 8 Cowork skills, 8 workflows.
 
@@ -68,7 +68,7 @@ bash scripts/build-cowork-plugin.sh
 |---|---|
 | `content/skillsRegistry.ts` | Canonical skills/status/Cowork data |
 | `content/CHANGELOG.md` | Newest-first editor-visible releases |
-| `content/creatives.ts` | Creative Library data |
+| `content/creatives.ts` | Locked 07.11.26 Notion property and naming model |
 | `content/landers.ts` | Lander URLs by vertical |
 | `content/editorTools.ts` | DaVinci/editor tool cards |
 | `public/skills/` | Downloadable team skill mirrors |

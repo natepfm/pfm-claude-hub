@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "PFM Editors Hub",
-  description: "Onboarding, Claude pipeline, and resources for Power Fox Media editors.",
+  description: "Workflow, skills, creative taxonomy, onboarding, and resources for Power Fox Media editors.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TopNav />
         <main className="px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">{children}</main>
         <footer className="border-t border-ink py-6 text-center text-sm text-muted">
-          Power Fox Media · Editors Hub · <a href="/claude#changelog" className="text-accentDeep font-medium hover:text-accentHover">Changelog</a>
+          Power Fox Media · Editors Hub · <a href="/workflow#changelog" className="text-accentDeep font-medium hover:text-accentHover">Changelog</a>
         </footer>
       </body>
     </html>

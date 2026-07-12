@@ -1,8 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SKILLS_AUDIT_DATE, skillRows, type SkillRow, type SkillTier } from "@/content/skillsRegistry";
+import {
+  SKILLS_AUDIT_DATE,
+  coworkSkillFolders,
+  coworkSkillFolderSet,
+  skillFolder,
+  skillRows,
+  type SkillRow,
+  type SkillTier,
+} from "@/content/skillsRegistry";
 import PageHero from "@/components/PageHero";
+import CopyBlock from "@/components/CopyBlock";
 
 const SECTIONS = ["All", "WR", "AG", "QC", "E", "R", "X"];
 const SECTION_LABEL: Record<string, string> = {
@@ -53,7 +62,7 @@ export default function SkillsPage() {
     live: skillRows.filter((s) => s.tier === "live").length,
     hold: skillRows.filter((s) => s.tier === "hold").length,
     flow: skillRows.filter((s) => s.flow).length,
-    sections: 6,
+    cowork: coworkSkillFolders.length,
   }), []);
 
   const rows = useMemo(() => {
@@ -86,9 +95,43 @@ export default function SkillsPage() {
     <div>
       <PageHero
         eyebrow="Editors Hub · Skills"
-        title="Skills Dashboard"
-        subtitle="Every PFM Claude skill — live status, section, and what it does, in one filterable tracker. This is the source of truth; we run off this, not a spreadsheet."
+        title="Skills"
+        subtitle="The core of the PFM editing system—how to update it, what to say, every live workflow and command, and the files that ship to the team."
       />
+
+      <section className="grid md:grid-cols-3 gap-3 mb-8" aria-label="How skills work">
+        {[
+          ["01", "Say the job", "Use plain English—drop the request, describe the output, or name a command."],
+          ["02", "Claude routes it", "The matching skill loads its rules, references, and locked PFM workflow."],
+          ["03", "You keep control", "Generation skills stop at preflight before spend; delivery follows the skill's named checks."],
+        ].map(([n, title, body]) => (
+          <div key={n} className="bg-surface border border-ink shadow-elev1 p-4">
+            <div className="font-mono text-[10px] text-accentDeep mb-2">{n}</div>
+            <div className="font-heading font-bold text-lg text-text">{title}</div>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">{body}</p>
+          </div>
+        ))}
+      </section>
+
+      <section id="update" className="bg-accentMuted border border-ink shadow-elev2 p-5 md:p-6 mb-8 scroll-mt-28" aria-labelledby="skills-update-heading">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Keep your install current</div>
+            <h2 id="skills-update-heading" className="font-heading font-bold text-2xl text-text mt-1">Update my skills</h2>
+          </div>
+          <p className="text-xs text-muted">Run after a changelog release, then restart Claude Desktop.</p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-accentDeep mb-2">🍎 Mac · Terminal</div>
+            <CopyBlock code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`} />
+          </div>
+          <div>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-accentDeep mb-2">🪟 Windows · Git Bash</div>
+            <CopyBlock code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`} />
+          </div>
+        </div>
+      </section>
 
       {/* stat tiles */}
       <div className="flex flex-wrap gap-2.5 mb-6">
@@ -96,7 +139,7 @@ export default function SkillsPage() {
         <Stat n={counts.live} label="Live to team" />
         <Stat n={counts.flow} label="Workflows" />
         <Stat n={counts.hold} label="On hold" />
-        <Stat n={counts.sections} label="Sections" />
+        <Stat n={counts.cowork} label="Cowork" />
       </div>
 
       {/* controls */}
@@ -170,6 +213,15 @@ export default function SkillsPage() {
       <p className="font-mono text-[10px] text-faint mt-4">
         Canonical registry · audited {SKILLS_AUDIT_DATE} · statuses: Live = synced to the team · Hold / Vendor / Restricted / Command as tagged.
       </p>
+
+      <section className="mt-10 bg-tintBlue border border-ink shadow-elev1 p-5 flex flex-wrap items-center justify-between gap-5">
+        <div className="max-w-2xl">
+          <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Cowork</div>
+          <h2 className="font-heading font-bold text-xl text-text mt-1">{coworkSkillFolders.length} chat-mode skills, one plugin</h2>
+          <p className="text-sm text-muted mt-1.5">For strategists and non-editor teammates working without a local repo. The bundle matches every registry row marked Cowork.</p>
+        </div>
+        <a href="/pfm-cowork-skills.plugin" download className="inline-flex items-center gap-2 px-5 py-3 bg-accent text-white font-semibold border border-ink shadow-hard-sm hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all whitespace-nowrap">⬇ Download .plugin</a>
+      </section>
     </div>
   );
 }
@@ -182,6 +234,7 @@ function SkillRowView({ s, open, onToggle }: { s: SkillRow; open: boolean; onTog
         <td className="px-3 py-2.5 whitespace-nowrap">
           <span className="font-mono text-[12px] font-semibold text-text">{s.id}</span>
           {s.flow && <span className="ml-1.5 font-mono text-[8px] font-bold text-accent align-middle">⚡FLOW</span>}
+          {coworkSkillFolderSet.has(skillFolder(s)) && <span className="ml-1.5 font-mono text-[8px] font-bold text-[#1A3A5C] align-middle">COWORK</span>}
           <div className="font-mono text-[9px] text-faint">{s.folder}</div>
         </td>
         <td className="px-3 py-2.5 whitespace-nowrap">
@@ -202,6 +255,12 @@ function SkillRowView({ s, open, onToggle }: { s: SkillRow; open: boolean; onTog
               <Detail k="How it runs" v={s.how} />
               <Detail k="What you get" v={s.get} />
             </div>
+            {s.tier === "live" && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <a href={`/skills/${skillFolder(s)}/SKILL.md`} download className="font-mono text-[10px] uppercase tracking-[0.06em] text-accentDeep font-semibold underline underline-offset-2">⬇ Download SKILL.md</a>
+                <span className="text-[10px] text-faint">Folder: {skillFolder(s)}</span>
+              </div>
+            )}
           </td>
         </tr>
       )}

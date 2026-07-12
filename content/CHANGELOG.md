@@ -8,12 +8,20 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-07-12
 
+### Hub information architecture — Workflow, one Skills home, and the Notion creative taxonomy
+
+The hub now mirrors how the PFM system actually works:
+
+- **Claude is now Workflow.** The page explains the request-to-delivery system: Notion, staging, AGF/local generation, QC, DaVinci, and reporting. The old `/claude` URL redirects so saved links still work.
+- **Skills has one home.** Updates for Mac and Windows, the canonical 63-row registry, expandable operating detail, all 42 downloads, and the 8-skill Cowork bundle now live together on `/skills`. The duplicate Dashboard and Workflow catalogs are gone.
+- **Creatives now matches the locked 07.11.26 Notion overhaul.** It documents the structured identity properties, filterable production dimensions, Full/Display/Compact name renderings, invisible defaults, two-level Creative Type rule, Parent Creative lineage, and the stronger Instructions block.
+
 ### Hub fix — one skills registry, working downloads, and an honest Cowork bundle
 
 The Dashboard, Skills tracker, and Claude catalog now read from the same canonical 63-entry registry. Team-live totals, statuses, section counts, and workflow counts can no longer drift between pages.
 
 - All 42 team-distributed skills now have a real downloadable `SKILL.md`; the 26 catalog links that previously landed on a 404 are repaired.
-- Cowork is now consistently **8 skills** across the Dashboard, Claude page, build script, plugin metadata, and plugin archive.
+- Cowork is now consistently **8 skills** across the Skills page, build script, plugin metadata, and plugin archive.
 - The Cowork builder reads its membership from the canonical registry instead of maintaining a second hardcoded list.
 - The master PFM Claude brief, web handoff, and README were rewritten to match the current six-page, team-deployed system.
 

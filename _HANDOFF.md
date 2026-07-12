@@ -13,10 +13,10 @@ The PFM Editors Hub is the team home base for the Claude production system.
 
 Current pages:
 
-- `/` — system dashboard and registry overview
-- `/claude` — production flow, setup, catalog, editor tools, changelog
-- `/skills` — the canonical filterable 63-entry skills tracker
-- `/creatives` — creative types, variations, verticals, building blocks
+- `/` — system status, Mac/Windows updater, and route cards
+- `/workflow` — production flow, setup, asset-gen lanes, editor tools, changelog (`/claude` redirects here)
+- `/skills` — updates, canonical 63-entry tracker, downloads, and Cowork bundle
+- `/creatives` — the locked 07.11.26 Notion property taxonomy and naming renderings
 - `/resources` — landers, shared assets, SOPs, plus unfinished tools/brand sections
 - `/onboarding` — first-day setup and training path
 
@@ -41,10 +41,8 @@ There is one hub registry:
 
 It drives:
 
-- Dashboard counts and registry table
-- `/skills` tracker, filters, statuses, and audit date
-- `/claude#skills` team-live catalog
-- Cowork-ready count
+- `/skills` tracker, filters, statuses, audit date, and downloads
+- Cowork-ready count and plugin membership
 - Cowork plugin membership
 - Public skill download paths
 
@@ -84,9 +82,10 @@ The page count, bundle count, archive contents, plugin description, and README m
 app/
   layout.tsx              shell, metadata, top nav, footer
   page.tsx                Dashboard
-  claude/page.tsx         Claude workflow/setup/catalog/changelog
-  skills/page.tsx         Interactive canonical registry
-  creatives/page.tsx      Creative Library
+  workflow/page.tsx       System flow/setup/asset-gen/editor/changelog
+  claude/page.tsx         Compatibility redirect to /workflow
+  skills/page.tsx         Updaters + interactive canonical registry + downloads/plugin
+  creatives/page.tsx      Notion creative taxonomy and naming convention
   resources/page.tsx      Landers/resources/SOPs
   onboarding/page.tsx     First-day guide
 
@@ -95,12 +94,12 @@ components/
   CopyBlock.tsx           copyable terminal commands
   PageHero.tsx            shared page heading
   PlaceholderCard.tsx     intentionally unfinished resource cards
-  sections/               Claude-page workflow/setup/catalog sections
+  sections/               Workflow-page system/setup/editor sections
 
 content/
   skillsRegistry.ts       SINGLE canonical skills dataset
   skills.ts               compatibility re-export only
-  creatives.ts            Creative Library data
+  creatives.ts            Locked Notion property/naming model (07.11.26)
   editorTools.ts          DaVinci/editor tools
   landers.ts              lander URLs by vertical
   CHANGELOG.md            newest-first shipped changes
@@ -140,7 +139,7 @@ The current `next/font/google` setup fetches Inter, JetBrains Mono, and Playfair
 For browser QA, inspect the local app at desktop width and around 390×844 mobile. Verify:
 
 - All six routes load.
-- Registry counts match across `/`, `/skills`, and `/claude`.
+- `/skills` reports 63 tracked / 42 live / 8 Cowork and exposes 42 downloads.
 - Search/filter/expand behavior works.
 - Every rendered skill download returns a file, never the Next 404.
 - The Cowork count matches the plugin archive.
@@ -150,6 +149,7 @@ For browser QA, inspect the local app at desktop width and around 390×844 mobil
 
 - Never put credentials, account passwords, API keys, workspace IDs, or private tokens on the hub.
 - Landers are maintained in `content/landers.ts`; Sam is collecting the authoritative links. Do not guess or fill the unfinished Resources sections without his source URLs.
+- Creative taxonomy and naming copy must follow the locked 07.11.26 Notion update: structured properties, three renderings, invisible defaults, max-two Creative Type stack, and explicit Parent Creative/reuse lineage.
 - Changelog entries are newest-first and should accompany editor-visible releases.
 - Keep the master brief in `../PFM CONTEXT/CLAUDE.md` aligned when architecture or scope changes materially.
 - Skill behavior changes belong in the actual skill source and distribution workflow. A website-only copy edit must not pretend the installed skill changed.

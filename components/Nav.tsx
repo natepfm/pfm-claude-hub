@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const pages = [
   { href: "/", label: "Dashboard" },
-  { href: "/claude", label: "Claude" },
+  { href: "/workflow", label: "Workflow" },
   { href: "/skills", label: "Skills" },
   { href: "/creatives", label: "Creatives" },
   { href: "/resources", label: "Resources" },
@@ -13,7 +13,7 @@ const pages = [
 ];
 
 function baseRoute(pathname: string): string {
-  if (pathname.startsWith("/claude")) return "/claude";
+  if (pathname.startsWith("/workflow") || pathname.startsWith("/claude")) return "/workflow";
   if (pathname.startsWith("/skills")) return "/skills";
   if (pathname.startsWith("/creatives")) return "/creatives";
   if (pathname.startsWith("/resources")) return "/resources";
@@ -36,14 +36,14 @@ export default function TopNav() {
           <span className="font-mono font-normal text-muted text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
         </Link>
       </div>
-      <ul className="flex border-t border-ink divide-x divide-ink">
+      <ul className="flex overflow-x-auto border-t border-ink divide-x divide-ink">
         {pages.map((p) => {
           const isActive = active === p.href;
           return (
-            <li key={p.href} className="flex-1">
+            <li key={p.href} className="flex-none min-w-[94px] md:min-w-0 md:flex-1">
               <Link
                 href={p.href}
-                className={`flex items-center justify-center py-2.5 md:py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.08em] transition-colors ${
+                className={`flex min-h-11 items-center justify-center px-2 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.08em] transition-colors ${
                   isActive
                     ? "bg-accentMuted text-text font-medium"
                     : "text-muted hover:text-text hover:bg-bg"

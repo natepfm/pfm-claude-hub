@@ -1,293 +1,182 @@
-// PFM Creative Library — the registry of creative TYPES, VARIATION types, and the
-// BUILDING BLOCKS each skill produces, mapped to the skill that builds it.
-// Source of truth: "6. Claude PFM/context/creative-library.md" (this mirrors it for the hub).
-// Reconciled 2026-05-29 from a knowledge-base inventory (memory · PFM CONTEXT · skills · hub).
+// PFM creative taxonomy — reconciled to the locked Notion overhaul (2026-07-11).
+// A creative is no longer categorized by a hand-written title. Its identity is
+// composed from structured properties, then rendered consistently for Notion,
+// Lucid, timelines, filenames, and exports.
 
-export interface CreativeEntry {
+export interface CreativeProperty {
   name: string;
-  aka?: string;
   description: string;
-  skill: string; // skill that builds it, or "manual" / "none"
-  appliesTo?: string; // variation types only
-  group?: string; // building blocks only
+  example: string;
+  note?: string;
 }
 
-// ── Creative types: the deliverable ad formats ──────────────────────────────
-export const creativeTypes: CreativeEntry[] = [
-  {
-    name: "Story Ad",
-    aka: "Veo story ad",
-    description:
-      "The core PFM format — a ~1:30–3:00 narrative ad on the 6-beat structure, built from per-line dialogue Veo clips of a character speaking to camera.",
-    skill: "hvg-flow (via story-beats + veo-script-writing)",
-  },
-  {
-    name: "Breaking News Story Ad",
-    aka: "LATU News wrapper",
-    description:
-      "A story ad wrapped as a local 6pm news segment — anchor desk, field reporter, SOTs, chyrons / lower thirds.",
-    skill: "breaking-news-story-ads",
-  },
-  {
-    name: "Podcast Story Ad",
-    description:
-      "A dad-on-a-podcast monologue story ad delivered in 6-8s Veo clips — scripted from a brief.",
-    skill: "veo-script-writing → hvg-flow",
-  },
-  {
-    name: "LC-to-Video",
-    aka: "LC to Vid",
-    description:
-      "A long-copy Facebook ad that performed well, converted into a podcast story ad — a dad-on-a-podcast monologue delivered in 6-8s Veo clips.",
-    skill: "lc-to-video-podcast → hvg-flow",
-  },
-  {
-    name: "UGC Testimonial / Dialogue",
-    description:
-      "Talent-to-camera selfie-style ad with cold-open dialogue and a locked voice / audio block.",
-    skill: "veo-script-writing + hvg-flow",
-  },
-  {
-    name: "VSL",
-    aka: "Video Sales Letter / Pitch",
-    description:
-      "Long-form single-speaker pitch (40+ captioned lines) with per-line on-screen slides, run as hvg-flow Format B.",
-    skill: "hvg-flow (Format B)",
-  },
-  {
-    name: "Song Ad",
-    aka: "music ad",
-    description:
-      "An ad script turned into a Suno v5 song — hook-driven and offer-forward (feeds the Veo claymation ad pipeline).",
-    skill: "suno-songwriter",
-  },
-  {
-    name: "3D Pixar / Claymation Ad",
-    aka: "Pixar ad, claymation ad",
-    description:
-      "Animated Pixar / claymation-style ad with recurring 3D characters (Marcus, Robert, Max the Dog) — spans character ads, podcasts, and music videos; song forms ride a Suno track.",
-    skill: "hvg-flow (Veo) + suno-songwriter",
-  },
-  {
-    name: "Reskin / Trend-Copy",
-    aka: "trend reskin",
-    description:
-      "A trending or reference clip (TikTok / Reels / competitor ad) recreated brand-safe — same structure + pacing, subject swapped for a PFM character. Inspect the ref → pick the engine (Seedance for concept, Kling for literal motion) → write the prompt → optional CLI fire.",
-    skill: "reskin-trending-video → ugc-cinematic-prompt",
-  },
-];
-
-// ── Variation types: creative / market variations we test ───────────────────
-export const variationTypes: CreativeEntry[] = [
-  {
-    name: "State Variation",
-    aka: "50-state",
-    description:
-      "Per-state swaps ([STATE] / [CITY] / [RATE]) where the speaker names the state — swap 2-5 clips + text, no full re-edit.",
-    skill: "hvg-flow + notion-state-batches · vsl-state-variations (VSL)",
-    appliesTo: "Story Ad · Breaking News · VSL",
-  },
-  {
-    name: "State-Batch Continuation",
-    description:
-      "Sequential Notion batches that close the remaining states after Batch 1 validates (batch count + cadence vary by creative).",
-    skill: "notion-state-batches",
-    appliesTo: "State creatives",
-  },
-  {
-    name: "Hook Variation",
-    aka: "A / B / C",
-    description:
-      "Multiple opening sequences on the same concept — different angle or inciting trigger — tested separately for performance.",
-    skill: "story-beats",
-    appliesTo: "Story Ad · Breaking News",
-  },
-  {
-    name: "Inciting-Incident / Skit Swap",
-    description:
-      "Same root cause with a different visible crisis — car repo vs smoking engine vs tow chase vs locksmith.",
-    skill: "story-beats",
-    appliesTo: "Story Ad",
-  },
-  {
-    name: "Reaction-Hook Variant",
-    description:
-      "An alternative presell hook using reaction / response footage, built as a named variant batch.",
-    skill: "notion-state-batches",
-    appliesTo: "Breaking News · Story Ad",
-  },
-  {
-    name: "Calls vs Forms",
-    aka: "offer / CTA swap",
-    description:
-      "Same skit re-cut for a form-fill lander vs a click-to-call lander; differs at Beat 5 + CTA wording.",
-    skill: "veo-script-writing / iterate-creative",
-    appliesTo: "All",
-  },
-  {
-    name: "Vertical Pivot",
-    aka: "Auto → Home → CC",
-    description:
-      "Reframe the same story for a different vertical — authority figure, mechanism, and rate floors re-anchored.",
-    skill: "veo-script-writing / iterate-creative",
-    appliesTo: "All",
-  },
-  {
-    name: "Spanish Localization",
-    aka: "en español",
-    description:
-      "Same skit with a Spanish dialogue track + Spanish overlays, run as a separate Forms lead type.",
-    skill: "spanish-translation",
-    appliesTo: "All dialogue creatives",
-  },
-  {
-    name: "Aspect-Ratio Variant",
-    aka: "9:16 / 16:9",
-    description:
-      "Same creative at multiple ratios — 9:16 organic / social, 16:9 paid / YouTube. Each state batch ships both.",
-    skill: "hvg-flow",
-    appliesTo: "All",
-  },
-  {
-    name: "Rate / Savings-Floor",
-    description:
-      "Swap the specific rate / savings number in dialogue to test value props ($39 vs $29/mo Auto).",
-    skill: "manual",
-    appliesTo: "Story Ad · VSL · Breaking News",
-  },
-  {
-    name: "Ending / CTA Swap",
-    description:
-      "Change how the story resolves or the CTA is framed — final beat, wording, or closing visual.",
-    skill: "manual",
-    appliesTo: "All",
-  },
-  {
-    name: "Music / Audio-Bed Swap",
-    description: "Replace the music bed over the same cut for different emotional coloring.",
-    skill: "manual (Suno)",
-    appliesTo: "All with audio",
-  },
-  {
-    name: "Text-Overlay / Graphics Swap",
-    description: "Different on-screen text, headlines, or CTAs over the same footage.",
-    skill: "manual",
-    appliesTo: "All video",
-  },
-];
-
-// ── Building blocks: what each skill produces (the skill → output map) ───────
-export const buildingBlocks: CreativeEntry[] = [
-  {
-    group: "Scripts & structure",
-    name: "Story Beats",
-    description: "Locked 6-beat skeleton with must-hit dialogue anchors, before the dialogue pass.",
-    skill: "story-beats",
-  },
-  {
-    group: "Scripts & structure",
-    name: "Veo Script",
-    description: "Numbered dialogue formatted for Veo — 6-8s lines, no dashes / caps, state tokens.",
-    skill: "veo-script-writing",
-  },
-  {
-    group: "Scripts & structure",
-    name: "Video Gen Prompt",
-    description:
-      "Seedance 2.0 11-block prompt (or a Kling motion-transfer setup) for AI video gens — the body a reskin or UGC clip fires from.",
-    skill: "ugc-cinematic-prompt",
-  },
-  {
-    group: "Images & graphics",
-    name: "Character Master",
-    description:
-      "Full-body neutral studio portrait — the locked identity reference for all downstream b-roll + Veo. Regenerate to recast.",
-    skill: "hig-flow",
-  },
-  {
-    group: "Images & graphics",
-    name: "Camera-Roll B-Roll",
-    description: "iPhone-camera-roll-style candids of characters, locked to script line numbers.",
-    skill: "hig-flow",
-  },
-  {
-    group: "Images & graphics",
-    name: "Phone-Screen B-Roll",
-    description: "Screen-only images (app UIs, alerts, posts) cut against reaction shots.",
-    skill: "hig-flow",
-  },
-  {
-    group: "Images & graphics",
-    name: "Social-Proof Selfies",
-    description: "Diverse multi-person candid selfies for social-proof beats.",
-    skill: "hig-flow",
-  },
-  {
-    group: "Images & graphics",
-    name: "VSL Slides",
-    description:
-      "On-screen pitch slides carrying state rates / names / amounts; edit-swappable per state.",
-    skill: "higgsfield-image-generation",
-  },
-  {
-    group: "Images & graphics",
-    name: "Lower-Thirds / Chyrons",
-    description: "News-style lower thirds in the LATU News Canva brand kit.",
-    skill: "breaking-news-story-ads (Canva)",
-  },
-  {
-    group: "QC",
-    name: "Audio QC",
-    description: "ffmpeg physics + Whisper dialogue match + unexpected-music scan of a Veo batch.",
-    skill: "audio-qc",
-  },
-  {
-    group: "QC",
-    name: "Visual QC",
-    description: "5-frame filmstrips reviewed for background morphs, slide-text garble, hard cuts.",
-    skill: "visual-qc",
-  },
-];
-
-// ── Verticals: the markets we run creatives for ─────────────────────────────
-export interface Vertical {
+export interface CreativePropertyGroup {
   name: string;
-  offers?: string;
-  aka?: string;
+  purpose: string;
+  properties: CreativeProperty[];
 }
 
-export interface VerticalGroup {
-  group: string;
-  items: Vertical[];
-}
-
-export const verticals: VerticalGroup[] = [
+export const propertyGroups: CreativePropertyGroup[] = [
   {
-    group: "Insurance",
-    items: [
-      { name: "Auto", offers: "Forms · Calls" },
-      { name: "Home", offers: "Forms · Calls" },
-      { name: "Concealed Carry" },
-      { name: "Life", offers: "Forms" },
-      { name: "Medicare" },
-      { name: "Final Expense", offers: "Calls" },
+    name: "Identity",
+    purpose: "What the creative is. These fields generate the name instead of hiding inside it.",
+    properties: [
+      {
+        name: "Vertical · Lead",
+        description: "The market and conversion lane. These lead the Full Name but drop from the VTM display title because the board already shows the chip.",
+        example: "Auto · Forms",
+      },
+      {
+        name: "Creative Type",
+        description: "The format family. It may stack to two levels when one format sits on top of another.",
+        example: "LC2VID → Podcast",
+        note: "Maximum two type levels",
+      },
+      {
+        name: "Concept",
+        description: "The durable creative idea—the thing teammates actually recognize and search for.",
+        example: "Car Chase",
+      },
+      {
+        name: "Variant",
+        description: "The tail that identifies what differs from the parent or sibling creative.",
+        example: "B1 · Florida · New Host",
+        note: "May represent batch, state, character, or another real differentiator",
+      },
     ],
   },
   {
-    group: "Home Services",
-    items: [
-      { name: "HVAC" },
-      { name: "Windows", offers: "Forms" },
-      { name: "Bathroom", offers: "Forms" },
-      { name: "Home Services" },
+    name: "Distribution",
+    purpose: "Where and how it runs. Every dimension is filterable without parsing a title.",
+    properties: [
+      {
+        name: "Geo",
+        description: "Broad or the named markets represented by the request.",
+        example: "Broad · FL · TX · WA",
+      },
+      {
+        name: "Platform",
+        description: "The destination platform that determines presentation defaults.",
+        example: "Facebook · Roku CTV",
+      },
+      {
+        name: "Aspect",
+        description: "The output frame. It renders only when it breaks the platform default.",
+        example: "9:16 · 16:9",
+      },
+      {
+        name: "Language",
+        description: "The spoken/written language. English stays invisible because it is the default.",
+        example: "English · Spanish",
+      },
+      {
+        name: "Batch",
+        description: "The production wave for a parent creative or scaled request.",
+        example: "B1",
+      },
+      {
+        name: "Runtime",
+        description: "Expected finished duration, carried as data instead of prose.",
+        example: "≈ 2:45",
+      },
+      {
+        name: "Brand",
+        description: "The brand when the creative is not intentionally brandless.",
+        example: "SaveMaxAuto",
+      },
     ],
   },
   {
-    group: "Financial / Legal",
-    items: [
-      { name: "Loans" },
-      { name: "Debt Relief" },
-      { name: "MVA", aka: "Motor Vehicle Accident", offers: "Forms" },
+    name: "Lineage & production",
+    purpose: "What this request inherits, what is new, and what the body must deliver.",
+    properties: [
+      {
+        name: "Parent Creative",
+        description: "The explicit upstream creative. Derivatives no longer rely on a prose paragraph to explain their origin.",
+        example: "Stories - Car Chase - Broad + State Breaking News - Batch 1",
+      },
+      {
+        name: "Reuse map",
+        description: "The Instructions footer separates inherited ingredients from the work created in this request.",
+        example: "REUSE footage/story/narrator · NEW script/format",
+      },
+      {
+        name: "Videos",
+        description: "The committed output count. It must agree with the spec table and the request body.",
+        example: "8",
+      },
     ],
+  },
+];
+
+export interface NamingRendering {
+  name: string;
+  shape: string;
+  example: string;
+  lives: string;
+}
+
+export const namingRenderings: NamingRendering[] = [
+  {
+    name: "Full Name",
+    shape: "Vertical·Lead - Creative Type - Concept - Variant",
+    example: "Auto·Forms - LC2VID - Podcast - Car Chase - B1",
+    lives: "Notion property under Status; carries the complete identity into the project system",
+  },
+  {
+    name: "Display name",
+    shape: "Creative Type - Concept - Variant",
+    example: "LC2VID - Podcast - Car Chase - B1",
+    lives: "VTM title; Vertical and Lead drop because the board chips already show them",
+  },
+  {
+    name: "Compact code",
+    shape: "Every rendered part abbreviated",
+    example: "AU-F-LC2VID-POD-CARCHASE-B1",
+    lives: "DaVinci timelines, filenames, and exports",
+  },
+];
+
+export const toolChainExamples = [
+  { label: "VTM title", value: "LC2VID - Podcast - Car Chase - B1" },
+  { label: "Lucid folder", value: "07.11.26 - LC2VID - Podcast - Car Chase - B1" },
+  { label: "Timeline / export", value: "AU-F-LC2VID-POD-CARCHASE-B1" },
+];
+
+export const namingRules = [
+  {
+    title: "Plain-hyphen separators",
+    description: "The convention keeps the familiar separator pattern; the overhaul changes the source, not the basic reading rhythm.",
+  },
+  {
+    title: "Defaults stay invisible",
+    description: "English, 9:16, Facebook, and Broad do not render unless they actually vary.",
+  },
+  {
+    title: "Aspect follows platform",
+    description: "Facebook assumes 9:16; Roku CTV assumes 16:9. Aspect appears only when it breaks the platform default.",
+  },
+  {
+    title: "Creative Type stacks to two",
+    description: "A format on top of a format renders as a two-part type, such as LC2VID → Podcast.",
+  },
+  {
+    title: "The variant tail names the difference",
+    description: "Batch, state, character, vertical, or another differentiator may occupy the tail—only what truly varies should render.",
+  },
+];
+
+export const instructionBlocks = [
+  {
+    name: "Spec table · top",
+    description: "Videos, Platform, Aspect, Vertical, Geo, Runtime, Model, and Parent Creative at a glance. The video count must agree everywhere.",
+  },
+  {
+    name: "Existing prose · middle",
+    description: "The creative brief remains familiar. Editors still read Instructions → Assets → Examples → Copy in the same order.",
+  },
+  {
+    name: "Parent + reuse map · bottom",
+    description: "Makes lineage explicit: what is reused (footage, story, narrator) versus new (script, format, or other requested work).",
   },
 ];

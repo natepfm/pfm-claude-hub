@@ -33,7 +33,7 @@ export default async function ChangelogSection() {
         <div className="text-xs font-mono uppercase tracking-[0.08em] text-accentDeep mb-1">What&apos;s new</div>
         <h2 className="text-3xl font-bold">Changelog</h2>
         <p className="text-muted mt-2 max-w-3xl">
-          Recent skill, script, and tooling changes — click a date to expand. When you see something that affects your machine, run the <strong>Update my skills</strong> command above.
+          Recent skill, script, and tooling changes — click a date to expand. When something affects your machine, run <strong>Update my skills</strong> from the <a href="/skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Skills page</a>.
         </p>
       </div>
 

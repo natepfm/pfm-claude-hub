@@ -58,11 +58,10 @@ export default function SystemDiagram() {
           <span className="text-accent">↺</span>{" "}
           <strong className="text-text">Flywheel:</strong> editors propose workflows with{" "}
           <code className="font-mono text-accent">propose-skill</code> → built on master → shipped back to everyone,
-          credited to the editor. Quick-start phrases + full list in{" "}
-          <a href="#skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
-            Skills
-          </a>{" "}
-          below.
+          credited to the editor. Quick-start phrases, updates, downloads, and the full registry live on the{" "}
+          <a href="/skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">
+            Skills page
+          </a>.
         </p>
       </div>
     </section>

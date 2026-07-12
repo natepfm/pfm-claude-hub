@@ -25,7 +25,7 @@ const checklist = [
   },
   {
     title: "Meet Claude",
-    desc: "Your AI production assistant is already installed and loaded with the PFM skills. Head to the Claude page to learn how it turns a Notion request into delivered clips + b-roll.",
+    desc: "Your AI production assistant is already installed and loaded with the PFM skills. Head to Workflow to see how it turns a Notion request into delivered clips + b-roll.",
   },
   {
     title: "Run your first task",
@@ -383,7 +383,7 @@ export default function OnboardingPage() {
           <h2 className="font-heading font-bold text-[26px] text-text">🤖 Meet Claude</h2>
         </div>
         <Link
-          href="/claude"
+          href="/workflow"
           className="block bg-accentMuted border border-ink shadow-glow-accent p-6 md:p-8 hover:-translate-y-0.5 transition-all duration-200"
         >
           <div className="flex items-center gap-3 mb-2">
@@ -391,7 +391,7 @@ export default function OnboardingPage() {
             <div className="text-2xl font-bold text-text">How Claude runs the PFM pipeline →</div>
           </div>
           <p className="text-muted max-w-2xl">
-            Claude is your AI production assistant — already installed on your machine and loaded with the PFM skills. It turns a Notion request into delivered Veo clips and Nano Banana b-roll. The Claude page shows how to use it, the skills it runs, how to pull updates, and troubleshooting. <span className="text-accent font-medium">Go to the Claude page →</span>
+            Claude is your AI production assistant — already installed on your machine and loaded with the PFM skills. It turns a Notion request into delivered Veo clips and Nano Banana b-roll. <strong>Workflow</strong> explains the full system; <strong>Skills</strong> owns updates, search, downloads, and the complete registry. <span className="text-accent font-medium">Go to Workflow →</span>
           </p>
         </Link>
       </section>
