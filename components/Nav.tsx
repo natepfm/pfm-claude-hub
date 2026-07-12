@@ -32,7 +32,7 @@ export default function TopNav() {
       <div className="flex justify-center px-4 md:px-6 py-3.5">
         <Link href="/" className="font-heading font-bold text-xl md:text-2xl text-ink">
           <span>PFM </span>
-          <span className="italic">Editors</span>
+          <span className="italic bg-editors-gradient bg-clip-text text-transparent">Editors</span>
           <span className="font-mono font-semibold text-ink/70 text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
         </Link>
       </div>

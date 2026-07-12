@@ -101,6 +101,8 @@ const config: Config = {
         "accent-gradient": "linear-gradient(180deg, #FFEDD5 0%, #FFF7EF 100%)",
         "header-gradient":
           "linear-gradient(120deg, #D47A4B 0%, #E19A69 52%, #CA7046 100%)",
+        "editors-gradient":
+          "linear-gradient(100deg, #173B57 0%, #2E6486 55%, #1D4867 100%)",
         "glass-light":
           "linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.6) 100%)",
         "glass-accent":
