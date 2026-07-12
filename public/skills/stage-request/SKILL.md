@@ -22,6 +22,17 @@ Every long-running Bash call in this skill runs with `run_in_background: true` �
 
 You take a written VTM request and make it **fire-ready** for AGF (Asset Gen Flow): assets staged in a real project folder, links on the page, property flipped. You are the bridge between "Dima wrote a request" and "the machine can generate from it with zero questions."
 
+## 🔴 HARD RULE — the clip reference is a SCENE frame, NEVER the bare character master (locked 2026-07-06)
+
+The image you stage into **🖼 Character Refs** — the frame the Veo clips fire against (`--start-image`) — MUST be a **scene frame**: the character composed *in the actual shot* (seated at the podcast desk with mic + headphones — the JRE / podcast seed; the news desk; whatever the creative's set is). It is **NEVER the bare character master** — the full-body, studio-backdrop, standing model-sheet / scale-anchor plate.
+
+**Why:** the master is an *identity* plate — it defines WHO the person is, for *deriving* the character. Veo i2v generates FROM the start frame's composition, so feeding a full-body studio-standing plate produces a standing studio shot, not the seated podcast shot — the whole batch comes out wrong-framed. (Cost us all 84 host clips on **50 States – Home Best State Podcast – Ronald Curtis**, 2026-07-06: staged `Curtis_Holloway_Master_f7ab.png` as the ref instead of the podcast seed. The identity was correct — the *shot* was wrong.)
+
+**How to apply — every character-swap / new-host podcast, or any scene-based clip fire:**
+- The staged clip reference is the **scene seed** — a `*_JRE_Seed_*`, a podcast/news placement frame, the actual first frame of the shot. NOT `*_Master_*` / `*model_sheet*` / `*scale*` / a full-body studio plate.
+- **If only a bare master exists and no scene seed → do NOT stage the master as the ref.** Build the scene seed first (`jre-swap` for a JRE podcast, `character-studio` placement for a fresh scene), then stage THAT. If you can't build it in this session → Gap it: `Needs Staging — scene reference must be built (only a character master exists)`.
+- The master still belongs in the folder as the identity source — it just is **not** the fire reference. Both can sit in `Elements/Footage/Reference/`; the 🖼 Character Refs slot names the **scene seed**.
+
 ## Eligibility — what AGF can stage (check FIRST)
 
 AGF stages any creative whose **AI-generatable assets resolve** — the creative's SHAPE does not matter. Per-state batch, format/runtime conversion (VSL → Calls cut), single-state re-edit that regenerates a few lines, vertical pivot of an existing character — all qualify. What matters is whether staging can hand the fire cycle everything it needs with **zero fire-time guesses.** Stage when ALL THREE resolve:
@@ -33,6 +44,8 @@ AGF stages any creative whose **AI-generatable assets resolve** — the creative
 If all three resolve → stage it. If any can't (no findable master/ref, nothing AI-generatable, a missing line's dialogue, a new character with no master) → set `Asset Gen = Needs Staging`, write the named gap (see "Gap path"), stop. **Never improvise assets to force a stage. Never expand scope to swallow editor work** — the generatable subset is the only thing you stage.
 
 > **The "state-variation only" gate is retired (Sam, 2026-06-11).** State variations are the most common shape, not the boundary. Declining a stageable conversion/re-edit because "it's not a per-state batch" is the exact failure this section exists to prevent — it bounced the Roku Calls VSL Florida twice before this fix. Eligibility = resolvability, never shape.
+
+> **VSL is fully stageable — but via its OWN workflow, not the standard one (Sam, 2026-07-11).** A VSL request stages fine; just don't run it through the regular per-clip protocol. VSLs carry **per-line `Slide:` directives and many more reference images** (per-slide / rotating-pool / start+end ref modes) — there's simply more to resolve. Stage it the VSL way (the shape `vsl-state-variations` / the Format-B path handle), map every slide's ref, then route. Nikolai usually stages these. Never treat "it's a VSL" as a reason it can't go to the mini — it can.
 
 ## Step 0 — Environment check (silent)
 
@@ -57,8 +70,8 @@ If there's no findable asset source, or nothing in the request is AI-generatable
 1. Fetch the parent request. Find its project folder — check (in order): its own 🤖 Asset Generation section, delivery comments (`✅ Assets Generated [folder ↗]` LinkYourFile links — decode the base64 `p=` param to get the path), or a folder path written in the page.
 2. In the parent's project folder, locate:
    - **Master prompt:** `Elements/Prompts/*.json` (locked master) and/or the Veo-ready master script (`.txt`/`.md`). Both if present.
-   - **Reference image(s):** `Elements/Footage/Reference/*.png|jpg` — the master ref(s) the prompt template names. Include `_resized` variants if present.
-3. If the parent folder can't be found, or has no prompts, or no refs → Gap path with the specific missing piece named.
+   - **Reference image(s):** `Elements/Footage/Reference/*.png|jpg`. **⚠️ Pick the SCENE frame the clips fire against — NOT the bare character master** (see the 🔴 HARD RULE above). For a podcast/news/scene creative the fire reference is the **scene seed** (`*_JRE_Seed_*`, a placement frame showing the character in the set), never `*_Master_*` / model-sheet / full-body studio plate. If the parent has only a master and no scene seed, that's a gap — build the seed or Gap it; do not fall back to staging the master as the ref. Include `_resized` variants if present.
+3. If the parent folder can't be found, or has no prompts, or no usable **scene** reference (only a bare master) → Gap path with the specific missing piece named.
 
 ## Step 3 — Resolve the project folder (the careful step)
 
@@ -109,7 +122,7 @@ Write this callout at the **TOP of the request page** — first block under the 
 
 ```
 <callout icon="🤖" color="gray_bg">
-	**Asset Gen** — staged ✅ <MM.DD> · **<N> clips ≈ <cr> cr**
+	**Asset Gen** — staged ✅ <MM.DD> by <stager> · **<N> clips ≈ <cr> cr**
 	<table header-row="false" header-column="true">
 <tr>
 <td>**📁 Project Folder**</td>
@@ -141,6 +154,7 @@ Write this callout at the **TOP of the request page** — first block under the 
 
 Rules:
 - **The callout icon + bold first words ARE the title** — renders as "🤖 Asset Gen — staged ✅ …". No heading block, no explainer paragraph, no checkbox (the `Asset Gen` property is the only switch — one source of truth).
+- **`by <stager>` on the title line = traceability (locked 2026-07-07)** — stamp WHO staged it so a downstream bug has a debuggable owner. Resolve the stager by fetching Notion `self` (`notion-fetch` id `"self"` → the authenticated user's name/email) and use that name; if it's the shared master account (the mini or a master-account session), write `PFM Master (mini)`. The reason this matters: the SPANISH Florida VSL delivery showed only the shared master account, so the assigned editor (Nicolai) "didn't recall staging it" — because a master-account flow did, with no human on record. The delivery comment (AGF Step 6 / route (b)) echoes this `by <stager>` so every delivery carries its stager.
 - **Visible part = title line + the 2×2 table + optional ⚠️** + the collapsed Staging details toggle. Anything longer goes in the toggle — the fire cycle reads toggle content as section content.
 - **Filling a blank scaffold** (every new request is born with one, at the top): the scaffold's cells hold *italic hint text* and it carries a `How to stage this` toggle (editor instructions). On staging: replace each cell's hint with the real value, rewrite the title line to `staged ✅`, **delete the `How to stage this` toggle** and write the `Staging details` toggle in its place. An editor may have hand-filled some cells — verify their values (files exist on disk) and keep what's correct.
 - **The raw 📁 Lucid path lives in the toggle** (first line) — that satisfies the handoff rule on the page without bloating the visible section. In-chat handoffs still show the full 📁/🔗/🦊 set inline as always.
@@ -151,6 +165,19 @@ Rules:
   - **⚠️ flags line** = HARD flags that change what ships or block a clean fire: SMA disclaimer, descoped lines, editor-side remainder, missing-piece warnings. Action-required.
   - **Staging details toggle** = deep, collapsed provenance: staged-from, ref descriptions, voice lock, transformations, output layout.
   - When in doubt: does it block or change the deliverable? → ⚠️. Is it just useful to know? → 🗒 Notes. Is it long/archival? → toggle. Nothing run-specific → Notes cell is an em dash `—`.
+
+## Step 5.9 — Independent verify BEFORE arming (fresh-context gate, locked 2026-07-07)
+
+**Nothing grades its own homework.** Before you route or flip anything, spawn a **fresh-context subagent** (Agent tool, `general-purpose`) that did NOT see your staging reasoning and hand it ONLY: (a) the request URL, (b) the exact 🖼/📝/🎬 cells + ⚠️ line you just wrote, (c) the actual reference filename(s) on disk (`ls Elements/Footage/Reference/`). Its job is to **REFUTE the stage** — default to FAIL when uncertain; the stager was confident, and confidence is not evidence. It re-reads the request from scratch and checks:
+
+1. **🔴 Reference is a SCENE frame, not a bare master** — the staged 🖼 Character Refs file must be a scene seed (`*_JRE_Seed_*`, a placement frame in the set), NEVER `*_Master*` / `*model_sheet*` / `*scale*` / a full-body studio plate. (This is the exact check that would have caught the Ronald Curtis 84-clip miss, 2026-07-06. See the 🔴 HARD RULE at the top.)
+2. **Dialogue is canonical** — every in-scope line in the manifest is verbatim from the request's Copy (spot-check ≥3 lines against the page), not derived from a parent master/change-log.
+3. **Count math holds** — manifest lines × multipliers (states/aspects/platform) == the 🎬 Fire clip count == the credit math.
+4. **Folder + vertical** — the 📁 path exists on disk and sits in the correct vertical tree.
+5. **SMA disclaimer** — if the brand is SaveMaxAuto/SMA, the ⚠️ line carries the disclaimer requirement.
+6. **🔴 Aspect-match — reference aspect == render aspect** — for EVERY render aspect the 🎬 Fire declares (9:16 and/or 16:9), the reference image(s) that fire against it must exist IN THAT ASPECT. A vertical (9:16) reference feeding a horizontal (16:9) render (or vice-versa) **pillarboxes → black bars down the sides**. **VSLs are the sharp edge:** the per-line slides AND the "No Slide Reference Shots" pool (speaker / on-stage lines cycle this pool) must EACH exist in every requested aspect — a 9:16-only no-slide pool used for 16:9 speaker clips is the exact bug that pillarboxed 14 speaker clips on the SPANISH Avg Auto State Florida VSL (delivered 2026-06-24, caught + refired by the editor 2026-07-07). Confirm on disk that the ref dir holds the render aspect; if a request wants BOTH aspects, both slide sets + both pools must exist. Mismatch → FAIL.
+
+The subagent returns exactly one line: `PASS: <what it confirmed>` or `FAIL: <the specific defect + which check>`. **On FAIL: do NOT proceed to Step 6 / do NOT flip `Ready`.** Fix the staged section, then re-verify (fresh subagent again). On PASS: proceed to routing. This gate is cheap (one read-only subagent) and it is the difference between catching a mis-stage now vs. after 84 wrong clips ship. Per the DONE law: "staged" is not done until this check passes.
 
 ## Step 6 — Report + route (the fork — added by Sam 2026-06-10)
 
@@ -175,8 +202,8 @@ Set `Asset Gen` → **`Ready`** (update_properties: `{"Asset Gen": "Ready"}`), t
 1. **FIRST set `Asset Gen` → `Generating (Local)`** + re-fetch verify. This value is invisible to the mini by design (watcher + cycle match only `Ready`/`Generating`) — it is the lock that keeps AGF's hands off while you fire here. **Never fire locally on `Ready` or plain `Generating`** — the mini will claim it or "orphan-recover" it mid-run and double-fire.
 2. **≥20 clips? Full preflight + explicit `fire` confirm before spend** (CLAUDE.md Hard Rule 3 — choosing (b) does not bypass the threshold). Under 20, the (b) answer IS the authorization — fire immediately.
 3. Fire the staged batch in this session under the AGF fire conventions: refs uploaded serially first → UUIDs; **smoke fire one clip + verify the full chain** before the rest; waves ≤64 at `max_workers=16`; count=1 per line; backgrounded shells; dialogue VERBATIM from the staged dialogue manifest; per-wave mp4 counts on disk vs expected.
-4. After counts verify, **offer** audio-qc (editor's call in an interactive session — don't auto-run it).
-5. Deliver exactly like AGF would: house delivery comment on the request (`✅ Assets Generated [folder ↗]` + any manual-fire `Note:` lines), full Lucid handoff (📁/🔗/🦊) in chat, then `Asset Gen` → **`Delivered`** + verify.
+4. After counts verify: local/in-chat fires are NEVER auto-QC'd. After delivery, OFFER QC via a plain multi-choice ask (run audio-qc / run visual-qc / skip). AGF/mini runs keep mandatory QC.
+5. Deliver exactly like AGF would: house delivery comment on the request (`✅ Assets Generated [folder ↗]` + any manual-fire `Note:` lines) — **echo the `by <stager>` from the 🤖 section title into the comment** (`· staged by <stager>`) so the delivery carries its debuggable owner — full Lucid handoff (📁/🔗/🦊) in chat, then `Asset Gen` → **`Delivered`** + verify.
 6. If the local run dies partway: leave it at `Generating (Local)` and give the editor the recovery fork — resume here, or flip the property to `Ready` to hand the remainder to AGF (its resume logic diffs the folder against the expected math and fires only the gap).
 
 ## Gap path — when staging can't complete
@@ -186,7 +213,7 @@ Set `Asset Gen` → **`Needs Staging`** (if not already) and append a short note
 > ⚠ **Staging incomplete — needs an editor:**
 > - No master prompt found in the parent's `Elements/Prompts/` (parent: <link>)
 > - <or> No reference image found for <character> — needs a character master built
-> - <or> Not a state variation (no parent link / no state list) — out of AGF v1 scope
+> - <or> Only a bare character master exists — the clip reference must be a scene seed (build via `jre-swap` / `character-studio` placement first)
 
 Then tell the user what an editor needs to create before `/stage request` can succeed. Never set `Ready` on a gap. Never invent or substitute assets (e.g., do NOT grab a different character's ref or a "close enough" prompt).
 

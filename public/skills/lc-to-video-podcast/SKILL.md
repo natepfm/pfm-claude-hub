@@ -64,6 +64,11 @@ Hard dollar figures kill spoken cadence. Convert them.
 
 Mix "grand", "thousand", "hundred", "bucks" to keep it human. Don't pick one form and ride it.
 
+**🛑 Two hard rules when this script reaches generation (Sam, 2026-06-01) — apply to all podcast / talking-head / lc-to-video creatives:**
+
+1. Dollar figures: run the naturalize-numbers skill — it is the single owner of spoken-number rules (high/low distinction, rounding).
+2. **Master prompt — no "cinematic" / "soft film grain", and no on-screen text.** When this hands to `hvg-flow` and the Veo master gets built, it must NOT contain "cinematic" or "soft film grain" — on this creative type they make Veo add a floating-dust / atmospheric-particle artifact. Use "clean high-end broadcast look / podcast realism" + dust negatives. The master's negative block must ALSO exclude all on-screen text: no captions, no subtitles, no lower-thirds, no floating words. See `hvg-flow` Gate 6 and `project_pfm_podcast_story_workflow.md` Section H.
+
 **Keep exact** small/punchy numbers that the speaker would actually say verbatim:
 - Dates (`March 2030`)
 - Specific shortfalls (`$47 below`, `47 dollars short`)
@@ -140,6 +145,9 @@ Every "do not" → "don't", "I will" → "I'll", "we are" → "we're". The LC is
 
 ## Veo line balance
 
+**🛑 Clip boundaries follow SENTENCES, never the word count — the #1 "sounds robotic / unnatural" defect.**
+See `veo-script-writing` Rule 1b for the full rule, rationale, and worked examples; sentence integrity beats the word-count target every time.
+
 After the voice pass, recount every line. Veo's hard rules from `veo-script-writing`:
 
 - **17-22 words per line** (target). **15 word floor, 30 word ceiling.** Lean long; reserve 24-30 for beats that really earn the longer landing.
@@ -181,6 +189,7 @@ Run a final pass before showing the editor:
 | Word count | Every line 15-30 words, target 17-22 (closer can dip to 12-15) |
 | Closer | Final line 12-15 words for held-silence impact |
 | Flagged words | Surface any preserved swears or compliance-sensitive lines for editor review |
+| SMA gate | SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat). |
 
 ## Structural output
 
@@ -221,18 +230,16 @@ If the brief is state-variant, use `### [Concept Name] — [Vertical] LC — Veo
 
 - **Upstream of `hvg-flow`** — this skill produces the script that lives in the Copy callout. `hvg-flow` reads that callout to build the per-clip Veo manifest and fire generations.
 - **Pairs with `veo-script-writing`** — that skill owns Veo's universal rules (no dashes, no caps, no named devices, 6-8s clips). This skill layers an LC-source workflow and podcast voice transformation on top.
-- **Hand off to `spanish-translation`** for a Spanish version once the English script is locked. Run that skill against the final numbered script, not against the source LC.
+- **Hand off to `spanish-translation`** for a Spanish version once the English script is locked. That skill lives in the anthropic-skills plugin (`anthropic-skills:spanish-translation`), not a local skill directory. Run it against the final numbered script, not against the source LC.
 - **Camera-roll b-roll** for the podcast (cutaways of the speaker's life — kitchen table, Best Buy register, etc.) uses `nano-banana-prompting` via `hig-flow`.
 
-### Handoff to hvg-flow — DO NOT ask the editor to re-paste anything
+### After the script — gen is a SEPARATE step (this is a writing skill; it does not fire gens)
 
-When the editor approves the script and you're ready to move to generation, **do not ask them to "drop the Notion URL again" or paste anything**. The Notion URL and project folder are already in the session context — you used them to fetch the brief and push the rebalanced script back. Re-asking is redundant and frustrating.
+This skill ends at the locked script pushed to the Notion request. It does **not** initiate generation. A writing (task) skill stays in its lane — kicking off asset gen is the editor's call, or a `.flow` skill's job (task skills only chain inside a flow, never on their own). Close cleanly and stop:
 
-Correct closing language (script-locked, ready to chain):
+> Script is locked and pushed to Notion — ready to generate whenever you are. Next step is staging / `hvg-flow`; trigger it on its own (say **"run video generations"** and `hvg-flow` picks up the same Notion URL + folder — no re-paste needed).
 
-> Script is locked and pushed to Notion. Say **"run video generations"** (or any HVG trigger) and I'll initiate `hvg-flow` against the same Notion URL + project folder we've been working in. No re-paste needed.
-
-When the editor says any HVG trigger, immediately invoke `hvg-flow` with the established Notion URL and cwd as context. `hvg-flow` itself is also instructed not to re-ask for the URL in this scenario — see its "MANDATORY INITIATION BEHAVIOR" section.
+Do **not** invoke `hvg-flow` yourself from here. When the editor gives an HVG trigger, `hvg-flow` initiates on its own — its own MANDATORY INITIATION BEHAVIOR handles the no-re-paste. Your handoff is the pushed script, nothing more.
 
 ## PFM Context
 
@@ -240,78 +247,15 @@ When the editor says any HVG trigger, immediately invoke `hvg-flow` with the est
 - **Speaker character**: The dad-on-podcast is a single speaker on the show. The wife and kids are referenced in the story but never appear as on-mic voices. Don't write the wife or kids as separate Veo lines.
 - **Reference projects**: When you need a tone or pacing reference, fetch one of the source projects from Notion (Denied Car Loan, Repossessed Florida, Permission Slip Podcast) and read the Copy callout. They follow the same format.
 
-## Before / after examples (from Loans Best Buy Denial Podcast, 2026-05-13)
+## Before / after examples
 
-These show the LC-to-podcast transformation at the line level. The "After" lines are the locked production version.
-
-### Opening line — spoken numbers, intensifier
-
-LC:
-> I have nine credit cards and $30,050 of debt. Last week Best Buy denied me for a $1,970 TV in front of my wife and my two kids.
-
-After (split into two Veo lines):
-> 1. I have nine credit cards and 30 thousand in debt. Last week Best Buy denied me a purchase for a TV that was just over 19 hundred dollars.
-> 2. Right in front of my wife and my two kids. I just stood at the register, staring at the pin pad in disbelief.
-
-### The clerk beat — dialogue attribution, drop "Five words" callout
-
-LC:
-> The clerk was polite about it. "Looks like we couldn't get you approved today." Five words, said the way you'd say it to a stranger on the bus.
-
-After:
-> 3. The clerk was polite about it, he said, "I'm sorry, but, looks like we couldn't get you approved today."
-> 4. Said the way you'd say it to a stranger on the bus, and the people behind us pretended not to listen.
-
-### Tablet field list — combined into clean Veo beats
-
-LC:
-> Full name. Full address. Date of birth. Social Security number. Annual income. Employer. How long I'd worked there. Monthly rent. Previous address from before we moved. Mother's maiden name. Four security questions. Bank name, account number, debit card "for verification."
-
-After (three Veo lines, balanced):
-> 10. Then he handed me a tablet. Not a form, a tablet. Full name, full address, date of birth.
-> 11. Social security number, annual income, employer, how long I'd worked there, monthly rent, previous address from before we moved.
-> 12. Mother's maiden name. Four security questions. Bank name, account number, my debit card for "verification."
-
-### Card-reading beat — spoken figures, "bucks/grand/hundred" mix
-
-LC:
-> Main Visa $6,420. Gas card $890. Target RedCard $2,150. Medical card from when my wife had her gallbladder out, $3,840.
-
-After:
-> 25. Nine cards. I can still name every single one. Main Visa, sixty four hundred bucks. Gas card, almost nine hundred.
-> 26. Target RedCard, just over two grand. Medical card from when my wife had her gallbladder out, almost four thousand dollars.
-
-### The wife's "trap" line — connector + aside
-
-LC:
-> My wife looked at me across the table and said five words of her own. "This isn't a system. It's a trap." That was the moment.
-
-After:
-> 47. So my wife looked at me across the table and said five words of her own. "This isn't a system. It's a trap."
-> 48. And, you know, that was the moment. She found a site that night, after the Best Buy tablet.
-
-### The math reveal — only "um" in the script lands here
-
-LC:
-> And I still owe what I owed. Here's the part nobody tells you. I wasn't buying Gucci. I wasn't gambling.
-
-After:
-> 35. And I still owe what I owed. Um, and here's the part nobody tells you. I wasn't buying Gucci, I wasn't gambling.
-
-### The closer — held-silence shorter line for impact
-
-LC:
-> Four minutes. That's the whole thing. The rest of your life is on the other side of it.
-
-After (two Veo lines, the closer trimmed to 13 words for held silence):
-> 72. After the worst day of our marriage. Four minutes. That's the whole thing.
-> 73. And the rest of your life, you know, is right on the other side of it.
+Line-level worked examples of the full LC-to-podcast transformation (Loans Best Buy Denial Podcast, 2026-05-13 — spoken numbers, dialogue attribution, fragment folding, the closer) live in `references/example-conversions.md`. Read that file when you need a tone or pattern reference before drafting.
 
 ## TLDR
 
 1. Re-voice the LC line-by-line: spoken numbers, drop FB-post fragments, natural intensifiers, dialogue attribution, light filler, conversational connectors.
-2. Balance every line to 17-22 words (15-30 hard floor/ceiling). Closer can dip to 12-15 for impact.
+2. Balance every line to 17-22 words (15-30 hard floor/ceiling), but cut ONLY at sentence boundaries — never start or end a clip mid-sentence (the #1 robotic-sounding defect; integrity beats the word count). Closer can dip to 12-15 for impact.
 3. Strip em/en dashes, ALL CAPS, and compound hyphens.
 4. Preserve every fact, number, beat, and CTA from the source LC. No new claims.
 5. Output as a numbered list with the verbatim LC tucked into a `<details>` block underneath.
-6. Hand off to `hvg-flow` when the editor approves.
+6. End at the locked script pushed to Notion — ready for gen, but don't fire it. Staging / `hvg-flow` is a separate step the editor triggers (this is a writing skill, not a gen skill).

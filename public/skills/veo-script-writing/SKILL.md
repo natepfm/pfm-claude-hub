@@ -29,7 +29,7 @@ Veo 3.1 generates one short video clip per prompt. Each clip is capped at 8 seco
 
 ### Rule 1. Every numbered line fits a 6 to 8 second clip — lean long, never short
 
-Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **17 to 22 words per line** (sweet spot). Hard ceiling: 30 words. Hard floor: 15 words. Lean toward the long side by default.
+Podcast-pace narration runs about 2.5 to 3 words per second. Working window: **17 to 25 words per line** (sweet spot). Hard ceiling: 30 words. Hard floor: 15 words. Lean toward the long side by default.
 
 Quick math:
 - 6 seconds ≈ 15 to 18 words
@@ -41,9 +41,29 @@ Quick math:
 
 Lines like `"Impact. Bumper gone."` or `"Traffic. Full stop."` — even if they read punchy on the page — are **always merge candidates**. Combine them with adjacent context until the full line lands in the 6-8s window. The dramatic punch survives because the speaker emphasizes those short clauses naturally; you don't need a separate Veo clip for them.
 
-**The only allowed short line is the closing line**, which may be 12-15 words for held-silence impact on the final beat. Every other line must be 15-30 words (with 18-22 as the comfortable sweet spot).
+**The only allowed short line is the closing line**, which may be 12-15 words for held-silence impact on the final beat. Every other line must be 15-30 words (with 18-25 as the comfortable sweet spot).
 
 When in doubt, lean LONG. A 22-word line that runs ~7.5s is always better than a 14-word line that ends with awkward silence.
+
+### Rule 1b. Clip boundaries follow SENTENCES, never the word count — never start or end a clip mid-sentence
+
+Rule 1's word window is a TARGET, not a cutter. **Every clip must begin at the start of a sentence and end at the end of a sentence.** The only place to split a long sentence is a strong internal boundary — right before a coordinating *and / but / so / or* where the remainder still stands on its own as a clause. **Never slice a sentence by word count.**
+
+Why it is load-bearing: each numbered clip is fired as its own isolated Veo gen with its own TTS. A clip that opens mid-thought lands on a cold mid-sentence pickup and a false stop — the single most common "this sounds robotic / unnatural" defect. When sentence integrity and the 17-25 word target conflict, **integrity wins**: ship a clean 12-14 word clip (or a clean 26-28 word one) before a 20-word clip that breaks a sentence. Combine short complete sentences up toward the target; never chop one apart to hit it.
+
+**The exact failure this rule kills** (a raw word-count chunk — Zappify Oregon Dad LC, 2026-06-25 — every clip opens mid-sentence):
+
+Bad:
+> 3. Movie nights with the windows open, and the kids running barefoot through the grass. What I didn't expect.
+> 4. Were the mosquitoes. They came out in swarms. Every night, we were under attack. And every morning.
+> 5. We'd wake up covered in itchy, red welts. My daughter scratched until she cried. My son didn't even want.
+
+Good (same words, cut points moved to sentence boundaries):
+> 3. We imagined peaceful dinners on the deck, movie nights with the windows open, and the kids running barefoot through the grass.
+> 4. What I didn't expect were the mosquitoes. They came out in swarms, and every night, we were under attack.
+> 5. And every morning, we'd wake up covered in itchy, red welts. My daughter scratched until she cried.
+
+Read every clip aloud as a standalone line. If it starts or ends mid-thought, re-cut it.
 
 ### Rule 2. No ALL CAPS words (except inside placeholders)
 
@@ -122,6 +142,7 @@ Long compound sentences don't just blow the word count, they also sound unnatura
 - Spell out: one, two, three, four... fifteen, twenty (when counting or casual)
 - Keep digits for money and rates: $3,000, $4,695, $948
 - Time: "90 seconds" reads cleaner than "ninety seconds"
+- Dollar figures: run the naturalize-numbers skill — it is the single owner of spoken-number rules (high/low distinction, rounding).
 
 ### Read it aloud before finalizing
 
@@ -131,7 +152,7 @@ The single best sanity check: read every numbered line aloud at podcast pace. If
 
 - Commas for brief pauses
 - Periods for full stops
-- Ellipses (...) only when the character is genuinely trailing off. Don't overuse.
+- No ellipses (...) — banned in Veo dialogue, no exceptions. Rewrite the trail-off with a comma or a period.
 - Question marks OK
 - Exclamation points sparingly, only for real excitement
 - No em dashes, no en dashes, no hyphen-as-pause
@@ -169,18 +190,20 @@ Good (isolated):
 
 | Check | What to verify |
 |---|---|
-| Line length | Every numbered line 15 to 22 words (hard cap 30) |
+| Line length | Every numbered line 15 to 25 words (hard cap 30) |
+| Clip boundaries | Every clip starts AND ends on a complete sentence — none open or close mid-sentence (Rule 1b) |
 | Caps | No ALL CAPS words outside of [PLACEHOLDERS] |
 | Dashes | Zero dashes. All replaced with commas, periods, or rewrites |
 | State isolation | Every line with a token lives on its own number |
 | Token format | `{token}`, `[TOKEN]`, or `**token**` only. Consistent across the script |
 | Underlines | Only present if re-purposing a prior script. Mark only the lines or words that changed |
 | Read-aloud test | Every line spoken at podcast pace lands under 8 seconds |
-| Compliance | No brands. No "will save." $900/yr floor. No "program" language |
+| Compliance | No brands. No "will save." No "program" language. Rates monthly/yearly, never daily/weekly. Floors — Auto: $19/mo absolute, $39/mo team practical; Home Forms: $30/mo or $360/yr; Home Calls: $50/mo, claimed "as low as $600/year" |
+| SMA gate | SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat). |
 
 ## TLDR
 
-1. 15 to 22 words per numbered line. 30 max.
+1. 15 to 25 words per numbered line. 30 max — but boundaries follow sentences, never the word count (Rule 1b): never start or end a clip mid-sentence.
 2. No ALL CAPS except inside placeholders.
 3. No dashes. Use commas or periods.
 4. State tokens get their own numbered line.

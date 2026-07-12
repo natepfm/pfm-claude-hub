@@ -1,18 +1,25 @@
 ---
 name: pfm-character-master
-description: Generate scale-anchored PFM character master images for ANY character — human, animal, stylized-animated, or mascot/object — using a single locked-format reference sheet showing the character at correct proportional scale next to a 5'10" human silhouette anchor (or appropriate alternative for oversized / inanimate chars), in 5 angles (front / side / 3-quarter / back / sitting), rendered in the art style specified per character (photoreal, stylized 3D Pixar/Illumination, illustrated 2D). Use this skill whenever an editor needs a NEW character master for a PFM project (story-ad cast, recurring talent, supporting humans, antagonists, dogs/animals, mascots, dealership assistant manager, mortgage broker, tow driver, Hero Wife, "the guy at the park," "the kid from Katy") OR wants to re-fire an existing master with the scale anchor baked in. Triggers on phrases like "make a character master for X," "create a master for the [character]," "give me a new character," "add [character] to the cast," "spec a [type/role]," "character master with scale," "scale-anchored master."
+description: PFM's ONE character-master skill — generate scale-anchored character master images for ANY character (human, animal, stylized-animated, or mascot/object) in the single locked-format reference sheet, 5 angles (front / side / 3-quarter / back / sitting) + a face-portrait close-up, scale-anchored next to a 5'10" human silhouette, rendered in the art style specified per character (photoreal, stylized 3D Pixar/Illumination, illustrated 2D). TWO intake modes — MODE A (spec-driven, no photo, the editor describes the character in words and the 6-field spec drives the prompt) and MODE B (photo-anchored, a real likeness photo / existing still / casting photo is the identity source and the rendered face IS that person). Use whenever an editor needs a NEW character master for a PFM project (story-ad cast, recurring talent, supporting humans, antagonists, dogs/animals, mascots, dealership assistant manager, mortgage broker, tow driver, Hero Wife, "the guy at the park," "the kid from Katy") OR wants to re-fire an existing master with the scale anchor baked in. Trigger families — SPEC (Mode A): "make a character master for X," "create a master for the [character]," "give me a new character," "add [character] to the cast," "spec a [type/role]," "character master with scale," "scale-anchored master." PHOTO (Mode B): "make a character master from this photo," "turn this reference into a master," "I have a photo of someone, build the character," "formalize this still into a master," or the editor drops a likeness image and wants a master. NOT for: placing a finished master into an environment (use character-studio — placement-only), the JRE podcast frame swap (jre-swap), b-roll batches (type skills / hig-flow), or firing Veo clips (hvg-flow).
 ---
 
-# PFM Character Master — Scale-Anchored Reference Sheets
+# PFM Character Master — Scale-Anchored Reference Sheets (spec OR photo)
 
 ## ⚡ Backgrounding rule (locked 2026-06-09)
 
 Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
 
 
-This skill produces PFM's locked character-master format for any character in a PFM creative — human, animal, animated, or mascot. One image, 5 angles, scale-anchored against a 5'10" human silhouette (or alternative anchor when the character itself IS human and the comparison silhouette plays a different role).
+This skill produces PFM's locked character-master format for any character in a PFM creative — human, animal, animated, or mascot. One image, 5 angles + a face-portrait close-up, scale-anchored against a 5'10" human silhouette (or alternative anchor when the character itself IS human and the comparison silhouette plays a different role).
 
 The scale anchor is the load-bearing part. Without it, NB Pro improvises character size and renders dogs at human-scale (anthropomorphic actors), or children at adult-height, or "tall guy" characters at the same height as everyone else. The silhouette gives the model an explicit "this is how tall the character is relative to a standard 5'10" adult" reference, and downstream b-roll prompts that include this master as an `--image` reference inherit the scale lock.
+
+## Two intake modes — pick by what the editor hands you
+
+- **Mode A — spec-driven (no photo).** The editor describes the character in words; you walk the 6-field spec (Steps A1–A4) and the prompt template invents the person. The classic path.
+- **Mode B — photo-anchored (likeness provided).** The editor drops one or more likeness images (a real person, a still from footage, a casting photo, an existing PFM still to formalize); the photo IS the identity source and you propose the spec back from what you see (Steps B1–B3). Ported from the retired character-studio Act 1.
+
+Both modes converge on the same locked prompt template, the same CLI fire, the same filename convention, and the same automatic library save. Environment placement afterward is a different skill — `character-studio` (placement-only).
 
 ## When to use
 
@@ -20,14 +27,20 @@ The scale anchor is the load-bearing part. Without it, NB Pro improvises charact
 - An existing master is missing the scale anchor and needs to be re-fired (v02 with scale)
 - A supporting/one-off character (the neighbor, the gas-station attendant, the kid on the bike, the dealership manager, the mortgage broker) needs a quick master
 - A recurring character across multiple ads (Hero Wife in Auto / Home / Loans conversions) needs an identity-locked master
-- You want to spec a character (physical features, clothing, accessories, energy) and lock identity for an upcoming gen flow
+- You want to spec a character (physical features, clothing, accessories, energy) and lock identity for an upcoming gen flow — Mode A
+- The editor has a photo of a real person / an existing still and wants them turned into a locked master — Mode B
 
 **Pairs with:**
 - `hig-flow` — uses character masters as input refs for b-roll gens
 - `hvg-flow` — uses character masters as Veo `input_image` for clip generation
+- `character-studio` — drops a finished master into a locked PFM environment (placement)
 - `higgsfield-image-generation` — for one-off variations of an existing master
 
-## Step 1 — pick the character type
+---
+
+# MODE A — Spec-driven (no photo)
+
+## Step A1 — pick the character type
 
 The character type drives everything downstream — scale anchor behavior, prompt template branch, default art style, the pose set, negative prompts.
 
@@ -40,7 +53,7 @@ The character type drives everything downstream — scale anchor behavior, promp
 
 Default to `human` for any character described as a person without an explicit "animated / Pixar / stylized" cue.
 
-## Step 2 — pick the art style
+## Step A2 — pick the art style
 
 Art style is independent of character type — a human can be photoreal OR stylized; an animal can be stylized OR (rarely) photoreal. Default to the type's default unless the editor specifies otherwise.
 
@@ -50,61 +63,72 @@ Art style is independent of character type — a human can be photoreal OR styli
 | `stylized-3d-pixar` | Stylized 3D Pixar/Illumination art style. Soft cinematic shading, expressive proportions, plush warm rendering | Animated dogs, animated mascots, the Max universe |
 | `illustrated-2d` | Flat or semi-flat 2D illustration, clean line work, brand-graphic feel | Rare — use for brand-graphic mascots or 2D illustrated characters only |
 
-## Step 3 — pick the scale tier
+## Step A3 — pick the scale tier
 
-Pick the tier that matches the character's real-world height/scale. The tier dictates the character's height relative to the 5'10" silhouette anchor.
+**The full tier tables (human / animal / mascot) live in [`references/master-format.md`](references/master-format.md) — load it and pick the tier there.** The tier dictates the character's height relative to the 5'10" silhouette anchor (e.g. `human-avg-male` = crown matches silhouette crown; `animal-large` = shoulder at silhouette hip). If unsure, default per type: `human-avg-male` for humans, `animal-large` for dogs.
 
-### Human tiers
-
-| Tier | Character description | Height vs 5'10" silhouette |
-|---|---|---|
-| `human-tall` | Tall adult (6'2"+) | Crown ~4" ABOVE silhouette crown |
-| `human-avg-male` | Average adult male (5'8"–5'11") | Crown matches silhouette crown |
-| `human-avg-female` | Average adult female (5'4"–5'7") | Crown approximately at silhouette eye level |
-| `human-short` | Short adult (under 5'2") | Crown approximately at silhouette nose level |
-| `human-teen` | Teen (13–17) | Variable — default to crown at silhouette mouth level |
-| `human-kid` | Child (6–12) | Crown approximately at silhouette chest level |
-| `human-toddler` | Toddler (2–5) | Crown approximately at silhouette hip level |
-
-### Animal tiers (most PFM dog work)
-
-| Tier | Character description | Height vs 5'10" silhouette |
-|---|---|---|
-| `animal-large` | Adult Labrador, Golden Retriever, Border Collie, Shiba Inu, mid-large breeds | Shoulder at silhouette **hip** (~38" from ground) |
-| `animal-small` | Adult Beagle, Corgi, smaller terriers | Shoulder at silhouette **mid-thigh** (~28" from ground) |
-| `animal-puppy` | Young Lab/Golden puppy, similar growing puppies | Head at silhouette **knee** (~20" from ground) |
-| `animal-young-adult` | College-age dog (older puppy / young adult Lab) | Shoulder slightly below hip (~34" from ground) |
-| `animal-toy` | Adult Chihuahua, Pomeranian, very small breeds | Top of head at silhouette **mid-shin** (~12" from ground) |
-
-### Mascot / object tier
-
-| Tier | Use when | Anchor behavior |
-|---|---|---|
-| `mascot-character-sized` | Inanimate mascot rendered character-scale (3–5 ft) | Treat as `human-kid` to `human-avg-female` per spec |
-| `mascot-oversized` | Mascot that should feel LARGER than human | Crown above silhouette crown per spec |
-| `mascot-prop` | Small object treated as character | Sized against silhouette hand (~3 ft from ground) |
-
-If unsure, default per type: `human-avg-male` for humans, `animal-large` for dogs.
-
-## Step 4 — confirm the required inputs
+## Step A4 — confirm the required inputs
 
 Before firing, confirm with the editor:
 
 1. **Character name** (e.g. "Hero Wife," "Mortgage Broker Marcus," "Max," "Park Guy")
-2. **Character type** (per Step 1)
-3. **Art style** (per Step 2)
-4. **Scale tier** (per Step 3)
+2. **Character type** (per Step A1)
+3. **Art style** (per Step A2)
+4. **Scale tier** (per Step A3)
 5. **Full visual spec** —
    - For humans: age, build, hair (style + color), skin tone, distinctive features (glasses, beard, freckles, etc.), wardrobe top + bottom + shoes, accessories (watch, jewelry, hat, bag)
    - For animals: breed, color/markings, collar (color + material + tag shape — strongest identity differentiator across a family), distinctive features
    - For mascots: form, material, color palette, accessories, distinctive features
 6. **Personality energy** (one-line vibe — "warm Houston mom-energy," "laid-back LA brother," "smart tech kid," "no-nonsense Texas dealership pro")
 
-These six fields feed the prompt template below.
+These six fields feed the prompt template below. Then fire (The CLI fire, below).
 
-## The prompt template (branches by type)
+---
 
-The locked format is the same across all types — single image, left-to-right lineup, neutral light-grey background, scale anchor on the far left. Only the slot fills change.
+# MODE B — Photo-anchored (likeness provided)
+
+## Step B1 — Intake the reference(s)
+
+Accept any of:
+- A single likeness photo (a real person, a still from footage, a casting photo)
+- Several photos of the same person (better — more angles = stronger identity lock)
+- An existing PFM still the editor wants formalized into a master
+
+Confirm: **who is this character** (name + one-line role, e.g. "Marcus — PNW homeowner witness") and **where the file(s) live** (path or attachment). If the reference is a tight crop or low-res, say so — identity lock will be weaker; offer to proceed or ask for a better source.
+
+## Step B2 — Read the photo, propose the spec (don't interrogate)
+
+Unlike Mode A (which asks for 6 fields because there's no photo), here the photo answers most of it. **Read the reference and propose** the spec back for a one-line confirm rather than a questionnaire:
+
+- **Scale tier** — infer from the photo + role (default `human-avg-male` / `human-avg-female`; flag if they read tall/short/teen/kid). This is the one field a photo can't fully resolve, so confirm it.
+- **Art style** — default `photoreal` for a real-person photo (iPhone-authentic, NOT studio-glossy). Only go stylized if the editor asks.
+- **Wardrobe / features** — describe what you see; note anything to lock (glasses, beard, signature jacket) or normalize (the master wears neutral, scene-agnostic wardrobe so it composes into any environment — see the wardrobe rule below).
+- **Personality energy** — one line, inferred from the photo, confirmed.
+
+Present it as: *"Reading the photo: average-male scale, photoreal, mid-40s, salt-and-pepper beard, glasses. Master wardrobe neutral (heather crew + dark jacket). Energy: warm blue-collar dad. Good, or adjust?"* — then fire on confirm.
+
+**Wardrobe rule for the master:** keep it **neutral and scene-agnostic** (plain crew/henley + simple jacket, no logos, no costume). The master is for identity + scale + continuity; environment-specific wardrobe (headphones, lavalier, blazer) gets added per scene at placement time (`character-studio`). A master baked in podcast headphones can't cleanly go on stage.
+
+## Step B3 — Fire the photo-anchored master
+
+Same locked model-sheet format (5 angles, 5'10" silhouette scale anchor, neutral light-grey background) — but the **reference photo is the lead `--image`** so the rendered face IS the person.
+
+Build the prompt from the master template below, with one addition up top:
+
+> "Match the face, hair, and likeness of the person in the provided reference photograph exactly — same facial structure, same features, same skin tone. Render that exact person as a scale-anchored character reference model sheet, [rest of the locked template]."
+
+Photo-anchored ref rules (they differ from Mode A — see "Reference images required at fire time" below):
+- **Pre-upload every reference serially first** → UUIDs, then fire (`feedback_higgsfield_cli_concurrency_race.md`).
+- Pass the likeness photos **ONLY** — do **NOT** add a format-sheet / style anchor. It dilutes the face (`reference_sam_talent_identity`); the 5-angle scale-anchored layout comes entirely from the prompt prose, which GPT Image 2 follows. (NB Pro v01 with a format-sheet anchor came out "a little off" on the Christian Hall build; GPT Image 2 with identity-only refs fixed it.)
+- After the takes land: read the master — does the face match the reference? Is the scale anchor present? If the likeness drifted, re-fire as v02 with the reference photo weighted harder (lead it harder in the prompt, drop competing style refs). Don't ship a drifted master downstream — every placement inherits the drift.
+
+Then continue with the shared fire/download/deliver mechanics below.
+
+---
+
+## The prompt template (branches by type — both modes)
+
+The locked format is the same across all types — single image, left-to-right lineup, neutral light-grey background, scale anchor on the far left. Only the slot fills change. (Mode B prepends the likeness lead-in from Step B3.)
 
 ### Master template
 
@@ -123,6 +147,8 @@ The sheet shows, lined up left to right:
 
 5. <CHARACTER NAME> in <POSE 5 per type>.
 
+6. <CHARACTER NAME> in a head-and-shoulders PORTRAIT close-up — face filling the frame so facial detail reads (skin texture, eyes, hair, expression). Same lighting and neutral grey background. This is the FACE-DETAIL reference; slots 1-5 (silhouette + full-body views) still carry the size lock so downstream b-roll knows how big the character is.
+
 <CHARACTER NAME>: <FULL VISUAL SPEC>. Personality energy: <ENERGY LINE>.
 
 <ART STYLE DIRECTIVE — long form>. Same render quality, same soft <natural / cinematic> lighting, same neutral light-grey background as the reference images.
@@ -138,25 +164,7 @@ Negative: <NEGATIVE PROMPT per type>.
 For `mascot-oversized` characters, override to:
 > "An adult human silhouette in plain medium-grey outline form, 5 feet 10 inches tall, shown small relative to the character for scale comparison."
 
-**Scale line (slot 2)** — paste verbatim per tier:
-
-Human tiers:
-- `human-tall`: "Standing at tall-adult scale: crown approximately 4 inches above the silhouette's crown (~6 feet 2 inches total)."
-- `human-avg-male`: "Standing at average adult male scale: crown matching the silhouette's crown height (~5 feet 10 inches)."
-- `human-avg-female`: "Standing at average adult female scale: crown approximately at the silhouette's eye level (~5 feet 5 inches)."
-- `human-short`: "Standing at short-adult scale: crown approximately at the silhouette's nose level (~5 feet 1 inch)."
-- `human-teen`: "Standing at teen scale: crown approximately at the silhouette's mouth level."
-- `human-kid`: "Standing at child scale: crown approximately at the silhouette's chest level."
-- `human-toddler`: "Standing at toddler scale: crown approximately at the silhouette's hip level."
-
-Animal tiers:
-- `animal-large`: "Standing at correct adult Labrador scale: shoulder approximately at the silhouette's hip height (~38 inches from the ground)."
-- `animal-small`: "Standing at adult small-breed scale: shoulder approximately at the silhouette's mid-thigh height (~28 inches from the ground)."
-- `animal-puppy`: "Standing at puppy scale: head approximately at the silhouette's knee height (~20 inches from the ground)."
-- `animal-young-adult`: "Standing at young-adult scale: shoulder slightly below adult Labrador hip height (~34 inches from the ground)."
-- `animal-toy`: "Standing at toy-breed scale: top of head approximately at the silhouette's mid-shin height (~12 inches from the ground)."
-
-Mascot tiers: use the closest human or animal tier line, adapted for the character.
+**Scale line (slot 2)** — paste verbatim per tier. **The verbatim per-tier strings live in [`references/master-format.md`](references/master-format.md)** — load it and paste the exact line for the chosen tier (never paraphrase them; they're calibrated).
 
 **Pose 5 by type:**
 - `human` / `mascot-character-sized`: "seated pose on a simple neutral stool, hands resting on knees, relaxed"
@@ -174,33 +182,26 @@ Mascot tiers: use the closest human or animal tier line, adapted for the charact
 `illustrated-2d`:
 > "Clean illustrated 2D art style, flat or semi-flat shading, clear line work, brand-graphic rendering."
 
-**Negative prompt (slot 8) by type:**
-
-`human` + `photoreal`:
-> "not stylized, not animated, not 3D Pixar, not illustrated, no cartoon proportions, no detailed facial features on the silhouette, no anthropomorphized animal posing, no over-glossy studio lighting, no advertising-perfect skin, no text labels, no watermarks, no chyrons, no brand logos."
-
-`animal` / `stylized-animated` + `stylized-3d-pixar`:
-> "not photoreal, no detailed human face on the silhouette, no anthropomorphic standing-on-hind-legs posing, no oversized character, no human-scale animal, no toddler-scale character (for adult chars), no text labels, no watermarks, no chyrons, no brand logos."
-
-`mascot-object` / `illustrated-2d`:
-> "no detailed face on the silhouette, no anthropomorphic posing inappropriate to the form, no text labels, no watermarks, no chyrons, no brand logos, no copyrighted character likenesses."
+**Negative prompt (slot 8) by type:** **the per-type negative stacks live in [`references/master-format.md`](references/master-format.md)** — load it and paste the stack matching the type + style verbatim.
 
 ## Reference images required at fire time
 
-Pass these as `--image` flags:
+**Mode A (spec-driven)** — pass these as `--image` flags:
 
 1. **Art-style reference** — for `stylized-3d-pixar` chars, use any existing PFM Pixar master (e.g. `Max_Model_Sheet_v03_405c.png`). For `photoreal` chars, use any existing PFM photoreal character master OR a clean PFM photoreal hero frame from the project. For `illustrated-2d`, use any existing PFM 2D mascot.
 2. **Scale reference** — the project's `Family_Scale_Reference_v01_*.png` (or equivalent). Locks the proportional scaling logic. If the project doesn't have one yet, fire the FIRST master without it and use that first master as the art-style + scale anchor for subsequent characters.
 
 For the very first character master in a brand new project with no prior PFM masters to anchor to, pass a single representative PFM hero frame from any prior project as the style ref.
 
+**Mode B (photo-anchored)** — pass the identity photos ONLY and drop the format-sheet anchor (it dilutes the face); the 5-angle layout comes from prose (Step B3).
+
 ## Cowork mode — spec + prompt only, NEVER fire (Dima / any session without the Higgsfield CLI)
 
 Check first: if `which higgsfield` doesn't resolve (Claude Cowork sessions don't have the CLI), this session CANNOT fire. **Do NOT fall back to the Higgsfield MCP connector — MCP firing is forbidden, period** (hard PFM rule; MCP is read-only inspection only). Instead, the deliverable becomes the **fire-ready package**:
 
-1. Walk Steps 1–4 with the user exactly as normal and build the complete filled prompt from the template.
-2. Name the two reference images the fire needs (art-style ref + scale ref) with their exact Lucid paths — pick real existing files (check the central Character Library / the project's Reference folder); never invent filenames.
-3. **Write the package into the project** (Lucid access permitting): `Elements/Prompts/<Character>_master_prompt.md` containing the full prompt, both ref paths, the target output path + filename convention, and the one-line CLI fire command from the section below with everything filled in.
+1. Walk the mode's steps with the user exactly as normal and build the complete filled prompt from the template.
+2. Name the reference images the fire needs (Mode A: art-style ref + scale ref; Mode B: the likeness photos) with their exact Lucid paths — pick real existing files (check the central Character Library / the project's Reference folder); never invent filenames.
+3. **Write the package into the project** (Lucid access permitting): `Elements/Prompts/<Character>_master_prompt.md` containing the full prompt, the ref paths, the target output path + filename convention, and the one-line CLI fire command from the section below with everything filled in.
 4. Tell the user: any editor machine (or Sam's) fires this in ~2 minutes — and if this character was blocking a `/stage request` gap, re-run the stage once the master PNG lands and the gap clears.
 5. If the session has no Lucid access either: deliver the package in chat and note it on the Notion request's gap note instead.
 
@@ -211,14 +212,16 @@ Check first: if `which higgsfield` doesn't resolve (Claude Cowork sessions don't
 ```bash
 higgsfield generate create gpt_image_2 \
   --prompt "<filled prompt from template above>" \
-  --image <art-style / scale anchor ref UUID> \
+  --image <ref UUID(s) — Mode A: art-style / scale anchor · Mode B: likeness photo(s) ONLY> \
   --aspect_ratio 16:9 \
   --resolution 1k \
   --quality high \
   --wait --wait-timeout 8m --json
 ```
 
-**Pre-upload reference images** before firing (`higgsfield upload create <path> --json`). Pass UUIDs, not local paths — per the locked Higgsfield CLI concurrency rule (`feedback_higgsfield_cli_concurrency_race.md`). For a **photo-anchored** build (an actual likeness photo exists — see `character-studio`), pass the identity photos ONLY and drop the format-sheet anchor (it dilutes the face); the 5-angle layout comes from prose. For a **spec-driven** build (no photo), a style/scale anchor ref is still fine.
+**Pre-upload reference images** before firing (`higgsfield upload create <path> --json`). Pass UUIDs, not local paths — per the locked Higgsfield CLI concurrency rule (`feedback_higgsfield_cli_concurrency_race.md`).
+
+**Spine note: fires port onto fire_batch.py once the spine passes real-fire sign-off.**
 
 **Download multi-take batches SERIALLY** with a size/verify check — parallel downloads race Lucid sync and silently drop files (`feedback_verify_veo_download_count`).
 
@@ -257,40 +260,14 @@ After a successful fire, EVERY mention of the output destination MUST show both:
 
 This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Output: Elements/...` line is a violation.
 
-## 🔴 ALWAYS offer to save to the central libraries (every fire)
+## Library save — AUTOMATIC on approval
 
-**This is a HARD RULE — no skipping.** After the project-local save + Lucid handoff is reported, the LAST thing this skill does — before yielding back to the editor — is offer to also save the master + its prompt to PFM's central libraries. These are the team-wide source of truth so the next editor who needs this character (or a variant of them) doesn't re-derive the spec from scratch.
+**When the editor approves a master, save it to the Character Library + Prompts sheet AUTOMATICALLY, no ask (locked: `feedback_always_save_masters_to_library`). Announce the save in one line.**
 
-**Central library locations:**
-- **Master image** → `/Volumes/ads/PFM MEDIA MASTER FOLDER/1. PFM Media Assets/AI Generation Assets - PFM/Character Library/<Character>/<Character> - Master.png`
-  - Per-character subfolder (Option B structure). Wife / family / guest variants of the same character go into the same folder (`<Character>/Wife - Master.png`, `<Character>/Guest Characters/<Guest>.png`)
-  - Strip the source hash + version suffix on copy: `Hero_Wife_Model_Sheet_v01_a4b2.png` → `Hero Wife - Master.png`
-  - If `<Character> - Master.png` already exists in the central folder, save as `<Character> - Master v02.png` (NEVER overwrite — same rule as the project-local v<NN> increment)
-- **Prompt entry** → `/Volumes/ads/PFM MEDIA MASTER FOLDER/1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/Character Master - <Character>.md`
-  - Mirror the structure of existing Prompts Library entries (`Field TV Anchor - Rachel Torres.md`, `Studio Anchor - Steve.md`): metadata table → visual spec (the 6 inputs the editor confirmed in Step 4) → working filled-in prompt (the exact body fired) → CLI fire snippet (the exact higgsfield command + ref UUIDs used) → provenance (the source project)
-  - Update the Prompts Library README index table with the new row
-  - If `Character Master - <Character>.md` already exists, save as `Character Master - <Character> v2.md` (no overwrites)
-
-**The offer format — paste this verbatim after the Lucid handoff, then STOP for the editor's reply:**
-
-> 💾 Also save to PFM central libraries?
->   - **Image** → `Character Library/<Character>/`
->   - **Prompt** → `Prompts Library/Character Master - <Character>.md`
->
-> Reply `save both`, `image only`, `prompt only`, or `skip`.
-
-**On editor reply:**
-- `save both` — execute both copies, then report the Lucid handoff (📁/🔗/🦊) for each new central-folder location
-- `image only` — execute the image copy, report its Lucid handoff (📁/🔗/🦊), skip the prompt
-- `prompt only` — write the prompt entry, update the README index, report the Lucid handoff (📁/🔗/🦊) for the new .md
-- `skip` — acknowledge ("Skipped central libraries.") and move on
-
-**Hard constraints on this step:**
-- The offer is ALWAYS shown — even on re-fires, even on v02s, even when the editor said "skip" earlier in the session. New fire = new offer.
-- NEVER auto-save without the editor's explicit reply. This is an offer, not a default.
-- NEVER offer mid-process. Only at the end, after the fire is fully reported.
-- NEVER skip showing the offer because "the central library already has this character" — surface it ("⚠️ central library already has `<Character> - Master.png` — saving will create `v02`") and still let the editor decide.
-- The Lucid handoff rule applies to the new central-folder destinations too (Path + Open + 🦊 Fox.io links all required).
+- **Image** → `Character Library/<Character>/<Character> - Master.png` (strip hash + version suffix on copy; existing file → save as `v02`, never overwrite)
+- **Prompt** → `Prompts Library/Character Master - <Character>.md` (house entry structure; update the README index; existing entry → `v2`, no overwrite)
+- Full paths, naming rules, and entry structure: [`references/master-format.md`](references/master-format.md) § Central-library save mechanics.
+- The Lucid handoff rule (📁/🔗/🦊) applies to the new central-folder destinations too.
 
 ## What NOT to do
 
@@ -303,15 +280,20 @@ This is a hard PFM rule (see `feedback-two-link-lucid-handoff.md`). A bare `Outp
 - **Don't overwrite existing masters.** New versions increment `v<NN>`.
 - **Don't generate a master for a character that already has one.** Check `ls Elements/Footage/Reference/<Character> Master/` first — if `v01` exists and the editor isn't explicitly asking for v02, return early and link the existing master.
 - **Don't mix art styles in a single project's cast** unless the creative brief explicitly calls for it (e.g. MAX THE DOG = stylized animals + photoreal environments is the brief). For standard photoreal story-ads, all characters stay photoreal; for the Max universe, all animal characters stay stylized.
+- **(Mode B) Don't add a format-sheet / style anchor next to the likeness photos** — it dilutes the face; identity refs only.
+- **(Mode B) Don't invent a likeness** — if no reference photo is provided, that's Mode A (spec-driven), not a guessed face.
 
 ## Cross-references
 
+- [`references/master-format.md`](references/master-format.md) — tier tables, verbatim scale-line strings, per-type negative stacks, full library-save mechanics
+- `character-studio` — placement-only: drops a finished master into a locked PFM environment (podcast / talk show / news interview / stage / custom)
+- `jre-swap` — puts a character onto the EXISTING JRE podcast frame (recreate + swap, not prose placement)
 - `hig-flow` — downstream b-roll workflow that consumes character masters as input refs
 - `hvg-flow` — Veo video pipeline that uses masters as `input_image`
 - `higgsfield-image-generation` — for one-off variations or refines
 - `nano-banana-prompting` — full Nano Banana prompt-craft reference
-- Memory: `feedback_higgsfield_workflow.md`, `feedback_higgsfield_cli_concurrency_race.md`, `feedback_pfm_character_master_format.md`, `feedback-two-link-lucid-handoff.md`
+- Memory: `feedback_higgsfield_workflow.md`, `feedback_higgsfield_cli_concurrency_race.md`, `feedback_pfm_character_master_format.md`, `feedback-two-link-lucid-handoff.md`, `feedback_always_save_masters_to_library`, `feedback_character_master_always_gpt_image_2`, `reference_sam_talent_identity`
 - Reference examples in any PFM project: `Elements/Footage/Reference/Max Master/Max_Model_Sheet_*.png`, `Elements/Footage/Reference/Family Scale Reference/Family_Scale_Reference_*.png`
-- **Central libraries (offer to save here every fire — see the 🔴 ALWAYS offer section above):**
+- **Central libraries (auto-saved on approval — see the Library save section above):**
   - `1. PFM Media Assets/AI Generation Assets - PFM/Character Library/` — per-character master image library (Option B: subfolder per character, wife + family + guest variants nested inside)
   - `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` — per-character prompt template library (mirrors `Field TV Anchor - Rachel Torres.md` shape; index in the folder's `README.md`)

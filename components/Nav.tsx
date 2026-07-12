@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const pages = [
   { href: "/", label: "Dashboard" },
   { href: "/claude", label: "Claude" },
+  { href: "/skills", label: "Skills" },
   { href: "/creatives", label: "Creatives" },
   { href: "/resources", label: "Resources" },
   { href: "/onboarding", label: "Onboarding" },
@@ -13,6 +14,7 @@ const pages = [
 
 function baseRoute(pathname: string): string {
   if (pathname.startsWith("/claude")) return "/claude";
+  if (pathname.startsWith("/skills")) return "/skills";
   if (pathname.startsWith("/creatives")) return "/creatives";
   if (pathname.startsWith("/resources")) return "/resources";
   if (pathname.startsWith("/onboarding")) return "/onboarding";
