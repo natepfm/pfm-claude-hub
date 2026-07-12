@@ -11,7 +11,7 @@ description: PFM's per-state Pixar Best State Music Video asset generator (Auto 
 > - **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
 > - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
-> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-2 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
 
 ---
 
@@ -59,7 +59,11 @@ Proven identical across Georgia/Washington/Oregon builds. `build_pixar_prompts.p
 - **cap** = a state-identity ball cap with a state name patch + a local motif (GA = peach).
 - **vehicle** = a *well-loved older* state-typical vehicle (OR = tan Land Cruiser; GA = sand-tan F-150; WA = forest-green Subaru Outback). NEVER a new/luxury/sports car.
 - **terrain/landmarks** = real signature geography (OR = Mt. Hood + Columbia River Hwy; CO = Rockies/aspens/snow; FL = palms/beaches).
-- **avoid_states** = the sibling states whose shape/terrain Veo might bleed in (always include Texas + Colorado, plus neighbors).
+- **avoid_states** = the sibling states whose shape/terrain NB Pro might bleed in (always include Texas + Colorado, plus neighbors).
+
+## 🔴 RULE-5 — show every gen the instant it lands
+
+**Show every gen the instant it lands — 📲 CloudFront + widget (`job_display`/`show_generations`) — before download, QC, or picks. QC verdicts come AFTER the reveal, below it, never as a gate.** For this skill that means the 13-still set (character + 12 scenes) streams to the editor one by one as each `result_url` returns — never one end-of-batch dump, never held for a QC read.
 
 ## Firing engine notes (learned the hard way)
 - **NB Pro takes PLAIN PROSE prompts. A JSON-blob prompt → HTTP 500.** (The Georgia/Washington prompt *files* on disk are JSON reference docs, but the actual fire used prose.) `build_pixar_prompts.py` emits prose.

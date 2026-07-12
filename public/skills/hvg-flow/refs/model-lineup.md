@@ -62,13 +62,9 @@ If editor picks Preview, confirm: *"Preview base is ~2.1× the cost of Fast; Pre
 - `aspect_ratio: 16:9 | 9:16 | 1:1`
 - Costs: 10 cr (5s std) / 20 cr (10s std) / **25 cr (10s pro)** — substantially cheaper than Veo 3.1 Fast for testimonial work where Kling's identity-lock from a reference image is often stronger.
 
-## Aspect ratio default by use case (when the editor doesn't specify)
+## Aspect ratio default — ALWAYS 9:16 (locked 2026-06-17)
 
-- Organic / social-first (Instagram, TikTok, organic posts) → **9:16**
-- Paid / horizontal (YouTube, web, story-ad timelines) → **16:9**
-- Square / multi-platform → 1:1
-
-The Notion request's `Vertical` field is the strongest signal: "Organic" defaults 9:16, "Auto - Forms" / "Home - Calls" etc. default 16:9 unless stated otherwise. Always confirm before firing.
+**Default to 9:16 (vertical) for EVERY fire — even when the project / `Vertical` is 16:9.** Do NOT infer aspect from the `Vertical` field. Go 16:9 (or 1:1) ONLY when the editor / request explicitly asks, or for an inherently-horizontal format (VSL full-screen slides, CTV / anchor-wall). Always confirm at the preflight.
 
 ## Cross-references
 

@@ -1,4 +1,8 @@
-// AUTO-GENERATED from the audit's canonical skills dataset (2026-07-11). The living Skills Dashboard tracker.
+// Canonical skills dataset for the entire hub. Dashboard counts, the Skills
+// tracker, the Claude catalog, downloads, and the Cowork bundle all derive
+// from this module. Update this file first; do not create a second registry.
+export const SKILLS_AUDIT_DATE = "2026-07-11";
+
 export type SkillTier = "live" | "hold" | "retired" | "vendor" | "frozen" | "restricted" | "command" | "other";
 export interface SkillRow {
   num: string; section: string; id: string; folder: string;
@@ -70,3 +74,32 @@ export const skillRows: SkillRow[] = [
   { num: "X 4", section: "X", id: "/x.notion", folder: "x.notion.md", forr: "Re-reads the session's Notion request and reports what changed.", when: "/x.notion mid-project.", how: "Read-only refetch + diff-style report; never edits, never re-asks the URL.", get: "The what-changed report.", status: "Command", tier: "command", flow: false },
   { num: "X 5", section: "X", id: "/x.view", folder: "x.view.md", forr: "Public phone-viewable link for any local asset.", when: "/x.view away from the desk.", how: "higgsfield upload → 📲 CloudFront link (+ widget for fresh gens); never fires a gen.", get: "The tappable link.", status: "Command", tier: "command", flow: false },
 ];
+
+/** Skills intentionally bundled for hosted Cowork/chat use. */
+export const coworkSkillFolders = [
+  "stage-request",
+  "veo-script-writing",
+  "breaking-news-story-ads",
+  "nano-banana-prompting",
+  "story-beats",
+  "lc-to-video-podcast",
+  "suno-songwriter",
+  "human-ad-copy",
+] as const;
+
+export const coworkSkillFolderSet = new Set<string>(coworkSkillFolders);
+
+/** Team-distributed skills. Every one must have public/skills/<folder>/SKILL.md. */
+export const distributedSkillRows = skillRows.filter((skill) => skill.tier === "live");
+
+/** Strip trigger annotations from the registry's human-readable folder field. */
+export function skillFolder(skill: SkillRow): string {
+  return skill.folder.split(" · trigger ")[0].replace(/\.md$/, "");
+}
+
+export function skillTitle(skill: SkillRow): string {
+  return skillFolder(skill)
+    .split("-")
+    .map((word) => word.length <= 3 ? word.toUpperCase() : word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}

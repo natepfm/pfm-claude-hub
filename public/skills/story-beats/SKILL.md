@@ -47,7 +47,7 @@ If Sam hasn't said which vertical yet, ask before loading. Default assumption pe
 What the skill needs before drafting:
 
 1. **Reference or original?** Is this built from a reference creative (paste it or point to a file in `knowledge/`), or an original idea?
-2. **Vertical + funnel:** Which vertical(s) and funnel(s)? (e.g., "ABF" = Auto Broad Forms, "HBF" = Home Broad Forms). Parse from Sam's prompt; ask if not stated. Do not propose ABC (Auto Broad Calls) — not currently in rotation.
+2. **Vertical + funnel:** Which vertical(s) and funnel(s)? (e.g., "ABF" = Auto Broad Forms, "HBF" = Home Broad Forms). Parse from Sam's prompt; ask if not stated. Auto Calls (ABC) and Home Calls (HBC) are both active funnels.
 3. **Tweaks:** If reference-based, what's Sam changing? Setting, inciting incident, Hero framing, character shape, tone, ticking clock?
 4. **Skit count:** Default 1. Parse from Sam's prompt; ask if not stated.
 5. **Hero — "how do they credibly know the site?"** Lock this first. Personal experience alone is a valid baseline (*"I used this site, it worked for me"*) — the Hero does NOT need a profession. If the input is ambiguous about Hero credibility, propose 2–3 options: (a) friendly stranger/neighbor with personal experience, (b) profession + personal experience layered (e.g., Mortgage Broker who also used it), (c) something specific to the story. Let Sam pick.
@@ -85,11 +85,12 @@ Before delivering, verify every beat against these (details in `context/pfm-crea
 - [ ] No **viewer-facing** fake urgency — no "ends today," no countdowns pointed at the viewer. (In-scene ticking clocks are fine, see above.)
 - [ ] No brands, carriers, celebrities, politicians, or government imagery
 - [ ] Rates framed monthly or yearly — never daily/weekly
-- [ ] Auto: rate floor is $39/month (team practical); Home: $30/month or $360/year; Loans: APR format
+- [ ] Rate floors — Auto: $19/month absolute, $39/month team practical; Home Forms: $30/month or $360/year; Home Calls: $50/month, claimed "as low as $600/year"; Loans: APR format
 - [ ] "Free" used only for *quote* or *signup* — nothing else
 - [ ] **Vertical-specific** (Home): no discussion of "agents" at all; banned words *benefit/apply/application*
 - [ ] **Vertical-specific** (Auto): no repo-as-theft framing
 - [ ] Hero passes the "outside the carrier/agent/lender space" test
+- [ ] SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat).
 
 Flag any beat that fails. Don't silently rewrite — show Sam what broke and propose the fix.
 

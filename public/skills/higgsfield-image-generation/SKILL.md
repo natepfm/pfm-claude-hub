@@ -19,7 +19,7 @@ description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfie
 >
 > **Mechanical enforcement — the fire mechanism itself must emit each result as it completes:**
 > - **Batches under 20:** fire each gen as its OWN backgrounded task, or use the ThreadPool skeleton below with `as_completed` printing each `LANDED` line the second it resolves — and relay each to the editor immediately. **NEVER one silent multi-gen `--wait` shell that only returns when the slowest gen finishes. NEVER hold finished gens to present a picked/QC'd set.**
-> - **20+ items:** one report at batch completion (matches Hard Rule 3 scale — per-file streaming is noise there).
+> - **20+ items:** stream a compact per-result line as each lands (label + 📲), then one rollup report at batch completion — the rollup supplements the stream, never replaces it (reconciled 2026-07-12, Sol #2).
 > - If your fire command can't expose per-gen results, restructure it before firing. A batch that reports only at the end is a Rule 5 violation even if every other convention was followed.
 
 ---
@@ -43,27 +43,19 @@ If the user wants prompts to copy-paste into the Higgsfield UI themselves, write
 - MCP filters break Veo's audio + frame-to-video params (relevant for the sibling video pipeline; same architectural pattern applies here)
 - Sam's automation thesis: never touch the Higgsfield UI, never manual-wait between steps
 
-**Allowed MCP tools** (read-only inspection — fine to call): `balance`, `transactions`, `models_explore`, `list_workspaces` / `select_workspace`, `show_generations` / `show_medias` / `show_characters`. Everything else (`generate_image`, `media_upload`, `media_confirm`, `job_display` polling) → use the CLI instead.
+**FORBIDDEN MCP tools** (firing / mutation — never call): `generate_image`, `media_upload`, `media_confirm`, and any other MCP that creates or spends. Firing goes through the CLI, always.
+
+**Allowed MCP tools** (read-only inspection — fine to call): `balance`, `transactions`, `models_explore`, `list_workspaces` / `select_workspace`, `show_generations` / `job_display` / `show_medias` / `show_characters`.
+
+**REQUIRED post-gen widget step (Widget Law, locked 2026-06-17):** After ANY gen completes, ALSO render results in the Higgsfield widget via the read-only `show_generations` (batch) or `job_display` (single) MCP calls — read-only inspection is required and fully compatible with CLI-only firing. Firing via MCP stays forbidden. See `feedback_show_gen_results_in_widget`.
 
 ## 🛑 PFM CONVENTIONS — non-negotiable before firing
 
-**Before firing ANY Higgsfield image gen for PFM work** (one-off, test, re-fire, or exploratory), load and apply the conventions from `hig-flow` — even when the editor isn't going through hig-flow's structured 9-gate flow.
+**Before firing ANY Higgsfield image gen for PFM work** (one-off, test, re-fire, or exploratory), load and apply the PFM conventions — even when the editor isn't going through a gated flow. **The canonical convention list lives in `~/.claude/skills/hig-flow/SKILL.md` (+ `~/.claude/skills/hig-flow/PIPELINE-SPEC.md`) — cross-load it whenever this skill triggers for PFM material.** Don't re-derive conventions from memory; read them there.
 
-Quick rules to self-impose every time:
-- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=1 (opt into `--count 2` for a pick)
-- Filename suffix: end every b-roll PNG with a unique 4-char hex tag (`_<hex>.png`) so DaVinci Resolve doesn't auto-group as image sequences
-- No iOS UI chrome in b-roll (no status bar, Camera Roll header, scrubbing strip, date stamps)
-- Brand-clean negatives stack matched to vertical (no automaker badges in vehicle shots, no Geico/Progressive in insurance, no GE/Whirlpool in appliances, no Apple/macOS dock on laptops, etc.)
-- iPhone camera-roll prompting style by default for podcast story-ad b-roll
-- For UGC character master refs, use "extracted video frame" framing — NOT "screenshot" or "photo"
-- Selfie arm framing: minimize the extending arm in foreground
-- Folded-bill aging cue (tri-fold creases + opened #10 envelope) on every printed-bill moment
-- Lived-in clutter on home-interior b-roll (junk mail, dirty mug, charger cable) — NOT stock photography
-- Character placement: 1-ref + scene prose beats 2-ref
-- Shirt rotation: random per scene, same within a scene
-- Concealed Carry vertical exempt from "no firearms" default
-
-Full convention list lives in `~/.claude/skills/hig-flow/SKILL.md`. Cross-load it whenever this skill triggers for PFM material.
+The two that are UNIQUE to the one-off path (self-impose every time, no flow to enforce them):
+- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=1 (opt into `--count 2` for a pick) — the locked one-off/refire default (2026-06-17)
+- Filename suffix: end every b-roll PNG with a unique 4-char hex tag (`_<hex>.png`) so DaVinci Resolve doesn't auto-group as image sequences (the flow's manifest step normally polices this; here YOU do)
 
 ### 🔴 Prompt craft — `nano-banana-prompting` is MANDATORY (locked 2026-06-10)
 
@@ -112,7 +104,7 @@ Verify:
 
 **Single fire:** skip — pass `--image ./local.png` directly; the CLI auto-uploads inline.
 
-**Parallel batch (>4 fires)** with reference images: pre-upload each unique ref ONCE serially, capture UUIDs, then pass UUIDs (not local paths) into the parallel fires. This avoids the concurrent-auth race documented in `feedback_higgsfield_cli_concurrency_race.md`.
+**Parallel batch (>4 fires)**: route to the shared spine (`fire_batch.py` — see "Parallel batch firing" below), which pre-uploads for you. If you're hand-firing 2–4 parallel one-offs with reference images: pre-upload each unique ref ONCE serially, capture UUIDs, then pass UUIDs (not local paths) into the parallel fires. This avoids the concurrent-auth race documented in `feedback_higgsfield_cli_concurrency_race.md`.
 
 ```bash
 # Pre-upload once per unique ref:
@@ -201,57 +193,21 @@ Confirm file count matches expected (count × number of fires). Report to user:
 - Final balance (CLI: `higgsfield account status`)
 - Any silent losses (stuck or missing jobs — see below)
 
-## Parallel batch firing (multiple shots)
+## Parallel batch firing (multiple shots) — use the shared spine
 
-For batches of 5+ gens, use Python `ThreadPoolExecutor` with `max_workers=16` and pre-uploaded UUIDs. Bash `&`+`wait` past ~10 jobs breaks down on the credential-store race documented in `feedback_higgsfield_cli_concurrency_race.md`.
+**Batches of 5+ gens fire through the shared spine, not a hand-rolled runner:** `~/.claude/skills/hig-flow/fire_batch.py` (job-list contract + ownership map: `~/.claude/skills/hig-flow/PIPELINE-SPEC.md`). The spine already owns everything a batch needs — serial UUID pre-upload (the concurrent-auth race, `feedback_higgsfield_cli_concurrency_race.md`), ThreadPool `max_workers=16`, per-gen Rule-5 streaming (each result relayed 📲 + widget the instant it lands), serial verified download, and the Lucid handoff. Build the job list, call the spine, tail its output.
 
-Skeleton (adapt to actual job shape):
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-import subprocess, json
-
-def fire_one(job):
-    cmd = [
-        "higgsfield", "generate", "create", "nano_banana_2",
-        "--prompt", job["prompt"],
-        "--image", job["ref_uuid"],                # UUID, not local path
-        "--aspect-ratio", "9:16",
-        "--resolution", "1k",
-        "--count", "1",
-        "--wait", "--wait-timeout", "5m", "--json",
-    ]
-    return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
-
-with ThreadPoolExecutor(max_workers=16) as ex:
-    futs = {ex.submit(fire_one, j): j for j in jobs}
-    for fut in as_completed(futs):        # 🔴 Rule 5: handle each gen the MOMENT it finishes
-        job = futs[fut]
-        result = fut.result()
-        parsed = json.loads(result.stdout) if result.returncode == 0 else None
-        url = parsed["results"][0]["rawUrl"] if parsed and parsed.get("results") else None
-        print(f"LANDED {job['label']}: {url}", flush=True)   # streamed to the shell output AS IT LANDS
-        # download this one now — do NOT wait for the rest of the batch
-```
-
-(import line: `from concurrent.futures import ThreadPoolExecutor, as_completed`)
-
-**While the backgrounded batch shell runs, tail its output — every `LANDED` line gets relayed to the editor IMMEDIATELY** (📲 tappable + widget), before the next one resolves. The end-of-batch message is just counts + balance; the reveals already happened live.
-
-**Self-check before any concurrent CLI fire:**
-1. Are any `--image` flags pointing at local file paths? → If yes, pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 16? → If higher, lower it. (16 verified clean on Enterprise; race kicks in past ~16 — 100 workers = 50% job loss.)
-3. Are you using Python ThreadPool or bash `& + wait`? → ThreadPool past 8 jobs.
+This skill's own CLI workflow (above) is for the 1–4-fire one-off case only. The pre-fire self-check still applies to any concurrent fire you do run by hand: local paths → pre-upload to UUIDs first; never exceed 16 workers; ThreadPool over bash `&`+`wait` past 8 jobs. The retired hand-rolled ThreadPool skeleton is archived at `references/legacy/manual-threadpool-batch.md` — reference only, don't resurrect it.
 
 ## Handling stuck and lost jobs
 
 Two failure modes worth knowing about even with `--wait`:
 
-**Stuck jobs:** A `--count 2` fire occasionally returns with one variant in `completed` and one in `in_progress` after the wait window. Re-fire a `--count 1` with the same prompt for the missing variant. Save as `_v03`.
+**Stuck jobs:** A `--count 2` fire occasionally returns with one variant in `completed` and one in `in_progress` after the wait window. The known fix: a `--count 1` re-fire with the same prompt for the missing variant, saved as `_v03`.
 
-**Silent partial results:** Sometimes only one rawUrl shows up in `.results[]` when count=2. Same recovery — fire a single-count backup.
+**Silent partial results:** Sometimes only one rawUrl shows up in `.results[]` when count=2. Same fix — a single-count backup fire.
 
-Don't worry the user about this — it's a quirk of the platform. Quietly handle it and proceed.
+**When an output misses: name the miss, SHOW it, STOP — refires are the editor's call.** Never quietly handle a stuck or partial result and proceed. Surface what landed (📲 + widget), name what's missing or wrong in one line, and wait for the editor's go before firing the fix. (See `feedback_stop_assuming_show_and_ask` — locked 2026-07-08, system-wide.)
 
 ## Image-as-reference trick for character AND setting continuity
 
@@ -289,7 +245,7 @@ See **nano-banana-prompting** for more on setting-continuity prompt language.
 
 - **Before a big batch**: state how many credits the batch will burn so the user can sanity-check budget.
 - **After a batch**: report new balance.
-- **When something fails silently** (stuck job, failed upload, missing variation): tell the user matter-of-factly and explain the recovery you're doing. Don't catastrophize a single missing image.
+- **When something fails silently** (stuck job, failed upload, missing variation): name the miss matter-of-factly, show what DID land, and name the recovery you'd run — then stop; the refire is the editor's call. Don't catastrophize a single missing image.
 - **When pre-uploading**: list the reference images and their UUIDs so the user can confirm.
 - **As every gen lands** (Rule 5): relay its 📲 tappable link + widget immediately — the editor never waits for the batch to see a finished gen.
 - **After every download** (single fire, refire, batch, anything): render the **Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` + 🦊 **Fox.io:** rail drop via the same helper with `--fox-drop` (render `🦊 Fox.io: <label> → From Claude rail`). Listing bare filenames without those lines is a CLAUDE.md Hard-Rule-2 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.

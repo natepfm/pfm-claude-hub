@@ -2,7 +2,12 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 import CopyBlock from "@/components/CopyBlock";
-import { skills } from "@/content/skills";
+import {
+  coworkSkillFolderSet,
+  distributedSkillRows,
+  skillFolder,
+  skillRows,
+} from "@/content/skillsRegistry";
 
 // ── Dashboard data — everything derives from the repo, nothing invented ──
 
@@ -10,12 +15,12 @@ import { skills } from "@/content/skills";
 const EDITORS_ON_CLAUDE = 13;
 
 const SECTION_LABEL: Record<string, string> = {
-  "gen-auto": "Asset Gen · Auto",
-  "gen-manual": "Asset Gen · Pipeline",
-  writing: "Writing",
-  image: "Image",
-  video: "Video",
-  utility: "Utility",
+  WR: "Writing",
+  AG: "Asset Generation",
+  QC: "Quality Control",
+  E: "Editing",
+  R: "Reporting",
+  X: "Utility",
 };
 
 function getChangelogStats() {
@@ -31,13 +36,13 @@ function getChangelogStats() {
 }
 
 export default function DashboardPage() {
-  const live = skills.filter((s) => !s.status);
-  const cowork = live.filter((s) => s.worksIn.includes("cowork"));
+  const live = distributedSkillRows;
+  const cowork = live.filter((s) => coworkSkillFolderSet.has(skillFolder(s)));
   const changelog = getChangelogStats();
 
   const sections = Object.entries(
     live.reduce<Record<string, number>>((acc, s) => {
-      acc[s.category] = (acc[s.category] ?? 0) + 1;
+      acc[s.section] = (acc[s.section] ?? 0) + 1;
       return acc;
     }, {})
   ).sort((a, b) => b[1] - a[1]);
@@ -113,8 +118,8 @@ export default function DashboardPage() {
           ))}
           <div className="flex items-center gap-3 px-3 py-2.5 border-t border-border mt-1">
             <span className="w-2 h-2 bg-warning border border-ink shrink-0" aria-hidden />
-            <span className="flex-1 text-sm text-muted">Frozen / retired</span>
-            <span className="font-mono text-sm tabular-nums text-muted">{skills.length - live.length}</span>
+            <span className="flex-1 text-sm text-muted">Hold / restricted / commands</span>
+            <span className="font-mono text-sm tabular-nums text-muted">{skillRows.length - live.length}</span>
           </div>
         </div>
 
@@ -143,34 +148,33 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {skills.map((s) => (
-                <tr key={s.name} className={`transition-colors hover:bg-bg ${s.status ? "opacity-60" : ""}`}>
+              {skillRows.map((s) => (
+                <tr key={`${s.num}-${s.id}`} className={`transition-colors hover:bg-bg ${s.tier !== "live" ? "opacity-60" : ""}`}>
                   <td className="px-4 py-3 border-b border-border">
-                    <div className="font-mono text-[13px] text-text">{s.name}</div>
-                    <div className="text-xs text-muted mt-0.5 max-w-md truncate">{s.title}</div>
+                    <div className="font-mono text-[13px] text-text">{s.id}</div>
+                    <div className="text-xs text-muted mt-0.5 max-w-md truncate">{skillFolder(s)}</div>
                   </td>
-                  <td className="px-4 py-3 border-b border-border text-muted whitespace-nowrap">{SECTION_LABEL[s.category]}</td>
+                  <td className="px-4 py-3 border-b border-border text-muted whitespace-nowrap">{SECTION_LABEL[s.section]}</td>
                   <td className="px-4 py-3 border-b border-border">
                     <div className="flex gap-1.5">
-                      {s.worksIn.includes("code") && (
+                      {s.tier !== "command" && (
                         <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-surface2 border border-borderInput text-muted">Code</span>
                       )}
-                      {s.worksIn.includes("cowork") && (
+                      {coworkSkillFolderSet.has(skillFolder(s)) && (
                         <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-tintBlue border border-borderInput text-text">Cowork</span>
+                      )}
+                      {s.tier === "command" && (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-surface2 border border-borderInput text-muted">Command</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 border-b border-border whitespace-nowrap">
-                    {s.status === "frozen" && (
-                      <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-amber-100/70 border border-warning text-text">Frozen</span>
-                    )}
-                    {s.status === "retired" && (
-                      <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-surface2 border border-borderInput text-muted">Retired</span>
-                    )}
-                    {!s.status && (
+                    {s.tier === "live" ? (
                       <span className="inline-flex items-center gap-1.5 text-xs text-text">
                         <span className="w-2 h-2 rounded-full bg-success" aria-hidden /> Live
                       </span>
+                    ) : (
+                      <span className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 bg-surface2 border border-borderInput text-muted">{s.status}</span>
                     )}
                   </td>
                 </tr>
@@ -179,7 +183,7 @@ export default function DashboardPage() {
           </table>
         </div>
         <p className="text-xs text-muted mt-3">
-          Source of truth: <code className="font-mono">content/skills.ts</code> — the same registry that renders the <Link href="/claude#skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Skills section</Link>.
+          Source of truth: <code className="font-mono">content/skillsRegistry.ts</code> — the same registry that renders the <Link href="/skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Skills Dashboard</Link> and <Link href="/claude#skills" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Claude catalog</Link>.
         </p>
       </section>
 

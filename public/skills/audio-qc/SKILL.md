@@ -5,6 +5,20 @@ description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-
 
 # Audio QC — PFM
 
+## 🔴 QC-OFFER LAW
+
+**QC is OFFERED via a plain ask on local fires, never auto-run. AGF/mini runs keep mandatory QC.**
+
+## 🔴 TIER 1 of 2 — escalate flagged clips to `watch-video` (Gemini, locked 2026-07-11)
+This scanner is the **automatic, free, fast Tier-1 gate** — it catches ~90% of defects (silent / clipped / no-audio / wrong-words / unexpected-music) on hundreds of clips with zero API cost. What it CANNOT see is MOTION or on-screen content: mouths moving while a character should listen silently, retime stutter, a screen in the background, lip-sync drift. Those are **Tier 2 = `watch-video`** (Gemini, ~a penny/clip). So after this scan surfaces flagged clips, **offer to escalate JUST the flagged set to a watch** — never a blanket per-clip Gemini pass (disproportionate to signal at PFM's hundreds/day):
+> "N clips flagged. Want me to *watch* them (Gemini motion/on-screen/lip-sync check)? — `watch-video --files <the flagged paths> --preset lipsync`"
+Physics narrows the batch → a handful; the watch confirms the thing physics can't. Only run it on the flagged set, a named concern, the final picks, or a `--sample`. See the `watch-video` skill's Tier-2 lock.
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
+
 Two-phase quality check for Veo-generated mp4 clips. Catches silent / clipped / no-audio (audio physics) AND wrong-words / voice drift (Whisper transcription) before clips hit DaVinci. Total wall clock ~3-4 min for a typical 350-clip batch on M-series Mac.
 
 ## When to invoke
@@ -57,7 +71,7 @@ Logic per clip:
 5. Escalation rule: only escalates a clip from `OK` → `unexpected_music`. If the clip already has `dialogue_mismatch` / `clipped` / `low_volume`, those stay as the primary flag and the music regions show up in the dedicated report section anyway (via the `has_unexpected_music` field).
 
 **What this catches:**
-- Cold-open musical stings (Veo's known tendency to add musical intros to dialogue clips — see `feedback_veo_audio_artifacts.md` for the prompt-level prevention rules)
+- Cold-open musical stings (Veo's known tendency to add musical intros to dialogue clips — see `feedback_veo_audio.md` for the prompt-level prevention rules)
 - Musical tails after dialogue ends
 - Musical beds with gaps where dialogue should fill (Whisper transcribes the dialogue cleanly, but audio energy persists in the gaps)
 - Any non-speech audio in a clip that's supposed to be dialogue-only
@@ -73,15 +87,10 @@ Logic per clip:
 | `clipped` | max_volume > -0.5 dB | Distortion / harsh peaks (digital 0 dBFS clipping) |
 | `no_audio` | No audio stream | Veo Lite shipped silent (common — known issue) |
 | `dialogue_mismatch` | Transcript similarity < threshold | Wrong words, mid-syllable cut, voice drift, or Whisper mistranscription of dollar amounts / numbers |
-| `unexpected_music` | Non-speech audio detected (Phase 3) — single region > 0.40s OR cumulative > 0.60s of audio energy that Whisper didn't transcribe as speech | Cold-open musical sting, musical tail, musical bed, or other non-dialogue audio. Veo cold-open stings are the most common cause despite the prompt-level negatives in `feedback_veo_audio_artifacts.md` |
+| `unexpected_music` | Non-speech audio detected (Phase 3) — single region > 0.40s OR cumulative > 0.60s of audio energy that Whisper didn't transcribe as speech | Cold-open musical sting, musical tail, musical bed, or other non-dialogue audio. Veo cold-open stings are the most common cause despite the prompt-level negatives in `feedback_veo_audio.md` |
 | `error` | ffmpeg or Whisper failed | Corrupt file, codec issue, or model exception |
 
-**Empirical baseline (2026-05-26 Car Repo scan):**
-- *Phase 1 only* (cut_off heuristic disabled): 276/325 OK (85%), 49 clipped (15%) — concentrated on **Steve cinemagraph intros + closes** (L02 "Tonight, this viral video..." = 20 clips, L23 "Wow, just incredible..." = 26 clips). Rachel-narrated lines (L11/L14/L03) are essentially clean (1 each).
-- *Phase 2 spot-test* on 55 L14 clips (Car Repo B2-B6): **0 dialogue mismatches**. 100% full-match on 49 clips, >95% on 4, 77-90% on 4 (the dip is Whisper mistranscribing dollar amounts like "fifteen hundred" as "1500" — not missing words). Whisper confirms intact dialogue when audio physics alone can't.
-- Runtime per phase on M-series Mac: ~90s ffmpeg parallel + ~2 min Whisper sequential ≈ 3-4 min total for a 350-clip batch.
-
-The Steve-clipping pattern is a known PFM-specific issue — his hot opens and emphatic closes peak at 0 dBFS. See Recovery patterns below.
+**Empirical baseline:** see `references/scenarios.md` — the 2026-05-26 Car Repo scan numbers (85% OK / 15% clipped, the Steve hot-open clipping fingerprint, Whisper dollar-amount false positives, runtimes).
 
 ## Full SOP
 
@@ -102,7 +111,7 @@ Passing `--manifest` activates Phase 2 (Whisper) automatically. The manifest is 
 python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" --workers 12
 ```
 
-Omit `--manifest` and only the audio-physics phase runs. Useful for HVG.1 legacy projects without an Excel manifest, or quick spot-checks where dialogue verification isn't needed.
+Omit `--manifest` and only the audio-physics phase runs. Useful for legacy projects without an Excel manifest, or quick spot-checks where dialogue verification isn't needed.
 
 The report writes to `<veo_root>/audio_qc_report_<YYYY-MM-DD>.md` by default. Override with `--out /path/to/report.md`.
 
@@ -158,38 +167,18 @@ Example:
 | `dialogue_mismatch` (isolated, transcript reads close to expected but with a wrong word) | Real wrong-word event — Veo synthesized a different word than the prompt asked for | Spot-check the transcript section of the report; if it really is a wrong-word case, re-fire as v03 |
 | `dialogue_mismatch` (similarity 0.7-0.9, transcript matches but for number/dollar-amount rendering) | Whisper mistranscription of digits — "fifteen hundred" heard as "1500" | Usually a false positive — verify by listening and accept the take. Consider lowering `--dialogue-threshold` for this project if it's frequent |
 | `dialogue_mismatch` (concentrated on one L#) | Either Veo consistently drops a phrase from that line, or the manifest's expected dialogue is out of sync with what was actually fired | Check the manifest vs the script; if script was edited mid-batch, manifest may be stale. Re-fire affected clips only if dialogue is genuinely missing words |
-| `unexpected_music` (single region at clip start, ~0.5-1.5s) | Cold-open musical sting — Veo's known tendency despite prompt negatives | Re-fire as v03 with the strengthened audio-block negatives from `feedback_veo_audio_artifacts.md`. If persistent across multiple takes of the same line, the prompt needs tightening at the script level |
+| `unexpected_music` (single region at clip start, ~0.5-1.5s) | Cold-open musical sting — Veo's known tendency despite prompt negatives | Re-fire as v03 with the strengthened audio-block negatives from `feedback_veo_audio.md`. If persistent across multiple takes of the same line, the prompt needs tightening at the script level |
 | `unexpected_music` (single region at clip end, last ~0.5-1.0s) | Musical tail after dialogue ends | Same recovery as cold-open sting — re-fire with strengthened negatives. Often pairs with `clipped` on the same clip when the tail peaks |
 | `unexpected_music` (multiple small regions throughout) | Possible musical bed under the dialogue, OR Whisper missed words (false positive) | Spot-check the actual clip — is there music under the dialogue, or did Whisper just stumble on a name / number / accent? If real music, re-fire; if Whisper miss, accept the take |
 | `error` | Corrupt download or Whisper exception | Re-download from the result JSON; if Whisper itself errored, re-run the scanner |
 
 ## Common scenarios
 
-### Scenario 1 — Editor accepts post-download offer
-
-`hvg-flow` surfaced the QC offer after downloads. Editor said `yes`. Run the scanner with the project's Veo folder as the root, default workers, no exclusions. Surface findings + report path.
-
-### Scenario 2 — Batch is still in flight
-
-Editor wants to QC the completed batches but Batch 6 is still firing in another session. Use `--exclude "Batch 6"` to skip in-progress mp4s (would otherwise spam errors as ffmpeg can't read incomplete files).
-
-### Scenario 3 — Single batch / state spot-check
-
-Editor wants to spot-check just the Florida fills:
-
-```bash
-python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo/FL" --workers 12
-```
-
-The scanner walks recursively from whatever root you point at.
-
-### Scenario 4 — Re-scan after re-fires
-
-After re-firing some failed clips as v03/v04, re-run the scanner. The latest scan supersedes the old report (filename has the date). Add `--out` if you want to keep both reports side-by-side.
+Four worked scenarios — post-download offer accepted, batch still in flight (`--exclude`), single batch/state spot-check, re-scan after re-fires — live in `references/scenarios.md`.
 
 ## Edge cases
 
-- **ffmpeg not found** — the script self-resolves via `$PFM_FFMPEG` env → `~/bin/ffmpeg` → `which ffmpeg`. If none found, prints an install hint and exits 2. Run `claude-pfm-setup.sh` to install.
+- **ffmpeg not found** — the script self-resolves via `$PFM_FFMPEG` env → `~/bin/ffmpeg` → `which ffmpeg`. If none found, prints an install hint and exits 2. Run `claude-pfm-update.sh` to install.
 - **Permission prompt** — on first run, Claude Code may prompt for the python3 + audio_qc_scan.py command. Approve once; the Lucid Link `settings.json` allowlist (`Bash(python3 *audio-qc/audio_qc_scan.py *)`) covers subsequent runs.
 - **mp4 files outside the Veo folder** — the scanner only walks the path you point at. If reference videos or other mp4s live elsewhere, they're not scanned.
 - **Empty veo folder** — exits 0 with "Found 0 mp4 files" log. Not an error.
@@ -198,9 +187,8 @@ After re-firing some failed clips as v03/v04, re-run the scanner. The latest sca
 ## Cross-references
 
 - **`hvg-flow`** — invokes this skill via the post-download offer in Step 11
-- **`feedback_veo_audio.md`** — Lite silent-take risk (the "no_audio" pattern)
+- **`feedback_veo_audio.md`** — Lite silent-take risk (the "no_audio" pattern) + the sting/music prevention negatives + the line-length rules (relevant for the disabled cut_off check; if cut_off is ever re-enabled, this is the upstream fix for "line too long for 8s")
 - **`feedback_verify_veo_download_count.md`** — file-count reconciliation that runs alongside QC
-- **`feedback_veo_no_short_punchy_beats.md`** — the line-length rules (relevant for the disabled cut_off check; if cut_off is ever re-enabled, this is the upstream fix for "line too long for 8s")
 - **`feedback_higgsfield_workflow.md`** — Higgsfield CLI is the firing tool; QC happens after files land on disk
 - **`audio_qc_scan.py`** (sibling) — the actual scanner script
 

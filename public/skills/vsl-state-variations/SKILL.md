@@ -11,7 +11,7 @@ description: PFM's per-state VSL asset-generation flow — produces both deliver
 > - **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
 > - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
-> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-5 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
+> Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard Rule 2 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
 
 ---
 
@@ -28,8 +28,7 @@ Per-state variant of a winning VSL. Two deliverables per state, fired in order:
 
 **Execution model — same as hvg-flow/hig-flow:** run setup SILENTLY (cwd check, Notion
 fetch + parse, sibling-state recon, ref upload, manifest), stop only at a consolidated
-preflight before each spend (slides, then clips). **Status is hands-off — leave the request at "Requested" through gen + delivery** (do NOT flip it to "In Progress" on pickup; standing rule, see `feedback_notion_request_status_lifecycle` — Status moves → "Done" only on an explicit turn-in, handled by `notion-asset-delivery`). Never fire without the preflight. Render
-all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam dislikes them).
+preflight before each spend (slides, then clips). **Status is hands-off — leave the request at "Requested" through gen + delivery** (do NOT flip it to "In Progress" on pickup; standing rule, see `feedback_notion_request_status_lifecycle` — Status moves → "Done" only on an explicit turn-in, handled by `notion-asset-delivery`). Never fire without the preflight. The Fire? confirmation uses the sanctioned AskUserQuestion card (🔥 Fire / Hold); all other confirmations stay plain markdown.
 
 ## Inputs / preconditions
 - Notion state request (e.g. "VSL - Average Auto State Cost Pitch Iowa") with the per-line
@@ -91,6 +90,7 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
 - Reference frame per line:
   - Line **has a state slide** → use that slide (`--start-image <UUID>`).
   - Line **has no slide** → pull from `No Slide Reference Shots/` (cycle the pool).
+  - **🔴 ASPECT-MATCH the reference to the render aspect (locked 2026-07-07).** Every `--start-image` — slide OR no-slide pool shot — MUST be in the SAME aspect as the clip you're rendering. A vertical (9:16) reference fired at 16:9 (or vice-versa) **pillarboxes → black bars down the sides.** The trap is the **no-slide pool**: if `No Slide Reference Shots/` holds 9:16 (vertical) shots and you fire the speaker lines at 16:9, all of those clips pillarbox — this hit **14 speaker clips on the SPANISH Avg Auto State Florida VSL** (delivered 06-24, editor caught + refired at 16:9 on 07-07). Before firing an aspect: `ls` the pool + slide dir and confirm they're the render aspect. **Dual-aspect VSLs** (a request asking for BOTH 9:16 + 16:9 — e.g. the "recompose slides for 9:16 so nothing gets cropped" briefs) need a **separate aspect-correct set of BOTH slides and the no-slide pool per aspect** — never reuse one aspect's references for the other.
 - **Master prompt:** the keynote master, `dialogue` swapped per line, prefixed with
   `Veo video prompt: ` (CLI rejects a leading `{`). The helper embeds the master template.
 - **DEFAULT to the HARDENED static-screen master — not the original.** The original master's
@@ -127,11 +127,13 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
   Verified clean reads after the fix ("1,800 / 2,300 / 2,800 / 1,400"). This is a deliberate
   VO-wording change from the brief; the on-screen slide still shows the exact `$X,XXX` figure.
   Apply to EVERY state's L2 (the truncation is systematic, not random).
-- **Whisper-verify the L2 read automatically — it's the one audio QC that works.** After Phase 2,
+- **Whisper-verify the L2 read — RECOMMENDED pre-delivery compliance check, offered via the
+  QC ask (never auto-run).** It's the one audio QC that works here: if the editor opts in,
   transcribe each state's `L2_<st>_v01.mp4` (`whisper … --model base --language en`) and confirm
   the per-year number reads in full (e.g. "2,300", not "300"/"800"). Numbers truncation ships
-  silently otherwise. (Whisper may mis-spell the demonym — e.g. "Arkinsons" for "Arkansans" —
-  that's a transcription quirk, not necessarily a Veo defect; spot-listen to confirm.)
+  silently otherwise — recommend it in the offer. (Whisper may mis-spell the demonym — e.g.
+  "Arkinsons" for "Arkansans" — that's a transcription quirk, not necessarily a Veo defect;
+  spot-listen to confirm.)
 - **QC reality — filmstrips CANNOT catch motion artifacts.** The 5-frame filmstrip (visual-qc
   skill) catches static defects (text garble, composition) ONLY at full res, and is BLIND to
   the dominant failure modes here: zoom-blur, particle-smear, and talking-photo all live in the
@@ -166,6 +168,8 @@ all confirmations as plain markdown chat — NOT `AskUserQuestion` cards (Sam di
 - **Lucid handoff (standing rule, `feedback_two_link_lucid_handoff`):** when reporting a delivered state, close with the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link AND a **🦊 Fox.io** rail drop for the clips folder `Elements/Footage/Veo/<State>/` (and the slides folder when relevant) — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --both "<absolute folder>" "<State>"` prints the 🔗 URL and queues the 🦊 drop; render `[<State> ↗](url)` + `🦊 Fox.io: <State> → From Claude rail`. Lucid `/Volumes/ads/…` paths only.
 
 ## Firing engine — use the helper, don't hand-roll
+**⚡🔴 Rule 5 streaming:** show every gen the instant its result_url exists — 📲 CloudFront link + widget (`job_display`/`show_generations`) — before download, before QC, before any pick. Never batch-wait, never QC-gate. A typical state is ≈17 clips — under 20, so stream each one as it lands.
+
 `fire_veo.py` (ships with this skill) encodes every lesson below. Drive it with a JSON
 manifest of `{out, ref, dialogue}` rows (`ref` = key into the ref map; the code reads `c["ref"]`, NOT `ref_uuid_key`) + a `{key: uuid}` ref map. Flags: `--sfw`
 (SFW-reinforced master), `--attempts N`, `--workers N`, `--out-dir <Veo/State>`.
@@ -180,7 +184,12 @@ manifest of `{out, ref, dialogue}` rows (`ref` = key into the ref map; the code 
   folder. Foreground `ls`/reads on Lucid Link dirs can hang — use background bash → `/tmp`.
 - On a crashed run, recover from saved per-job result JSONs before re-firing (no double-spend).
 
-## Phase 3 — Visual QC (REQUIRED before declaring a state done)
+## Phase 3 — Visual QC (OFFERED after delivery — never auto-run)
+**QC-offer law: local/in-chat fires are NEVER auto-QC'd. After delivery, OFFER QC via a plain
+multi-choice ask (run audio-qc / run visual-qc / skip). AGF/mini runs keep mandatory QC.**
+Recommend the visual pass + the L2 Whisper check in the offer as pre-delivery compliance steps —
+the editor decides. Everything below is what runs when they opt in.
+
 **Filmstrip QC is NOT sufficient for this VSL** — learned the hard way 2026-05-30 (false-PASSED
 5 Nebraska clips on 380px filmstrips, incl. a talking photo I declared "fixed, holding"). The
 dominant failure mode here is Veo *animating the slide it should hold frozen*, and a sparse
@@ -209,8 +218,9 @@ prefer explicitly closed-mouth client photos in Phase 1. Lowers odds, doesn't el
 ONE attempt, then flag manual** (set 2026-05-30; motion artifacts are stochastic and usually
 clear on a single reseed, so 1 hardened refire is the cap — a clip that still won't hold frozen
 after one hardened refire is a manual job, don't burn credits chasing it). Pre-delivery quality
-regen → overwrite the bad v01 (per visual-qc rule). Don't ship a state until motion_qc is clean
-(or its stubborn flags are manual-noted) and the 4 photo clips pass the eye.
+regen → overwrite the bad v01 (per visual-qc rule). When the editor opts into QC, don't call the
+state QC-clean until motion_qc is clean (or its stubborn flags are manual-noted) and the 4 photo
+clips pass the eye.
 
 ## HOME-vertical variant (vs the Auto default above)
 The skill also covers the **Average HOME State Cost Pitch** family (Vertical "Home - Forms"),
@@ -245,11 +255,6 @@ Home-specific conventions to honor:
 - **Master:** Home keynote setting ("home insurance industry keynote stage"), `generate_audio:true`
   with an explicit `audio_required` block. Use the hardened static-screen master adapted to the
   home setting (see Montana fire script 2026-05-30).
-
-## Known backfill debt
-- **Minnesota:** CTA slides done (2026-05-29); remaining debt is the **L19 + L40 clip**
-  hand-fires (NSFW hot-streak holdouts) — editor's manual job, flagged in Notion.
-- **Colorado:** still missing its 3 CTA slides + any CTA-clip refire. Out of current scope.
 
 ## Cross-references
 - `hig-flow` — Phase 1 image mechanics · `hvg-flow` — Phase 2 video mechanics

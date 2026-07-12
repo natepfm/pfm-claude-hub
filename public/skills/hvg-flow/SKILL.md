@@ -5,6 +5,10 @@ description: 🔴 MANDATORY for a PFM project's INITIAL asset generation — the
 
 # HVG Flow (PFM Video Generation)
 
+## 🔀 Generation now starts with STAGING (consolidation, 2026-07-11 — Phase 1)
+
+**The single gen front door is `ag.stage` (stage-request).** Every request stages first, then routes — **(a) mini** (autonomous fire) or **(b) generate locally** (route (b) fires the staged manifest with the SAME fire conventions this skill uses). This skill is the **video fire engine + reference** behind that fire step; its old cold-entry front-door role (drop a Notion URL → do everything) is being consolidated INTO staging so `stage → local` and `hvg-flow` stop being two doors to the same room. **Prefer stage-first.** Cold-entry still functions today — the full deprecation rides a **live-fire-verified pass** (confirm `stage → route (b)` reproduces this skill's Format-B `Slide:` parsing + reference-assignment modes on a real VSL + story-ad before cutting over). Do not claim the cutover done from a blind edit.
+
 ## 🔘 Fire gate = clickable card (locked 2026-06-11)
 
 Present every **Fire?** confirmation via the **AskUserQuestion tool** — header `Fire?`, question "Preflight above — fire this batch?", options: **🔥 Fire** ("fire exactly as preflighted") and **Hold** ("don't fire — I'll say what to change"). Clicking 🔥 Fire IS the explicit fire confirmation (Hard Rule 3); a typed `fire` in chat also counts. This is the ONE sanctioned AskUserQuestion use in PFM flows — every other multi-choice stays plain markdown per the editor's standing preference.
@@ -14,9 +18,9 @@ Present every **Fire?** confirmation via the **AskUserQuestion tool** — header
 Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
 
 
-End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the HVG.1 webapp + manifest dance: editor drops a Notion request URL inside a project folder, Claude runs setup silently and stops at up to two confirmations (reference assignment when ambiguous, then a consolidated preflight), fires the CLI batch, downloads clips, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
+End-to-end Higgsfield Video Generation pipeline for PFM editors. Replaces the old manual manifest dance: editor drops a Notion request URL inside a project folder, Claude runs setup silently and stops at up to two confirmations (reference assignment when ambiguous, then a consolidated preflight), fires the CLI batch, downloads clips, writes an Excel audit manifest. The 9 gates below are still the full procedure — but most run silently now (see Execution Model), not as nine separate confirmation stops.
 
-**Architecture:** Notion MCP for request fetch → Higgsfield **CLI** (`higgsfield generate create nano_banana_2`) for any missing reference image creation → Higgsfield **CLI** (`higgsfield generate create veo3_1_fast`) for video generation → xlsx skill for the audit manifest. **CLI for ALL gens — never the MCP `generate_image` / `generate_video` tools** (MCP is read-only inspection only — `balance`, `transactions`, `models_explore`, `select_workspace`). See `feedback_higgsfield_workflow.md`.
+**Architecture:** Notion MCP for request fetch → Higgsfield **CLI** (`higgsfield generate create nano_banana_2`) for any missing reference image creation → Higgsfield **CLI** (`higgsfield generate create veo3_1_lite`) for video generation → xlsx skill for the audit manifest. **CLI for ALL gens — never the MCP `generate_image` / `generate_video` tools** (MCP is read-only inspection only — `balance`, `transactions`, `models_explore`, `select_workspace`). See `feedback_higgsfield_workflow.md`.
 
 **Trigger phrases:** "run video generations" (primary), "run the HVG flow", "run HVG", "fire the batch", "fire the gens".
 
@@ -440,8 +444,8 @@ See `project_pfm_podcast_story_workflow.md` Section H for the full lock.
 **The Excel manifest is REQUIRED, not optional — write it even when the editor is in prompt-craft mode and not firing the CLI.** Sam locked this in across the Purdentix batch (2026-05-13). Whenever you write Veo/Kling per-line prompts for a PFM project — whether the editor is firing them through the CLI in this same session, copy-pasting them somewhere else, or just collecting them for later — the spreadsheet **MUST** be written to the project folder at `Elements/Footage/Veo/<slug>_prompts.xlsx`. The editor uses this manifest as their canonical reference for the full prompt set; without it, the prompts only live in chat scrollback and can be lost when context compacts or the session ends.
 
 This applies to all three prompt-craft scenarios:
-1. **Full HVG.1 flow** — editor will fire the CLI immediately after; manifest gets refreshed at step 11 with statuses
-2. **Prompt-craft only** — editor is collecting prompts to fire manually later through the HVG.1 webapp / another tool / their own CLI runs. Write the manifest with `status: "pending"` for every row.
+1. **Full HVG flow** — editor will fire the CLI immediately after; manifest gets refreshed at step 11 with statuses
+2. **Prompt-craft only** — editor is collecting prompts to fire manually later via the CLI. Write the manifest with `status: "pending"` for every row.
 3. **Mixed scenarios** — some prompts are talent dialogue Veo clips, some are b-roll image-gen prompts (Nano Banana, Higgsfield image gen) for reference frames, some are b-roll Veo motion prompts off those reference frames. Still write the manifest — include the b-roll image-gen rows alongside the Veo rows, distinguish via a `model` or `notes` column. The manifest is the editor's source of truth for "what prompts exist for this project."
 
 When in doubt, write the manifest. The cost of writing it is trivial; the cost of losing the prompts when the chat context gets long is real.
@@ -472,13 +476,13 @@ Step A — use the `Write` tool to create `/tmp/hvg-build-config.json` with this
     "notes":     ""
   },
   "generation": {
-    "modelDisplay":   "Veo 3.1 Fast",
-    "mcpModel":       "veo3_1",
-    "mcpParams":      {"model": "veo-3-1-fast"},
+    "modelDisplay":   "Veo 3.1 Lite",
+    "mcpModel":       "veo3_1_lite",
+    "mcpParams":      {"generate_audio": true},
     "duration":       8,
-    "aspectRatio":    "16:9",
+    "aspectRatio":    "9:16",
     "countPerPrompt": 1,
-    "estCostPerClip": 25
+    "estCostPerClip": 12
   },
   "reference": {
     "mode":             "A",
@@ -684,106 +688,9 @@ This applies regardless of Gate 4 mode — even a Mode A "single shared ref" pro
 
 See `feedback_veo_start_end_keyframes_cinemagraph.md` for the empirical verification + the use-case matrix.
 
-**Concurrency model — pre-uploaded UUIDs + Python ThreadPool `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each ALSO uploads a `--image <local_path>` (3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically and most jobs come back empty.
+**Fire engine — pre-uploaded UUIDs + Python ThreadPool `max_workers=16`.** Pre-upload every unique ref serially (capture UUIDs), then fire the batch through a ThreadPool at ≤16 workers — never `bash &` past ~4 jobs, never pass local paths to `--image`. Full code (upload loop, `fire_one`, self-check) plus the credential-race empirical data live in `refs/fire-engine.md` — load it before writing any fire script.
 
-**Verified empirical data (2026-05-21):**
-- 16 bash `&` background jobs + file paths → all 16 fail with auth errors ✗
-- 15 ThreadPool workers + file paths (per-job upload) → 65 of 100 jobs return empty output ✗
-- 8 ThreadPool workers + pre-uploaded UUIDs → reliable target ✓
-
-Verify cap with David on the Higgsfield call; if Enterprise allows higher concurrency cleanly, the workers cap can be raised. The wave-bash pattern below is DEPRECATED — do not use.
-
-**Step 1 — Pre-upload every unique reference image, serially, capture UUIDs:**
-
-```python
-import subprocess, json
-
-# Dedupe across modes:
-# - Mode A: 1 shared ref → 1 upload
-# - Mode B: per-line refs → N unique uploads
-# - Mode C: rotating pool → P unique uploads (typically <N)
-# - Mode D: start+end → each unique start AND end gets uploaded
-# - Mode E: mixed → per-line + pool refs deduped
-unique_refs = collect_unique_refs(line_assignments)  # set of local paths
-ref_uuid_map = {}
-for ref_path in unique_refs:
-    result = subprocess.run(
-        ["higgsfield", "upload", "create", ref_path, "--json"],
-        capture_output=True, text=True, check=True
-    )
-    ref_uuid_map[ref_path] = json.loads(result.stdout)["id"]
-    # → e.g. "70b6e9b2-90c3-4703-84e8-570b99a1884c"
-```
-
-Run upload calls **one at a time** (not in a pool) — the auth race exists for uploads too. Pre-upload is cheap (~1-3s per file) and runs once per unique ref across the whole batch. Resize images >2000px or >3MB BEFORE uploading; pre-upload the resized file (the image preflight step earlier in this gate already produces resized versions).
-
-**Step 2 — Fire the batch via Python ThreadPool with `max_workers=16`, passing UUIDs to `--image` / `--start-image` / `--end-image`:**
-
-```python
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import subprocess, os
-
-os.makedirs("/tmp/hvg-flow-results", exist_ok=True)
-
-def fire_one(line_assignment, variation, ref_uuid_map, mcp_model, model_flag, aspect_ratio, duration, generate_audio, quality):
-    # Mode 6a (JSON master) needs the "Veo video prompt: " prefix; Mode 6b (prose-per-line) does not.
-    if line_assignment["promptMode"] == "6a":
-        prompt = f"Veo video prompt: {line_assignment['fullPrompt']}"
-    else:
-        prompt = line_assignment["fullPrompt"]
-
-    img_flags = []
-    shot_type = line_assignment.get("shot_type", "")  # "studio_anchor" / "field_standup" / "interview" / "phone_sot" / "screensaver" / "motion"
-    if line_assignment.get("refMode") == "D":  # Start + end keyframes — different bookends, motion
-        img_flags.extend(["--start-image", ref_uuid_map[line_assignment["start_ref"]]])
-        img_flags.extend(["--end-image", ref_uuid_map[line_assignment["end_ref"]]])
-    elif shot_type in ("studio_anchor", "screensaver"):  # D-locked cinemagraph — same UUID both endpoints
-        same_uuid = ref_uuid_map[line_assignment["ref"]]
-        img_flags.extend(["--start-image", same_uuid])
-        img_flags.extend(["--end-image", same_uuid])
-    else:  # Single --image — field standup, interview, phone SOT, motion
-        img_flags.extend(["--image", ref_uuid_map[line_assignment["ref"]]])
-
-    cmd = [
-        "higgsfield", "generate", "create", mcp_model,
-        "--prompt", prompt,
-        *img_flags,
-        "--aspect_ratio", aspect_ratio,
-        "--duration", str(duration),
-        "--wait", "--wait-timeout", "8m",
-        "--json",
-    ]
-    if model_flag:                  # e.g. "veo-3-1-fast", "veo-3-1-preview"
-        cmd.extend(["--model", model_flag])
-    if generate_audio:              # Lite-with-audio fires only (Fast / Preview have audio by default)
-        cmd.extend(["--generate_audio", "true"])
-    if quality:                     # Preview Ultra fires
-        cmd.extend(["--quality", quality])
-
-    out_path = f"/tmp/hvg-flow-results/{line_assignment['slug']}_v{variation}.json"
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=540)
-    with open(out_path, "w") as f:
-        f.write(result.stdout)
-    return (line_assignment["slug"], variation, result.returncode)
-
-all_jobs = [(line, v) for line in line_assignments for v in ("01", "02")]
-with ThreadPoolExecutor(max_workers=16) as ex:
-    futs = {
-        ex.submit(fire_one, line, v, ref_uuid_map, MCP_MODEL, MODEL_FLAG, ASPECT_RATIO, DURATION, GENERATE_AUDIO, QUALITY): (line, v)
-        for line, v in all_jobs
-    }
-    for fut in as_completed(futs):
-        line, v = futs[fut]
-        slug, variation, rc = fut.result()
-        # log or report per-completion
-```
-
-**Self-check before firing:**
-1. Are any `--image` / `--start-image` / `--end-image` flags pointing at local file paths? → Pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 16? → If higher, lower it.
-3. Are you using Python ThreadPool, not `bash &`? → ThreadPool past ~4 jobs.
-4. Is the model `veo3_1_lite` AND the editor wants audio? → Add `--generate_audio true` (Lite ships silent without it).
-5. Is the model Preview Ultra? → Add `--quality ultra`.
+Spine note: video firing ports onto hig-flow's fire_batch.py once the spine passes real-fire sign-off.
 
 **Skip L1 if test-fire was approved:** loop starts at L2, not L1.
 
@@ -812,7 +719,7 @@ This command IS statically allowlistable as `Bash(bash ~/.claude/skills/hvg-flow
 
 ## Step 11 — Excel update + audio QC offer + final report
 
-**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, for a fire UNDER 20 items (locked 2026-06-17 · hardened mechanically 2026-07-01).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display`), labeled (clip, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-clip backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → skip per-file streaming; one report at completion** (per-file would be noise). The totals / QC / manifest report below still runs at the end either way.
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display`), labeled (clip, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-clip backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / QC / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement.
 
 After all clips download, **rewrite** `<slug>_prompts.xlsx` using the same `build_xlsx.py` helper from gate 8 — same config schema, just refreshed status / v01 / v02 / notes per row. The helper overwrites the file cleanly; both Summary and Prompts sheets get rebuilt in one shot.
 
@@ -828,18 +735,18 @@ python3 ~/.claude/skills/hvg-flow/build_xlsx.py "$CONFIG" \
   "Elements/Footage/Veo/<slug>_prompts.xlsx"
 ```
 
-### Refire decisions — DO NOT refire until QC has run
+### Refire decisions — no refire RECOMMENDATION without QC (QC itself stays an offer)
 
-**Every successful return passes through audio QC before any refire decision.** Refiring on reflex burns credits AND clutters the manifest with extra v-numbered rows for clips that were already fine. With `count=1` as the locked default (2026-05-26), the math is simple: trust what came back unless QC says otherwise.
+**One rule (reconciled 2026-07-12, Sol #5): QC is OFFERED on local/in-chat runs — never auto-fired; mandatory-QC language belongs to `agf` (the autonomous mini) ONLY.** What IS absolute here is the ordering: if the editor accepts the QC offer, make no refire recommendation until QC completes; if they decline, make NO automated refire recommendation at all — show the results and leave refire decisions to the editor (note in the final report that nothing was auto-vetted). Refiring on reflex burns credits AND clutters the manifest with extra v-numbered rows for clips that were already fine. With `count=1` as the locked default (2026-05-26), the math is simple: trust what came back unless QC says otherwise.
 
-Routing (applied in the final report below):
+Routing (applied in the final report below, when QC ran):
 - **Returned (v01 at count=1 default, or any variation at count≥2 opt-in) AND passes QC** → recommend "accept as-is", no refire prompt
 - **Returned AND flagged by QC** → recommend "refire", save as next vNN (v02 for count=1 rows, v03+ for count≥2 rows)
 - **Total fail (0 returned)** → automatic refire candidate (nothing to QC)
 
 **Partial status (count≥2 opt-in only):** when a row was fired at count≥2 and 1 of N variations is missing, treat it the same way — QC the survivor first. Don't refire just to "top up" to the requested count if the survivor is already good.
 
-If the editor declines QC, this rule cannot be applied — note in the final report that nothing was auto-vetted and the editor needs to review manually. See `feedback_partial_returns_qc_before_refire.md`.
+See `feedback_partial_returns_qc_before_refire.md`.
 
 ### Audio QC offer (optional)
 

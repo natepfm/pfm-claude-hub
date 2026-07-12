@@ -82,7 +82,7 @@ This pushes Suno to ramp intensity through the song instead of flat-lining.
 
 **ALL CAPS = shout.** Use sparingly. Capping everything makes Suno normalize. Capping strategically (`TEXAS IS THE BEST!` in the final chorus) reads as a shouted gang vocal. Save it for the climax.
 
-**Em dashes** mark breath beats and dramatic pauses: `Five little minutes — that's all that it takes!`
+**Breath beats and dramatic pauses** are marked with commas or line breaks — never em dashes (banned in Suno lyrics, locked law): `Five little minutes, that's all that it takes!` For a bigger pause, break the line: `Five little minutes` / `that's all that it takes!`
 
 **Spell out numbers** for clarity: `three-sixty-nine` over `$369`, `thirty-nine a month` over `$39/mo`. Suno usually sings either, but spelled-out is safer for singalong cadence and avoids Suno reading "$" as "dollar sign."
 
@@ -106,6 +106,8 @@ Each piece earns its place:
 - **Key** — `major key` for sunny songs prevents Suno drifting to minor on Americana/folk. `minor key` for moody/dramatic.
 - **Production notes** — `dry intimate production, raw and unpolished` for stomp/folk; `polished, modern, big mix` for pop; `lo-fi, tape saturation, distant` for atmosphere.
 - **Reference artists** — Suno responds well to `X meets Y` shorthand. `mumford & sons meets sesame street`.
+
+Style prompt hard limit: under 1,000 characters.
 
 **Worked example (Americana banjo stomp, kids singalong):**
 ```
@@ -162,46 +164,7 @@ If a swap breaks a rhyme (e.g., "$369/year" rhymes with "clear"; "$39/month" doe
 
 ## Worked Example: Texas Insurance Songs
 
-This is the campaign that validated this workflow. Two songs (home insurance + auto insurance), Americana banjo stomp + kids singalong, "Texas is the best!" hook.
-
-### V1 chorus (weak — what to avoid):
-```
-Texas is the best!
-Three-sixty-nine a year — same coverage, smaller check!
-Texas is the best!
-Lower than the rest!
-```
-**Why it's weak:** 4 distinct lines competing, no interjections, info line too long for a chant slot.
-
-### V2 chorus (chant pattern — what works):
-```
-[Chorus - gang vocals, hand claps]
-TEXAS IS THE BEST! (hey!)
-TEXAS IS THE BEST! (hey!)
-Three-sixty-nine a year —
-TEXAS IS THE BEST!
-```
-**Why it works:** Hook lands 4×, info line is short and chantable, gang-vocal callbacks render as group shouts.
-
-### Late-stage offer fix
-
-V1 had the dollar amount in V2 (~30s into the song). Lifted it into V1 lines 3-4:
-
-```
-[Verse 1]
-Best state to own a home is Texas — nobody's talkin' 'bout it!
-Your home insurance rate "is what it is"? Don't you believe it!
-Texas drops your rate down low — three-sixty-nine a year!
-Same coverage, smaller bill — make it crystal clear!
-```
-
-Now the offer lands in the first 10 seconds. The chorus can echo abstractly.
-
-### Multi-song parallel
-
-For the auto version, only V1 lines 3-4 and V2 line 4 changed (different price → "$39 a month", different qualifier → DUIs vs claims). Chorus, bridge, CTA: 100% identical. The two songs sound like one world.
-
-The home V1 rhymed "year/clear"; the auto version had to swap because "month" doesn't rhyme with "clear", so V1 lines 3-4 were rebuilt around `it's true / right to you`. Surgical fix, didn't touch anything else.
+The campaign that validated this workflow (two songs, Americana banjo stomp + kids singalong, "Texas is the best!" hook) lives in `references/texas-example.md` — weak V1 chorus vs chant-pattern V2, the late-stage offer fix, and the multi-song parallel. Read it when you need a concrete before/after.
 
 ## When NOT to trigger this skill
 

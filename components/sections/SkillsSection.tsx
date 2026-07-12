@@ -1,16 +1,21 @@
-import { skills } from "@/content/skills";
+import {
+  coworkSkillFolders,
+  coworkSkillFolderSet,
+  distributedSkillRows,
+  skillFolder,
+  skillTitle,
+} from "@/content/skillsRegistry";
 
 const categoryLabels: Record<string, string> = {
-  "gen-manual": "Asset generation — manual (you fire it)",
-  "gen-auto": "Asset generation — automated (AGF · the mini)",
-  writing: "Writing / script craft",
-  image: "Image prompting + generation",
-  video: "Video generation",
-  utility: "Utility",
+  WR: "Writing / script craft",
+  AG: "Asset generation",
+  QC: "Quality control",
+  E: "Editing",
+  R: "Reporting",
+  X: "Utility",
 };
 
-// Display order for the expanded catalog (generation first, utility last).
-const categoryOrder = ["gen-manual", "gen-auto", "writing", "image", "video", "utility"];
+const categoryOrder = ["WR", "AG", "QC", "E", "R", "X"];
 
 // What to say to trigger each job — the practical phrasebook.
 const tasks = [
@@ -25,10 +30,10 @@ const tasks = [
 ];
 
 export default function SkillsSection() {
-  const byCategory = skills.reduce((acc, s) => {
-    (acc[s.category] ??= []).push(s);
+  const byCategory = distributedSkillRows.reduce((acc, s) => {
+    (acc[s.section] ??= []).push(s);
     return acc;
-  }, {} as Record<string, typeof skills>);
+  }, {} as Record<string, typeof distributedSkillRows>);
 
   return (
     <section id="skills" className="my-20 scroll-mt-8">
@@ -90,25 +95,23 @@ export default function SkillsSection() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     {group.map((s) => (
-                      <div key={s.name} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:ring-border transition-all duration-200 flex flex-col">
+                      <div key={`${s.num}-${s.id}`} className="rounded-lg p-5 bg-surface-gradient shadow-elev1 ring-1 ring-ink hover:shadow-elev2 hover:ring-border transition-all duration-200 flex flex-col">
                         <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
                           <div>
-                            <div className="text-lg font-semibold">{s.title}</div>
-                            <div className="text-xs font-mono text-muted">{s.name}</div>
+                            <div className="text-lg font-semibold">{skillTitle(s)}</div>
+                            <div className="text-xs font-mono text-muted">{s.id} · {skillFolder(s)}</div>
                           </div>
                           <div className="flex gap-1.5 flex-wrap items-center">
-                            {s.worksIn.includes("code") && (
-                              <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-white">Code</span>
-                            )}
-                            {s.worksIn.includes("cowork") && (
+                            <span className="px-2 py-0.5 rounded text-xs font-mono bg-accent text-white">Code</span>
+                            {coworkSkillFolderSet.has(skillFolder(s)) && (
                               <span className="px-2 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{s.description}</p>
+                        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{s.forr}</p>
                         <div className="mt-3">
                           <a
-                            href={`/skills/${s.name}/SKILL.md`}
+                            href={`/skills/${skillFolder(s)}/SKILL.md`}
                             download
                             className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-accent transition-colors"
                           >
@@ -130,7 +133,7 @@ export default function SkillsSection() {
             <div className="text-xs font-mono uppercase tracking-[0.08em] text-accentDeep mb-2">For Cowork</div>
             <h3 className="font-heading font-bold text-xl mb-2">Download the Cowork plugin</h3>
             <p className="text-sm text-muted leading-relaxed">
-              Bundles all six chat-mode skills (everything marked{" "}
+              Bundles all {coworkSkillFolders.length} chat-mode skills (everything marked{" "}
               <span className="inline-block px-1.5 py-0.5 rounded text-xs font-mono border border-accent text-accent">Cowork</span>
               ) into a single <code className="font-mono text-accent">.plugin</code> file. Upload once to your Cowork org and every team member sees the skills under <strong>Customize skills</strong>.
             </p>

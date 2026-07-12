@@ -5,6 +5,17 @@ description: PFM's visual QC skill for Veo-generated mp4 clips — catches backg
 
 # Visual QC — PFM
 
+## 🔴 QC-OFFER LAW
+
+**QC is OFFERED via a plain ask on local fires, never auto-run. AGF/mini runs keep mandatory QC.**
+
+**This skill is the single filmstrip owner — veo-life delegates its clip QC here.**
+
+## ⚡ Backgrounding rule (locked 2026-06-09)
+
+Every long-running Bash call in this skill runs with `run_in_background: true` — fires, downloads, QC passes, anything expected >30s. Hard trigger: **3+ generations in one action = always backgrounded.** Foreground Bash times out at ~2 min mid-gen and reads as "stuck," blocking the editor's chat. Foreground is ONLY for quick (<30s) utility calls whose stdout the next step strictly needs (e.g., serial ref uploads returning UUIDs). While a backgrounded step runs, keep the chat free; report when the completion notification lands.
+
+
 Per-clip visual quality check for Veo-generated mp4 clips. Catches background morphs, slide text garble, hallucinated overlays, and hard cuts that audio QC can't see. Built primarily for VSL-style projects with per-line slide reference images, where the LED screen and on-screen graphics MUST stay frozen across the 8s clip.
 
 ## When to invoke
@@ -130,7 +141,7 @@ Once filmstrips are generated, **walk the index file and Read each filmstrip PNG
 3. If the clip is in the caption-slide list (`is_caption: true` in the index entry), also Read each entry from `caption_frames` (full-res 4s / 6s / 7.8s PNGs)
 4. Record the call: ✓ / ✗ / 🔍 VERIFY + reason + approximate timestamp for any defects
 
-**Batching strategy for large batches (>50 clips):** process 10-15 clips at a time, summarize, then move to the next batch. For batches >100 clips, consider spawning a subagent per state with the relevant filmstrip subset.
+**Batching strategy for large batches (>50 clips):** see `references/scenarios.md`.
 
 ### Final report
 
@@ -159,32 +170,7 @@ Skipped lines (NSFW at cap) DON'T enter the regen loop — they feed the next de
 
 ## Common scenarios
 
-### Scenario 1 — Editor accepts post-download offer (chained from hvg-flow)
-
-`hvg-flow` Step 11 surfaced the visual QC offer after audio QC. Editor said `yes L02, L17, L19` (or just `yes` for no caption focus). The Veo folder is already known (project root + `/Elements/Footage/Veo`), the caption L-numbers came in the editor's reply. Skip the standalone-invocation ask flow above — fire the scanner with the params from the chained context.
-
-### Scenario 2 — Editor invokes cold ("run visual QC")
-
-Editor types "run visual QC" / "filmstrip QC" / "verify the visuals" with no prior gated-flow context. Apply the Standalone invocation flow above — confirm folder + caption L-numbers, then fire.
-
-### Scenario 3 — Single state / batch spot-check
-
-Editor wants to re-scan just the Florida fills (or a single batch subfolder) after re-firing some clips:
-
-```bash
-python3 ~/.claude/skills/visual-qc/visual_qc_scan.py "<project>/Elements/Footage/Veo/FL" \
-  --caption-clips L02,L17,L19 --workers 8
-```
-
-The scanner walks recursively from whatever root you point at. The `qc/` output lands inside that root (e.g. `Elements/Footage/Veo/FL/qc/`).
-
-### Scenario 4 — Re-scan after regens
-
-After regens land (overwriting the bad take per the pre-delivery regen rule), re-run the scanner on the full folder OR just the affected state subfolder. New filmstrips overwrite the old ones for the same scan date. Add `--out` if you want both reports side-by-side.
-
-### Scenario 5 — Editor is unsure if visual QC is worth it
-
-Podcast-style project (one shared ref + one speaker, no slide refs): tell the editor visual QC rarely catches anything in that shape — the speaker IS the content, nothing else to morph. They can skip it and rely on audio QC alone. VSL-style projects with per-line slide refs: definitely worth running.
+Five worked scenarios — chained from hvg-flow, cold invocation, single state/batch spot-check, re-scan after regens, "is it worth it for this project shape" — live in `references/scenarios.md`.
 
 ## Edge cases
 

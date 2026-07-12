@@ -1,6 +1,6 @@
 ---
 name: notion-asset-delivery
-description: PFM's delivery-comment poster for the Notion Video Task Manager. Posts the right house-format delivery comment to a VTM request — `✅ Assets Generated [folder ↗](link)` for a raw-asset handoff (Status untouched, no count) or `✅ Completed Creatives (#): [folder ↗](link)` for a finished-creative turn-in (Status → Done + Dima V/Gabriel Moss tags) — auto-building the LinkYourFile link from the folder path so the editor never hand-makes it. STATUS RULE (Sam 2026-06-01): a routine asset delivery leaves the request Status UNTOUCHED — dropping generated clips in the folder is a raw-asset handoff, not a finished creative, so the request stays "Requested." The skill sets Status → "Done" AND @-tags Dima V + Gabriel Moss ONLY when the editor explicitly asks to report a COMPLETED creative ("mark done", "report complete", "move to Done"). Use when an editor says "post the delivery comment", "deliver this to Notion", "drop the folder link on the request", "post completed creatives", "I'm done editing — post the delivery", or finishes a gen flow and wants to notify the requester — and, for the Done path, "mark <request> done" / "report this completed creative". Also auto-offered by hvg-flow at its final-report step; usable standalone anytime you have a delivered folder (after a vsl / hig batch or after an edit). The skill builds the link + composes the comment SILENTLY, then stops at ONE hard confirm (exact comment text + target request) before posting — it NEVER auto-posts. NOT for: building request pages or state batches (use notion-state-batches), generating the assets themselves (use hvg-flow / hig-flow / vsl-state-variations), or any comment other than a delivery notification.
+description: PFM's delivery-comment poster for the Notion Video Task Manager. Posts the right house-format delivery comment to a VTM request — `✅ Assets Generated [folder ↗](link)` for a raw-asset handoff (Status untouched, no count) or `✅ Completed Creatives (#): [folder ↗](link)` for a finished-creative turn-in (Status → Done + Dima V/Gabriel Moss tags) — auto-building the LinkYourFile link from the folder path so the editor never hand-makes it. STATUS RULE (Sam 2026-06-01): a routine asset delivery leaves the request Status UNTOUCHED — dropping generated clips in the folder is a raw-asset handoff, not a finished creative, so the request stays "Requested." The skill sets Status → "Done" AND @-tags Dima V + Gabriel Moss ONLY when the editor explicitly asks to report a COMPLETED creative ("mark done", "report complete", "move to Done"). Use when an editor says "post the delivery comment", "deliver this to Notion", "drop the folder link on the request", "post completed creatives", "I'm done editing — post the delivery", or finishes a gen flow and wants to notify the requester — and, for the Done path, "mark <request> done" / "report this completed creative". Also auto-offered by hvg-flow at its final-report step; usable standalone anytime you have a delivered folder (after a vsl / hig batch or after an edit). The skill builds the link + composes the comment SILENTLY and — when the editor asked for the report and nothing is off (count matches, disclaimer verified, right request) — POSTS IMMEDIATELY with no "post" confirm gate, BOTH paths including the status-flipping creative turn-in (Sam 2026-06-18, re-locked 2026-07-08: "when you report a creative I don't have to say post — if it's done, you can post"); it stops to flag ONLY when the something's-off list trips (count mismatch / wrong target / brand mismatch / missing disclaimer / QC note). NOT for: building request pages or state batches (use notion-state-batches), generating the assets themselves (use hvg-flow / hig-flow / vsl-state-variations), or any comment other than a delivery notification.
 ---
 
 # notion-asset-delivery
@@ -8,9 +8,10 @@ description: PFM's delivery-comment poster for the Notion Video Task Manager. Po
 Posts the **delivery comment** to a Notion Video Task Manager request when creatives are done
 and dropped in the project folder. Two things are tedious by hand and this skill does them for
 you: (1) building the **LinkYourFile** folder link, and (2) composing the comment in PFM house
-format. It does both silently, then stops at **one hard confirm** before posting. **It never
-auto-posts** — a delivery comment is teammate-visible, so the editor signs off on the exact text
-first.
+format. It does both silently, then **posts immediately when the editor asked for the report and
+nothing is off** (Sam 2026-06-18, re-locked 2026-07-08: "when you report a creative I don't have
+to say post — if it's done, you can post"). The editor's ask IS the sign-off; show the posted
+comment in chat as the record. Stop and flag ONLY on the something's-off list (Step 5).
 
 ## Status handling — DEFAULT is hands-off (Sam, 2026-06-01)
 
@@ -141,15 +142,29 @@ Assemble the comment in the right format **for the event** (see "The two locked 
 
 Notes lines are newline-separated, tight house style. The mention-vs-no-mention decision drives the format choice — pick `rich_text` whenever there is ANY @-mention in the comment, plain markdown only when there is none.
 
-## Step 5 — Preflight: show the exact comment, then WAIT (hard gate)
+## Step 5 — Post immediately (THE DEFAULT); stop ONLY if something's off
 
-Show the editor, in **plain markdown chat** (NOT `AskUserQuestion` — see
-`feedback_no_askuserquestion_in_pfm_flows`):
+**The editor's report ask IS the authorization — post without waiting** (Sam 2026-06-18, re-locked
+2026-07-08). Stop and flag instead of posting ONLY when something's off: file count doesn't match
+the expected creative count · wrong/ambiguous target request · brand/vertical mismatch between
+folder and request · a required disclaimer is missing (SMA AI-performer / NY trigger) · a
+manual-fire/QC note needs wording review. When a flag trips, pause and name it — never silently
+post over it. Otherwise: post, then show the posted comment in chat as the record.
+
+**Requester @-mention (optional):** to also notify the requester, `notion-fetch` the request page,
+read its **Assignee / People** property → the user's id + name, and prepend a mention object to the
+`rich_text` array (force the comment onto the `rich_text` path even if it's a ① Assets Generated handoff — markdown mentions don't render). If there's no assignee, it's
+ambiguous, or the editor declines, **post without it** — the page comment still notifies followers.
+
+### FLAG MODE (exception only)
+
+Used ONLY when a something's-off flag trips — never as a routine gate. Show the editor, in
+**plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows`):
 
 - the **exact comment text** that will post (rendered),
 - the **target request** (title + URL),
 - the resolved **count** and **folder link**,
-- who (if anyone) will be **@-mentioned**,
+- who (if anyone) will be **@-mentioned** (confirm the requester name here if adding one),
 - **what happens to Status** — say it explicitly: routine delivery → *"Status stays Requested
   (unchanged)"*; completed-creative report → *"Status → Done, tagging Dima V + Gabriel Moss"*,
 - a one-line reminder that **this is a comment teammates will see**.
@@ -166,14 +181,6 @@ For a **completed-creative report**, the closing line instead reads:
 
 > _Reporting a completed creative — this tags **@Dima V** + **@Gabriel Moss** and flips **Status →
 > Done**._ Reply `post` to send it, or tell me what to change.
-
-**Requester @-mention (optional):** to also notify the requester, `notion-fetch` the request page,
-read its **Assignee / People** property → the user's id + name, and prepend a mention object to the
-`rich_text` array (force the comment onto the `rich_text` path even if it's a ① Assets Generated handoff — markdown mentions don't render). Confirm the name in the preflight. If there's no assignee, it's
-ambiguous, or the editor declines, **post without it** — the page comment still notifies followers.
-
-**Wait for an explicit `post` / `yes`.** Never post on inference. Posting a delivery comment is a
-teammate-visible action — it requires the editor's explicit go every time.
 
 ## Step 6 — Post + confirm (status change ONLY on a completed-creative report)
 
@@ -226,7 +233,9 @@ auto-flip and ask which option to use. Don't let a status hiccup block the deliv
 
 ## What NOT to do
 
-- **Never auto-post.** The preflight confirm in Step 5 is mandatory, every time.
+- **Don't gate a requested report on a `post` confirm.** When the editor asked for the report and
+  nothing on the something's-off list trips, post immediately (Sam 2026-06-18 / 2026-07-08). Never
+  silently post over a tripped flag, and never post a report nobody asked for.
 - **Never change the request Status on a routine delivery** — it stays "Requested." Status → "Done"
   happens ONLY on an explicit completed-creative report, and that comment MUST tag Dima V + Gabriel
   Moss. (Don't flip to "In progress" either — gen/delivery is hands-off on Status.)

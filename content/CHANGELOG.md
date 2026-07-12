@@ -6,6 +6,19 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-07-12
+
+### Hub fix — one skills registry, working downloads, and an honest Cowork bundle
+
+The Dashboard, Skills tracker, and Claude catalog now read from the same canonical 63-entry registry. Team-live totals, statuses, section counts, and workflow counts can no longer drift between pages.
+
+- All 42 team-distributed skills now have a real downloadable `SKILL.md`; the 26 catalog links that previously landed on a 404 are repaired.
+- Cowork is now consistently **8 skills** across the Dashboard, Claude page, build script, plugin metadata, and plugin archive.
+- The Cowork builder reads its membership from the canonical registry instead of maintaining a second hardcoded list.
+- The master PFM Claude brief, web handoff, and README were rewritten to match the current six-page, team-deployed system.
+
+No editor updater is required for this hub-only repair. Download/re-upload the Cowork plugin only if you maintain the Cowork org library.
+
 ## 2026-07-06
 
 ### New skill — `human-ad-copy` (copy that doesn't sound like AI)

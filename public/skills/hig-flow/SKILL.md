@@ -1,9 +1,44 @@
 ---
 name: hig-flow
-description: 🔴 MANDATORY for a PFM project's INITIAL asset generation — the batch gen that STARTS a project (brief / Notion request → delivered b-roll images). Do NOT infer "small initial gen → skip the gate"; the ONLY skip is the editor literally writing "one-off", "quick", "no manifest", "no flow", or "direct CLI". **NOT for regens / refires / fixes on an already-generated project — those fire DIRECT (no gate, no check-and-ask); the gated flow is for starting a project, not iterating on it (Sam, locked 2026-06-17).** When in doubt on an initial gen, this skill runs. PFM's Higgsfield Image Generator flow — end-to-end gated batch pipeline from a brief (Notion request URL OR direct editor description) to delivered b-roll images with an Excel manifest. Image counterpart to `hvg-flow`. **A Notion Video Task Manager URL is the typical starting point but not required** — if the editor describes the brief directly in chat (shot list, character refs, scene context), hig-flow runs the rest of the gates from that input instead of a Notion fetch. Trigger conditions: editor (1) drops a Notion request URL while cwd is inside a Lucid Link project folder, or (2) says any of "run image generations", "run the HIG flow", "run HIG", "fire the b-roll", "fire the image batch", "make the b-roll for this project". The skill runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=1, shot-list + prompt draft, manifest write) and stops for the editor at only up to two confirmations — character-reference assignment (only when a character is unmatched) and a consolidated preflight that doubles as shot-list sign-off — then downloads into `Elements/Footage/Primary/B-Roll Photos/` with deterministic filenames. Default: Nano Banana Pro (`nano_banana_2`) at 1k resolution, count=1 per prompt (editor opts into count=2 for a pick), iPhone-camera-roll prompt style (loads `nano-banana-prompting`); editor specifies if a shot needs different aesthetic (studio, product shot, slide graphic). NOT for: one-off image work with no batch / no manifest wanted (use `higgsfield-image-generation` — single shots, ad-hoc variations, no gated flow), video generation (use `hvg-flow`), Soul Character training (use `higgsfield-soul-id`), or marketplace listing cards (use `higgsfield-marketplace-cards`).
+description: PFM's b-roll PIPELINE + the generic fallback drafter (reorg 2026-07-06). Two jobs — (1) it documents + owns the shared fire/deliver SPINE (`fire_batch.py`): pre-upload → concurrent fire (Rule-5 streamed) → serial verified download → manifest → Lucid handoff + AGF interlock, which every b-roll TYPE skill calls; (2) it is the FALLBACK drafter for an unclassified / mixed b-roll batch that no type skill fits — it drafts a generic shot list from the brief and fires it through the spine. **Type-first routing (locked 2026-07-06): b-roll STARTS with the most-specific type skill, not here.** Camera-roll swap/fresh → `iphone-broll`; JRE podcast placement → `jre-swap`; person-holding-phone-with-quote → `social-proof-phone-quote`; anchor/field news stills → `broadcast-news-stills`; no-character atmosphere/object shots → `object-inserts`; character masters → `pfm-character-master` (spec or photo). Only reach hig-flow when the batch matches NO type (a grab-bag of mixed shots), or the editor names it. Still MANDATORY-gated when it DOES run: on an initial fallback batch, run the preflight → Fire? gate (Rule 3); regens/refires fire direct. Trigger conditions: editor (1) drops a Notion request URL for an unclassified b-roll batch while cwd is inside a Lucid Link project folder, or (2) says "run the HIG flow", "run HIG", "fire the b-roll batch", "make the mixed b-roll for this project" and no single type fits. Runs setup SILENTLY (cwd check, brief intake / Notion fetch, character match, model lock to NB Pro 1k count=1, shot-list + prompt draft, manifest write), stops at up to two confirmations (unmatched-character assignment, consolidated preflight = shot-list sign-off), then fires via the spine into `Elements/Footage/Primary/B-Roll Photos/`. NOT for: a batch that fits a type skill (route there — it owns the craft), one-off image work (use `higgsfield-image-generation`), video (use `hvg-flow`), marketplace cards (`higgsfield-marketplace-cards`).
 ---
 
-# HIG Flow (PFM Image Generation)
+# HIG Flow (PFM B-Roll Pipeline + fallback drafter)
+
+## 🔀 Generation now starts with STAGING (consolidation, 2026-07-11 — Phase 1)
+
+**The single gen front door is `ag.stage` (stage-request)** — for images too. This skill's **`fire_batch.py` spine STAYS — it IS the shared fire engine** (route (b) local + every b-roll type skill fire through it; nothing about the spine changes). What's consolidating is hig-flow's *fallback front-door* role: an unclassified/mixed batch should **stage first**, then route (b) fires it through the spine. Cold-entry still works today; the full deprecation rides the same **live-fire-verified pass** as hvg-flow.
+
+## 🧭 Role after the 2026-07-06 reorg — READ FIRST
+
+PFM b-roll is **type-first** now. This skill is no longer the mandatory front door. It has two jobs:
+
+1. **The shared fire/deliver SPINE.** `fire_batch.py` (sibling to `build_xlsx.py`) is the one engine
+   every b-roll skill fires through — pre-upload UUIDs → `ThreadPool(16)` → Rule-5-streamed fire →
+   serial verified download → manifest → count verify → 📁/🔗/🦊 handoff. The **AGF interlock**
+   (read `Asset Gen`, lock `Generating (Local)`, close) wraps it (Claude's job, gates 3/9/11 below).
+   The concurrency, download, naming, and manifest rules live in the spine now, not copy-pasted per
+   skill. Contract + ownership map: **`PIPELINE-SPEC.md`** in this folder.
+
+2. **The fallback drafter.** When a b-roll batch fits **no** type skill — a mixed grab-bag of shots —
+   hig-flow drafts a generic shot list (Gate 6) and fires it through the spine. That's its unique job.
+
+**Before running hig-flow, route to the most-specific type skill** (they own the craft that makes the
+shot right; hig-flow's generic drafting regresses to the mean):
+
+| The b-roll is… | Skill |
+|---|---|
+| iPhone camera-roll — swap an existing set to a new character, OR build fresh from script beats | `iphone-broll` |
+| A character on the JRE / red-curtain podcast set | `jre-swap` |
+| A person holding a phone with the quote/rate page on-screen | `social-proof-phone-quote` |
+| Anchor desk / field-reporter / ENG-camera news look | `broadcast-news-stills` |
+| No-character atmosphere or object insert (bill, mailbox, hands on wheel, kitchen table) | `object-inserts` |
+| A character master / model sheet | `pfm-character-master` (spec or photo) |
+| A mixed grab-bag that fits none of the above | **hig-flow (here)** |
+
+A type skill does its own craft gates, writes a **job list** (the `PIPELINE-SPEC.md` contract), and
+calls `fire_batch.py --fire`. hig-flow's gates 1–9 below ARE that path for the fallback case: gate 6
+drafts generically, then step 10 fires through the same spine.
 
 ## 🔘 Fire gate = clickable card (locked 2026-06-11)
 
@@ -148,12 +183,12 @@ PFM character master format (from memory): full-body, plain studio backdrop, neu
 
 ## Gate 5 — Model lock [SILENT — default NB Pro 1k count=1]
 
-Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~5 cr/image at 1k resolution.
+Default: **Nano Banana Pro (`nano_banana_2`)** — best quality NB model, ~2 cr/image at 1k resolution.
 
-> Model: **NB Pro (`nano_banana_2`)**, **resolution 1k**, **count=1 per prompt** (~5 cr/image = ~5 cr/shot). Lock in, want count=2 for a pick, or different config?
+> Model: **NB Pro (`nano_banana_2`)**, **resolution 1k**, **count=1 per prompt** (~2 cr/image = ~2 cr/shot). Lock in, want count=2 for a pick, or different config?
 
 **Other models worth knowing:**
-- `nano_banana_flash` — cheaper, faster, sometimes better on heavy edits per `STORY-AD-IMAGE-WORKFLOW.md`. ~2 cr/image.
+- `nano_banana_flash` — cheaper, faster, sometimes better on heavy edits. ~2 cr/image.
 - `gpt_image_2` — for product photoshoot / studio compositions. Use when the editor says "studio shot" or "product photo" (and consider `higgsfield-product-photoshoot` skill instead).
 - `flux_2`, `z_image` — alternative aesthetics; only use if editor explicitly requests.
 
@@ -229,7 +264,7 @@ Draft silently → the full shot list is presented for the editor's approval at 
 
 ## Gate 7 — (Skipped by default for HIG Flow)
 
-Image gens are cheap (~5 cr/image) and fast (~30s each). No test-fire gate. If the editor wants to spot-test one shot before firing the full batch, they can ask: "fire just shot S05 first" — and we'd run a one-off via the CLI (`higgsfield generate create nano_banana_2 ...`) per the `higgsfield-image-generation` skill conventions, then return.
+Image gens are cheap (~2 cr/image) and fast (~30s each). No test-fire gate. If the editor wants to spot-test one shot before firing the full batch, they can ask: "fire just shot S05 first" — and we'd run a one-off via the CLI (`higgsfield generate create nano_banana_2 ...`) per the `higgsfield-image-generation` skill conventions, then return.
 
 ## Gate 8 — Excel manifest write [SILENT]
 
@@ -262,7 +297,7 @@ cat > "$CONFIG" <<EOF
     "mcpModel":       "nano_banana_2",
     "resolution":     "1k",
     "countPerPrompt": 1,
-    "estCostPerImage": 5
+    "estCostPerImage": 2
   },
   "shots": [
     {
@@ -331,78 +366,25 @@ Editor confirms → CLI fires.
 
 ---
 
-## Step 10 — CLI fire
+## Step 10 — CLI fire (via the spine, `fire_batch.py`)
 
-**Concurrency model — pre-uploaded UUIDs + ThreadPool `max_workers=16`.** PowerFox Enterprise plan — server-side concurrent-job cap is high enough that it's no longer the practical bottleneck; the client-side CLI credential-store race is the constraint. Per locked memory `feedback_higgsfield_cli_concurrency_race.md`: the Higgsfield CLI has a credential-store race condition under concurrent processes. Each `higgsfield generate create` call reads (and sometimes refreshes) auth state at startup. When N CLI processes fire concurrently AND each also uploads a `--image <local_path>` (which is 3 more auth-touching API calls per job for presign + PUT + confirm), the race window widens dramatically.
+**The fire IS `fire_batch.py` now.** After the preflight Fire? (Gate 9), build the job list (the
+`PIPELINE-SPEC.md` contract — for the fallback case: `outDir` = `Elements/Footage/Primary/B-Roll Photos/`,
+`naming` = `{slug}_{shot}_{v}.png`, `manifest` = `xlsx`) and run it backgrounded:
 
-**Verified empirical data (2026-05-21):**
-- 15 ThreadPool workers + file paths (per-job upload) → 65 of 100 jobs returned empty output ✗
-- 16 ThreadPool workers + UUIDs (pre-uploaded) → mostly works (15/16 b-roll) ✓
-- **8 ThreadPool workers + UUIDs → reliable target** ✓
-
-Verify cap rules with David on the Higgsfield call; if Enterprise allows higher concurrency cleanly, the workers cap can be raised.
-
-**Step 1 — Pre-upload every unique reference image, serially, capture UUIDs:**
-
-```python
-import subprocess, json
-
-# Dedupe refs across all shots first
-unique_refs = {ref for shot in all_shots for ref in shot["refs"]}
-ref_uuid_map = {}
-for ref_path in unique_refs:
-    result = subprocess.run(
-        ["higgsfield", "upload", "create", ref_path, "--json"],
-        capture_output=True, text=True, check=True
-    )
-    ref_uuid_map[ref_path] = json.loads(result.stdout)["id"]
-    # → e.g. "70b6e9b2-90c3-4703-84e8-570b99a1884c"
+```bash
+python3 ~/.claude/skills/hig-flow/fire_batch.py "$JOBLIST" --fire --project-root "$(pwd)"
 ```
 
-Pre-upload calls run **one at a time** (not in a pool) — the auth race exists for uploads too. Pre-upload is cheap (~1-3s per file) and only runs once per unique ref across the whole batch.
+It pre-uploads, fires at `max_workers=16`, and **streams `LANDED <shotId>: <url>` per gen** — tail
+that output and relay each line to the editor the instant it prints (Rule 5: 📲 tappable + widget),
+then it downloads, writes the manifest, and prints the 📁/🔗/🦊 handoff. Bare (no `--fire`) it
+dry-runs — that's what the Gate 9 preflight cost line comes from. **The AGF `Generating (Local)` lock
+(Gate 9) and its close (Step 11) still wrap this — the script never touches Notion.**
 
-**Image preflight before pre-upload:** for any reference image, check pixel width and resize if >2000px or >3MB (same logic as `hvg-flow`). Pre-upload the RESIZED file, not the original. Dedupe — same character master may be referenced by many shots; only resize and upload once.
-
-**Step 2 — Fire the batch via Python ThreadPool with `max_workers=16`, passing UUIDs (not local paths) to `--image`:**
-
-```python
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-def fire_one(shot, variation, ref_uuid_map):
-    # NB Pro takes `input_images` as an array; pass repeated --image flags.
-    img_flags = []
-    for ref in shot["refs"]:
-        img_flags.extend(["--image", ref_uuid_map[ref]])  # UUID, not local path
-
-    cmd = [
-        "higgsfield", "generate", "create", "nano_banana_2",
-        "--prompt", shot["prompt"],
-        *img_flags,
-        "--aspect_ratio", shot["aspect"],
-        "--resolution", "1k",
-        "--wait", "--wait-timeout", "5m",
-        "--json",
-    ]
-    return subprocess.run(cmd, capture_output=True, text=True, timeout=360)
-
-takes = ("01",)  # count=1 default; ("01", "02") if the editor opted into count=2
-all_jobs = [(shot, v) for shot in shots for v in takes]
-with ThreadPoolExecutor(max_workers=16) as ex:
-    futs = {ex.submit(fire_one, shot, v, ref_uuid_map): (shot, v) for shot, v in all_jobs}
-    for fut in as_completed(futs):
-        shot, v = futs[fut]
-        result = fut.result()
-        # save result.stdout to /tmp/hig-flow-results/<shotId>_v<v>.json
-```
-
-Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock at workers=16 (verified clean on Enterprise — see `feedback_higgsfield_cli_concurrency_race.md`).
+**Do NOT hand-roll the fire code — `fire_batch.py` owns it.** The concurrency model it implements (pre-uploaded UUIDs, ThreadPool ≤16, serial uploads, Rule-5 streaming) is specified in **`PIPELINE-SPEC.md`** in this folder; the archived "why" (credential-race empirical data + the old inline code) lives in `references/fire-spine-concurrency-history.md`.
 
 **No prompt prefix needed.** NB Pro's CLI doesn't have the leading-`{` quirk that Veo had — image prompts are plain prose, not JSON.
-
-**Self-check before any concurrent CLI fire:**
-1. Are any `--image` flags pointing at local file paths instead of UUIDs? → Pre-upload first and swap to UUIDs.
-2. Is `max_workers` ≤ 16? → If higher, lower it.
-3. Are you using Python ThreadPool, not `bash &`? → ThreadPool past ~4 jobs.
 
 **Edge cases:**
 - NSFW false-positive on character images is rare for NB Pro (Veo's stochastic NSFW filter doesn't apply here). If it triggers, just re-fire.
@@ -412,7 +394,7 @@ Images are quick (~30s each), so even a 60-job run drains in ~4 min wall-clock a
 
 ## Step 11 — Download + Excel update + report
 
-**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, for a fire UNDER 20 items (locked 2026-06-17 · hardened mechanically 2026-07-01).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display` / `show_generations`), labeled (shot, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-shot backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → skip per-file streaming; one report at completion** (per-file would be noise). The totals / QC / manifest report below still runs at the end either way.
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display` / `show_generations`), labeled (shot, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-shot backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / QC / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement.
 
 Parse each result JSON for the image URL(s), download in parallel via `urllib.request` or `curl` to `Elements/Footage/Primary/B-Roll Photos/<slug>_<shotId>_v<NN>.png`.
 
@@ -482,34 +464,14 @@ Trigger phrases that signal multi-batch: "run a bunch more," "do all of these," 
 
 ## State-variant slide projects
 
-For projects that produce per-state versions of a winning VSL/ad (Florida → Colorado, etc.):
-
-- **Only fire shots where the visual changes between states.** Narration / no-slide lines reuse the broad/winner version's `LXX - Generic.png` files unchanged — Chad-on-plain-plate is state-agnostic.
-- **Edit-style prompts must swap ALL state/city/name tokens, not just the headline data.** A common failure: prompt says "replace rate with $230" and gets a great rate swap — but leaves "Tampa" or "Orlando" still written on the slide because the prompt never told NB Pro to touch the city. Default prompt structure:
-  ```
-  TWO (or N) changes required:
-  (1) Replace <rate/number> with <new value> in <color>...
-  (2) Replace the city name '<old city>' with '<new city>' anywhere it appears as text...
-  (3) Replace the state name '<old state>' with '<new state>' anywhere it appears as text...
-  Make NO other changes — preserve every other pixel.
-  ```
-- **Inspect the source slide for ALL embedded text tokens** before drafting the prompt — state name, city name, person's name (Ryan→Jason), regional/cultural cues. One token missed = one re-fire.
-- **Check for multiple DESIGN VARIANTS per slot.** Florida has `L1 - Title Slide - v1.png` AND `L1 - Title Slide - v2.png` — those aren't two takes, they're two different slide designs (e.g. "FLORIDA AUTO INSURANCE CONFERENCE" + "FLORIDA TECH AUTOMOBILE CONFERENCE"). Both designs need state swaps. **Before scoping a state batch, list every `L<NN> - * - v*.png` in the broad/winner folder and treat each unique design as its own shot.** Common slots with multiple designs: title slides (L1), CTA cards (L41), discount lists. If unsure, ls + diff the file sizes — different designs usually have visibly different sizes.
-- **Naming distinction — design variant vs. take.** PFM's broad/winner folder uses `v1`/`v2` suffix for *design variants* (one file each). When firing with `count=2`, each state batch produces *takes* of each design — name accordingly so they don't collide:
-  - Design A, take 1 + take 2 → `L1 - Title Slide - <State> - v1.png` + `... - v2.png`
-  - Design B, take 1 + take 2 → `L1 - Title Slide - <State> v2 - v1.png` + `... - v2.png`
-  - The "v2" before the dash = design variant; the "v1/v2" after the dash = take number
-- **Identity preservation language is non-negotiable** for character slides — explicit "keep the person's identity, face, expression, clothing, pose, framing, lighting, background completely identical." NB Pro will subtly re-render the face if not told to lock identity.
-- **Output naming convention:** mirror the broad/winner folder's filename pattern with the state appended (e.g. `L1 - Title Slide - Colorado - v1.png` to match `L1 - Title Slide - v1.png`) so the editor can swap them in by exact filename.
-- **Output folder:** `Elements/Footage/Reference/Slide Images - <State>/` per editor's convention. Don't put state slides in the same folder as the broad/winner — keeps timelines clean.
-- **Resolution:** NB Pro 1k and 2k cost the same (~2 cr). Default to **2k** for full-screen slide work.
+For per-state versions of a winning VSL/ad (Florida → Colorado, etc.), the slide-swap craft — token sweeps, design-variant detection, identity locks, naming + output conventions — lives in `~/.claude/skills/vsl-state-variations/references/slide-swap-projects.md`. Load it before scoping any state slide batch.
 
 ## What NOT to do
 
 - **Don't write image prompts without `nano-banana-prompting` patterns** — that's the default style for PFM b-roll. Editor explicitly opts out per-shot if a different aesthetic is needed.
 - **Don't skip PFM brand-clean rules** — every prompt's negative section needs the brand-clean stack from `feedback_pfm_brand_clean_rules.md` (no automaker badges for Auto, no carrier logos, no Apple dock on laptops, etc.).
 - **Don't fire** without showing the shot list at gate 6 and the preflight at gate 9.
-- **Don't generate character masters here** — masters are foundational, build them via the `higgsfield-image-generation` skill (CLI-driven) or follow `STORY-AD-IMAGE-WORKFLOW.md` Phase 1. HIG Flow assumes masters already exist in `Reference/`.
+- **Don't generate character masters here** — masters are foundational, build them via `pfm-character-master` — spec or photo mode (or `higgsfield-image-generation` for a one-off). HIG Flow assumes masters already exist in `Reference/`.
 - **Don't write outputs** to a folder other than `Elements/Footage/Primary/B-Roll Photos/` without asking.
 - **Don't pre-process the prompt text** beyond shot-list approval — Higgsfield's API may auto-enhance.
 - **Don't update the Excel mid-batch** — single write before, single write after.
@@ -520,8 +482,6 @@ For projects that produce per-state versions of a winning VSL/ad (Florida → Co
 - `hvg-flow` — video counterpart to this skill (same architecture, different model + output)
 - `nano-banana-prompting` — loaded by default at gate 6 for prompt style
 - `higgsfield-image-generation` — CLI-driven skill for one-off image experiments and character-master creation
-- `nano-banana-prompting` — NB-specific prompting patterns
 - `higgsfield-product-photoshoot` — for studio / product compositions (different skill if editor requests)
 - Memory: `feedback_pfm_brand_clean_rules.md`, `feedback_pfm_character_master_format.md`, `feedback_higgsfield_workflow.md`, `feedback_shirt_rotation_pattern.md`, `feedback_selfie_arm_framing.md`, `feedback_social_proof_selfie_variety.md`, `feedback_folded_bill_aging_cue.md`, `feedback_image_review_context_budget.md`, `feedback_character_placement_one_ref_wins.md`
-- Reference workflow: `STORY-AD-IMAGE-WORKFLOW.md` (Phase 1 foundational asset workflow)
 - **Central libraries (optional promotion target — see the "Optional — promote anything to the central PFM libraries" section above):** `1. PFM Media Assets/AI Generation Assets - PFM/Character Library/` (per-character image library) and `1. PFM Media Assets/AI Generation Assets - PFM/Prompts Library/` (per-character prompt template library)

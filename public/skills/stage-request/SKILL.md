@@ -232,7 +232,7 @@ Whichever route resolves the ref: re-run the staging checks and continue to Step
 
 - **Lucid handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile + 🦊 Fox.io rail drop (`linkyourfile.py --fox-drop`) (CLAUDE.md Hard Rule 2).
 - **cp, never mv** — parent folders keep their assets.
-- **No Status changes, no @-tags, no delivery comments** — staging is not delivery.
+- **No AUTOMATIC Status changes, no @-tags, no delivery comments** — staging is not delivery. **One offered exception (Sam 2026-07-11):** when you're handed a request that is already `Staged` (Asset Gen) but its `Status` is NOT `In progress`, **ASK the editor** if they'd like to move `Status → In progress` — plain-markdown offer, NEVER an auto-flip. If yes, set `Status = In progress` and re-fetch to verify it stuck; if no, leave it. This is the one Status touch staging offers; everything else stays hands-off.
 - **SMA = disclaimer warning** in the section (Hard Rule 4).
 - **Verify before creating** — `ls` every tree level; never `mkdir -p` a path you haven't confirmed exists through the month-folder level.
 - **Idempotent** — re-running /stage on an already-staged request refreshes links/section in place; it never duplicates folders or sections. If the project folder already exists with content, use it (don't recreate, don't overwrite existing files).

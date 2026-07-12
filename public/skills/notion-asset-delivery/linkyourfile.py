@@ -61,19 +61,27 @@ def make_foxio_raw(path):
 
 def fox_drop(path, label=None):
     """Append a drop to Fox.io's 🦊 From Claude inbox — the app watches this file and
-    surfaces the drop as a sidebar entry + toast (jumps ALWAYS open in a new tab)."""
+    surfaces the drop as a sidebar entry + toast (jumps ALWAYS open in a new tab).
+    flock'd against Fox.io's own consume/clear rewrites (the app takes the same lock)."""
+    import fcntl
     path = path.rstrip("/")
     label = label or os.path.basename(path)
     os.makedirs(os.path.dirname(FOX_INBOX), exist_ok=True)
     entry = json.dumps({"ts": time.time(), "path": path, "label": label})
-    lines = []
-    if os.path.isfile(FOX_INBOX):
-        with open(FOX_INBOX, encoding="utf-8") as f:
-            lines = [l for l in f.read().split("\n") if l.strip()]
-    lines.append(entry)
-    lines = lines[-300:]  # bound the file; Fox.io dedupes by path + expires >7d on load
-    with open(FOX_INBOX, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
+    lock_path = os.path.join(os.path.dirname(FOX_INBOX), "inbox.lock")
+    with open(lock_path, "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            lines = []
+            if os.path.isfile(FOX_INBOX):
+                with open(FOX_INBOX, encoding="utf-8") as f:
+                    lines = [l for l in f.read().split("\n") if l.strip()]
+            lines.append(entry)
+            lines = lines[-300:]  # bound the file; Fox.io dedupes by path + expires >7d on load
+            with open(FOX_INBOX, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines) + "\n")
+        finally:
+            fcntl.flock(lk, fcntl.LOCK_UN)
     return label
 
 

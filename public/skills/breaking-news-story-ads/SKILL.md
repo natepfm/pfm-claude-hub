@@ -224,37 +224,9 @@ The ear likes threes. Any list in anchor copy should be a list of three:
 
 Don't do two. Don't do four. Three.
 
-### Load-bearing clichés to lean on
+### Clichés — lean on the load-bearing ones, dodge the parody ones
 
-These are tropes that function. They make the copy read as real news. Stack without shame:
-
-- *"A [neighborhood] family is recovering tonight after…"*
-- *"Our cameras were rolling when…"*
-- *"A dramatic moment caught on camera."*
-- *"Take a look at this."*
-- *"In a story you'll only see on LATU News…"*
-- *"What we know at this hour…"*
-- *"[Name] says she is still in disbelief tonight."*
-- *"[Name] tells LATU News…"*
-- *"A [neighborhood] neighborhood is coming together tonight…"*
-- *"Close-knit community"*
-- *"It could have been so much worse."*
-- *"Here's what happened."*
-- *"Just moments ago…"*
-- *"It all started when…"*
-
-### Parody-level clichés to avoid or use sparingly
-
-Meme-ified. Use at most one, and only if it's genuinely right:
-
-- *"Local man does [thing]."*
-- *"An area woman…"*
-- *"You won't BELIEVE what happened next."*
-- *"The video is going viral."*
-- *"Brought to tears…"*
-- *"An angel on earth."*
-- *"Only one word to describe it: miraculous."*
-- *"Faith in humanity restored."* (borderline — sometimes works)
+The two lists (load-bearing clichés to stack without shame, and meme-ified parody clichés to use at most once) live in `references/cliches.md`. Read them before writing anchor or reporter copy.
 
 ### Words that flag amateur writing (cut them)
 
@@ -282,157 +254,7 @@ Broadcast rule: put *"police say"* before the claim, not after. Reader's ear nee
 
 ## Template — 2:00 news-wrapped PFM story ad
 
-A complete scaffolding. Fill each bracket. This is the HBF eviction story in the news format — use as a pattern.
-
-```
-[TRT 2:00]
-
-[VIDEO COLUMN]                          [AUDIO COLUMN]
-
-────────────────────────────────────────────────────────────────────────
-
-ANCHOR 2-SHOT                            (ANCHOR 1)
-CG TOP: BREAKING NEWS                    Good evening. I'm [Anchor 1 Name].
-CG BOTTOM: LOCAL HEROES
-                                         (ANCHOR 2)
-                                         And I'm [Anchor 2 Name]. We begin 
-                                         tonight with a [neighborhood] 
-                                         family who says they are home 
-                                         this evening, because of the 
-                                         woman next door.
-
-                                         (ANCHOR 1)
-                                         Just 24 hours ago, [Subject Name]
-                                         watched a locksmith walk up her 
-                                         driveway with orders to change 
-                                         the locks. Tonight, her family 
-                                         is calling a neighbor a hero.
-
-                                         (ANCHOR 2)
-                                         LATU News reporter [Reporter 
-                                         Name] is live in [Neighborhood] 
-                                         tonight. [First name]?
-
-────────────────────────────────────────────────────────────────────────
-
-REPORTER LIVE SHOT                       (REPORTER)
-CG: LIVE — [NEIGHBORHOOD]                [Anchor first name], I am 
-CG: [REPORTER NAME] / LATU NEWS          standing outside the home on 
-                                         Maple Street. And the scene here 
-                                         tonight is very different from 
-                                         what it was just yesterday 
-                                         morning. Take a look.
-
-────────────────────────────────────────────────────────────────────────
-
-TAKE PKG                                 (PACKAGE BEGINS)
-TRT 1:25
-OC: "...LATU News, [Neighborhood]."
-
-NAT POP :03                              NAT: LOCKSMITH DRILL
-
-B-ROLL: LOCKSMITH AT DOOR                (REPORTER VO — Track 1)
-B-ROLL: FAMILY STANDING IN DRIVEWAY      By the time the Marsh family got 
-                                         home on Tuesday morning, the 
-                                         bank had already sent someone. 
-                                         The locks were coming off. The 
-                                         eviction was happening.
-
-SOT 1 — SUBJECT WIFE                     (SUBJECT WIFE)
-CG: JESSICA MARSH                        "I had the paperwork in my hand.
-CG: ALMOST EVICTED YESTERDAY              I was counting the hours. I 
-                                          really thought we were done."
-
-B-ROLL: STRUGGLING COUPLE WITH           (REPORTER VO — Track 2)
-LOCKSMITH                                [Subject Name] says she had been 
-B-ROLL: HERO WIFE APPROACHING            falling behind for months. And 
-                                         she had not told her neighbors. 
-                                         But across the street — [Hero 
-                                         Name] saw what was happening. 
-                                         And she walked over.
-
-SOT 2 — HERO WIFE                        (HERO WIFE)
-CG: [HERO NAME]                          "I could see they were caught off
-CG: STEPPED IN TO HELP                    guard. I just — I had to help."
-
-B-ROLL: HERO HUSBAND ON PHONE            (REPORTER VO — Track 3)
-B-ROLL: HERO WIFE + SUBJECT WIFE         While the husbands called the 
-ON PORCH                                 lender, [Hero Wife] pulled 
-                                         [Subject Wife] aside. And that 
-                                         is when she learned what was 
-                                         really behind all of this.
-
-SOT 3 — SUBJECT WIFE                     (SUBJECT WIFE)
-                                         "Honestly, it was the home 
-                                         insurance. It kept getting 
-                                         higher and higher. It rolled 
-                                         into the mortgage, and we just 
-                                         couldn't keep up."
-
-B-ROLL: HERO WIFE ON PHONE SHOWING       (REPORTER VO — Track 4, THE 
-SCREEN                                   MECHANISM LANDS HERE)
-                                         That is when [Hero Name] told 
-                                         her something [Subject Name] did
-                                         not know. [Hero Name] is a 
-                                         mortgage broker. And she says 
-                                         she sees this happen to families 
-                                         all the time.
-
-CG UPDATE: [HERO NAME]                   
-CG UPDATE: MORTGAGE BROKER               
-
-SOT 4 — HERO WIFE                        (HERO WIFE)
-                                         "A lot of homeowners are 
-                                          overpaying and they honestly 
-                                          have no idea. There is a site 
-                                          I use for all my clients that 
-                                          checks for missing discounts 
-                                          on their home insurance."
-
-B-ROLL: PHONE SCREEN SHOWING RATE         (REPORTER VO — Track 5)
-DROP                                     The site ran [Subject Name]'s 
-                                         info. It found four discounts 
-                                         she was missing. And her rate 
-                                         dropped by nearly fifteen 
-                                         hundred dollars a year — on 
-                                         average.
-
-SOT 5 — SUBJECT WIFE (PAYOFF BITE)       (SUBJECT WIFE)
-                                         "She said, 'There are savings 
-                                          you don't know about.' And she 
-                                          was right."
-
-B-ROLL: FAMILIES HUGGING                 (REPORTER VO — Track 6)
-B-ROLL: LOCKSMITH LEAVING                The lender accepted the payment. 
-                                         The locksmith got the release 
-                                         order. And tonight, the Marsh 
-                                         family is not going anywhere.
-
-CLOSING STAND-UP                         (REPORTER)
-CG: [REPORTER NAME] / LATU NEWS          [Subject Name] says she still 
-                                         cannot believe it. And she says 
-                                         she will not forget what her 
-                                         neighbor did for her family. 
-                                         Reporting live in [Neighborhood]
-                                         tonight, [Reporter Full Name], 
-                                         LATU News.
-
-────────────────────────────────────────────────────────────────────────
-
-ANCHOR 2-SHOT                            (ANCHOR 1)
-CG: LATU.COM/RATECHECK                   [Reporter first name], thank you.
-                                         What a story.
-
-                                         (ANCHOR 2)
-                                         And we have got a link on our 
-                                         website for anyone who wants to 
-                                         check their own rate. Just head 
-                                         to LATU-dot-com and tap the 
-                                         story at the top of the page.
-
-                                         (ANCHOR 1)
-                                         We will be right back.
-```
+The complete two-column scaffolding (the HBF eviction story in the news format — anchor 2-shot through package through anchor tag, with every CG and nat pop placed) lives in `references/template.md`. Read it before drafting any news-wrapped script and use it as the pattern; fill each bracket.
 
 ## Before/after rewrite examples
 
@@ -468,43 +290,9 @@ Bad (fake urgency + "program" language):
 Good (possibility-framed, news-native):
 > *"Incredible. And if you want to see if you could lower your own rate, we have got a link on our website. Just head to LATU-dot-com."*
 
-## Generating the lower thirds in Canva
+## Lower-third strips
 
-When the Canva connector is available in Claude Desktop (`mcp__plugin_marketing_canva__*` tools), Claude can generate the actual lower-thirds graphics from the chyron specs in the script — not just produce the text.
-
-**Workflow:**
-
-1. Script is locked with chyron specs in the video column (ALL CAPS, per Rule 8).
-2. Editor says "build the lower thirds" / "make the chyrons in Canva" / "generate the LATU News graphics" or similar.
-3. Claude lists every distinct chyron in the script and confirms the build list with the editor:
-   > Found 9 chyrons in this script:
-   > - `BREAKING NEWS` (top, opening anchor 2-shot)
-   > - `LOCAL HEROES` (top, opening anchor 2-shot)
-   > - `JESSICA MARSH / MOTHER OF THREE` (lower third, SOT 1)
-   > - `[HERO NAME] / STEPPED IN TO HELP` (lower third, SOT 2)
-   > - `LIVE — [NEIGHBORHOOD]` (corner, reporter live shot)
-   > - `EARLIER TODAY — MAPLE STREET` (corner, b-roll)
-   > - `[HERO NAME] / MORTGAGE BROKER` (lower third, after Hero reveal)
-   > - `LATU.COM/RATECHECK` (anchor tag CTA)
-   >
-   > Build all in Canva, or a subset?
-4. On editor approval, Claude fires the Canva MCP to create each graphic using PFM's LATU News brand style.
-5. Output saves to `Elements/Footage/Primary/Lower Thirds/` (creates folder if needed) with deterministic filenames like `LT_jessica_marsh_mother_of_three.png`.
-
-**LATU News brand style (Canva spec):**
-- **Top banner / breaking news bar:** red background, bold sans-serif white text, LATU logo on the right edge
-- **Lower thirds (person IDs):** white text on a dark navy bar, two-line stack (NAME on line 1, ROLE on line 2), accent stripe on the left edge
-- **Location tags:** smaller, semi-transparent gray bar in the corner, white text
-- **CTA tag (anchor close):** matches the lower-thirds style but with the URL framed as a "tap to learn more" prompt
-
-Canva brand kit assets (logos, fonts, colors) live in the shared PFM Canva account. Claude can pull them via the Canva MCP when generating each graphic — no need for the editor to upload anything per-project.
-
-**Constraints (same as the in-script chyron rules):**
-- ❌ Hero Wife's chyron is NEVER `INSURANCE AGENT` — always `MORTGAGE BROKER` (Home), `DEALERSHIP ASST. MANAGER` (Auto), `FINANCIAL ADVISOR` (Loans). See Rule 8 for the full compliance stack.
-- ❌ No government-implying chyrons (`STATE PROGRAM ANNOUNCED` etc.)
-- ❌ Don't generate the Hero's profession-reveal chyron under the opening banner — start with neutral `LOCAL HEROES` and swap in the profession chyron only at the dialogue beat where it's revealed.
-
-**When Canva is not connected:** the skill produces chyron specs in the script as ALL CAPS text (per Rule 8), and the editor builds the graphics manually in Canva or DaVinci's title generator. The script-side spec is the canonical source either way.
+Lower-third strips are owned by the bn-lower-thirds skill (output: Elements/Graphics/<State>/). ⚠️ Canva retirement in progress — see that skill for the current method.
 
 ## Integration with the Veo Script Writing skill
 
@@ -620,6 +408,7 @@ This skill produces the **script**, not the per-clip Veo prompts. Veo JSON promp
 | Compliance in anchor copy | No government, no fake urgency, no "program," no "will save." |
 | Write to picture | No lines narrate what the footage shows. Nat pops planned. |
 | 6 PFM beats still present | Hook, Context, Issue, Lander, Payoff, CTA — map each to a section of the wrapper. |
+| SMA gate | SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat). |
 | Read it aloud | Every line deliverable in one breath at 160 WPM. |
 
 ## TLDR

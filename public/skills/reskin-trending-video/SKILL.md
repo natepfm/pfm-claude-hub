@@ -26,10 +26,12 @@ This skill **orchestrates the workflow**. For the actual Seedance block format, 
 Never prompt from a clip you haven't actually looked at. Run the bundled script to get metadata, frames, and a single contact sheet, then **Read** the contact sheet:
 
 ```bash
-bash scripts/inspect_video.sh "/path/to/<clip>.mp4" /tmp/vidinspect
+bash ~/.claude/skills/reskin-trending-video/scripts/inspect_video.sh "/path/to/<clip>.mp4" "<session scratchpad dir>/vidinspect"
 ```
 
-Then **Read** `/tmp/vidinspect/contact_sheet.jpg` (if `montage`/ImageMagick isn't installed, Read the individual frames in `/tmp/vidinspect/frames/`).
+(Use the session's scratchpad directory from the system prompt as the output location — not `/tmp`.)
+
+Then **Read** `<session scratchpad dir>/vidinspect/contact_sheet.jpg` (if `montage`/ImageMagick isn't installed, Read the individual frames in `<session scratchpad dir>/vidinspect/frames/`).
 
 Describe the clip back to the user in plain terms: the beat structure (e.g. "establish → cut to phone → cut back → reveal"), what's in frame, the energy/joke, and — critically — flag every **problem element** you spot, because these decide the prompt's exclusions and the engine choice:
 

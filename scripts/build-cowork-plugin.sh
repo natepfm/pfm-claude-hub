@@ -3,22 +3,29 @@
 #
 #   Run from anywhere:   bash scripts/build-cowork-plugin.sh
 #
-# It bundles every chat-mode (Cowork-capable) skill — i.e. every skill whose
-# worksIn includes "cowork" in content/skills.ts — into public/pfm-cowork-skills.plugin,
-# pulling each SKILL.md fresh from public/skills/ so the bundle is never stale.
+# It bundles every Cowork-capable skill named by the canonical
+# coworkSkillFolders array in content/skillsRegistry.ts, pulling each SKILL.md
+# fresh from public/skills/ so the bundle is never stale.
 # After running, commit the regenerated .plugin and push.
 set -euo pipefail
 
 HUB="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_SRC="$HUB/public/skills"
+REGISTRY="$HUB/content/skillsRegistry.ts"
 NAME="pfm-cowork-skills"
-VERSION="1.4.0"
+VERSION="1.5.0"
 OUT="$HUB/public/$NAME.plugin"
 
-# The Cowork-capable skills — keep in sync with worksIn:"cowork" in content/skills.ts.
-# stage-request is included for Dima's AGF staging (needs Lucid access granted in Cowork;
-# its Step 0 degrades gracefully if Lucid isn't mounted).
-COWORK_SKILLS=(stage-request veo-script-writing breaking-news-story-ads nano-banana-prompting story-beats lc-to-video-podcast suno-songwriter human-ad-copy)
+# Parse the one canonical list instead of maintaining a second shell list.
+COWORK_SKILLS=($(python3 - "$REGISTRY" <<'PY'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+match = re.search(r"export const coworkSkillFolders = \[(.*?)\] as const;", text, re.S)
+if not match:
+    raise SystemExit("ERROR: coworkSkillFolders not found in skillsRegistry.ts")
+print(" ".join(re.findall(r'"([^"]+)"', match.group(1))))
+PY
+))
 
 TMP="$(mktemp -d)"
 STAGE="$TMP/$NAME"

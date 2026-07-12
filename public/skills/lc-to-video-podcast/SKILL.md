@@ -233,13 +233,13 @@ If the brief is state-variant, use `### [Concept Name] — [Vertical] LC — Veo
 - **Hand off to `spanish-translation`** for a Spanish version once the English script is locked. That skill lives in the anthropic-skills plugin (`anthropic-skills:spanish-translation`), not a local skill directory. Run it against the final numbered script, not against the source LC.
 - **Camera-roll b-roll** for the podcast (cutaways of the speaker's life — kitchen table, Best Buy register, etc.) uses `nano-banana-prompting` via `hig-flow`.
 
-### After the script — gen is a SEPARATE step (this is a writing skill; it does not fire gens)
+### After the script — offer the gen handoff
 
-This skill ends at the locked script pushed to the Notion request. It does **not** initiate generation. A writing (task) skill stays in its lane — kicking off asset gen is the editor's call, or a `.flow` skill's job (task skills only chain inside a flow, never on their own). Close cleanly and stop:
+This skill ends at the locked script pushed to the Notion request, then OFFERS to chain into generation (Sam, 2026-07-12 — skills may chain/initiate across sections; the earlier "task skills never initiate" boundary is deleted). Close with:
 
-> Script is locked and pushed to Notion — ready to generate whenever you are. Next step is staging / `hvg-flow`; trigger it on its own (say **"run video generations"** and `hvg-flow` picks up the same Notion URL + folder — no re-paste needed).
+> Script is locked and pushed to Notion — want me to kick off generations? Staging (`ag.stage`) picks up the same Notion URL + folder, no re-paste needed.
 
-Do **not** invoke `hvg-flow` yourself from here. When the editor gives an HVG trigger, `hvg-flow` initiates on its own — its own MANDATORY INITIATION BEHAVIOR handles the no-re-paste. Your handoff is the pushed script, nothing more.
+If the editor says go, initiate `ag.stage` (the gen front door; `hvg-flow` remains the transitional direct path) right from here — same session context, no re-paste. The gen flow's own gates (preflight, Fire? confirmation) still run there, so writing and firing remain separate *decisions* even when chained. If the editor doesn't bite, stop cleanly at the script.
 
 ## PFM Context
 
@@ -258,4 +258,4 @@ Line-level worked examples of the full LC-to-podcast transformation (Loans Best 
 3. Strip em/en dashes, ALL CAPS, and compound hyphens.
 4. Preserve every fact, number, beat, and CTA from the source LC. No new claims.
 5. Output as a numbered list with the verbatim LC tucked into a `<details>` block underneath.
-6. End at the locked script pushed to Notion — ready for gen, but don't fire it. Staging / `hvg-flow` is a separate step the editor triggers (this is a writing skill, not a gen skill).
+6. End at the locked script pushed to Notion, then OFFER the gen handoff — on a yes, chain into `ag.stage` (or `hvg-flow`) directly; the fire confirmation lives in the gen flow's own gates.

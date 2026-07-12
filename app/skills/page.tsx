@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { skillRows, type SkillRow, type SkillTier } from "@/content/skillsRegistry";
+import { SKILLS_AUDIT_DATE, skillRows, type SkillRow, type SkillTier } from "@/content/skillsRegistry";
 import PageHero from "@/components/PageHero";
 
 const SECTIONS = ["All", "WR", "AG", "QC", "E", "R", "X"];
@@ -168,7 +168,7 @@ export default function SkillsPage() {
       </div>
 
       <p className="font-mono text-[10px] text-faint mt-4">
-        Auto-generated from the 2026-07-11 skills audit · statuses: Live = synced to the team · Hold / Vendor / Restricted / Command as tagged.
+        Canonical registry · audited {SKILLS_AUDIT_DATE} · statuses: Live = synced to the team · Hold / Vendor / Restricted / Command as tagged.
       </p>
     </div>
   );
