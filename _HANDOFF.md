@@ -156,7 +156,7 @@ For browser QA, inspect the local app at desktop width and around 390×844 mobil
 
 ## Known follow-ups after the July audit
 
-- Resources → Tools & logins and Brand & guidelines remain intentionally incomplete pending authoritative links/content from Sam.
+- **Next major hub pass: Resources needs a full overhaul.** Revisit its information architecture, categories, copy, and presentation as one project—not merely filling the current Tools & logins / Brand placeholders. Sam still needs to gather the authoritative lander and resource links before that pass.
 - Mobile top-nav targets are cramped and below the preferred 44px touch height.
 - Skills table sorting and row expansion need stronger keyboard/ARIA semantics.
 - `npm run lint` needs a real ESLint setup for Next.js 16.
