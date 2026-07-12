@@ -2,30 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Persimmon Clean v2 — orange/stone (locked 2026-07-11).
-   Light utilitarian base; tokens live in tailwind.config.ts. */
+/* Persimmon Clean — orange/stone by day, charcoal by night. Tailwind theme
+   tokens resolve through these variables so both modes share one system. */
 
 :root {
   color-scheme: light;
+  --color-bg: 247 244 239;
+  --color-surface: 255 255 255;
+  --color-surface-2: 240 237 230;
+  --color-surface-active: 233 229 221;
+  --color-border: 233 229 221;
+  --color-border-input: 209 213 219;
+  --color-text: 26 26 26;
+  --color-muted: 82 82 91;
+  --color-faint: 161 161 170;
+  --color-accent: 234 88 12;
+  --color-accent-hover: 194 65 12;
+  --color-accent-deep: 154 52 18;
+  --color-accent-muted: 255 237 213;
+  --color-success: 22 163 74;
+  --color-success-hover: 21 128 61;
+  --color-success-muted: 230 244 234;
+  --color-warning: 234 179 8;
+  --color-ink: 26 26 26;
+  --color-tint-blue: 232 237 245;
+  --header-a: 212 122 75;
+  --header-b: 225 154 105;
+  --header-c: 202 112 70;
+  --editors-a: 23 59 87;
+  --editors-b: 46 100 134;
+  --editors-c: 29 72 103;
+  --scroll-thumb: 212 207 198;
+  --scroll-thumb-hover: 182 177 168;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --color-bg: 17 18 20;
+  --color-surface: 27 28 31;
+  --color-surface-2: 38 39 43;
+  --color-surface-active: 48 49 54;
+  --color-border: 59 60 65;
+  --color-border-input: 82 82 91;
+  --color-text: 245 242 236;
+  --color-muted: 190 187 180;
+  --color-faint: 132 132 138;
+  --color-accent: 249 115 22;
+  --color-accent-hover: 251 146 60;
+  --color-accent-deep: 253 186 116;
+  --color-accent-muted: 58 32 21;
+  --color-success: 74 222 128;
+  --color-success-hover: 134 239 172;
+  --color-success-muted: 22 50 33;
+  --color-warning: 250 204 21;
+  --color-ink: 168 162 158;
+  --color-tint-blue: 28 42 58;
+  --header-a: 53 35 28;
+  --header-b: 35 29 28;
+  --header-c: 18 18 20;
+  --editors-a: 125 211 252;
+  --editors-b: 96 165 250;
+  --editors-c: 147 197 253;
+  --scroll-thumb: 74 75 80;
+  --scroll-thumb-hover: 103 104 110;
 }
 
 html,
 body {
-  background: #f7f4ef;
-  color: #1a1a1a;
+  background: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 ::selection {
-  background: #ea580c;
+  background: rgb(var(--color-accent));
   color: #fff;
 }
 
 :focus-visible {
-  outline: 2px solid #ea580c;
+  outline: 2px solid rgb(var(--color-accent));
   outline-offset: 2px;
 }
 
@@ -38,12 +97,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4cfc6;
+  background: rgb(var(--scroll-thumb));
   border-radius: 5px;
-  border: 2px solid #f7f4ef;
+  border: 2px solid rgb(var(--color-bg));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #b6b1a8;
+  background: rgb(var(--scroll-thumb-hover));
 }
 
 /* The mobile top nav remains swipeable without adding a bright scrollbar to

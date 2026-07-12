@@ -9,31 +9,32 @@ import type { Config } from "tailwindcss";
 // ============================================================
 
 const config: Config = {
+  darkMode: "class",
   content: ["./app/**/*.{ts,tsx,mdx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        bg: "#F7F4EF", // page canvas — warm stone
-        surface: "#FFFFFF", // cards, panels, modals
-        surface2: "#F0EDE6", // sunken wells, inset regions, code chips
-        surfaceActive: "#E9E5DD", // pressed / selected rows
-        border: "#E9E5DD", // default warm hairline
-        borderInput: "#D1D5DB", // form controls + emphasis hairlines
-        text: "#1A1A1A", // primary ink
-        muted: "#52525B", // secondary text
-        faint: "#A1A1AA", // placeholders, timestamps
-        accent: "#EA580C", // persimmon
-        accentHover: "#C2410C",
-        accentDeep: "#9A3412", // link text, text on orange tints
-        accentMuted: "#FFEDD5", // orange tint surface
-        success: "#16A34A", // text-safe green on light
-        successHover: "#15803D",
-        successMuted: "#E6F4EA", // green tint surface
-        warning: "#EAB308", // amber — deliberately off the accent hue
+        bg: "rgb(var(--color-bg) / <alpha-value>)", // page canvas
+        surface: "rgb(var(--color-surface) / <alpha-value>)", // cards, panels, modals
+        surface2: "rgb(var(--color-surface-2) / <alpha-value>)", // sunken wells, inset regions, code chips
+        surfaceActive: "rgb(var(--color-surface-active) / <alpha-value>)", // pressed / selected rows
+        border: "rgb(var(--color-border) / <alpha-value>)", // default hairline
+        borderInput: "rgb(var(--color-border-input) / <alpha-value>)", // controls + emphasis hairlines
+        text: "rgb(var(--color-text) / <alpha-value>)", // primary ink
+        muted: "rgb(var(--color-muted) / <alpha-value>)", // secondary text
+        faint: "rgb(var(--color-faint) / <alpha-value>)", // placeholders, timestamps
+        accent: "rgb(var(--color-accent) / <alpha-value>)", // persimmon
+        accentHover: "rgb(var(--color-accent-hover) / <alpha-value>)",
+        accentDeep: "rgb(var(--color-accent-deep) / <alpha-value>)", // links / tint text
+        accentMuted: "rgb(var(--color-accent-muted) / <alpha-value>)", // orange tint surface
+        success: "rgb(var(--color-success) / <alpha-value>)",
+        successHover: "rgb(var(--color-success-hover) / <alpha-value>)",
+        successMuted: "rgb(var(--color-success-muted) / <alpha-value>)",
+        warning: "rgb(var(--color-warning) / <alpha-value>)",
         dark: "#1A1A1A", // ink bands (footers, hero strips)
         darkSurface: "#0F0F0F", // terminal / code blocks
-        ink: "#1A1A1A", // brutalist borders + hard shadows
-        tintBlue: "#E8EDF5", // cool block fill (pairs with accentMuted + successMuted)
+        ink: "rgb(var(--color-ink) / <alpha-value>)", // brutalist borders + hard shadows
+        tintBlue: "rgb(var(--color-tint-blue) / <alpha-value>)", // cool block fill
       },
       fontFamily: {
         heading: [
@@ -78,13 +79,13 @@ const config: Config = {
       // Hard offset ink shadows — mapped onto the existing elev names so
       // every card picks up the brutalist lift without per-component edits.
       boxShadow: {
-        elev1: "3px 3px 0 0 #1A1A1A",
-        elev2: "4px 4px 0 0 #1A1A1A",
-        elev3: "6px 6px 0 0 #1A1A1A",
-        "hard-sm": "2px 2px 0 0 #1A1A1A",
+        elev1: "3px 3px 0 0 rgb(var(--color-ink))",
+        elev2: "4px 4px 0 0 rgb(var(--color-ink))",
+        elev3: "6px 6px 0 0 rgb(var(--color-ink))",
+        "hard-sm": "2px 2px 0 0 rgb(var(--color-ink))",
         // Accent-colored hard shadow — the highlighted-surface treatment.
-        "glow-accent": "4px 4px 0 0 #EA580C",
-        "glow-success": "4px 4px 0 0 #16A34A",
+        "glow-accent": "4px 4px 0 0 rgb(var(--color-accent))",
+        "glow-success": "4px 4px 0 0 rgb(var(--color-success))",
       },
       // Text glow era is over — keys kept so existing classes no-op flat.
       dropShadow: {
@@ -95,18 +96,18 @@ const config: Config = {
       },
       // Former dark gradients/glass — flattened to the light system.
       backgroundImage: {
-        "surface-gradient": "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 100%)",
+        "surface-gradient": "linear-gradient(180deg, rgb(var(--color-surface)) 0%, rgb(var(--color-surface)) 100%)",
         "surface-gradient-soft":
-          "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 100%)",
-        "accent-gradient": "linear-gradient(180deg, #FFEDD5 0%, #FFF7EF 100%)",
+          "linear-gradient(180deg, rgb(var(--color-surface)) 0%, rgb(var(--color-surface)) 100%)",
+        "accent-gradient": "linear-gradient(180deg, rgb(var(--color-accent-muted)) 0%, rgb(var(--color-bg)) 100%)",
         "header-gradient":
-          "linear-gradient(120deg, #D47A4B 0%, #E19A69 52%, #CA7046 100%)",
+          "linear-gradient(120deg, rgb(var(--header-a)) 0%, rgb(var(--header-b)) 52%, rgb(var(--header-c)) 100%)",
         "editors-gradient":
-          "linear-gradient(100deg, #173B57 0%, #2E6486 55%, #1D4867 100%)",
+          "linear-gradient(100deg, rgb(var(--editors-a)) 0%, rgb(var(--editors-b)) 55%, rgb(var(--editors-c)) 100%)",
         "glass-light":
-          "linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.6) 100%)",
+          "linear-gradient(180deg, rgb(var(--color-surface) / 0.78) 0%, rgb(var(--color-surface) / 0.6) 100%)",
         "glass-accent":
-          "linear-gradient(180deg, rgba(255, 237, 213, 0.85) 0%, rgba(255, 247, 239, 0.62) 100%)",
+          "linear-gradient(180deg, rgb(var(--color-accent-muted) / 0.85) 0%, rgb(var(--color-bg) / 0.62) 100%)",
       },
     },
   },

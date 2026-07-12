@@ -112,7 +112,7 @@ public/
 
 ## Design system
 
-Current look: **Persimmon Clean** — warm stone canvas, white cards, black rules/hard shadows, orange accent, Playfair headings, Inter body, JetBrains Mono labels.
+Current look: **Persimmon Clean** — warm stone light mode plus a charcoal dark mode, both driven by CSS-variable Tailwind tokens. The top-right toggle persists in `localStorage` under `pfm-hub-theme`; an inline pre-paint script prevents a light flash on saved dark sessions. Both modes keep the centered orange/charcoal masthead, hard-shadow cards, Playfair headings, Inter body, and JetBrains Mono labels.
 
 Use tokens from `tailwind.config.ts`; avoid new raw hex values in `className`. Existing SVGs use explicit palette values because Tailwind classes do not style SVG text reliably.
 
@@ -157,6 +157,7 @@ For browser QA, inspect the local app at desktop width and around 390×844 mobil
 ## Known follow-ups after the July audit
 
 - **Next major hub pass: Resources needs a full overhaul.** Revisit its information architecture, categories, copy, and presentation as one project—not merely filling the current Tools & logins / Brand placeholders. Sam still needs to gather the authoritative lander and resource links before that pass.
+- **Replace the Railway URL with a real PFM subdomain.** Preferred: `editors.powerfoxmedia.com`; fallback: `hub.powerfoxmedia.com`. Keep the Railway domain only as the deployment origin/fallback and update hub docs once DNS + Railway custom-domain verification are complete.
 - Mobile top-nav targets are cramped and below the preferred 44px touch height.
 - Skills table sorting and row expansion need stronger keyboard/ARIA semantics.
 - `npm run lint` needs a real ESLint setup for Next.js 16.

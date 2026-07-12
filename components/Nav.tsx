@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const pages = [
   { href: "/", label: "Dashboard" },
@@ -26,15 +27,40 @@ function baseRoute(pathname: string): string {
 export default function TopNav() {
   const pathname = usePathname() || "/";
   const active = baseRoute(pathname);
+  const [darkMode, setDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setDarkMode(document.documentElement.classList.contains("dark"));
+    setMounted(true);
+  }, []);
+
+  function toggleTheme() {
+    const next = !darkMode;
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("pfm-hub-theme", next ? "dark" : "light");
+    setDarkMode(next);
+  }
 
   return (
     <header className="sticky top-0 z-20 bg-header-gradient border-b border-ink text-ink">
-      <div className="flex justify-center px-4 md:px-6 py-3.5">
+      <div className="relative flex justify-center px-14 md:px-28 py-3.5">
         <Link href="/" className="font-heading font-bold text-xl md:text-2xl text-ink">
           <span>PFM </span>
           <span className="italic bg-editors-gradient bg-clip-text text-transparent">Editors</span>
           <span className="font-mono font-semibold text-ink/70 text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
         </Link>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-pressed={darkMode}
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
+        >
+          <span aria-hidden className="text-base leading-none">{mounted && darkMode ? "☀" : "☾"}</span>
+          <span className="hidden sm:inline">{mounted && darkMode ? "Light" : "Dark"}</span>
+        </button>
       </div>
       <ul className="nav-scrollbar flex overflow-x-auto border-t border-ink/70 divide-x divide-ink/70">
         {pages.map((p) => {

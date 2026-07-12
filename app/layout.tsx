@@ -21,7 +21,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('pfm-hub-theme');if(t==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
+      </head>
       {/* Persimmon Clean v2 — flat stone canvas; the old dark atmosphere
           (orbs, radial glows, dot grid) is gone by design. */}
       <body className="min-h-screen bg-bg text-text font-sans">
