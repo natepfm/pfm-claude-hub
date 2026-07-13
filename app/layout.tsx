@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "PFM Editors Hub",
+  title: "Power Fox Media — Editors Hub",
   description: "Workflow, skills, creative taxonomy, onboarding, and resources for Power Fox Media editors.",
 };
 

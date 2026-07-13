@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -45,10 +46,52 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-20 bg-header-gradient border-b border-ink text-ink">
       <div className="relative flex justify-center px-14 md:px-28 py-3.5">
-        <Link href="/" className="font-heading font-bold text-xl md:text-2xl text-ink">
-          <span>PFM </span>
-          <span className="italic bg-editors-gradient bg-clip-text text-transparent">Editors</span>
-          <span className="font-mono font-semibold text-ink/70 text-[10px] uppercase tracking-[0.08em] ml-2 align-middle">Hub</span>
+        <Link
+          href="/"
+          aria-label="Power Fox Media Editors Hub"
+          className="group inline-flex items-center gap-2 text-ink transition-opacity hover:opacity-80 md:gap-3"
+        >
+          <span className="relative h-7 w-7 shrink-0 overflow-hidden md:hidden" aria-hidden>
+            <Image
+              src="/brand/pfm-logo-h-dark.png"
+              alt=""
+              width={1844}
+              height={224}
+              priority
+              className="h-7 w-auto max-w-none dark:hidden"
+            />
+            <Image
+              src="/brand/pfm-logo-h-white.png"
+              alt=""
+              width={1844}
+              height={224}
+              priority
+              className="hidden h-7 w-auto max-w-none dark:block"
+            />
+          </span>
+          <span className="hidden shrink-0 md:block" aria-hidden>
+            <Image
+              src="/brand/pfm-logo-h-dark.png"
+              alt=""
+              width={1844}
+              height={224}
+              priority
+              className="h-[22px] w-auto dark:hidden"
+            />
+            <Image
+              src="/brand/pfm-logo-h-white.png"
+              alt=""
+              width={1844}
+              height={224}
+              priority
+              className="hidden h-[22px] w-auto dark:block"
+            />
+          </span>
+          <span className="h-7 w-px shrink-0 bg-ink/45" aria-hidden />
+          <span className="flex items-baseline gap-1.5 whitespace-nowrap">
+            <span className="font-heading text-xl font-bold italic bg-editors-gradient bg-clip-text text-transparent md:text-2xl">Editors</span>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink/70">Hub</span>
+          </span>
         </Link>
         <button
           type="button"
