@@ -2,7 +2,7 @@
 
 The editor-facing home base for Power Fox Media's Claude production system.
 
-Live: [pfm-claude-hub-production.up.railway.app](https://pfm-claude-hub-production.up.railway.app)
+Live: [pfmhub.up.railway.app](https://pfmhub.up.railway.app)
 
 ## Pages
 

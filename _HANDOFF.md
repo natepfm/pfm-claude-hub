@@ -1,13 +1,13 @@
 # PFM Editors Hub — web-app handoff
 
-> Standing charter for work on the editor-facing hub. Updated 2026-07-12 after the registry/distribution audit.
+> Standing charter for work on the editor-facing hub. Updated 2026-07-14 after the Notion system mirror.
 
 ## What this repo is
 
 The PFM Editors Hub is the team home base for the Claude production system.
 
 - **Repo:** `/Users/samschiller/Documents/CLAUDE/Projects/pfm-claude-hub`
-- **Live:** `https://pfm-claude-hub-production.up.railway.app`
+- **Live:** `https://pfmhub.up.railway.app`
 - **Deploy:** Railway auto-deploys pushes to `main`
 - **Stack:** Next.js 16 App Router, React 19, TypeScript, Tailwind 3, `marked`
 
@@ -19,6 +19,51 @@ Current pages:
 - `/creatives` — the locked 07.11.26 Notion property taxonomy and naming renderings
 - `/resources` — landers, shared assets, SOPs, plus unfinished tools/brand sections
 - `/onboarding` — first-day setup and training path
+
+## Notion mirror — PFM Creative Systems (2026-07-14)
+
+The website information architecture now has a matching reference layer in Notion under **Creative Command Center**.
+
+- **Parent:** [Creative Command Center](https://app.notion.com/p/19716771e78080a78870f686ee61d8cc) (`19716771-e780-80a7-8870-f686ee61d8cc`)
+- **Section:** the existing `PFM Creative Systems` callout
+- **Navigation:** Workflow, Skills Hub, Creatives, Resources, and Editor Onboarding Hub are linked in that callout in the same order as the web hub
+- **Live web base URL used by the new pages:** `https://pfmhub.up.railway.app`
+
+Created as direct children of Creative Command Center:
+
+- **⚡ Workflow:** [Notion page](https://app.notion.com/p/39d16771e780810ea4d8e973a7180a31) (`39d16771-e780-810e-a4d8-e973a7180a31`)
+  - Six-stage request → stage → generate → QC/report → assemble → deliver flow
+  - Automated office-mini and manual `hvg-flow` / `hig-flow` lanes
+  - Asset Gen statuses, skill-system ownership, guardrails, and related links
+- **🎬 Creatives:** [Notion page](https://app.notion.com/p/39d16771e780812e9c10df9cb8cfc58e) (`39d16771-e780-812e-9c10-df9cb8cfc58e`)
+  - Locked 07.11.26 structured-property model
+  - Full Name, display name, and compact-code renderings
+  - Identity, distribution, lineage/production properties, naming rules, and request-body order
+- **📚 Resources:** [Notion page](https://app.notion.com/p/39d16771e78081bc9f0bf3a7e1bd9a3c) (`39d16771-e780-81bc-9f0b-f3a7e1bd9a3c`)
+  - Landers source, core tools, shared LinkYourFile asset folders, SOPs, and brand/compliance index
+  - Source pages remain canonical; Resources is an index, not a duplicate store
+
+Existing pages kept as the single source rather than duplicated:
+
+- **⚡ Skills Hub database:** [Notion database](https://app.notion.com/p/4d88055d2fb646ddacab92b8b5081d59) (`4d88055d-2fb6-46dd-acab-92b8b5081d59`)
+  - Data source: `collection://6e0f031a-aa3c-4240-a16b-1222bda53328`
+  - Description now explains plain-English routing, preflight control, delivery checks, both updater commands, and the live web Skills guide
+  - Schema and rows were not changed
+- **📼 Editor Onboarding Hub:** [Notion page](https://app.notion.com/p/15216771e78080d6b609d29a04928a6f) (`15216771-e780-80d6-b609-d29a04928a6f`)
+  - Existing Local, VA, and SMA paths were left untouched
+- The nested onboarding page **Workflows & Processes** was also left intact. It is training content; the new top-level Workflow page is the system reference.
+
+Notion API implementation detail: the three new child-page blocks remain at the bottom of the parent page, while the PFM Creative Systems callout contains normal Markdown links to them. Attempting to duplicate/move the child-page tags into the callout produced a Notion validation error. Keep the linked-navigation pattern unless reorganizing manually in the Notion UI.
+
+## 🔴 HUB ⟺ NOTION PARITY — the standing rule (Sam 2026-07-14)
+
+The Notion pages under **PFM Creative Systems** are the backend source of truth; the hub is their visual. **They must always MATCH.** This is a **manual dual-write discipline**, NOT a live API pull (Sam's explicit call — simpler, no integration/token/revalidation). Every content change updates **BOTH**, in the same pass, **both directions**:
+
+- Change the **hub** (`/workflow`, `/creatives`, `/resources`, `/onboarding`, a `content/*.ts` file, or the changelog) → **also update its matching Notion page.**
+- Change a **Notion** page → **also update the matching hub page / content file.**
+- **"Add this to the hub" ALWAYS also means "…and the parent Notion page"** — and vice-versa. Never touch one without the other.
+
+**Page ↔ page map** = the Notion-mirror list above (Workflow / Creatives / Resources / Skills Hub DB / Onboarding). **Dashboard (`/`) is EXEMPT** — it's live status, bespoke, no Notion mirror. The `/skills` tracker stays driven by `skillsRegistry.ts`; its Notion counterpart is the Skills Hub database, kept in step at the description/row level.
 
 ## Golden workflow rule
 
