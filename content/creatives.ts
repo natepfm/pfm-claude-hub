@@ -1,7 +1,7 @@
-// PFM creative taxonomy — reconciled to the locked Notion overhaul (2026-07-11).
+// PFM creative taxonomy — reconciled to the locked naming system (2026-07-14).
 // A creative is no longer categorized by a hand-written title. Its identity is
 // composed from structured properties, then rendered consistently for Notion,
-// Lucid, timelines, filenames, and exports.
+// Lucid, timelines, filenames, and exports. Single skill source: pfm-naming.
 
 export interface CreativeProperty {
   name: string;
@@ -102,7 +102,7 @@ export const propertyGroups: CreativePropertyGroup[] = [
       },
       {
         name: "Videos",
-        description: "The committed output count. It must agree with the spec table and the request body.",
+        description: "The committed output count. It must agree with the request body — and its rendering in the auto Full Name (\" - 8 Video(s)\") is a display artifact that never carries into any folder, timeline, or export name.",
         example: "8",
       },
     ],
@@ -119,34 +119,41 @@ export interface NamingRendering {
 export const namingRenderings: NamingRendering[] = [
   {
     name: "Full Name",
-    shape: "Vertical·Lead - Creative Type - Concept - Variant",
-    example: "Auto·Forms - LC2VID - Podcast - Car Chase - B1",
-    lives: "Notion property under Status; carries the complete identity into the project system",
+    shape: "Vertical - Lead - Creative Type - Concept - Variant ( - N Video(s), auto)",
+    example: "Auto - Forms - LC2VID - Podcast - Car Chase - B1 - 8 Video(s)",
+    lives: "Auto formula property on the request; board sorting only. The Video(s) tail is a display artifact — it never carries into any derived name",
   },
   {
-    name: "Display name",
-    shape: "Creative Type - Concept - Variant",
+    name: "Display name (request title)",
+    shape: "[Platform - ] Creative Type - Concept - Variant",
     example: "LC2VID - Podcast - Car Chase - B1",
-    lives: "VTM title; Vertical and Lead drop because the board chips already show them",
+    lives: "The VTM page title; Vertical and Lead drop because the board chips already show them",
   },
   {
-    name: "Compact code",
-    shape: "Every rendered part abbreviated",
-    example: "AU-F-LC2VID-POD-CARCHASE-B1",
-    lives: "DaVinci timelines, filenames, and exports",
+    name: "Project folder",
+    shape: "MM.DD.YY - [Platform - ] Creative Type - Concept - Variant",
+    example: "07.14.26 - LC2VID - Podcast - Car Chase - B1",
+    lives: "Lucid — the date plus the display name. No Vertical/Lead, no VARIABLE: one folder holds all the project's timelines/states",
+  },
+  {
+    name: "Timeline / Creative / Export",
+    shape: "Vertical - Lead - [Platform] - VARIABLE - Creative Type - Concept - [tail] - MM.DD.YY",
+    example: "Auto - Forms - Texas - LC2VID - Podcast - Car Chase - B1 - 07.14.26",
+    lives: "DaVinci timelines, creative names, and export filenames — one rule for all three (exports render by timeline name). VARIABLE = this timeline's state or text hook (H1/H2/H3); the date ends the name",
   },
 ];
 
 export const toolChainExamples = [
   { label: "VTM title", value: "LC2VID - Podcast - Car Chase - B1" },
-  { label: "Lucid folder", value: "07.11.26 - LC2VID - Podcast - Car Chase - B1" },
-  { label: "Timeline / export", value: "AU-F-LC2VID-POD-CARCHASE-B1" },
+  { label: "Lucid folder", value: "07.14.26 - LC2VID - Podcast - Car Chase - B1" },
+  { label: "Timeline (Texas cut)", value: "Auto - Forms - Texas - LC2VID - Podcast - Car Chase - B1 - 07.14.26" },
+  { label: "Export file", value: "Auto - Forms - Texas - LC2VID - Podcast - Car Chase - B1 - 07.14.26.mp4" },
 ];
 
 export const namingRules = [
   {
     title: "Plain-hyphen separators",
-    description: "The convention keeps the familiar separator pattern; the overhaul changes the source, not the basic reading rhythm.",
+    description: "Every segment joins with \" - \" (space-hyphen-space) — never squished dashes, never em dashes.",
   },
   {
     title: "Defaults stay invisible",
@@ -161,22 +168,30 @@ export const namingRules = [
     description: "A format on top of a format renders as a two-part type, such as LC2VID → Podcast.",
   },
   {
-    title: "The variant tail names the difference",
-    description: "Batch, state, character, vertical, or another differentiator may occupy the tail—only what truly varies should render.",
+    title: "VARIABLE names the per-timeline difference",
+    description: "The state (each state-swap gets its own timeline) or the text hook (H1/H2/H3). Only this segment changes across a project's timelines, so families sort together in DaVinci.",
+  },
+  {
+    title: "Timelines and exports end with the date",
+    description: "MM.DD.YY closes every timeline/creative/export name, matching the project folder's date.",
+  },
+  {
+    title: "The Video(s) tail never carries",
+    description: "The auto Full Name appends \" - N Video(s)\" for the board — strip it from every folder, timeline, and export name.",
   },
 ];
 
 export const instructionBlocks = [
   {
-    name: "Spec table · top",
-    description: "Videos, Platform, Aspect, Vertical, Geo, Runtime, Model, and Parent Creative at a glance. The video count must agree everywhere.",
+    name: "Properties · the spec",
+    description: "The at-a-glance spec lives in the VTM properties (Creative Type, Concept, Geo, Platform, Aspect, Batch, …) shown as board columns — no spec table in the request body.",
   },
   {
-    name: "Existing prose · middle",
-    description: "The creative brief remains familiar. Editors still read Instructions → Assets → Examples → Copy in the same order.",
+    name: "Four callouts · in order",
+    description: "Instructions → Assets → Examples → Copy. Examples always includes this creative's derived timeline/export name so the editor sees exactly what to name it. Copy holds ONE static numbered script.",
   },
   {
-    name: "Parent + reuse map · bottom",
-    description: "Makes lineage explicit: what is reused (footage, story, narrator) versus new (script, format, or other requested work).",
+    name: "Parent + reuse map · derivatives",
+    description: "Makes lineage explicit: Parent Creative relation plus what is reused (footage, story, narrator) versus new (script, format, or other requested work).",
   },
 ];

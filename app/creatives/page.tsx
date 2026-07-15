@@ -17,7 +17,7 @@ export default function CreativesPage() {
       />
 
       <section className="bg-accentMuted border border-ink shadow-elev2 p-5 md:p-6 mb-12">
-        <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Locked 07.11.26</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Locked 07.14.26</div>
         <h2 className="font-heading font-bold text-2xl md:text-3xl text-text mt-2">Properties are the source. Names are renderings.</h2>
         <p className="text-sm md:text-base text-muted mt-3 max-w-3xl leading-relaxed">
           Creative Type, Concept, Variant, Geo, Aspect, Platform, Language, Batch, Runtime, Brand, and Parent Creative are now real fields. The title no longer has to carry the entire production spec.
@@ -26,7 +26,7 @@ export default function CreativesPage() {
 
       <section id="naming" className="my-12 scroll-mt-28">
         <div className="border-l-4 border-accent pl-4 mb-6">
-          <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">One source · three renderings</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">One source · four renderings</div>
           <h2 className="font-heading font-bold text-3xl text-text mt-1">The naming convention</h2>
           <p className="text-sm text-muted mt-2 max-w-3xl">Every surface gets the amount of identity it needs, generated from the same properties.</p>
         </div>
@@ -122,7 +122,7 @@ export default function CreativesPage() {
         <div className="border-l-4 border-accent pl-4 mb-6">
           <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Request anatomy</div>
           <h2 className="font-heading font-bold text-3xl text-text mt-1">The stronger Instructions block</h2>
-          <p className="text-sm text-muted mt-2 max-w-3xl">The familiar brief stays intact. A spec table and reuse map make the production contract scannable.</p>
+          <p className="text-sm text-muted mt-2 max-w-3xl">The familiar brief stays intact. The spec lives in the board properties; the four callouts and reuse map make the production contract scannable.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-3">
           {instructionBlocks.map((block, index) => (
