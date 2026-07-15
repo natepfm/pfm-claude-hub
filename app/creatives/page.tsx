@@ -54,7 +54,7 @@ export default function CreativesPage() {
           </table>
         </div>
 
-        <div className="mt-6 grid md:grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-3">
+        <div className="mt-6 grid md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-stretch gap-3">
           {toolChainExamples.map((item, index) => (
             <div key={item.label} className="contents">
               <div className={`border border-ink p-4 text-center ${index === 1 ? "bg-accentMuted" : "bg-surface"}`}>
@@ -65,7 +65,7 @@ export default function CreativesPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs italic text-muted mt-3">One identity, every tool—the name stops drifting between Notion, Lucid, and the timeline.</p>
+        <p className="text-xs italic text-muted mt-3">One identity, every tool—the name stops drifting between Notion, Lucid, the timeline, and the export.</p>
       </section>
 
       <section id="properties" className="my-16 scroll-mt-28">
