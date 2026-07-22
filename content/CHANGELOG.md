@@ -8,6 +8,16 @@ When something here changes that affects what editors run on their machines, run
 
 ## 2026-07-22
 
+### Two new editor-built skills — wr.kitchen and ag.loc.360
+
+Both came through the Skill Proposals board and are live in the team install (run **Update my skills** from the [Home page](/) to get them).
+
+- **`wr.kitchen`** (Josiah Akimenko) — the kitchen test: rewrites retold dialogue in story-ad scripts into spoken-human register. Keeps every who-said-what tag and every fact/number; kills the book words. Opt-in only — invoke it with `/wr.kitchen`, "kitchen test this", or "this dialogue sounds stiff". On LC-sourced scripts it checks with Dima first whether the LC copy is being tested verbatim.
+- **`ag.loc.360`** (Drake) — 360° location sheets for spatially-consistent AI locations: a max-quality hero photo prompt, then a 2×2 front/back/left/right sheet from the same camera spot, with anti-re-centering constraints so camera flips and POV changes stay coherent. Prompts + a bundled layout template only — it never generates images. Registry row AG 39.
+
+Also live since the last entry: the mechanical quality gates rollout — scripts now stop on their own detected failures, scripts get compliance-linted before shipping, graphics with numbers get digit-verified, and the team mirror is write-protected from editor machines.
+
+
 ### Field Lander — SaveMaxAuto + SaveMaxHomes in one self-hosted page
 
 The Auto and Home Forms display landers moved off Lovable into one page hosted on the hub: [pfmhub.up.railway.app/lander](https://pfmhub.up.railway.app/lander).
