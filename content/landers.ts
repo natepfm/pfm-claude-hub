@@ -1,5 +1,7 @@
 // PFM ad landers by vertical. Source of truth: the "Discount Landers" Notion page.
-// These are public-facing landing pages — the destinations our ads point to.
+// Auto + Home Forms now use the self-hosted Field Lander (/lander) — the on-camera
+// shooting prop with tap-through funnel, editable rates (compliance floors baked in),
+// and answer-driven discounts. Calls, Loans, and HVAC keep their own external landers.
 
 export interface Lander {
   label: string;
@@ -18,10 +20,10 @@ export const landerGroups: LanderGroup[] = [
   {
     vertical: "Auto",
     landers: [
-      { label: "Forms — One Car ($57)", url: "https://best.autodrivenow.com/" },
-      { label: "Forms — Discount Lander ($57)", url: "https://ai-drive-quest.lovable.app/" },
-      { label: "Forms — Discount Lander 2 ($57)", url: "https://rate-quest-ai.lovable.app/" },
-      { label: "Forms — Multi-Car ($88)", url: "https://auto-rate-finder.lovable.app/" },
+      {
+        label: "Forms — Field Lander (SaveMaxAuto, editable rate)",
+        url: "https://pfmhub.up.railway.app/lander",
+      },
       {
         label: "Calls",
         url: "https://m.civilcarcoverage.com/callPhone/v2-50mon?t=CivilCarCoverage&n=18338070235&c=23533&click_id={clickId}&source={sub4}&h2&sub2={sub2}",
@@ -30,7 +32,12 @@ export const landerGroups: LanderGroup[] = [
   },
   {
     vertical: "Home",
-    landers: [{ label: "Forms", url: "https://snap-quote-search.lovable.app/" }],
+    landers: [
+      {
+        label: "Forms — Field Lander (SaveMaxHomes, editable rate)",
+        url: "https://pfmhub.up.railway.app/lander",
+      },
+    ],
   },
   {
     vertical: "Loans",

@@ -6,6 +6,18 @@ When something here changes that affects what editors run on their machines, run
 
 ---
 
+## 2026-07-22
+
+### Field Lander — SaveMaxAuto + SaveMaxHomes in one self-hosted page
+
+The Auto and Home Forms display landers moved off Lovable into one page hosted on the hub: [pfmhub.up.railway.app/lander](https://pfmhub.up.railway.app/lander).
+
+- **One link, both brands** — tap the top-right corner of the screen for Field Controls: switch SaveMaxAuto ↔ SaveMaxHomes and set the rate numbers between takes.
+- **Rates are editable live** — change the New Rate while on the quote screen and it updates instantly. Compliance floors are baked in (Auto min $39/mo, Home min $360/yr) so an out-of-compliance rate can't be dialed on set.
+- **Discounts follow the questions** — the "N Discounts Applied" reveal reflects the Yes/No answers tapped on camera (DUI drops Safe Driver, non-smoker No drops Non-Smoker, etc.).
+- Everything is self-contained (real fonts, logos, all 63 vehicle photos) and settings persist per phone.
+- **Resources → Landers** now points Auto Forms and Home Forms at this page. Calls, Loans, and HVAC keep their existing external landers.
+
 ## 2026-07-12
 
 ### Hub information architecture — Workflow, one Skills home, and the Notion creative taxonomy
