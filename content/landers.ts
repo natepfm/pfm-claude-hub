@@ -14,7 +14,7 @@ export interface LanderGroup {
 }
 
 export const landersSourceUrl =
-  "https://www.notion.so/powerfoxmedia/Discount-Landers-31e16771e78080d29c13d491e0e354d3";
+  "https://app.notion.com/p/3a516771e78081708d4cee784710bb40";
 
 export const landerGroups: LanderGroup[] = [
   {
