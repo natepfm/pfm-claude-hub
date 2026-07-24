@@ -27,7 +27,7 @@ pass on locked final cuts** — same exact video, the only change is the burned-
 **Locked text (verbatim — never paraphrase):**
 > This advertisement contains synthetic performers created with artificial intelligence.
 
-This is the same disclaimer as the SMA AI-performer compliance line (CLAUDE.md HARD RULE #4). The
+This is the disclaimer REQUIRED for NEW YORK creatives (CLAUDE.md HARD RULE #4 — NY-ONLY scope, corrected 2026-07-17; the burn itself runs on any file the editor asks for, but only NY cuts REQUIRE it). The
 **presets below were locked by Sam on 2026-06-12** for the re-export use case — the vertical look is
 matched to the **NY credit-debt podcast reference**: **bold** white italic, two centered lines, broken
 after "synthetic," ending with the period. (An earlier thin/regular-italic @50% pass was re-burned to

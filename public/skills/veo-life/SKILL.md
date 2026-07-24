@@ -95,9 +95,9 @@ Use the detached chain pattern so the batch survives harness timeouts:
 2. **Chain script**: `runner → sleep 20 → runner again (auto-sweep) → touch /tmp/<slug>_DONE`. Launch with `nohup ... &` (sandbox disabled), plus a harness-tracked background watcher polling the DONE marker — the watcher relays each newly-landed clip to chat as it appears, not at the end.
 3. **One sweep only.** Jobs that finish do so in ≤~300s; 600s+ waits always die. After the sweep pass, remaining stalls are accepted losses — report them, don't solo-retry with long timeouts (house rule, editor-confirmed).
 
-## Step 5 — Filmstrip QC (OFFERED after the reveal — never a gate)
+## Step 5 — Filmstrip QC (EDITOR-INVOKED only — 🔴 no QC, no QC ask on local fires)
 
-**QC is OFFERED via a plain ask on local fires, never auto-run. AGF/mini runs keep mandatory QC.** The clips are already in the editor's hands from Step 4 — QC never delays or filters the reveal. After the last clip lands, offer the pass in plain markdown: *"Want a filmstrip QC pass on the batch?"*
+**Local fires get ZERO QC and ZERO QC questions (Sam 2026-07-20).** The clips are already in the editor's hands from Step 4 — deliver and stop. End the report with one passive line: *"QC available on request: `/qc.video` (filmstrips) · `/qc.g` (Gemini watch)."* Run QC only if the editor explicitly asks. AGF/mini runs keep mandatory QC (autonomous, nobody watching).
 
 On yes: **delegate the mechanics to `visual-qc` — the single filmstrip owner.** Point its scanner at the output folder (its 5-frame strips + ✓/✗/🔍 criteria apply; `scripts/filmstrip.sh` remains as the quick 3-frame helper for a single 6s clip). Cinemagraph-specific fail signals: warping faces/hands, text morph, head turn / new gesture, scene drift, hallucinated overlays; pass = near-identical frames with only micro-shifts.
 

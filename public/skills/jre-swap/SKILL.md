@@ -11,7 +11,7 @@ description: >-
   podcast", or stages a character variation of an existing podcast creative (Christian Hall
   = a Blake Anderson swap). Guarantees the set / framing / solo composition match the parent
   exactly. Locked 2026-06-12 (Christian Hall build) after prose-generated placements drifted
-  (host bleeding into frame, scene variance). LOCAL-ONLY (Sam's machine) v1. NOT for: a
+  (host bleeding into frame, scene variance). TEAM (distributed; was local-only v1). NOT for: a
   brand-new podcast scene with no existing reference (use character-studio's podcast placement
   archetype), building the character master itself (pfm-character-master — spec or photo),
   or firing the Veo clips (hvg-flow).

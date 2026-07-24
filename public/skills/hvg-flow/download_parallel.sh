@@ -55,4 +55,21 @@ for SLUG_VAR in "${SLUG_VARS[@]}"; do
 done
 wait
 
-echo "✓ download_parallel.sh done"
+# --- G1 gate: verify every expected mp4 actually landed (no silent shortfall) ---
+MISSING=0
+for SLUG_VAR in "${SLUG_VARS[@]}"; do
+  STATE_ABBR=$(echo "$SLUG_VAR" | grep -oE '_[A-Z]{2}_L[0-9]+' | head -1 | grep -oE '[A-Z]{2}')
+  if [ -n "$STATE_ABBR" ]; then OUT_DIR="$VEO_DIR/$STATE_ABBR"; else OUT_DIR="$VEO_DIR"; fi
+  F="$OUT_DIR/${SLUG_VAR}.mp4"
+  if [ ! -f "$F" ] || [ "$(stat -f%z "$F" 2>/dev/null || echo 0)" -lt 10000 ]; then
+    echo "MISSING: ${SLUG_VAR} (expected $F)"
+    MISSING=$((MISSING+1))
+  fi
+done
+
+TOTAL=${#SLUG_VARS[@]}
+if [ "$MISSING" -gt 0 ]; then
+  echo "❌ download_parallel.sh: $((TOTAL-MISSING))/$TOTAL landed — $MISSING missing (listed above). NOT done."
+  exit 1
+fi
+echo "✓ download_parallel.sh VERIFIED $TOTAL/$TOTAL on disk"

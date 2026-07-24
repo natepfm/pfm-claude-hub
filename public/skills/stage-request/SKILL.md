@@ -61,7 +61,7 @@ Fetch the request page. Extract:
 - **Multipliers** — what multiplies the in-scope line set: target states (per-state toggles), platform variants (e.g. a number-speaking line fired once per Roku/Trade Desk number), aspect variants. Each is a multiplier on the gen-scope clip count.
 - **Deliverable spec** — count, aspect, runtime, formats.
 - **Vertical** — drives which Lucid tree the project folder lives in.
-- **Brand** — if SaveMaxAuto/SMA in any form, the staged section MUST carry the SMA disclaimer warning line (CLAUDE.md Hard Rule 4).
+- **NY creative** — if the request is a NEW YORK cut (NY state/geo in the request, timeline, or export name — brand alone does NOT trigger this), the staged section MUST carry the NY AI-disclaimer warning line (CLAUDE.md Hard Rule 4 — NY-ONLY, corrected 2026-07-17).
 
 If there's no findable asset source, or nothing in the request is AI-generatable (pure editor work) → Gap path.
 
@@ -88,7 +88,7 @@ Create a brand-NEW project folder ONLY when the creative genuinely has no home: 
 1. `ls "/Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/"` → find the vertical's actual `- Completed Creatives` folder by name.
 2. `ls` into it → find the current year folder, then the current month folder. Use the EXACT naming pattern you see. If the month folder doesn't exist yet, mirror the prior month's exact pattern.
 3. Look for a `[Template]` folder at the month level — if present, note the project-name pattern in use (e.g., `MM.DD.26 - <Type> - <Name>`).
-4. Create the project folder at `<month folder>/<MM.DD.YY> - <Project Name from the request title>/` with the **FULL canonical template — every folder, even the empty ones** (mirrors the `[Template]` reference project; locked by Sam 2026-06-17). Use the helper:
+4. Create the project folder at `<month folder>/<MM.DD.YY> - <display title>/`. **Request format is LIVE (2026-07-13):** the **display title IS the request page title** under the locked naming grammar — `[Platform - ] <Creative Type> - <Concept> [ - variant tail]`, plain ` - ` hyphens (never em dashes), matching the Notion render (see [[wr.request]]). **Timeline / creative / export names = the LOCKED grammar** (Sam 2026-07-13; single source = the `pfm-naming` skill): `Vertical - Lead - [Platform] - VARIABLE - Creative Type - Concept - [tail] - MM.DD.YY`, where VARIABLE = the per-timeline state or hook (H1/H2/H3). NOT a compact code. **🔴 Strip the ` - N Video(s)` tail** the Dima Full-Name formula appends — it NEVER carries into a folder OR a timeline/export name. Build with the **FULL canonical template — every folder, even the empty ones** (mirrors the `[Template]` reference project; locked by Sam 2026-06-17). Use the helper:
    ```
    bash ~/.claude/skills/stage-request/scaffold_project.sh "<absolute new project folder path>"
    ```
@@ -126,7 +126,7 @@ Write this callout at the **TOP of the request page** — first block under the 
 	<table header-row="false" header-column="true">
 <tr>
 <td>**📁 Project Folder**</td>
-<td>[<project folder name> ↗](<LinkYourFile>)</td>
+<td>`<absolute Lucid path>` · [open ↗](<LinkYourFile>)</td>
 </tr>
 <tr>
 <td>**🖼 Character Refs**</td>
@@ -145,9 +145,8 @@ Write this callout at the **TOP of the request page** — first block under the 
 <td><one-line run context the editor / fire cycle should see at a glance — non-blocking FYIs. Em dash `—` when there's nothing run-specific.></td>
 </tr>
 	</table>
-	⚠️ <flags line — ONLY when needed: SMA disclaimer / descoped lines / editor-side remainder / graphics notes. Omit entirely when clean.>
+	⚠️ <flags line — ONLY when needed: NY AI-disclaimer / descoped lines / editor-side remainder / graphics notes. Omit entirely when clean.>
 	### Staging details {toggle="true"}
-		📁 `<absolute Lucid path>`
 		<everything verbose lives here, collapsed: staged-from provenance (which parent/OG and why) · ref visual description · voice lock · disclosed transformations · descope reasoning · output layout if non-obvious>
 </callout>
 ```
@@ -157,12 +156,12 @@ Rules:
 - **`by <stager>` on the title line = traceability (locked 2026-07-07)** — stamp WHO staged it so a downstream bug has a debuggable owner. Resolve the stager by fetching Notion `self` (`notion-fetch` id `"self"` → the authenticated user's name/email) and use that name; if it's the shared master account (the mini or a master-account session), write `PFM Master (mini)`. The reason this matters: the SPANISH Florida VSL delivery showed only the shared master account, so the assigned editor (Nicolai) "didn't recall staging it" — because a master-account flow did, with no human on record. The delivery comment (AGF Step 6 / route (b)) echoes this `by <stager>` so every delivery carries its stager.
 - **Visible part = title line + the 2×2 table + optional ⚠️** + the collapsed Staging details toggle. Anything longer goes in the toggle — the fire cycle reads toggle content as section content.
 - **Filling a blank scaffold** (every new request is born with one, at the top): the scaffold's cells hold *italic hint text* and it carries a `How to stage this` toggle (editor instructions). On staging: replace each cell's hint with the real value, rewrite the title line to `staged ✅`, **delete the `How to stage this` toggle** and write the `Staging details` toggle in its place. An editor may have hand-filled some cells — verify their values (files exist on disk) and keep what's correct.
-- **The raw 📁 Lucid path lives in the toggle** (first line) — that satisfies the handoff rule on the page without bloating the visible section. In-chat handoffs still show the full 📁/🔗/🦊 set inline as always.
+- **The raw 📁 Lucid path is on the VISIBLE Project Folder row** (backticked absolute path + the `open ↗` link), surfaced 2026-07-13 (Sam) so anyone can copy the Finder path at a glance — no toggle-expand needed. Once a project is saved, every staged request carries its Lucid filepath in plain sight. In-chat handoffs still show the full 📁/🔗/🦊 set inline as always.
 - Model spec from the source master (typically `veo3_1_lite` — ALWAYS `+ generate_audio true`, 12 cr/clip). Clip-count math stays on the title line: `<N> clips ≈ <cr> cr`.
-- SMA brand → the ⚠️ line MUST include: **SMA disclaimer required** — "This advertisement contains synthetic performers created with artificial intelligence."
+- NY creative → the ⚠️ line MUST include: **NY AI-disclaimer required** — "This advertisement contains synthetic performers created with artificial intelligence."
 - **🗒 Notes vs ⚠️ vs the toggle — three distinct lanes, don't blur them:**
   - **🗒 Notes** (visible table row) = soft, non-blocking run context worth seeing at a glance: the look-lock approach ("2-look run: Commercial + Realism"), TTS quirks ("$-amounts spelled out for TTS"), character handling ("Chad runs NSFW-hot — cool down between waves"), wave rationale, recurring-holdout heads-up. FYI, not action-required. Keep it to ONE line; anything longer goes in the toggle.
-  - **⚠️ flags line** = HARD flags that change what ships or block a clean fire: SMA disclaimer, descoped lines, editor-side remainder, missing-piece warnings. Action-required.
+  - **⚠️ flags line** = HARD flags that change what ships or block a clean fire: NY AI-disclaimer, descoped lines, editor-side remainder, missing-piece warnings. Action-required.
   - **Staging details toggle** = deep, collapsed provenance: staged-from, ref descriptions, voice lock, transformations, output layout.
   - When in doubt: does it block or change the deliverable? → ⚠️. Is it just useful to know? → 🗒 Notes. Is it long/archival? → toggle. Nothing run-specific → Notes cell is an em dash `—`.
 
@@ -174,10 +173,10 @@ Rules:
 2. **Dialogue is canonical** — every in-scope line in the manifest is verbatim from the request's Copy (spot-check ≥3 lines against the page), not derived from a parent master/change-log.
 3. **Count math holds** — manifest lines × multipliers (states/aspects/platform) == the 🎬 Fire clip count == the credit math.
 4. **Folder + vertical** — the 📁 path exists on disk and sits in the correct vertical tree.
-5. **SMA disclaimer** — if the brand is SaveMaxAuto/SMA, the ⚠️ line carries the disclaimer requirement.
+5. **NY AI-disclaimer** — if the creative is a NY cut, the ⚠️ line carries the disclaimer requirement (NY-ONLY — never brand-wide).
 6. **🔴 Aspect-match — reference aspect == render aspect** — for EVERY render aspect the 🎬 Fire declares (9:16 and/or 16:9), the reference image(s) that fire against it must exist IN THAT ASPECT. A vertical (9:16) reference feeding a horizontal (16:9) render (or vice-versa) **pillarboxes → black bars down the sides**. **VSLs are the sharp edge:** the per-line slides AND the "No Slide Reference Shots" pool (speaker / on-stage lines cycle this pool) must EACH exist in every requested aspect — a 9:16-only no-slide pool used for 16:9 speaker clips is the exact bug that pillarboxed 14 speaker clips on the SPANISH Avg Auto State Florida VSL (delivered 2026-06-24, caught + refired by the editor 2026-07-07). Confirm on disk that the ref dir holds the render aspect; if a request wants BOTH aspects, both slide sets + both pools must exist. Mismatch → FAIL.
 
-The subagent returns exactly one line: `PASS: <what it confirmed>` or `FAIL: <the specific defect + which check>`. **On FAIL: do NOT proceed to Step 6 / do NOT flip `Ready`.** Fix the staged section, then re-verify (fresh subagent again). On PASS: proceed to routing. This gate is cheap (one read-only subagent) and it is the difference between catching a mis-stage now vs. after 84 wrong clips ship. Per the DONE law: "staged" is not done until this check passes.
+The subagent returns exactly one line: `PASS: <what it confirmed>` or `FAIL: <the specific defect + which check>`. **On FAIL: do NOT proceed to Step 6 / do NOT flip `Ready`.** Fix the staged section, then re-verify (fresh subagent again). On PASS: `touch ~/.claude/.stage_verified` (marker kept for a future mechanical arming gate — the 07-17 hook version was pulled pending verification), then proceed to routing. This gate is cheap (one read-only subagent) and it is the difference between catching a mis-stage now vs. after 84 wrong clips ship. Per the DONE law: "staged" is not done until this check passes.
 
 ## Step 6 — Report + route (the fork — added by Sam 2026-06-10)
 
@@ -233,7 +232,7 @@ Whichever route resolves the ref: re-run the staging checks and continue to Step
 - **Lucid handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile + 🦊 Fox.io rail drop (`linkyourfile.py --fox-drop`) (CLAUDE.md Hard Rule 2).
 - **cp, never mv** — parent folders keep their assets.
 - **No AUTOMATIC Status changes, no @-tags, no delivery comments** — staging is not delivery. **One offered exception (Sam 2026-07-11):** when you're handed a request that is already `Staged` (Asset Gen) but its `Status` is NOT `In progress`, **ASK the editor** if they'd like to move `Status → In progress` — plain-markdown offer, NEVER an auto-flip. If yes, set `Status = In progress` and re-fetch to verify it stuck; if no, leave it. This is the one Status touch staging offers; everything else stays hands-off.
-- **SMA = disclaimer warning** in the section (Hard Rule 4).
+- **NY cut = disclaimer warning** in the section (Hard Rule 4, NY-ONLY).
 - **Verify before creating** — `ls` every tree level; never `mkdir -p` a path you haven't confirmed exists through the month-folder level.
 - **Idempotent** — re-running /stage on an already-staged request refreshes links/section in place; it never duplicates folders or sections. If the project folder already exists with content, use it (don't recreate, don't overwrite existing files).
 

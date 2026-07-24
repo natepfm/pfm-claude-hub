@@ -90,13 +90,48 @@ def attempt(ref_uuid, dialogue, sfw, timeout):
     if r.returncode != 0: return None, f"rc={r.returncode} {r.stderr.strip()[:90]}"
     u, st = parse_url(r.stdout); return (u, None if u else f"status={st}")
 
+def check_aspect(dirs):
+    """G9 gate: every local ref image feeding this 16:9 fire must BE landscape.
+    A 9:16 ref pillarboxes every clip fired from it (the Spanish FL 14-clip miss).
+    Run BEFORE uploading refs: fire_veo.py --check-aspect <dir> [<dir> ...]"""
+    import struct, glob as g
+    def png_dims(p):
+        with open(p, "rb") as f:
+            head = f.read(26)
+        if head[:8] == b"\x89PNG\r\n\x1a\n":
+            w, h = struct.unpack(">II", head[16:24]); return w, h
+        return None
+    bad, seen = [], 0
+    for d in dirs:
+        for p in sorted(g.glob(os.path.join(d, "**", "*.png"), recursive=True)):
+            dims = png_dims(p)
+            if not dims: continue
+            seen += 1
+            if dims[0] <= dims[1]:
+                bad.append((os.path.relpath(p, d), dims))
+    if not seen:
+        print("❌ G9: no PNG refs found in the given dir(s) — wrong path?"); raise SystemExit(1)
+    if bad:
+        print(f"❌ G9 ASPECT GATE: {len(bad)}/{seen} ref(s) are NOT landscape — a 16:9 fire from these "
+              f"pillarboxes every clip. Fix/regen before uploading:")
+        for p, (w, h) in bad: print(f"    {p}  ({w}x{h})")
+        raise SystemExit(1)
+    print(f"✓ G9 ASPECT GATE PASS — {seen}/{seen} refs landscape, safe for the 16:9 fire.")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--manifest", required=True); ap.add_argument("--refs", required=True)
-    ap.add_argument("--out-dir", required=True); ap.add_argument("--sfw", action="store_true")
+    ap.add_argument("--check-aspect", nargs="+", metavar="DIR",
+                    help="G9 preflight: verify every PNG ref in DIR(s) is landscape, then exit")
+    ap.add_argument("--manifest"); ap.add_argument("--refs")
+    ap.add_argument("--out-dir"); ap.add_argument("--sfw", action="store_true")
     ap.add_argument("--attempts", type=int, default=2); ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--stage", default="/tmp/vsl_veo_out"); ap.add_argument("--log", default="/tmp/vsl_veo.log")
     a = ap.parse_args()
+    if a.check_aspect:
+        check_aspect(a.check_aspect); return
+    if not (a.manifest and a.refs and a.out_dir):
+        ap.error("--manifest, --refs and --out-dir are required to fire (or use --check-aspect)")
     clips = json.load(open(a.manifest)); refs = json.load(open(a.refs))
     os.makedirs(a.stage, exist_ok=True); os.makedirs(a.out_dir, exist_ok=True)
     open(a.log, "w").close()

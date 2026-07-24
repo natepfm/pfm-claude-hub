@@ -11,6 +11,7 @@ DEST="${1:?usage: scaffold_project.sh \"<absolute project folder path>\"}"
 
 mkdir -p \
   "$DEST/Creatives" \
+  "$DEST/Creatives/Timelines" \
   "$DEST/Elements/Audio/Music" \
   "$DEST/Elements/Audio/SFX" \
   "$DEST/Elements/Audio/VO" \

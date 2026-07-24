@@ -147,7 +147,7 @@ Notes lines are newline-separated, tight house style. The mention-vs-no-mention 
 **The editor's report ask IS the authorization — post without waiting** (Sam 2026-06-18, re-locked
 2026-07-08). Stop and flag instead of posting ONLY when something's off: file count doesn't match
 the expected creative count · wrong/ambiguous target request · brand/vertical mismatch between
-folder and request · a required disclaimer is missing (SMA AI-performer / NY trigger) · a
+folder and request · a required disclaimer is missing (NY AI-performer — required on NY creatives ONLY, never all-SMA) · a
 manual-fire/QC note needs wording review. When a flag trips, pause and name it — never silently
 post over it. Otherwise: post, then show the posted comment in chat as the record.
 
@@ -230,6 +230,13 @@ auto-flip and ask which option to use. Don't let a status hiccup block the deliv
 
 3. Confirm to the editor: the posted comment's URL, and — only if you changed it — "Status → Done."
    For a routine delivery, explicitly note "Status left at Requested." Done.
+
+4. **Timeline-publish ping — Done path (②) ONLY, DaVinci projects ONLY (added 07.23.26; Palmier carve-out 07.24.26):** after a completed-creative
+   turn-in posts, check the project's `Creatives/Timelines/` for a `.drt` matching each delivered
+   creative's name. Any missing → actively ping the editor: *"Timelines aren't published for this
+   project yet — want me to also export the timelines (/e.timeline.export)?"* Yes → run
+   `e.timeline.export`. No → drop it, never nag twice. Skip entirely on routine (①) deliveries.
+   **🔴 SKIP the ping entirely for a PALMIER project (Sam 07.24.26):** if the deliverables came from Palmier — the project has a `Creatives/Palmier/` folder (Videos + the `.palmier` project bundle) — the timeline is ALREADY published as the `.palmier` bundle in its own subfolder. `/e.timeline.export` is a DaVinci `.drt` step and does NOT apply. Detect Palmier by a `Creatives/Palmier/` dir (or deliverables under it) and do not ping. The `.drt` ping is for DaVinci-finished projects only.
 
 ## What NOT to do
 

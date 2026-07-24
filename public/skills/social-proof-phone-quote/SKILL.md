@@ -66,3 +66,16 @@ The number on the phone = whichever screen graphic you reference. For a rate/sta
 
 ## Cross-references
 `iphone-broll` (the broader b-roll-regen flow that calls this for its phone beats) · `hig-flow` (gated image batches) · `call-graphics` / quote-template step (builds the screen pages) · `nano-banana-prompting`. Memories: `feedback_social_proof_selfie_variety`, `feedback_selfie_arm_framing`, `feedback_pfm_brand_clean_rules`. Gold-standard reference: `7. SMA Organic/SMA - Brand Folder/Social Proof/Images - Customers Holding Discount Quotes/`.
+
+## 🔴 DIGIT GATE — mechanical digit-verify (G3, mandatory — added 07.17.26)
+
+Any output whose graphics carry NUMBERS (tracking numbers, rates, board values, quote pages) delivers ONLY through the shared digit gate:
+
+```
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py init "<output dir>" --expected "<the exact number(s)>"
+# → gate CLOSES. For EACH listed file: Read the PNG, compare char-for-char, then confirm/fail it:
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py confirm "<dir>" "<file>"     # or: fail "<dir>" "<file>" "reason"
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"               # exit 0 = gate open
+```
+
+**Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.

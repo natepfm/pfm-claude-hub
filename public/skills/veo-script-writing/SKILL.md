@@ -5,6 +5,8 @@ description: Write or review story ad scripts for Google Veo 3.1. Use whenever t
 
 # Veo Script Writing — PFM Story Ads
 
+> **Request format is LIVE (2026-07-13).** This skill writes the CONTENT for a request, not the request page. When your output goes into a Notion request, write it into the locked body shape — the Copy callout holds ONE static numbered script (one line per clip); hard values (rates, numbers) go in tables, never loose prose. The page shell, spec properties, and display-name title belong to [[wr.request]] / the VTM template — don't set properties or rename requests from here. Format spec: [[project_skills_workflow_audit]].
+
 This skill encodes the writing rules Power Fox Media uses for every story ad script that will be generated with Google Veo 3.1. Follow these rules whenever you draft, rebalance, or review a script that will be fed into Veo (directly or via the `hvg-flow` skill, which builds the project's Excel manifest of per-clip Veo prompts).
 
 ## Gate 0 — Source check (before any rewriting)
@@ -77,6 +79,8 @@ Veo misreads all caps as emphasis or shouting, which distorts delivery. Use ital
 ### Rule 3. No dashes
 
 Em dashes (—), en dashes (–), and hyphen-as-pause all confuse Veo's phrasing. Replace with commas, periods, or rewrite the clause.
+
+**The ONE sanctioned exception (opt-in): a deliberately CUT-OFF / interrupted line** — a speaker stopping mid-word or getting their sentence finished by someone else. That fragment ends with an em-dash at the cut point (`"With the—"`) so Veo cuts clean instead of voicing a garbage syllable; a `?` or ellipsis there makes it worse. That craft lives in **`wr.cutoff`** (Josiah Akimenko) — invoke it when the script has an interruption beat. Everywhere else this rule stands absolute.
 
 - Bad: `Your new rate is $4,695 a year — that's $391 a month.`
 - Good: `Your new rate is $4,695 a year. That's $391 a month.`
@@ -198,7 +202,7 @@ Good (isolated):
 | Token format | `{token}`, `[TOKEN]`, or `**token**` only. Consistent across the script |
 | Underlines | Only present if re-purposing a prior script. Mark only the lines or words that changed |
 | Read-aloud test | Every line spoken at podcast pace lands under 8 seconds |
-| Compliance | No brands. No "will save." No "program" language. Rates monthly/yearly, never daily/weekly. Floors — Auto: $19/mo absolute, $39/mo team practical; Home Forms: $30/mo or $360/yr; Home Calls: $50/mo, claimed "as low as $600/year" |
+| Compliance | No brands. No "will save." No "program" language. **Never "no sales call(s)" / "no calling around" / "nobody will call you"** (locked 2026-07-14 — reframe convenience without referencing calls, or flag to Sam). Rates monthly/yearly, never daily/weekly. Floors — Auto: $19/mo absolute, $39/mo team practical; Home Forms: $30/mo or $360/yr; Home Calls: $50/mo, claimed "as low as $600/year" |
 | SMA gate | SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat). |
 
 ## TLDR
@@ -209,3 +213,16 @@ Good (isolated):
 4. State tokens get their own numbered line.
 5. Underlines = changed lines in a re-purposed script. Don't invent them.
 6. Read it out loud before sending.
+
+## 🔴 SHIP GATE — mechanical compliance lint (G2, mandatory — added 07.17.26)
+
+Before delivering ANY script (in chat, pushed to Notion, or into a manifest), run it through the shared linter and get **exit 0**:
+
+```
+python3 ~/.claude/skills/veo-script-writing/scripts/compliance_lint.py <script-file or -> --vertical <auto|home-forms|home-calls|loans> [--sma]
+```
+
+- Pipe the numbered script via stdin (`-`) or point at the saved file. Pass `--sma` on any SaveMaxAuto/SMH-brand creative (verifies the exact AI-performer disclaimer line is present).
+- **Exit 1 = the script may NOT ship.** Fix every FAIL line, re-run, deliver only on PASS. Include the PASS line in your delivery report (DONE = this check passed).
+- WARNs do not block — resolve or consciously justify each one.
+- The linter covers the greppable rules (banned claims, brands, floors, daily-rate framing, free-misuse, no-call ban). Judgment items on the human checklist (story logic, villain framing, authority credibility) remain yours on top.

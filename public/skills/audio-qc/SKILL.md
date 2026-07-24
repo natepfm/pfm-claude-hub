@@ -1,13 +1,13 @@
 ---
 name: audio-qc
-description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac), Phase 3 is unexpected-music detection (piggybacks on Phase 1's silence intervals + Phase 2's Whisper speech segments to flag non-speech audio energy — musical stings, musical beds, musical tails that Veo sometimes adds despite prompt-level negatives, runs in zero additional ffmpeg passes). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. Auto-offered by `hvg-flow` as a post-download step. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
+description: PFM's audio quality check skill for Veo-generated mp4 clips. Three-phase scanner — Phase 1 is ffmpeg audio-physics checks (silent / low_volume / clipped / no_audio in ~90s for ~350 clips), Phase 2 is OpenAI Whisper dialogue verification when the project's Excel manifest is passed (transcribes each clip and fuzzy-matches against expected dialogue, flagging dialogue_mismatch on low-similarity clips in ~2 min for ~350 clips on M-series Mac), Phase 3 is unexpected-music detection (piggybacks on Phase 1's silence intervals + Phase 2's Whisper speech segments to flag non-speech audio energy — musical stings, musical beds, musical tails that Veo sometimes adds despite prompt-level negatives, runs in zero additional ffmpeg passes). Use this skill whenever an editor asks to "QC the clips", "check the audio", "run audio QC", "verify the clips", or after a Veo batch completes downloading and the editor wants to spot-check before importing to DaVinci. EDITOR-INVOKED ONLY on local fires (Sam 2026-07-20: local fires get NO QC and no QC offer — gen flows end with a passive availability line; this skill runs only when the editor asks). Mandatory only inside the autonomous `agf`/mini cycle. NOT for: pre-Veo prompt validation (use `veo-script-writing`), image QC, or DaVinci timeline-level QC.
 ---
 
 # Audio QC — PFM
 
-## 🔴 QC-OFFER LAW
+## 🔴 QC LAW (Sam 2026-07-20)
 
-**QC is OFFERED via a plain ask on local fires, never auto-run. AGF/mini runs keep mandatory QC.**
+**Local fires get NO QC and NO QC ask — this skill runs ONLY when the editor explicitly invokes it. Gen flows end with a passive availability line, nothing more. AGF/mini runs keep mandatory QC (autonomous, nobody watching).**
 
 ## 🔴 TIER 1 of 2 — escalate flagged clips to `watch-video` (Gemini, locked 2026-07-11)
 This scanner is the **automatic, free, fast Tier-1 gate** — it catches ~90% of defects (silent / clipped / no-audio / wrong-words / unexpected-music) on hundreds of clips with zero API cost. What it CANNOT see is MOTION or on-screen content: mouths moving while a character should listen silently, retime stutter, a screen in the background, lip-sync drift. Those are **Tier 2 = `watch-video`** (Gemini, ~a penny/clip). So after this scan surfaces flagged clips, **offer to escalate JUST the flagged set to a watch** — never a blanket per-clip Gemini pass (disproportionate to signal at PFM's hundreds/day):
@@ -25,7 +25,7 @@ Two-phase quality check for Veo-generated mp4 clips. Catches silent / clipped / 
 
 This skill triggers on:
 - Editor says "QC the clips", "check audio quality", "run audio QC", "verify the videos", "spot-check the clips"
-- Editor accepts the post-download QC offer surfaced by `hvg-flow` Step 11
+- Editor invokes it after seeing the passive QC-availability line in a gen flow's final report
 - Editor wants to re-scan after re-firing failed clips
 - Editor wants to scan a sub-folder (single batch, single state)
 

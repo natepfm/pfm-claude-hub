@@ -394,11 +394,11 @@ dry-runs — that's what the Gate 9 preflight cost line comes from. **The AGF `G
 
 ## Step 11 — Download + Excel update + report
 
-**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display` / `show_generations`), labeled (shot, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-shot backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / QC / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement.
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display` / `show_generations`), labeled (shot, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-shot backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement. **⚡ INLINE DOWNLOAD (Sam 2026-07-20): the spine/fire shell downloads each image immediately after its result resolves — same script — so the batch-complete moment IS the delivered moment.**
 
 Parse each result JSON for the image URL(s), download in parallel via `urllib.request` or `curl` to `Elements/Footage/Primary/B-Roll Photos/<slug>_<shotId>_v<NN>.png`.
 
-Then rewrite the Excel manifest using the same helper + same config schema, with refreshed status / v01 / v02 / notes per shot.
+**🔴 DELIVER FIRST, MANIFEST SECOND (Sam 2026-07-20 — speed law).** Post the delivery block (compact Final report below) the instant the last image is on disk; THEN rewrite the Excel manifest in a **backgrounded** call (same helper + config schema, refreshed status / v01 / v02 / notes) and drop one `📋 Manifest updated` follow-up line when it lands. 🔴 NO QC on local fires — no auto checks, no QC ask; the passive availability line in the report is the only QC surface (editor-invoked only; mandatory QC = agf/mini).
 
 ### AGF state close (if this run had a Notion request)
 
@@ -410,11 +410,10 @@ If you claimed the `Generating (Local)` lock at Gate 9, close the state now — 
 
 Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 Fox.io — plus a 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
 
-> ✅ **X images delivered** to `Elements/Footage/Primary/B-Roll Photos/`
-> ❌ Y shots had failures: <list shotIds + reasons>
-> 💰 Final balance: M cr (delta: -K)
-> ⏱ Total elapsed: Z min
-> 📋 Manifest: `<slug>_shots.xlsx`
+**Keep it COMPACT (Sam 2026-07-20)** — the stream already showed every image; this is a short receipt:
+
+> ✅ X/Y images · `Elements/Footage/Primary/B-Roll Photos/` · -K cr (balance M) · Z min
+> ❌ <only if fails exist:> shotId — reason (refire candidates)
 > 📁 Path: `/Volumes/ads/…/Elements/Footage/Primary/B-Roll Photos`
 > 🔗 Open: [B-Roll Photos ↗](https://linkyourfile.com/link?p=…)
 > 🦊 Fox.io: B-Roll Photos → From Claude rail

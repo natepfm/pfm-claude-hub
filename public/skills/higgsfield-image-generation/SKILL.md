@@ -54,7 +54,7 @@ If the user wants prompts to copy-paste into the Higgsfield UI themselves, write
 **Before firing ANY Higgsfield image gen for PFM work** (one-off, test, re-fire, or exploratory), load and apply the PFM conventions — even when the editor isn't going through a gated flow. **The canonical convention list lives in `~/.claude/skills/hig-flow/SKILL.md` (+ `~/.claude/skills/hig-flow/PIPELINE-SPEC.md`) — cross-load it whenever this skill triggers for PFM material.** Don't re-derive conventions from memory; read them there.
 
 The two that are UNIQUE to the one-off path (self-impose every time, no flow to enforce them):
-- Default model: `nano_banana_2` (NB Pro) at 1k resolution, count=1 (opt into `--count 2` for a pick) — the locked one-off/refire default (2026-06-17)
+- Default model: `nano_banana_2` (NB Pro) at 1k resolution, one image per fire — the locked one-off/refire default (2026-06-17). For a 2-up pick, fire twice (`_v01`/`_v02`); `--count` is no longer a valid flag (see Flag-drift note).
 - Filename suffix: end every b-roll PNG with a unique 4-char hex tag (`_<hex>.png`) so DaVinci Resolve doesn't auto-group as image sequences (the flow's manifest step normally polices this; here YOU do)
 
 ### 🔴 Prompt craft — `nano-banana-prompting` is MANDATORY (locked 2026-06-10)
@@ -122,11 +122,12 @@ Track UUIDs in a dict keyed by ref filename. Re-use across the batch.
 higgsfield generate create nano_banana_2 \
   --prompt "<full prompt text with PFM conventions baked in>" \
   --image ./Elements/Footage/Reference/Chad/Chad-Master.png \
-  --aspect-ratio 9:16 \
+  --aspect_ratio 9:16 \
   --resolution 1k \
-  --count 1 \
   --wait --json
 ```
+
+> ⚠ **Flag drift (verified 2026-07-23):** the CLI now maps model params by their exact `hf model get` names. For `nano_banana_2` that means **`--aspect_ratio`** (underscore, NOT `--aspect-ratio`) and **NO `--count` flag** — passing either legacy name errors with `Unknown params`. One image per fire is the default; for a 2-up pick, fire twice (`_v01`/`_v02`). Result JSON is a top-level array; the URL key is **`.[].result_url`** (not `.results[].rawUrl`). Always `hf model get <model>` if a fire rejects a flag.
 
 **Multi-ref:** pass multiple `--image` flags (or pre-uploaded UUIDs):
 
@@ -135,17 +136,16 @@ higgsfield generate create nano_banana_2 \
   --prompt "..." \
   --image <chad_master_uuid> \
   --image <shirt_uuid> \
-  --aspect-ratio 9:16 \
+  --aspect_ratio 9:16 \
   --resolution 1k \
-  --count 1 \
   --wait --json
 ```
 
 **Key flags:**
 - `--wait` — blocks until complete. No separate polling step needed (THIS is the big CLI win over MCP).
 - `--json` — emits machine-readable result with rawUrls so you can `jq` out the download URLs.
-- `--count 1` — **default** (one image per fire). Opt into `--count 2` (or higher) when the editor wants multiple variants to pick from.
-- `--aspect-ratio 9:16` — vertical for camera-roll style. Use `4:3` for landscape phone shots, `1:1` for square, `16:9` for landscape video frame.
+- **count:** one image per fire is the default; `--count` is no longer a valid flag (see Flag-drift note above) — for a pick, fire twice as `_v01`/`_v02`.
+- `--aspect_ratio 9:16` — vertical for camera-roll style. Use `4:3` for landscape phone shots, `1:1` for square, `16:9` for landscape video frame.
 - `--resolution 1k` — default. Bump to `2k` only for hero placements.
 
 ### Step 4: Parse result URLs from JSON

@@ -90,7 +90,7 @@ preflight before each spend (slides, then clips). **Status is hands-off — leav
 - Reference frame per line:
   - Line **has a state slide** → use that slide (`--start-image <UUID>`).
   - Line **has no slide** → pull from `No Slide Reference Shots/` (cycle the pool).
-  - **🔴 ASPECT-MATCH the reference to the render aspect (locked 2026-07-07).** Every `--start-image` — slide OR no-slide pool shot — MUST be in the SAME aspect as the clip you're rendering. A vertical (9:16) reference fired at 16:9 (or vice-versa) **pillarboxes → black bars down the sides.** The trap is the **no-slide pool**: if `No Slide Reference Shots/` holds 9:16 (vertical) shots and you fire the speaker lines at 16:9, all of those clips pillarbox — this hit **14 speaker clips on the SPANISH Avg Auto State Florida VSL** (delivered 06-24, editor caught + refired at 16:9 on 07-07). Before firing an aspect: `ls` the pool + slide dir and confirm they're the render aspect. **Dual-aspect VSLs** (a request asking for BOTH 9:16 + 16:9 — e.g. the "recompose slides for 9:16 so nothing gets cropped" briefs) need a **separate aspect-correct set of BOTH slides and the no-slide pool per aspect** — never reuse one aspect's references for the other.
+  - **🔴 ASPECT-MATCH the reference to the render aspect (locked 2026-07-07).** Every `--start-image` — slide OR no-slide pool shot — MUST be in the SAME aspect as the clip you're rendering. A vertical (9:16) reference fired at 16:9 (or vice-versa) **pillarboxes → black bars down the sides.** The trap is the **no-slide pool**: if `No Slide Reference Shots/` holds 9:16 (vertical) shots and you fire the speaker lines at 16:9, all of those clips pillarbox — this hit **14 speaker clips on the SPANISH Avg Auto State Florida VSL** (delivered 06-24, editor caught + refired at 16:9 on 07-07). **🔴 G9 GATE (mechanical, added 07-23 — replaces the manual `ls` eyeball):** before uploading refs for ANY 16:9 fire, run `python3 ~/.claude/skills/vsl-state-variations/fire_veo.py --check-aspect <slide dir> <pool dir>` and get the `G9 ASPECT GATE PASS` line (exit 0) — it refuses (exit 1) on any portrait PNG. No PASS line, no upload, no fire. **Dual-aspect VSLs** (a request asking for BOTH 9:16 + 16:9 — e.g. the "recompose slides for 9:16 so nothing gets cropped" briefs) need a **separate aspect-correct set of BOTH slides and the no-slide pool per aspect** — never reuse one aspect's references for the other.
 - **Master prompt:** the keynote master, `dialogue` swapped per line, prefixed with
   `Veo video prompt: ` (CLI rejects a leading `{`). The helper embeds the master template.
 - **DEFAULT to the HARDENED static-screen master — not the original.** The original master's
@@ -127,8 +127,8 @@ preflight before each spend (slides, then clips). **Status is hands-off — leav
   Verified clean reads after the fix ("1,800 / 2,300 / 2,800 / 1,400"). This is a deliberate
   VO-wording change from the brief; the on-screen slide still shows the exact `$X,XXX` figure.
   Apply to EVERY state's L2 (the truncation is systematic, not random).
-- **Whisper-verify the L2 read — RECOMMENDED pre-delivery compliance check, offered via the
-  QC ask (never auto-run).** It's the one audio QC that works here: if the editor opts in,
+- **Whisper-verify the L2 read — available ON EDITOR REQUEST only (Sam 2026-07-20: local fires
+  get NO QC and no QC ask — mention availability in one passive line, deliver immediately).** If the editor invokes it,
   transcribe each state's `L2_<st>_v01.mp4` (`whisper … --model base --language en`) and confirm
   the per-year number reads in full (e.g. "2,300", not "300"/"800"). Numbers truncation ships
   silently otherwise — recommend it in the offer. (Whisper may mis-spell the demonym — e.g.

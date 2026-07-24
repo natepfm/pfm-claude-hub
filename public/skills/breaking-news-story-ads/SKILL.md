@@ -5,6 +5,8 @@ description: Write PFM story ad scripts that are wrapped as a local 6pm news seg
 
 # Breaking News Story Ads — PFM
 
+> **Request format is LIVE (2026-07-13).** This skill writes the CONTENT for a request, not the request page. When your output goes into a Notion request, write it into the locked body shape — the Copy callout holds ONE static numbered script (one line per clip); hard values (rates, numbers) go in tables, never loose prose. The page shell, spec properties, and display-name title belong to [[wr.request]] / the VTM template — don't set properties or rename requests from here. Format spec: [[project_skills_workflow_audit]].
+
 This skill encodes how Power Fox Media writes story ad scripts wrapped as a local 6pm news segment. It assumes the reader already knows the PFM 6-beat story structure (`story-ad-playbook.md`) and the vertical-specific compliance rules (`verticals/*.md`). This skill is the **wrapper layer on top of those** — how to make a story ad sound like it actually aired on LATU News at 6pm last night.
 
 ## Why this skill exists
@@ -423,3 +425,16 @@ This skill produces the **script**, not the per-clip Veo prompts. Veo JSON promp
 8. 6 PFM beats still live underneath the wrapper.
 9. CTA lives in the anchor tag. Still compliance-bound.
 10. Read it out loud.
+
+## 🔴 SHIP GATE — mechanical compliance lint (G2, mandatory — added 07.17.26)
+
+Before delivering ANY script (in chat, pushed to Notion, or into a manifest), run it through the shared linter and get **exit 0**:
+
+```
+python3 ~/.claude/skills/veo-script-writing/scripts/compliance_lint.py <script-file or -> --vertical <auto|home-forms|home-calls|loans> [--sma]
+```
+
+- Pipe the numbered script via stdin (`-`) or point at the saved file. Pass `--sma` on any SaveMaxAuto/SMH-brand creative (verifies the exact AI-performer disclaimer line is present).
+- **Exit 1 = the script may NOT ship.** Fix every FAIL line, re-run, deliver only on PASS. Include the PASS line in your delivery report (DONE = this check passed).
+- WARNs do not block — resolve or consciously justify each one.
+- The linter covers the greppable rules (banned claims, brands, floors, daily-rate framing, free-misuse, no-call ban). Judgment items on the human checklist (story logic, villain framing, authority credibility) remain yours on top.

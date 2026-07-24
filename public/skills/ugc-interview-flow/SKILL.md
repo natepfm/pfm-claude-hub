@@ -1,11 +1,23 @@
 ---
 name: ugc-interview-flow
-description: PFM's UGC group-interview creative pipeline — fake-continuous "NO-CUTS" one-takes (alias-to-be /ag.ugc.interview.flow). A host walks a real-feeling location (block party, car meet, jobsite) interviewing several people who each answer with their item + rate, generated as a chain of Seedance 2.0 clips whose joints are pixel-matched so the editor butt-joins them into one seamless take. Battle-proven twice at full scale (Home Block Party 8-way / 28 clips; Auto Car Meet 8-way / 32 clips). Contributed by Zach Hustead (07-07, revised 07-08/09/10). Use when an editor says "UGC Interview Flow", "no cuts version", "one-take", "make it look like one take", or drops a VTM request in the UGC Interview format ("UGC Interview - Stories - <Setting>", the "Stories - <Setting> Crew/Party/Meet" family) and wants it produced. Handles the full demographic matrix off one script (per-version voice + props/set adaptation, same structure/rates/beats). NOT for: single-presenter UGC (ugc-talking-head-ref/-veo), Veo podcast story ads (hvg-flow), or writing the request itself.
+description: PFM's UGC group-interview creative pipeline, TWO MODES (alias /ag.ugc.interview.flow). A host interviews several people in a real-feeling location, each answering with their item + rate, full demographic matrix off one script. MODE A "NO-CUTS" — fake-continuous one-take, chained Seedance clips with pixel-matched joints the editor butt-joins (open settings: block party, car meet, jobsite; proven Home Block Party 28 clips + Auto Car Meet 32 clips, both 8-way). MODE B "CUTS" — shared brandless location masters + distinct-identity demographic cast cards, then INDEPENDENT per-station Seedance clips (multi-room / aisle-heavy locations where a one-take breaks; proven Home Depot Crew 32 clips + Home Cleaners Crew 40 clips, both 8-way). Contributed + maintained by Zach Hustead (v1 07-07, v2 07-14). Use when an editor says "UGC Interview Flow", "no cuts version" / "one-take" (Mode A), "cuts version" / "same style as Home Depot / Auto Dealership / Cleaners" (Mode B), or drops a VTM request in the UGC Interview format ("UGC Interview - <Setting> Crew/Party/Meet" family). NOT for: single-presenter UGC (ugc-talking-head-ref/-veo), Veo podcast story ads (hvg-flow), or writing the request itself.
 ---
 
-# UGC Interview Flow — the NO-CUTS one-take method
+# UGC Interview Flow — group interviews, two modes
 
-**Full playbook (read before ANY run): `references/no-cuts-playbook.md`** — Zach Hustead's complete method with every gen-proven gotcha, both worked matrices, and the Round-2 continuity rules. This file is the operating summary; the playbook is law.
+> Maintainer: **Zach Hustead** — improvements route via `propose-skill` UPDATE mode ("propose an update to ugc-interview-flow"), Sam merges + re-distributes.
+
+## 🔀 Mode gate (FIRST decision, before anything fires)
+**Pick by LOCATION, confirm with the editor:**
+- **Mode A — NO-CUTS** (`references/no-cuts-playbook.md`): open settings where a continuous walk is plausible — block party, car meet, jobsite yard. Output = chained clips the editor butt-joins into one seamless take.
+- **Mode B — CUTS** (`references/cuts-playbook.md`): multi-room or aisle-heavy locations (house interior, big-box store) where a chained take can't keep the space proportionally accurate. Output = independent per-station clips off location masters + cast cards.
+Editor names it ("no cuts" / "cuts" / "like Home Depot") → that's the mode. Ambiguous → ask, one line. **Read the chosen playbook before ANY run — the playbook is law.** Script-is-LAW, the demographic matrix, verbatim rates, and the SMA/NY disclaimer gates apply identically in BOTH modes.
+
+---
+
+# Mode A — the NO-CUTS one-take method
+
+**Full playbook: `references/no-cuts-playbook.md`** — Zach's complete method with every gen-proven gotcha, both worked matrices, and the Round-2 continuity rules. This section is the operating summary; the playbook is law.
 
 ## The core loop — one clip at a time, chained off real endings
 
@@ -32,9 +44,23 @@ Every chained fire wraps in: fire → download → extract frame 0 → pixel-dif
 - **Phone screens:** name the actual elements + lander via `--medias` UUID; small print garbles at 720p — that's a post screen-comp.
 - **NY cuts** need the synthetic-performers disclaimer (`add-ai-disclaimer`).
 
-## Naming (locked in practice)
+## Naming — Mode A (locked in practice)
 
 `Elements/Footage/Reference/V<N> - <Demographic> - No Cuts/` (wide + seams) · `Elements/Footage/Veo/V<N> - <Demographic> - No Cuts/` → `<Project>_V<N>NC_clip0<K>_v0<M>.mp4` · deliverable = approved clips per version, **no stitch files ever**.
 
+---
+
+# Mode B — the CUTS method (location masters + cast cards)
+
+**Full playbook: `references/cuts-playbook.md`** — read it before any Mode B run. The operating shape:
+
+1. **Fetch + format the request** (Copy is usually a rough competitor rip — rebuild attribution, add host bridges, flag missing rates); editor stamps the locked script + 8-way matrix. Scaffold the full project folder.
+2. **Wave 1 — location masters** (NB Pro 9:16 1k): one per interview station, ONE coherent brandless location. 🔴 Text-only fires go SERIAL with a gap (parallel trips a fake "Not authenticated"); `--image` edit passes are parallel-safe. Editor stamps each.
+3. **Wave 2 — cast cards** (NB Pro, `--image` = station master): one card per worker + host, per version. 🔴 DISTINCT written identity per worker (one demo string = triplets) · "ordinary-attractive, NOT model-glamorous" · uniforms BLANK + anti-brand negatives · host = phone-free selfie plate. ≥20 → Fire? gate; post-landing agent audit → surgical 2-credit wipes on flags only.
+4. **Wave 3 — clips** (Seedance 2.0, 720p, `--start-image` = card): one per station, duration = spoken load. 🔴 15s hard cap (18s silently drops the clip at validation). CTA clip: lander PNG via `--medias`, host pulls the phone MID-CLIP with the free hand. ≥20 → Fire? gate; auto-retry 502s.
+5. **QC** — ffmpeg physics + high-pass radio probe + Whisper verbatim (🔴 spoken numbers transcribe as digits → read flagged transcripts before refiring). Deliver per-version folders; Resolve import = Project bin > Elements > V1–V8.
+
+**The locked prompt-stack (all of it, every clip):** anti-radio audio block ("a few feet away off-camera", NEVER "phone-distance") · chant guard ("each line ONCE… then wordless") · CTA screen-orientation lock + check every CTA (~3-in-8 land backwards regardless) · selfie-arm/free-hand rules · word-flub respells · planted blocking + per-station physical closer. Details + naming in the playbook.
+
 ## Cross-refs
-`ugc-cinematic-prompt` (Seedance prompt body craft) · `labs-voice-swap` (host unify) · `add-ai-disclaimer` (NY) · `nano-banana-prompting` (the wide) · contributed via `propose-skill` by **Zach Hustead** — the flywheel's first shipped skill.
+`ugc-cinematic-prompt` (Seedance prompt body craft) · `labs-voice-swap` (host unify) · `add-ai-disclaimer` (NY) · `nano-banana-prompting` (masters/wides/cards) · contributed via `propose-skill` by **Zach Hustead** — the flywheel's first shipped skill, and its first v2 (Cuts Edition, shipped 07-15).

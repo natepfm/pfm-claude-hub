@@ -61,6 +61,16 @@ Batch 1's 5 states are chosen per-story and won't always match Car Chase's Batch
 
 Always end Batch 6 with a coverage check: Batch 1 (5) + 2 + 3 + 4 + 5 + 6, minus dupes, plus orphans, should equal 50 unique states. If it doesn't, say so.
 
+## Naming + spec properties (request format is LIVE — 2026-07-13)
+
+Each batch is a **derivative** of Batch 1, so it's born in the locked request format (grammar per [[wr.request]]):
+
+- **Title = display-name grammar** — `[Platform - ] <Creative Type> - <Concept> - <variant tail>`, plain ` - ` hyphens, **never em dashes**. The variant tail on a state batch = the **Batch** token (`B2`, `B3`…); the states live in the body, not the title, when there are more than two. Pull Creative Type + Concept from Batch 1 verbatim — only Batch/Geo vary. (If Batch 1's title predates the format, still write the NEW batch titles in-grammar.)
+- **Spec properties (rich-text, non-defaults ONLY — blank = default):** set on each batch at creation — `Creative Type` + `Concept` inherited from B1, `Batch` = `B2`/`B3`/…, `Geo` = the batch's states (leave blank if the set is Broad). Leave Platform/Language/Aspect blank unless they deviate.
+- **`Parent Creative` relation → Batch 1** — set every batch's Parent Creative to the B1 page (the profit-lever relation: the board shows the family, the fire skill auto-pulls the base). Set it with `notion-update-page` after create (relation value = the B1 page ID). B1 is the parent; B2–B6 are its variants.
+
+Everything below (the 4 callouts, assignee dance, coverage check) is unchanged.
+
 ## Page structure — 4 callouts, in this order
 
 Every batch page is created under data source `18a16771-e780-81fb-9293-000b742fce5e` with icon `🎞️` and these four callouts. The exact icon URLs matter (they render the colored chips). Match Batch 1's Vertical, Priority, and Content properties; Status is always `Requested`.

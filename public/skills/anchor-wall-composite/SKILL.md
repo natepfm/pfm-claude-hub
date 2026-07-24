@@ -84,3 +84,16 @@ The composite is the `--start-image` AND `--end-image` (same UUID, D-locked) for
 - **Queue stall** (CLI returns empty `[]` after ~3 min): refire — second attempt typically lands in ~2 min.
 - **Opening paren cropped by the wall curve**: refire as-is once; if it repeats, the editor may prefer a Steve-shifted variant — ask before deviating from the 1:1 content-swap rule.
 - **Steve drifts (pose/standing/desk gone)**: refire — never hand off a drifted composite.
+
+## 🔴 DIGIT GATE — mechanical digit-verify (G3, mandatory — added 07.17.26)
+
+Any output whose graphics carry NUMBERS (tracking numbers, rates, board values, quote pages) delivers ONLY through the shared digit gate:
+
+```
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py init "<output dir>" --expected "<the exact number(s)>"
+# → gate CLOSES. For EACH listed file: Read the PNG, compare char-for-char, then confirm/fail it:
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py confirm "<dir>" "<file>"     # or: fail "<dir>" "<file>" "reason"
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"               # exit 0 = gate open
+```
+
+**Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.

@@ -13,7 +13,7 @@ The complete asset-gen job for a SaveMaxAuto Live (QVC-style home-shopping) Roku
 - **Numbers law (INVERTED from BN):** RATES are spoken (naturalized words) AND shown on the board — spoken value and board state must match exactly. The PHONE NUMBER is never spoken — screen-only, whole spot ("the number's on your screen"). Spoken rates are ATTEMPT-FIRST, not a hill to die on (Sam, 07-08): if a rate line won't pass the spoken-rate QC after ~2 v0N refires, swap to its de-numbered fallback (the board carries the number) and move on — never spend hours fighting Veo on a number.
 - **Callers are never on video.** Phone-quality ElevenLabs VO + a caller lower-third. Hosts carry all camera time.
 
-All 16:9 (CTV self-declares horizontal). Brand-clean: our own SaveMaxAuto Live look — never replicate QVC/HSN logos or trade dress. SMA brand → AI-performer disclaimer required on the finished cut (Rule 4; 16:9 one-line preset via `add-ai-disclaimer`).
+All 16:9 (CTV self-declares horizontal). Brand-clean: our own SaveMaxAuto Live look — never replicate QVC/HSN logos or trade dress. NY-market cut → AI-performer disclaimer required on the finished cut (Rule 4 is NY-ONLY — brand alone never triggers it; 16:9 one-line preset via `add-ai-disclaimer`).
 
 ## ⚡ Backgrounding rule
 Every gen >30s runs `run_in_background: true`; 3+ gens in one action = always backgrounded. Never chain `cmd &` inside a backgrounded shell (orphans the fire). Stream every result the instant it lands (Rule 5) — 📲 + widget, BEFORE QC.
@@ -23,7 +23,7 @@ Every gen >30s runs `run_in_background: true`; 3+ gens in one action = always ba
 **0. Stage** (via `stage-request` on an initial batch; iterations/refires fire direct). Two build shapes:
 - **FIRST BUILD of the format** (e.g. Houston maiden): everything below runs — masters, set, graphic bases, full clip set.
 - **CITY/STATE VARIANT of a built format (e.g. Seattle):** masters + set plate + ALL scene frames (incl. the LISTEN hold seeds) + the listening-hold library reuse 100% — holds have no dialogue and their audio is replaced by the real caller VO in edit. QVC host lines are city-saturated by design, so most host clips REGEN (same seeds, new dialogue); graphics regen is nearly free — template constants (city, anchor, counter, callers, phone) + rerun + `call-graphics` for the new tracking number. **Per-variant data that must come from the REQUEST, never carried over: the city anchor rate (must be a real market anchor), the tracking number, caller names.** BN variants are graphics-heavy; QVC variants are video-heavy.
-- **BRAND VARIANT (e.g. SaveMaxHomes Houston):** everything a city variant touches PLUS: (a) compliance flips to the new vertical (Home Calls: $50/mo / $600/yr floor, "as low as $600/year", approved claims up to $815/yr / up to 80%); (b) the HERO DISCOUNT beat is vertical-specific — Auto's "homeowner discount" has no Home meaning; pick the Home hero (bundling / new roof / security) and re-derive the checklist items + Deal Card spec (dwelling coverage, a believable house, not a truck); (c) set plate gets ONE surgical edit swapping the easel sign to the real new-brand wordmark passed as a ref → re-approve → re-derive F1/F2/F3 → re-fire; hosts can stay; (d) the AI-performer disclaimer still applies — synthetic performers regardless of brand.
+- **BRAND VARIANT (e.g. SaveMaxHomes Houston):** everything a city variant touches PLUS: (a) compliance flips to the new vertical (Home Calls: $50/mo / $600/yr floor, "as low as $600/year", approved claims up to $815/yr / up to 80%); (b) the HERO DISCOUNT beat is vertical-specific — Auto's "homeowner discount" has no Home meaning; pick the Home hero (bundling / new roof / security) and re-derive the checklist items + Deal Card spec (dwelling coverage, a believable house, not a truck); (c) set plate gets ONE surgical edit swapping the easel sign to the real new-brand wordmark passed as a ref → re-approve → re-derive F1/F2/F3 → re-fire; hosts can stay; (d) the AI-performer disclaimer applies ONLY when the variant is a NY-market cut (Rule 4 NY-scope) — brand does not trigger it.
 
 **1. Cast + set lock (first build only).**
 - **Host masters** via `pfm-character-master` (gpt_image_2): Diane — seasoned home-shopping host, warm, 50s, polished jewel-tone blazer; Ryan — hype co-host, 30s, works the board. Wardrobe is LOCKED per creative — one live show, identical outfits in every frame (consistency, not the b-roll rotation rule). Save both to the Character Library + Prompts sheet (always, no ask).
@@ -64,13 +64,13 @@ Package shape (Houston = 18 PNGs + 18 MOVs): Deal Panel rate states **+ a blank 
 
 Dense, specific detail is the POINT (the spec card reads as real because it lists everything) — fill every Deal Card line from the request; believable local vehicle per the request text (text only — no logos).
 
-**5. QC** — local/in-chat fires are NEVER auto-QC'd. After delivery, OFFER QC via a plain multi-choice ask (run audio-qc / run visual-qc / skip); AGF/mini runs keep mandatory QC. RECOMMEND the **spoken-rate compliance check** in the offer as a pre-delivery step: every clip containing a dollar amount Whisper-verifies the exact naturalized number (a wrong spoken rate is a compliance kill, not a retake); a rate line still failing after ~2 v0N refires → fire its de-numbered fallback variant instead of grinding Veo (the board carries the number). **Digit-verify every graphic state regardless** (Read each PNG — part of delivery, not the QC offer): tracking number digit-for-digit, SMA.Insure spelling, every $ value against the script's board cues, checklist order == script order.
+**5. QC** — 🔴 local/in-chat fires get NO QC and NO QC ask (Sam 2026-07-20). Deliver immediately; end the report with one passive line: "QC available on request: `/qc.audio` · `/qc.video` · `/qc.g`. The spoken-rate Whisper check is the one worth running on rate lines (a wrong spoken rate is a compliance kill)." Run QC ONLY if the editor invokes it; a rate line still failing after ~2 v0N refires → fire its de-numbered fallback variant instead of grinding Veo (the board carries the number). AGF/mini runs keep mandatory QC. **Digit-verify every graphic state regardless** (Read each PNG — this is part of DELIVERY for text-bearing graphics, not QC): tracking number digit-for-digit, SMA.Insure spelling, every $ value against the script's board cues, checklist order == script order.
 
 **6. Compliance frame (bake into every variant):** $50/mo Auto Calls floor — every shown/spoken rate above it; caller counter is SOCIAL PROOF (count of people), never scarcity; the ONLY urgency is "lines close at 5 PM today"; anchor rate must be a real market anchor from the request (never invented retail value); aggregate savings claim stated separately ("nearly $X a year on average" phrasing from the request); "could save" framing everywhere else.
 
 **7. Naming** — city + concept in EVERY filename, number at the end of graphics for cross-check: `qvc_live_roku_calls_houston_L07_diane_board_v01.mp4`, `qvc_live_roku_calls_houston_R1_react_v01.mp4`, `Savings Board - Houston - 240 - GPT_xxxx.png`, `Deal Card - Houston now58 (713) 936-4745 - GPT_xxxx.png`, `Caller LT - MARCUS Houston - PIL.png`, `marcus_M1_phone.wav`.
 
-**8. Deliver** — stream as they land; DaVinci **first import = whole-folder mirror; later adds = ADDITIVE ONLY** (never DeleteFolders, never touch Creatives/); Notion `✅ Assets Generated` comment + Asset Gen lifecycle; full 📁/🔗/🦊 handoff; **SMA disclaimer flag** for the final cut (add-ai-disclaimer, 16:9 one-line preset).
+**8. Deliver** — stream as they land; DaVinci **first import = whole-folder mirror; later adds = ADDITIVE ONLY** (never DeleteFolders, never touch Creatives/); Notion `✅ Assets Generated` comment + Asset Gen lifecycle; full 📁/🔗/🦊 handoff; **NY AI-disclaimer flag** for the final cut — NY-market variants only (add-ai-disclaimer, 16:9 one-line preset).
 
 ## Assembly — Palmier bare spine (v0 DRAFT, maiden practice 07.08.26 — pending Sam's sign-off)
 
@@ -84,7 +84,7 @@ The QVC creative assembles as a **show rundown**: host lines in manifest order w
 6. **Transcript QC gate before showing:** `get_transcript` → per-line diff vs the manifest (order, completeness, extra speech, spoken rates). Maiden catches: L03b unscripted babble tail (trim, don't refire), VAD can clip a soft first word (L14 "Our"), holds can carry muted speech-bleed (R2 — never unmute raw), Veo interjection bleed on board-run lines (editor's call).
 7. L15's audio stays live in the spine (stripped under the end card in edit).
 
-All v0.6.3 API shapes + the VAD laws live in `lctovid-podcast-palmier` SKILL.md (the Palmier machinery home) — this section is the QVC-specific rundown recipe.
+All v0.6.3 API shapes + the VAD laws live in `lctovid-podcast-palmier` SKILL.md (the Palmier machinery home) — this section is the QVC-specific rundown recipe. **⚠ HOLD DEPENDENCY: `lctovid-podcast-palmier` is LOCAL-ONLY (Sam's machine, pending sign-off) — editors do NOT have it.** Until it ships, the Palmier ASSEMBLY leg of this pipeline runs on Sam's machine only; editors run everything up through delivery (gens, VO, graphics, digit gate, DaVinci import) and hand the assembly to Sam. If Claude is running this on an editor machine and reaches the assembly step: STOP and say so — do not improvise Palmier assembly without the machinery skill.
 
 ## Houston maiden manifest
 
@@ -98,3 +98,19 @@ Initial batch stages through `stage-request` as usual; steps 1–8 are THE SAME 
 
 ## Cross-references
 `/ag.rctv.c.bn` (sibling spine) · `stage-request` · `pfm-character-master` · `nano-banana-prompting` · `call-graphics` · `add-ai-disclaimer` · `audio-qc` / `visual-qc` · memories: `feedback_veo_ref_scene_frame_not_master`, `feedback_veo_ref_aspect_match`, `feedback_approved_layout_edit_base_never_reroll`, `feedback_davinci_import_whole_folder`, `feedback_sma_ai_performer_disclaimer`.
+
+## 🔴 DIGIT GATE — mechanical digit-verify (G3, mandatory — added 07.17.26)
+
+Any output whose graphics carry NUMBERS (tracking numbers, rates, board values, quote pages) delivers ONLY through the shared digit gate:
+
+```
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py init "<output dir>" --expected "<the exact number(s)>"
+# → gate CLOSES. For EACH listed file: Read the PNG, compare char-for-char, then confirm/fail it:
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py confirm "<dir>" "<file>"     # or: fail "<dir>" "<file>" "reason"
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"               # exit 0 = gate open
+```
+
+**Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.
+
+## 🔴 TRANSCRIPT GATE (G5, mandatory — added 07.17.26)
+Before ANY assembly is shown or exported, and before VO delivery: run `audio-qc` **WITH the manifest** over the clips/VO (`python3 ~/.claude/skills/audio-qc/audio_qc_scan.py <dir> --manifest <manifest>`) and get **exit 0** — the scanner now HARD-FAILS (exit 2) on an unreadable manifest instead of silently degrading to physics-only, so a "clean" report means the dialogue was actually verified. Spoken rates: any $-amount mismatch = FAIL → fix/refire before proceeding. Include the pass line in the report. Digit-verify of graphics runs through the DIGIT GATE above — both gates open before delivery.

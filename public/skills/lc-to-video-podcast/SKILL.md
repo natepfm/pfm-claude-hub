@@ -5,6 +5,8 @@ description: PFM's LC-to-Video Podcast pipeline — convert a working Facebook l
 
 # LC to Video Podcast — PFM Script Formatter
 
+> **Request format is LIVE (2026-07-13).** This skill writes the CONTENT for a request, not the request page. When your output goes into a Notion request, write it into the locked body shape — the Copy callout holds ONE static numbered script (one line per clip); hard values (rates, numbers) go in tables, never loose prose. The page shell, spec properties, and display-name title belong to [[wr.request]] / the VTM template — don't set properties or rename requests from here. Format spec: [[project_skills_workflow_audit]].
+
 This skill turns a working Facebook long-copy (LC) ad into a Veo-ready podcast story-ad script. The "LC to Video Podcast" format is a PFM-original: a single dad-on-podcast speaker re-tells the LC's story across 60-80 numbered Veo clips. The voice has to sound like a guy talking on a podcast, not a guy reading his own Facebook post out loud.
 
 ## Why this skill exists
@@ -188,6 +190,7 @@ Run a final pass before showing the editor:
 | Named camera devices | None (`iPhone`, `phone`, `GoPro` — these belong in negatives, not the script) |
 | Word count | Every line 15-30 words, target 17-22 (closer can dip to 12-15) |
 | Closer | Final line 12-15 words for held-silence impact |
+| No-call claims | **Zero "no sales call(s)" / "no calling around" / "nobody will call you"** (banned 2026-07-14) — LCs often carry these; reframe the convenience without referencing calls, or flag the line |
 | Flagged words | Surface any preserved swears or compliance-sensitive lines for editor review |
 | SMA gate | SMA / SaveMaxAuto creative? The final creative MUST carry, verbatim: "This advertisement contains synthetic performers created with artificial intelligence." Flag it explicitly in the draft (typically the closing on-screen/VO beat). |
 
@@ -259,3 +262,16 @@ Line-level worked examples of the full LC-to-podcast transformation (Loans Best 
 4. Preserve every fact, number, beat, and CTA from the source LC. No new claims.
 5. Output as a numbered list with the verbatim LC tucked into a `<details>` block underneath.
 6. End at the locked script pushed to Notion, then OFFER the gen handoff — on a yes, chain into `ag.stage` (or `hvg-flow`) directly; the fire confirmation lives in the gen flow's own gates.
+
+## 🔴 SHIP GATE — mechanical compliance lint (G2, mandatory — added 07.17.26)
+
+Before delivering ANY script (in chat, pushed to Notion, or into a manifest), run it through the shared linter and get **exit 0**:
+
+```
+python3 ~/.claude/skills/veo-script-writing/scripts/compliance_lint.py <script-file or -> --vertical <auto|home-forms|home-calls|loans> [--sma]
+```
+
+- Pipe the numbered script via stdin (`-`) or point at the saved file. Pass `--sma` on any SaveMaxAuto/SMH-brand creative (verifies the exact AI-performer disclaimer line is present).
+- **Exit 1 = the script may NOT ship.** Fix every FAIL line, re-run, deliver only on PASS. Include the PASS line in your delivery report (DONE = this check passed).
+- WARNs do not block — resolve or consciously justify each one.
+- The linter covers the greppable rules (banned claims, brands, floors, daily-rate framing, free-misuse, no-call ban). Judgment items on the human checklist (story logic, villain framing, authority credibility) remain yours on top.

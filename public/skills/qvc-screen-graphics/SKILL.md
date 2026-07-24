@@ -54,3 +54,16 @@ Every delivery renders all four surfaces:
 ## Cross-refs
 
 `assetgen-rokuctv-calls-qvc` (parent pipeline, step 4) · `call-graphics` (banner/endcard) · `references/method-history.md` (v1/v2 record + PIL registration lessons) · `references/legacy/` (superseded v1 scripts) · `feedback_approved_layout_edit_base_never_reroll` · `feedback_pfm_brand_clean_rules` (logo=PIL law). Ref impl: `scripts/` + the Houston project's `Elements/Prompts/`.
+
+## 🔴 DIGIT GATE — mechanical digit-verify (G3, mandatory — added 07.17.26)
+
+SCOPE (qvc): only the NUMBER-BEARING outputs — Deal Panel rate states, order bar / caller counter, stat pill, caller lower-thirds with values. Channel bug, CONNECTING, and other numberless overlays are EXEMPT — run `init` on the number-bearing files/subfolder, not the whole package. Those outputs deliver ONLY through the shared digit gate:
+
+```
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py init "<output dir>" --expected "<the exact number(s)>"
+# → gate CLOSES. For EACH listed file: Read the PNG, compare char-for-char, then confirm/fail it:
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py confirm "<dir>" "<file>"     # or: fail "<dir>" "<file>" "reason"
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"               # exit 0 = gate open
+```
+
+**Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.

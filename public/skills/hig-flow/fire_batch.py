@@ -397,11 +397,13 @@ def main():
     log("")
     log("✅ %d/%d image(s) delivered" % (delivered, planned))
     fails = [s["shotId"] for s in jl["shots"] if not s.get("_files")]
-    if fails:
-        log("❌ %d shot(s) with no file: %s" % (len(fails), ", ".join(fails)))
     if manifest:
         log("📋 Manifest: %s" % os.path.basename(manifest))
     print_handoff(jl, root)
+    if fails:
+        log("❌ %d shot(s) with no file: %s" % (len(fails), ", ".join(fails)))
+        log("❌ G1 gate: batch NOT complete — refire the missing shots before delivering.")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

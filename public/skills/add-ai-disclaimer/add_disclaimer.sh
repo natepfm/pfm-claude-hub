@@ -103,16 +103,26 @@ IN="${1:?usage: add_disclaimer.sh <input> <output>}"
 OUT="${2:?usage: add_disclaimer.sh <input> <output>}"
 
 if [ -f "$IN" ]; then
-  _burn "$IN" "$OUT" && echo "OK   $IN" || echo "FAIL $IN"
+  if _burn "$IN" "$OUT"; then echo "OK   $IN"; else echo "FAIL $IN"; exit 1; fi
 elif [ -d "$IN" ]; then
   SRCROOT="${IN%/}"; DESTROOT="${OUT%/}"
   export SRCROOT DESTROOT
+  BATCH_LOG=$(mktemp /tmp/add_disclaimer_batch.XXXXXX)
   find "$SRCROOT" -type f \( -iname '*.mp4' -o -iname '*.mov' \) -print0 \
    | xargs -0 -P "$PAR" -n 1 bash -c '
        src="$0"; rel="${src#'"$SRCROOT"'/}"; out="'"$DESTROOT"'/${rel}"
        out="${out%.*}.mp4"
-       if _burn "$src" "$out"; then echo "OK   $rel"; else echo "FAIL $rel"; fi'
-  echo "=== batch done ==="
+       if _burn "$src" "$out"; then echo "OK   $rel"; else echo "FAIL $rel"; fi' | tee "$BATCH_LOG"
+  # --- G1/G6 gate: this is a COMPLIANCE re-export — tally, verify counts, refuse on any FAIL ---
+  N_IN=$(find "$SRCROOT" -type f \( -iname '*.mp4' -o -iname '*.mov' \) | wc -l | tr -d ' ')
+  N_OK=$(grep -c '^OK' "$BATCH_LOG" || true)
+  N_FAIL=$(grep -c '^FAIL' "$BATCH_LOG" || true)
+  rm -f "$BATCH_LOG"
+  if [ "$N_FAIL" -gt 0 ] || [ "$N_OK" -ne "$N_IN" ]; then
+    echo "❌ batch NOT verified: $N_OK/$N_IN burned, $N_FAIL FAIL — missing disclaimers may NOT ship. Fix + re-run."
+    exit 1
+  fi
+  echo "✓ batch VERIFIED $N_OK/$N_IN burned, 0 FAIL"
 else
   echo "input not found: $IN"; exit 1
 fi

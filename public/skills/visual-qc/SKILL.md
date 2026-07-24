@@ -1,13 +1,13 @@
 ---
 name: visual-qc
-description: PFM's visual QC skill for Veo-generated mp4 clips — catches background morphs, slide text garble, hallucinated overlays, and hard cuts that audio QC can't see. Per-clip 5-frame filmstrip extraction via ffmpeg (0s/2s/4s/6s/7.8s, scaled 480px wide, hstacked) + full-res end-frame extraction for caption-slide clips with fine on-screen text (rate text, name labels, ZIP codes, dollar amounts). Claude reads each filmstrip and calls ✓ / ✗ / 🔍 VERIFY per clip. Use this skill whenever an editor asks to "run visual QC", "visual QC", "filmstrip QC", "frame QC", "check the visuals", "verify the visuals", "QC the slides", "scan the visuals" — or after a Veo batch downloads and the editor wants a per-clip visual pass. Primarily used on VSL-style projects with per-line slide references where backgrounds must stay frozen. Also auto-offered alongside audio-qc by hvg-flow Step 11 (sequential offers: audio first, then visual). NOT for: audio defects (use audio-qc), one-off image QC, podcast story-ad work without per-line slides (filmstrip overhead not worth it).
+description: PFM's visual QC skill for Veo-generated mp4 clips — catches background morphs, slide text garble, hallucinated overlays, and hard cuts that audio QC can't see. Per-clip 5-frame filmstrip extraction via ffmpeg (0s/2s/4s/6s/7.8s, scaled 480px wide, hstacked) + full-res end-frame extraction for caption-slide clips with fine on-screen text (rate text, name labels, ZIP codes, dollar amounts). Claude reads each filmstrip and calls ✓ / ✗ / 🔍 VERIFY per clip. Use this skill whenever an editor asks to "run visual QC", "visual QC", "filmstrip QC", "frame QC", "check the visuals", "verify the visuals", "QC the slides", "scan the visuals" — or after a Veo batch downloads and the editor wants a per-clip visual pass. Primarily used on VSL-style projects with per-line slide references where backgrounds must stay frozen. EDITOR-INVOKED ONLY on local fires (Sam 2026-07-20: local fires get NO QC and no QC offer — gen flows end with a passive availability line). Mandatory only inside the autonomous `agf`/mini cycle. NOT for: audio defects (use audio-qc), one-off image QC, podcast story-ad work without per-line slides (filmstrip overhead not worth it).
 ---
 
 # Visual QC — PFM
 
-## 🔴 QC-OFFER LAW
+## 🔴 QC LAW (Sam 2026-07-20)
 
-**QC is OFFERED via a plain ask on local fires, never auto-run. AGF/mini runs keep mandatory QC.**
+**Local fires get NO QC and NO QC ask — this skill runs ONLY when the editor explicitly invokes it. Gen flows end with a passive availability line, nothing more. AGF/mini runs keep mandatory QC (autonomous, nobody watching).**
 
 **This skill is the single filmstrip owner — veo-life delegates its clip QC here.**
 
@@ -22,7 +22,7 @@ Per-clip visual quality check for Veo-generated mp4 clips. Catches background mo
 
 This skill triggers on:
 - Editor says "visual QC", "check the visuals", "run visual QC", "filmstrip QC", "frame QC", "verify the visuals"
-- Editor accepts the visual QC offer surfaced by `hvg-flow` Step 11 (offered after audio QC completes)
+- Editor invokes it after seeing the passive availability line in a gen flow's final report
 - Editor wants per-clip frame analysis after a Veo batch downloads
 
 Most useful for:
@@ -161,7 +161,7 @@ Surface to the editor:
 
 When the editor confirms a defect is real:
 
-- **Pre-delivery regen — overwrite IS OK** (this is the explicit exception to `feedback_regen_no_overwrite.md`). The visual-QC regen runs BEFORE the clip enters any timeline, so overwriting `<slug>_v01.mp4` keeps the manifest clean.
+- **Pre-delivery regen — overwrite IS OK, but ONLY pre-delivery** (the explicit and NARROW exception to `feedback_regen_no_overwrite.md`). Overwrite `<slug>_v01.mp4` ONLY while the clip is still inside visual-QC: before it enters any timeline, before the mini/flow fires it out, before a delivery comment is posted. 🔴 **The moment a clip is DELIVERED (fired + delivery comment posted / in the editor's hands), this exception is DEAD — version up to `_v02+`, NEVER overwrite.** And do NOT `rm` an existing clip to force an idempotent fire script to re-fire — that deletion IS the overwrite (this is exactly how the exception got misapplied to already-delivered pixar-avg L06/L07, 2026-07-13). When unsure whether a clip is delivered: assume delivered → version up.
 - Default model: **Veo 3.1 Lite + `--generate_audio true`** at count=1 (matches the new default fire shape — see `feedback_default_count_1.md`)
 - **2-retry cap.** Stop after 2 retries on the same clip and surface to the editor for a Fast escalation decision (don't burn credits in a regen loop)
 - After regen, re-run visual-qc on just that clip (point the scanner at the single state subfolder, or wait for the editor's next batch QC pass)
@@ -182,8 +182,8 @@ Five worked scenarios — chained from hvg-flow, cold invocation, single state/b
 
 ## Cross-references
 
-- **`audio-qc`** — sibling skill; runs first in the bundled QC offer (audio → visual)
-- **`hvg-flow`** — invokes this skill via the post-download QC offer in Step 11 (sequential after audio QC)
+- **`audio-qc`** — sibling skill (audio physics + dialogue verify)
+- **`hvg-flow`** — its final report names this skill in the passive QC-availability line; the editor invokes it directly
 - **`feedback_visual_qc_workflow.md`** — the canonical rule set (5-frame default, caption-slide rule, don't-rationalize, 2-retry cap, pre-delivery overwrite exception)
 - **`feedback_regen_no_overwrite.md`** — visual-qc's pre-delivery overwrite is the documented exception
 - **`feedback_default_count_1.md`** — regen default matches the count=1 fire shape

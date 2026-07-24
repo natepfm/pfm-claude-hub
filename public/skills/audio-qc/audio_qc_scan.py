@@ -515,8 +515,12 @@ def main():
     if args.manifest and not args.no_whisper:
         manifest_path = Path(args.manifest).expanduser().resolve()
         if not manifest_path.is_file():
-            print(f"warning: manifest not found at {manifest_path}; skipping Whisper phase",
+            # G1 gate: a requested-but-unreadable manifest must NOT silently degrade to physics-only —
+            # that reports "QC clean" on a scan that never checked the dialogue.
+            print(f"ERROR: --manifest given but not found at {manifest_path}. "
+                  f"Fix the path (or run explicitly without --manifest for a physics-only scan). Exiting.",
                   file=sys.stderr)
+            sys.exit(2)
         else:
             print(f"\nPhase 2 — Whisper dialogue verification (manifest: {manifest_path.name})...",
                   file=sys.stderr)

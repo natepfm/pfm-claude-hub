@@ -717,11 +717,11 @@ This command IS statically allowlistable as `Bash(bash ~/.claude/skills/hvg-flow
 - Image upload failure: auto-resize image, retry
 - CLI hang past `--wait-timeout`: get job ID from partial output, recover with `higgsfield generate wait <job_id> --json`
 
-## Step 11 — Excel update + audio QC offer + final report
+## Step 11 — Excel update + final report (🔴 NO QC on local fires)
 
-**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display`), labeled (clip, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-clip backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / QC / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement.
+**⚡🔴 Hard Rule 5 — stream every gen the INSTANT it lands, EVERY batch size (locked 2026-06-17 · hardened mechanically 2026-07-01 · 20+ carve-out removed 2026-07-12, Sol #2).** The moment a gen's **result URL exists** — BEFORE downloading, BEFORE QC, BEFORE the next result — surface it to the editor: 📲 tappable + widget (`job_display`), labeled (clip, take). Then download it and add the 📁 / 🔗 handoff. The editor often picks v1 or v2 without waiting on v3; QC/verdicts come AFTER each reveal, never as a gate. **The fire mechanism itself must expose per-gen results:** per-clip backgrounded fires, or a ThreadPool reporting via `as_completed` that prints each result URL the second it resolves (tail the shell output and relay each line at once). **A single silent multi-gen `--wait` shell that only returns when the slowest gen finishes is a Rule 5 violation — restructure before firing.** **20+ items → stream a COMPACT per-result line as each lands** (label + 📲 tappable; skip the full per-item link block at that scale) — batch size changes the FORM of the reveal, never its timing. The totals / manifest report below still runs at the end as a rollup ON TOP of the stream, never a replacement. **⚡ INLINE DOWNLOAD (Sam 2026-07-20): the detached fire shell should also DOWNLOAD each clip immediately after its result_url resolves — same script, per-clip curl — so by the time the batch completes, everything is already on disk and the final turn is just links.** A separate end-of-batch download pass (`download_parallel.sh`) is the RECOVERY fallback (partial runs, crashed shells), not the default flow.
 
-After all clips download, **rewrite** `<slug>_prompts.xlsx` using the same `build_xlsx.py` helper from gate 8 — same config schema, just refreshed status / v01 / v02 / notes per row. The helper overwrites the file cleanly; both Summary and Prompts sheets get rebuilt in one shot.
+**🔴 DELIVER FIRST, MANIFEST SECOND (Sam 2026-07-20 — speed law).** The instant the last clip is on disk, post the delivery block (the compact Final report below, links included) — the editor never waits on the xlsx. THEN rewrite `<slug>_prompts.xlsx` with `build_xlsx.py` in a **backgrounded** call and drop one follow-up line (`📋 Manifest updated`) when it lands. Same config schema as gate 8, refreshed status / v01 / v02 / notes per row; the helper overwrites cleanly, both sheets in one shot.
 
 Update each prompt entry in the config:
 - `status`: `"✓"` if all expected mp4s exist on disk (just v01 at count=1 default; v01 + v02 at count=2 opt-in), `"Partial"` if some-but-not-all (count≥2 opt-in only), `"✗"` if none
@@ -735,58 +735,17 @@ python3 ~/.claude/skills/hvg-flow/build_xlsx.py "$CONFIG" \
   "Elements/Footage/Veo/<slug>_prompts.xlsx"
 ```
 
-### Refire decisions — no refire RECOMMENDATION without QC (QC itself stays an offer)
+### 🔴 NO QC ON LOCAL FIRES — don't run it, don't even ASK (Sam 2026-07-20, supersedes the offer pattern)
 
-**One rule (reconciled 2026-07-12, Sol #5): QC is OFFERED on local/in-chat runs — never auto-fired; mandatory-QC language belongs to `agf` (the autonomous mini) ONLY.** What IS absolute here is the ordering: if the editor accepts the QC offer, make no refire recommendation until QC completes; if they decline, make NO automated refire recommendation at all — show the results and leave refire decisions to the editor (note in the final report that nothing was auto-vetted). Refiring on reflex burns credits AND clutters the manifest with extra v-numbered rows for clips that were already fine. With `count=1` as the locked default (2026-05-26), the math is simple: trust what came back unless QC says otherwise.
+**Local/in-chat fires get ZERO QC — no audio-qc, no visual-qc, no Whisper, no filmstrips — at ANY batch size.** The old "offer QC" pattern invited a reflex "yes" that burned tokens and delayed deliverables; that's exactly what this rule kills. Do not run QC, do not ask a QC question, do not wait on anything QC-shaped. **Deliver immediately** — clips + links the moment the batch is on disk.
 
-Routing (applied in the final report below, when QC ran):
-- **Returned (v01 at count=1 default, or any variation at count≥2 opt-in) AND passes QC** → recommend "accept as-is", no refire prompt
-- **Returned AND flagged by QC** → recommend "refire", save as next vNN (v02 for count=1 rows, v03+ for count≥2 rows)
-- **Total fail (0 returned)** → automatic refire candidate (nothing to QC)
+The ONLY QC surface on a local fire is one **passive line at the end of the final report** (not a question, expects no answer):
 
-**Partial status (count≥2 opt-in only):** when a row was fired at count≥2 and 1 of N variations is missing, treat it the same way — QC the survivor first. Don't refire just to "top up" to the requested count if the survivor is already good.
+> QC available on request: `/qc.audio` (audio physics + dialogue verify) · `/qc.video` (filmstrips) · `/qc.g` (Gemini watch).
 
-See `feedback_partial_returns_qc_before_refire.md`.
+QC runs ONLY if the editor explicitly invokes it. **Mandatory QC belongs to `agf` (the autonomous mini) ONLY** — that run is unattended, so the machine must check itself; a local fire has an editor watching, and the editor IS the QC.
 
-### Audio QC offer (optional)
-
-After the manifest is rewritten and BEFORE the final report, surface the QC offer to the editor in **plain markdown chat** (NOT `AskUserQuestion` — see `feedback_no_askuserquestion_in_pfm_flows.md`):
-
-> All N clips downloaded and the manifest is updated. Want me to run an audio QC pass before you import to DaVinci? Two phases run together — ffmpeg audio-physics (silent / clipped / no_audio in ~90s) PLUS Whisper dialogue verification against the manifest (flags `dialogue_mismatch` on wrong-words / mid-syllable cuts in ~2 min). Total ~3-4 min for a typical 350-clip batch. Writes a markdown report into the Veo folder with transcripts for any mismatches.
->
-> Reply `yes` to run it or `no` (or `skip`) to go straight to the final report.
-
-**Handling each response:**
-- **`yes`** — load the `audio-qc` skill and fire the scanner:
-  ```bash
-  python3 ~/.claude/skills/audio-qc/audio_qc_scan.py "<project>/Elements/Footage/Veo" \
-    --manifest "Elements/Footage/Veo/<slug>_prompts.xlsx" \
-    --workers 12
-  ```
-  Pass `--manifest` so Whisper Phase 2 runs against the same Excel manifest you just rewrote in this step. After it completes (~3-4 min), surface the flag-count summary + top hotspots + any dialogue_mismatch transcripts in the final report below. See `audio-qc/SKILL.md` for how to interpret flags and what to surface.
-- **`no` / `skip`** — proceed directly to the final report below.
-
-**Never auto-fire QC without explicit confirmation.** The editor opted into a gated flow; this is a gate too.
-
-### Visual QC offer (optional)
-
-After audio QC runs (or was declined), surface the visual QC offer in **plain markdown chat** (NOT `AskUserQuestion`):
-
-> Visual QC catches what audio can't see — background morphs / slide text garble / hallucinated overlays / hard cuts. **~10-15 min for ~350 clips** (filmstrip extraction in 2-3 min, then I review each — heavier than audio QC). Best for VSL-style projects with per-line slide refs; podcast-style with one shared ref rarely needs it (the speaker IS the content, nothing else to morph).
->
-> Reply `yes` (no caption-slide focus), `yes L02,L17,L19` (with caption-slide L-numbers for full-res text inspection — rate text / name labels / ZIP codes / dollar amounts), `no` / `skip`.
-
-**Handling each response:**
-- **`yes` (with or without L-list)** — load the `visual-qc` skill and fire the scanner:
-  ```bash
-  python3 ~/.claude/skills/visual-qc/visual_qc_scan.py "<project>/Elements/Footage/Veo" \
-    --caption-clips L02,L17,L19 \
-    --workers 8
-  ```
-  Omit `--caption-clips` if the editor didn't specify any. After filmstrip extraction completes (~2-3 min), walk the index JSON (`<veo_root>/qc/visual_qc_index_<date>.json`), Read each filmstrip PNG (+ caption full-res frames for caption-slide clips), apply the pass/fail criteria from `visual-qc/SKILL.md`, and write `<veo_root>/qc/visual_qc_report_<date>.md` alongside the audio one. Surface the ✗ + 🔍 VERIFY counts + top concentrations in the final report below.
-- **`no` / `skip`** — proceed directly to the final report below.
-
-**Never auto-fire visual QC without explicit confirmation.** Same gate discipline as audio QC.
+**Refire decisions with no QC run:** make NO refire recommendations — show the results; refires are the editor's call (STOP ASSUMING). The one exception: **total fails (0 files returned)** are flagged as automatic refire candidates — nothing landed to judge. If the editor DOES invoke QC afterward, then: flagged → recommend refire as next vNN; passed → accept as-is; count≥2 partials → judge the survivor before topping up. See `feedback_partial_returns_qc_before_refire.md` for the QC-before-refire ordering when QC actually runs.
 
 ### Delivery comment offer (optional)
 
@@ -800,7 +759,7 @@ After QC (or once it's declined), offer to post the delivery comment to the Noti
 - **`yes`** — load the `notion-asset-delivery` skill. It already has the request URL + project folder from this session (don't re-ask — see `feedback_pfm_no_redundant_notion_redrop`), pulls the manual-fire flags from the manifest/QC just run, builds the link, and stops at its own preflight confirm before posting.
 - **`no` / `skip`** — proceed to the final report.
 
-**Never auto-post.** Same gate discipline as the QC offers — the editor confirms the exact comment in the skill's preflight.
+**Never auto-post.** The editor confirms the exact comment in the skill's preflight.
 
 ### AGF state close (if this run had a Notion request)
 
@@ -814,25 +773,16 @@ If you claimed the `Generating (Local)` lock at Gate 9, close the state now — 
 
 Then summarize for the editor — and **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 Fox.io — plus a 📲 Tappable line whenever you show a representative clip inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only — point it at the delivered folder: the `Veo/` root, or the specific `Batch N/NN. State/` for a single-state run):
 
-> ✅ X clips delivered to `Elements/Footage/Veo/`
-> ❌ Y prompts had failures: <list slugs + reasons>
-> 💰 Final balance: M credits (delta: -K)
-> ⏱ Total elapsed: Z minutes
-> 📋 Manifest: `<slug>_prompts.xlsx`
-> 🎧 Audio QC: `<summary if ran, else "skipped">`
+**Keep it COMPACT (Sam 2026-07-20)** — the per-clip stream already showed everything; this is a short receipt, not a table dump:
+
+> ✅ X/Y clips · `Elements/Footage/Veo/` · -K cr (balance M) · Z min
+> ❌ <only if fails exist:> slug — reason (refire candidates)
 > 📁 Path: `/Volumes/ads/…/Elements/Footage/Veo`
 > 🔗 Open: [Veo ↗](https://linkyourfile.com/link?p=…)
 > 🦊 Fox.io: Veo → From Claude rail
+> QC available on request: `/qc.audio` · `/qc.video` · `/qc.g`
 
-If failures or QC flags exist, list them in three buckets (assuming QC ran — see "Refire decisions" above):
-
-- **Total fails** (0 returned) — slug + dialogue + reason; default-recommend refire
-- **Returned, QC-clean** — accept as-is, no refire. Default for count=1 returns + count≥2 Partials whose survivor passed QC.
-- **Returned, QC-flagged** — slug + dialogue + flag reason; default-recommend refire (save as next vNN)
-
-If QC was declined, all returns land in a single "needs editor review" bucket — Claude cannot auto-vet without QC signal.
-
-If audio QC ran, also list flagged-clip hotspots (per-L-number concentrations) — these are usually script-level fixes, not refire candidates.
+**Total fails (0 returned)** get listed with slug + reason — automatic refire candidates. Everything that returned is the editor's to review; no verdicts, no buckets, no recommendations (see the NO-QC rule above). The `📋 Manifest updated` line follows separately when the backgrounded xlsx finishes.
 
 ---
 

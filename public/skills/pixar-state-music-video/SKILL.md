@@ -69,6 +69,7 @@ Proven identical across Georgia/Washington/Oregon builds. `build_pixar_prompts.p
 - **NB Pro takes PLAIN PROSE prompts. A JSON-blob prompt → HTTP 500.** (The Georgia/Washington prompt *files* on disk are JSON reference docs, but the actual fire used prose.) `build_pixar_prompts.py` emits prose.
 - **Output is 1080×1920 (9:16), `nano_banana_2`, 2k, count=1.** ~2 cr/image → **~26 cr for the full 13-shot set.** ALWAYS state the cost when firing (per `feedback_report_cr_cost_on_batches`).
 - Retry cap: initial + up to 2 retries on transient 500/timeout, then flag (`fire_pixar.py` default).
+- **🔴 Refires of DELIVERED assets version up — never overwrite, never `rm`-to-force.** The `claude_`/`o` prefix rule above is for fresh-build-vs-original comparison; once a frame is DELIVERED (fired out + delivery comment / in the editor's hands), a corrective refire saves as a NEW variant (`..._v02`, `_v03`), never clobbering the delivered file — and you NEVER `rm` an existing file to defeat the fire script's skip-if-exists idempotency (that deletion IS the overwrite). Pre-delivery `visual-qc` regen is the ONLY overwrite exception. See `feedback_regen_no_overwrite` (the pixar-avg L06/L07 overwrite, 2026-07-13, is exactly this failure).
 - Baked-in negatives: "no fingers on mittens", "clean recognizable smooth state silhouette (not lumpy)", "any on-screen sign/text appears EXACTLY ONCE (no duplicate text)", "NOT <avoid_states> shape/terrain".
 
 ## What this skill does NOT do

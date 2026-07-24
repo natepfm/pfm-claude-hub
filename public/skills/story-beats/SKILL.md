@@ -5,6 +5,8 @@ description: Generate locked beat skeletons for PFM story ads from a reference c
 
 # PFM Story Beats Generator
 
+> **Request format is LIVE (2026-07-13).** This skill writes the CONTENT for a request, not the request page. When your output goes into a Notion request, write it into the locked body shape — the Copy callout holds ONE static numbered script (one line per clip); hard values (rates, numbers) go in tables, never loose prose. The page shell, spec properties, and display-name title belong to [[wr.request]] / the VTM template — don't set properties or rename requests from here. Format spec: [[project_skills_workflow_audit]].
+
 **Purpose:** Turn a reference creative + Sam's tweaks (or a raw idea) into a locked beat skeleton. Baseline is the 6-beat structure; more convoluted stories can expand it. Beats lock the **structure + must-hit dialogue anchors** before the dialogue pass fills in the connective tissue. PFM shoots improv-heavy — talent is directed to character, not lines — so beats that include the load-bearing lines are exactly what the dialogue pass and the shoot both need.
 
 ## When to Activate
@@ -172,3 +174,4 @@ If Sam asked for multiple skits, repeat the Skit block. Keep the compliance note
 Structure comes from this skill. The PFM voice and GOOD NEIGHBOR reference come from `context/story-ad-playbook.md`. The compliance guardrails come from `context/pfm-creative-rules.md` and the vertical files. This skill orchestrates them — it doesn't replace them.
 
 When beats are approved, the dialogue pass fills in the connective tissue around the must-hit anchors. PFM shoots improv-heavy — the anchors are what the performance hangs on; everything else is a scaffold for talent to improvise around. See `context/story-ad-playbook.md` section on improv-heavy shooting.
+

@@ -92,3 +92,16 @@ Four-link handoff (these are single shown graphics): 📁 raw `/Volumes/ads/…`
 ## File naming
 
 `<Banner|EndCard> <Roku|TD> <last-4-digits> - <Design> - GPT_<4-hex>.png` — e.g. `Banner Roku 8286 - Apple Navy - GPT_3f2a.png`. The script does this automatically (last-4 = the final four digits regardless of phone format).
+
+## 🔴 DIGIT GATE — mechanical digit-verify (G3, mandatory — added 07.17.26)
+
+Any output whose graphics carry NUMBERS (tracking numbers, rates, board values, quote pages) delivers ONLY through the shared digit gate:
+
+```
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py init "<output dir>" --expected "<the exact number(s)>"
+# → gate CLOSES. For EACH listed file: Read the PNG, compare char-for-char, then confirm/fail it:
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py confirm "<dir>" "<file>"     # or: fail "<dir>" "<file>" "reason"
+python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"               # exit 0 = gate open
+```
+
+**Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.
