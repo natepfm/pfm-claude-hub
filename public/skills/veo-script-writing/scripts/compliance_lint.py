@@ -11,7 +11,9 @@ Usage:
   python3 compliance_lint.py <script.md>                # file
   cat script | python3 compliance_lint.py -             # stdin
   ... --vertical auto|home-forms|home-calls|loans       # enables rate-floor checks
-  ... --sma                                             # require the exact AI-performer disclaimer
+  ... --ny (alias --sma)                                # NY creatives ONLY: require the exact
+  ...                                                   #   AI-performer disclaimer line. Brand
+  ...                                                   #   alone never triggers it.
 """
 import argparse, re, sys
 
