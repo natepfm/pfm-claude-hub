@@ -7,9 +7,12 @@ description: >-
   Phase 1 for when the editor just needs files in DaVinci — new b-roll, a refire batch, a graphics
   drop — WITHOUT the full import-assemble pipeline. Use on "get this folder into davinci", "import
   the b-roll", "make sure those get in davinci", "/e.import <folder>", "add these files to the
-  media pool". Purely additive + idempotent (never deletes, never switches projects, media-only —
-  no timelines). NOT for: the full project Phase-1 import at edit-start (claude-editor), building
-  timelines (e.assemble), or Palmier imports (palmier-davinci-import).
+  media pool". Brings the folder's MEDIA **and its `.drt` timelines** (Sam 2026-07-24 — timelines
+  import via ImportTimelineFromFile into the bin mirroring their own folder, e.g.
+  `Creatives/Timelines`). Purely additive + idempotent (never deletes, never switches projects,
+  never duplicates an existing timeline). NOT for: the full project Phase-1 import at edit-start
+  (claude-editor), BUILDING timelines from a script (e.assemble), publishing a timeline as a .drt
+  for handoff (e.timeline), or Palmier imports (palmier-davinci-import).
 ---
 
 # e.import — one folder → the open DaVinci project
@@ -36,8 +39,17 @@ python3 ~/.claude/skills/e.import/e_import.py --folder "<absolute Lucid folder>"
   ImportMedia silently skips — but does NOT dedupe, so only on an empty bin); partially-filled bin →
   `MediaPool.ImportMedia` top-up filtered by existing File Path (dedupes). Idempotent — re-run to
   top up SHORT folders.
+- **Timelines (`.drt`) come too** (Sam 2026-07-24): media is only half a project folder. After the
+  media walk the script sweeps for `.drt` files and imports each via `MediaPool.ImportTimelineFromFile`
+  — they are NOT media, so `AddItemListToMediaPool` silently ignores them (which is why
+  `Creatives/Timelines/` used to arrive empty). Each lands in the bin that MIRRORS its own folder
+  (`Creatives/Timelines` on disk → `Creatives → Timelines` in the pool), never a new root-level bin.
+  Idempotent by timeline NAME, so re-running never duplicates. **Resolve drops
+  `ImportTimelineFromFile` calls made back-to-back** — only 2 of 4 landed on the first run — so the
+  loop paces itself (0.6s between, one 1.5s retry) and reports `timelines: N imported, N already
+  present, N failed`. Never lower that pacing.
 - **Verification** (DONE = check passed): per-folder disk-count vs in-bin-count table; anything
-  SHORT → re-run. Timeline-count guard confirms media-only. Saves the project at the end.
+  SHORT → re-run. Saves the project at the end.
 
 ## Hard rules (inherited)
 
