@@ -1,17 +1,21 @@
 ---
 name: ugc-interview-flow
-description: PFM's UGC group-interview creative pipeline, TWO MODES (alias /ag.ugc.interview.flow). A host interviews several people in a real-feeling location, each answering with their item + rate, full demographic matrix off one script. MODE A "NO-CUTS" — fake-continuous one-take, chained Seedance clips with pixel-matched joints the editor butt-joins (open settings: block party, car meet, jobsite; proven Home Block Party 28 clips + Auto Car Meet 32 clips, both 8-way). MODE B "CUTS" — shared brandless location masters + distinct-identity demographic cast cards, then INDEPENDENT per-station Seedance clips (multi-room / aisle-heavy locations where a one-take breaks; proven Home Depot Crew 32 clips + Home Cleaners Crew 40 clips, both 8-way). Contributed + maintained by Zach Hustead (v1 07-07, v2 07-14). Use when an editor says "UGC Interview Flow", "no cuts version" / "one-take" (Mode A), "cuts version" / "same style as Home Depot / Auto Dealership / Cleaners" (Mode B), or drops a VTM request in the UGC Interview format ("UGC Interview - <Setting> Crew/Party/Meet" family). NOT for: single-presenter UGC (ugc-talking-head-ref/-veo), Veo podcast story ads (hvg-flow), or writing the request itself.
+description: >-
+  PFM's UGC group-interview creative pipeline, TWO MODES (alias /ag.ugc.interview.flow). Use on: "UGC
+  Interview Flow", "no cuts version", "one-take", "cuts version".
+
 ---
 
 # UGC Interview Flow — group interviews, two modes
 
 > Maintainer: **Zach Hustead** — improvements route via `propose-skill` UPDATE mode ("propose an update to ugc-interview-flow"), Sam merges + re-distributes.
+> Contributors: **Mitchell Gamache** (Mode A crisp in-clip phone-screen closer, merged 2026-07-24).
 
 ## 🔀 Mode gate (FIRST decision, before anything fires)
 **Pick by LOCATION, confirm with the editor:**
 - **Mode A — NO-CUTS** (`references/no-cuts-playbook.md`): open settings where a continuous walk is plausible — block party, car meet, jobsite yard. Output = chained clips the editor butt-joins into one seamless take.
 - **Mode B — CUTS** (`references/cuts-playbook.md`): multi-room or aisle-heavy locations (house interior, big-box store) where a chained take can't keep the space proportionally accurate. Output = independent per-station clips off location masters + cast cards.
-Editor names it ("no cuts" / "cuts" / "like Home Depot") → that's the mode. Ambiguous → ask, one line. **Read the chosen playbook before ANY run — the playbook is law.** Script-is-LAW, the demographic matrix, verbatim rates, and the SMA/NY disclaimer gates apply identically in BOTH modes.
+Editor names it ("no cuts" / "cuts" / "like Home Depot") → that's the mode. Ambiguous → ask, one line. **Read the chosen playbook before ANY run — the playbook is law.** Script-is-LAW, the demographic matrix, verbatim rates, and the NY-only disclaimer gate (NY cuts only) applies identically in BOTH modes.
 
 ---
 
@@ -23,7 +27,7 @@ Editor names it ("no cuts" / "cuts" / "like Home Depot") → that's the mode. Am
 
 1. **Script is LAW.** Fetch the Notion request FIRST; Copy-section dialogue goes into prompts **verbatim**. Demographic adaptations only (voice + props/set dressing per cast) + editor-called compliance edits. NO paraphrase, NO compressed beats, NO invented CTAs. (A paraphrase once turned "$490/yr" into "$90/yr" — a floor breach that survived two approvals.) Structural change = show original-vs-proposed side by side, editor chooses. Dollar amounts spelled as words.
 2. **Wide reference per demographic version** (NB Pro, 9:16, 1k, camera-roll style): entire cast head-to-toe, interview travels LEFT→RIGHT, OG/closer far right, clear walking lane, **distinct outfits per person** (they're the identity handles — and wardrobe collisions melt identity downstream). Editor stamps the wide before any video fires.
-3. **Clip 1** fires with the wide as `--start-image` (Seedance 2.0, 720p, ≤15s, 9:16 — never `--image`). Travel clips cover ONE hop (1-2 new speakers max).
+3. **Clip 1** fires with the wide as `--start-image` (Seedance 2.0, 720p, ≤15s, 9:16 — never `--image`; the ONE exception is the phone-screen closer, which adds the lander as `--image` at 1080p, below). Travel clips cover ONE hop (1-2 new speakers max).
 4. **Every later clip's start-image = the PREVIOUS approved clip's real last frame** (`ffmpeg -sseof -0.3`). The butt-joint is pixel-clean by construction. The editor stitches — **Claude NEVER assembles/concats (hard rule, locked).**
 5. **Editor rubber-stamps every clip before the next fires.** Per landing: 📁 + 🔗 + 📲 + gate number + dense filmstrip + Whisper-small transcript (Rule 5 — shown the instant it lands).
 
@@ -41,7 +45,7 @@ Every chained fire wraps in: fire → download → extract frame 0 → pixel-dif
 - **Casting:** roster lock via imagery, never text alone; describe destinations from the RENDERED pixels, not the wide's prompt; wardrobe collisions → the EMPTY-BEAT PAN fix.
 - **Voices:** proper nouns are traps (swap to sayable words — editor's call); host voice varies per clip → labs-voice-swap unify pass in post; on-camera voice clashes → re-roll or labs conform.
 - **Dead tails cost zero gens** — trim at the join, hand the editor the timecode; don't refire good clips for sluggish endings.
-- **Phone screens:** name the actual elements + lander via `--medias` UUID; small print garbles at 720p — that's a post screen-comp.
+- **Phone screens (closer):** pass the **brandless lander PNG as an `--image` ref** alongside the seam `--start-image` and fire the closer at **1080p (`mode std`)** — the screen renders crisp in-clip. Still name the actual elements + no-garble negatives. 🔴 Never hand the editor a post screen-comp; a garbled screen = re-fire, not a comp job (playbook lesson 10, method by Mitchell Gamache 07-24).
 - **NY cuts** need the synthetic-performers disclaimer (`add-ai-disclaimer`).
 
 ## Naming — Mode A (locked in practice)
@@ -64,3 +68,7 @@ Every chained fire wraps in: fire → download → extract frame 0 → pixel-dif
 
 ## Cross-refs
 `ugc-cinematic-prompt` (Seedance prompt body craft) · `labs-voice-swap` (host unify) · `add-ai-disclaimer` (NY) · `nano-banana-prompting` (masters/wides/cards) · contributed via `propose-skill` by **Zach Hustead** — the flywheel's first shipped skill, and its first v2 (Cuts Edition, shipped 07-15).
+
+## Not for
+
+NOT for: single-presenter UGC (ugc-talking-head-ref/-veo), Veo podcast story ads (hvg-flow), or writing the request itself.
