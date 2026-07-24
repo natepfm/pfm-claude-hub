@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import Link from "next/link";
 import CopyBlock from "@/components/CopyBlock";
-import { distributedSkillRows } from "@/content/skillsRegistry";
+import { distributedSkillRows, skillRows } from "@/content/skillsRegistry";
 
 const EDITORS_ON_CLAUDE = 13;
 const WORKFLOW_STAGES = 6;
@@ -47,8 +47,8 @@ export default function DashboardPage() {
       <section aria-label="System status">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-surface border border-ink shadow-elev1 p-5">
-            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Skills live</div>
-            <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{distributedSkillRows.length}</div>
+            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Skills + commands live</div>
+            <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{distributedSkillRows.length + skillRows.filter((s) => s.tier === "command").length}</div>
             <Link href="/skills" className="text-xs mt-1.5 inline-block text-successHover font-medium hover:text-accentHover underline underline-offset-2">open Skills →</Link>
           </div>
           <div className="bg-surface border border-ink shadow-elev1 p-5">
