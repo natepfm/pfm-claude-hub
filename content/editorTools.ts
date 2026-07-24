@@ -22,4 +22,13 @@ export const editorTools: EditorTool[] = [
     status: "in-dev",
     phases: ["Import", "Assemble", "Propagate", "Export"],
   },
+  {
+    name: "e.timeline",
+    title: "Timeline Handoff",
+    app: "DaVinci Resolve",
+    description:
+      "Moves a project between editors without timeline-hunting or relinking. The editor finishing a stage publishes their timeline as a .drt into the project's Creatives/Timelines/ (/e.timeline export — /e.export also does this automatically on every render); the editor picking it up runs /e.timeline import inside their own open DaVinci project and gets the timeline placed in a Finder-mirrored bin with every clip verified against the media pool. Because everyone mounts Lucid at the same /Volumes/ads path, the imported timeline relinks itself. Additive-only, never touches your other timelines; /e.timeline.export exists standalone for when you rendered manually but still owe the handoff artifact.",
+    status: "live",
+    phases: ["Export (.drt publish)", "Import (verified pickup)"],
+  },
 ];
