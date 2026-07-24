@@ -58,7 +58,7 @@ const stages = [
     title: "Deliver",
     tag: "Final creative",
     body: "The finished creative is turned in — delivery comment posted, status moved to Done, the requester tagged for review. From a line on a Notion board to a delivered creative.",
-    skills: ["report", "notion-asset-delivery"],
+    skills: ["r.creative", "r.assets", "notion-asset-delivery"],
   },
 ];
 
