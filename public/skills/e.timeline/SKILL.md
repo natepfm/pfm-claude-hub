@@ -81,9 +81,11 @@ python3 ~/.claude/skills/e.timeline/e_timeline_import.py \
   `--project-folder` only when re-importing into the same project's own work.
 - Media auto-populates from the .drt's recorded paths — the shared base clips keep pointing at the
   **parent** project's Elements, which is correct and reported, not "fixed".
-- **Parent-media bin placement (Sam, locked 2026-07-23):** clips the .drt pulls in from OTHER
-  project folders have no Finder home inside this project, so they get NO re-binning — anywhere
-  inside the project bin is fine, as long as their file paths stay intact. Never move/relink them.
+- **Parent-media bin placement (Sam, locked 2026-07-23, refined same day):** clips the .drt pulls
+  in from OTHER project folders get swept into a **`Parent Timeline Elements`** sub-bin inside the
+  timeline's bin — the script does this automatically. Clicking `Parent Timelines` must show JUST
+  the timelines + that one sub-bin; source media never buries the timelines. Bin moves only — the
+  clips' file paths stay intact, never relinked, never copied on disk.
 - **Verification (named check):** every referenced file is tested on disk. Report classifies:
   parent-project media / this request's media / elsewhere (⚠ NOT ON LUCID flagged). Zero missing =
   pass; any missing file is listed with its path — that file was never on Lucid, or isn't synced.
