@@ -39,6 +39,19 @@ python3 ~/.claude/skills/e.import/e_import.py --folder "<absolute Lucid folder>"
   ImportMedia silently skips — but does NOT dedupe, so only on an empty bin); partially-filled bin →
   `MediaPool.ImportMedia` top-up filtered by existing File Path (dedupes). Idempotent — re-run to
   top up SHORT folders.
+- **Three modes** (`--mode media|timelines|both`, default `both` — Sam 2026-07-24). Editors don't
+  always want a project's whole timeline set: `media` = clips only, `timelines` = .drt only (media
+  already in), `both` = everything. FoxView asks with a chooser sheet; in chat, ASK the editor
+  which of the three before running (plain markdown — not an AskUserQuestion card).
+- **One timeline** (`--timeline "<file.drt>"`): import a SINGLE reference timeline out of a project
+  holding dozens. FoxView exposes this as right-click a `.drt` → *Import Timeline to DaVinci*.
+- **🔴 PARENT-TIMELINE ROUTING** (Sam 2026-07-24). A timeline from ANOTHER creative is a reference,
+  never one of this project's own cuts, and must not land beside them. The script resolves the
+  **working project** as `--into <bin>` if passed, else the bin owning the timeline currently open
+  in Resolve. If the `.drt`'s own project ≠ that working project, it lands in
+  `<working>/Creatives/Timelines/**Parent Timelines**`; if they match, its normal mirrored bin.
+  No working project resolvable → normal bin. The folder is part of the template
+  (`scaffold_project.sh`) and exists in every project that has a `Creatives/Timelines`.
 - **Timelines (`.drt`) come too** (Sam 2026-07-24): media is only half a project folder. After the
   media walk the script sweeps for `.drt` files and imports each via `MediaPool.ImportTimelineFromFile`
   — they are NOT media, so `AddItemListToMediaPool` silently ignores them (which is why
