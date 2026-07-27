@@ -1,10 +1,15 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import SkillCatalog from "@/components/SkillCatalog";
 
 // Single-page hub: the updater + the skill catalog.
-// NOTE: sign-in is intentionally not wired yet (Sam 2026-07-26 — Google
-// OAuth setup pending). The full gate lives in commit e7de887: auth.ts,
-// proxy.ts, app/login, app/api/auth. Restore it with:
-//   git checkout e7de887 -- auth.ts proxy.ts app/login app/api/auth
-export default function HubPage() {
+//
+// Second of the two gates. proxy.ts already turns away unauthenticated
+// requests, but this re-checks server-side so the catalog can never render
+// from a middleware misconfiguration alone.
+export default async function HubPage() {
+  const session = await auth();
+  if (!session) redirect("/login");
+
   return <SkillCatalog />;
 }
