@@ -2,32 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const pages = [
-  { href: "/", label: "Dashboard" },
-  { href: "/workflow", label: "Workflow" },
-  { href: "/skills", label: "Skills" },
-  { href: "/creatives", label: "Creatives" },
-  { href: "/resources", label: "Resources" },
-  { href: "/onboarding", label: "Onboarding" },
-];
-
-function baseRoute(pathname: string): string {
-  if (pathname.startsWith("/workflow") || pathname.startsWith("/claude")) return "/workflow";
-  if (pathname.startsWith("/skills")) return "/skills";
-  if (pathname.startsWith("/creatives")) return "/creatives";
-  if (pathname.startsWith("/resources")) return "/resources";
-  if (pathname.startsWith("/onboarding")) return "/onboarding";
-  return "/";
-}
-
-// Universal top toolbar — same on desktop and mobile (Sam 2026-07-11:
-// desktop nav moved off the left sidebar to match the mobile top bar).
-export default function TopNav() {
-  const pathname = usePathname() || "/";
-  const active = baseRoute(pathname);
+// Masthead only — the hub is a single page (Sam 2026-07-26), so the
+// page-tab row is gone. Logo + wordmark + sign-out + theme toggle.
+export default function TopNav({
+  userEmail,
+  signOutAction,
+}: {
+  userEmail?: string | null;
+  signOutAction?: () => Promise<void>;
+}) {
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -46,6 +31,21 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-20 bg-header-gradient border-b border-ink text-ink">
       <div className="relative flex justify-center px-14 md:px-28 py-3.5">
+        {userEmail && signOutAction && (
+          <form
+            action={signOutAction}
+            className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2"
+          >
+            <button
+              type="submit"
+              title={`Signed in as ${userEmail} — sign out`}
+              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
+            >
+              <span aria-hidden className="text-sm leading-none">⏻</span>
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
+          </form>
+        )}
         <Link
           href="/"
           aria-label="Power Fox Media Editors Hub"
@@ -105,25 +105,6 @@ export default function TopNav() {
           <span className="hidden sm:inline">{mounted && darkMode ? "Light" : "Dark"}</span>
         </button>
       </div>
-      <ul className="nav-scrollbar flex overflow-x-auto border-t border-ink/70 divide-x divide-ink/70">
-        {pages.map((p) => {
-          const isActive = active === p.href;
-          return (
-            <li key={p.href} className="flex-none min-w-[94px] md:min-w-0 md:flex-1">
-              <Link
-                href={p.href}
-                className={`flex min-h-11 items-center justify-center px-2 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.08em] transition-colors ${
-                  isActive
-                    ? "bg-black/15 text-ink font-bold"
-                    : "text-ink/75 hover:text-ink hover:bg-white/20"
-                }`}
-              >
-                {p.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
     </header>
   );
 }
