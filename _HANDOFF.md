@@ -7,7 +7,7 @@
 The PFM Editors Hub is the team's updater and skill catalog.
 
 - **Repo:** `/Users/samschiller/Documents/CLAUDE/Projects/pfm-claude-hub`
-- **Live:** `https://pfm-claude-hub-production.up.railway.app`
+- **Live:** `https://pfmhub.up.railway.app` — this is the ONLY live domain. `pfm-claude-hub-production.up.railway.app` is dead and returns Railway's "Application not found"; do not health-check against it.
 - **Deploy:** Railway auto-deploys pushes to `main`
 - **Stack:** Next.js 16 App Router, React 19, TypeScript, Tailwind 3, Auth.js (next-auth v5)
 
@@ -28,7 +28,21 @@ The PFM Editors Hub is the team's updater and skill catalog.
 5. Wait for `run`.
 6. Commit + push; Railway deploys automatically.
 
-## Authentication
+## Authentication — BUILT, NOT CURRENTLY WIRED
+
+The hub is **open** right now. Sam parked the Google/Railway setup on 2026-07-26, so the gate was removed from `main` the same day it shipped.
+
+**The working implementation is preserved in commit `e7de887`.** To bring it back:
+
+```bash
+git checkout e7de887 -- auth.ts proxy.ts app/login app/api/auth
+```
+
+then restore the server gate in `app/page.tsx` and the sign-out action in `app/layout.tsx` / `components/Nav.tsx` (also in that commit), and set the env vars below **before** deploying — the gate is useless without them and locks everyone out at the login screen.
+
+`next-auth` is still in `package.json`, so no reinstall is needed.
+
+The rest of this section describes that implementation.
 
 Google OAuth via Auth.js v5. **Only Google-verified `@powerfoxmedia.com` accounts get in.**
 
