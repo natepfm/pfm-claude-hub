@@ -1,9 +1,83 @@
 ---
 name: call-graphics
-description: PFM's CTV "call graphics" generator — Banner (bottom-third phone strip) + EndCard (full-frame close) carrying a call tracking number, fired from the brand's template library on Lucid Link. Brand-agnostic — SaveMaxAuto (SMA) and SaveMaxHomes (SMH) ship registered; new brands add a BRANDS entry in fire.py (or pass --lib/--wordmark). Works for ANY Calls creative type (breaking news, podcast, VSL, UGC — the graphics are creative-agnostic). Use whenever an editor says "call graphics", "make the call graphics", "phone graphics", "call cards", "banner and end card", "make the banner / end card for this project", or otherwise needs phone-number brand graphics for a Roku / Trade Desk Calls creative. The skill resolves the brand's design templates, asks the editor which design they want, swaps in the real tracking numbers (rendered EXACTLY as given — local (XXX) XXX-XXXX or toll-free 1-XXX-XXX-XXXX), fires gpt_image_2 at 2k, digit-verifies every output, and delivers into the project folder with the full link handoff. NOT for: the anchor wall composite (use anchor-wall-composite — that's breaking-news-only), Veo video gens (use hvg-flow), b-roll images (use hig-flow), one-off image experiments (use higgsfield-image-generation), or a brand that has no template library yet (say so and stop).
+description: >-
+  PFM's CTV call-graphics COMPONENT — Banner (bottom-third phone strip) + EndCard (full-frame close) carrying a call tracking number, from the brand template library. Use on: 'call graphics', 'phone graphics', 'the banner/endcard' as a standalone ask. Full-project Roku wording ('roku bn/qvc', 'run the pipeline') routes to the assetgen-rokuctv pipelines, which call this internally.
 ---
 
 # Call Graphics
+
+
+## 🔴 TWO-CTA STANDARD — AUTO CTV (Rus, CEO, 2026-07-30; binding)
+
+Every AUTO CTV ad carries **two** CTAs: `CALL <number>` and `SMA.INSURE`. Presence, not
+persistence — the end card is the guaranteed carrier and both appear there together.
+
+- **Banner** (`banner_html.py`): the right zone IS the website. `--right` defaults to
+  `SMA.INSURE`; an empty value is REFUSED. There is no fourth zone (a second cyan element
+  breaks `measure()`, which finds the right zone by leftmost cyan pixel), so the rate-check
+  string moved OFF the band. It did not leave the ad — the end card's `--midline` still
+  carries "Free 5 minute rate check".
+- **EndCard** (`endcard_html.py`): `--website` (default `SMA.INSURE`) renders as a cyan row
+  under the rule. Empty is REFUSED. Hierarchy is deliberate: the number stays the biggest
+  element in white, the website reads clearly secondary. Co-equal CTAs split response toward
+  the cheaper action, and Auto Calls is the paid product.
+- **Breaking News is exempt from the band** — the chyron owns the lower third and the
+  AI-performer disclaimer sits below it, so a phone band stacks three deep and breaks the
+  broadcast illusion. BN carries both CTAs on the end card only.
+- **The gate**: `digit_gate.py init <dir> --auto-ctv --website "SMA.INSURE"` verifies the URL
+  the same way it verifies digits, and `status` REFUSES an `--auto-ctv` set that never
+  declared one. Prose already failed here once: four active requests were built call-only
+  under a spec nobody re-read.
+
+Not clickable is not the point — Roku's "the phone number IS the CTA" spec governs
+interactivity, and a burned URL is not clickable either.
+
+
+## 🔴🔴 APPLE NAVY IS RENDERED IN HTML — NEVER DIFFUSION (Sam, locked 2026-07-28, escalated)
+
+**Both pieces of the Apple Navy set are built by HTML/CSS → headless Chrome. NEVER by
+`gpt_image_2` / `fire.py`.** Firing a banner through a diffusion model is a defect, not a style
+choice — Sam: *"I never want to see a banner made with all that blank space again… if you make
+another banner that way, I'm gonna be very angry."* The EndCard moved to the same method on
+2026-07-28 (Sam approved `vB`).
+
+```bash
+python3 ~/.claude/skills/call-graphics/scripts/banner_html.py  "(786) 664-2467" "<out.png>"
+python3 ~/.claude/skills/call-graphics/scripts/endcard_html.py "(786) 664-2467" "<out.png>" \
+    [--rate "$50/month"] [--midline "Free 5 minute rate check"] [--urgency "Call before 5 PM today"]
+```
+
+**🔴 THE TYPE SPLIT (Sam, locked 2026-07-28 — do not "unify" it):** the **number** is
+`Avenir Next Condensed` (punchy, broadcast); **all sentence text** is `-apple-system / SF Pro
+Display` — the Apple keynote face the design is named for. An all-condensed card was explicitly
+rejected: *"I actually really like the old font better… keep that font for the number, but I want
+the old font for the text."* Both renderers already encode this; keep it.
+
+**Why (the failure this rule exists to stop):** a diffusion model cannot be *told* where the 50%
+mark is. The Apple Navy prompt already said "centred at the horizontal centre" and "right-aligned
+toward the right edge" — GPT Image 2 ignored both across multiple rolls, clustering everything into
+the left ~60% and leaving a dead navy void in the right half. Two prompt rewrites (bigger number,
+bigger rate check, an explicit "FILL THE WIDTH" clause) did not fix it, because the problem is the
+tool, not the wording. Same lesson the QVC package already learned — see `qvc-screen-graphics`,
+whose v3 method is HTML/CSS for exactly this reason.
+
+**The locked banner layout** (all four, every time):
+1. **SaveMaxAuto wordmark LEFT** — the real PNG asset, never redrawn; cyan divider after it.
+2. **`CALL <number>` DEAD-CENTRE of the frame** (`left:50%; translateX(-50%)`) and **the single
+   biggest element** — it is what the audience must see.
+3. **`FREE 5 MINUTE RATE CHECK` pushed RIGHT**, cyan, right-aligned to the padding.
+4. **NO dead space.** The band spans full width and all three zones carry weight.
+
+The script **auto-fits** the number: it renders, measures the actual pixels by colour, and shrinks
+the type until it clears the rate-check zone by ≥46px — so the two can never collide and the layout
+never needs a lucky roll. Digits are live text, so they are exact by construction (a diffusion
+banner could always transpose one). Output is 1920×1080 RGBA, **transparent above the band** — the
+editor drops it on the timeline at 100%, no cropping or keying.
+
+`fire.py` / `gpt_image_2` now applies only to the **other designs** (Apple Light, Midnight
+Cinematic, Savings Green, Broadcast Bold), which have no HTML implementation yet. For **Apple Navy
+— the shipping default — both pieces are HTML.** If a design needs a variant, change the HTML; do
+not go back to a prompt.
 
 ## ⚡ Backgrounding rule (locked 2026-06-09)
 
@@ -55,7 +129,10 @@ Plain markdown chat — never AskUserQuestion cards. List the designs in the **b
 
 One short confirm line (brand + pieces × numbers × design + cost at ~7 cr/graphic + output folder), then fire on the editor's go. If the editor already gave brand + design + numbers + go in one message, skip straight to firing. A batch ≥20 graphics (rare) requires the full Rule-3 preflight.
 
-Fire via the bundled script (handles extraction, wordmark upload, parallel fire, download + naming):
+Fire via the bundled script (handles extraction, wordmark upload, parallel fire, download + naming).
+🔴 **NON-Apple-Navy designs only. An Apple Navy `"piece":"Banner"` OR `"piece":"EndCard"` job
+here is a rule violation — those go through `banner_html.py` / `endcard_html.py` (see the locked
+rule at the top of this skill).**
 
 ```bash
 python3 ~/.claude/skills/call-graphics/scripts/fire.py \
@@ -79,7 +156,7 @@ Read every output PNG and check:
 
 ### 5. Deliver
 
-Four-link handoff (these are single shown graphics): 📁 raw `/Volumes/ads/…` path in backticks + 🔗 clickable link via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<path>"` + 🦊 rail drop via the same helper with `--fox-drop` + 📲 **Tappable** — each shown graphic uploaded via `higgsfield upload create "<file>" --json` (CloudFront URL, tappable on the editor's phone, no Lucid; locked 2026-06-15). List what landed per variant. **SMA only:** if the creative is SaveMaxAuto with synthetic performers, add the one-line reminder that the AI-performer disclaimer still needs to be in the final edit (Hard Rule 4 — SMA-specific; SMH and other brands don't carry it). The graphics never carry the disclaimer themselves.
+Four-link handoff (these are single shown graphics): 📁 raw `/Volumes/ads/…` path in backticks + 🔗 clickable link via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<path>"` + 🦊 rail drop via the same helper with `--fox-drop` + 📲 **Tappable** — each shown graphic uploaded via `higgsfield upload create "<file>" --json` (CloudFront URL, tappable on the editor's phone, no Lucid; locked 2026-06-15). List what landed per variant. **NEW YORK cuts only:** if the creative is a NY cut with synthetic performers, add the one-line reminder that the AI-performer disclaimer still needs to be in the final edit (Hard Rule 4 — scope corrected 2026-07-17 to NY-only; non-NY creatives never carry it). The graphics never carry the disclaimer themselves.
 
 ## Failure modes
 
@@ -105,3 +182,7 @@ python3 ~/.claude/skills/call-graphics/scripts/digit_gate.py status "<dir>"     
 ```
 
 **Delivery/handoff is FORBIDDEN while `status` exits nonzero.** Run `init` right after download; confirm per-file only after actually Reading that file (attestation, like ref-check — one file at a time, never blanket). FAILED files get fixed/refired, then confirmed. Include the "VERIFIED n/n" line in the delivery report.
+
+## Not for
+
+NOT for: the anchor wall composite (use anchor-wall-composite — that's breaking-news-only), Veo video gens (use hvg-flow), b-roll images (use hig-flow), one-off image experiments (use higgsfield-image-generation), or a brand that has no template library yet (say so and stop).

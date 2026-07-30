@@ -58,6 +58,17 @@ def main():
         args = sys.argv[3:]
         if "--reset" in args:
             st = {"expected": [], "files": {}}; args.remove("--reset")
+        # 🔴 TWO-CTA STANDARD (Rus, 2026-07-30): on an AUTO CTV render the website CTA is
+        # verified the same way digits are — read off the pixels, char-for-char. A URL with a
+        # wrong character is as dead as a transposed digit, and prose already failed here once
+        # (all four active requests were built call-only under a spec nobody re-read).
+        if "--auto-ctv" in args:
+            st["website_required"] = True
+            args.remove("--auto-ctv")
+        if "--website" in args:
+            i = args.index("--website")
+            st["website"] = args[i + 1] if len(args) > i + 1 else ""
+            del args[i:i + 2]
         if args and args[0] == "--expected":
             st["expected"] = args[1:]
         found = pngs(d)
@@ -70,6 +81,8 @@ def main():
         pend = [f for f, v in st["files"].items() if v["state"] == "PENDING"]
         print(f"DIGIT GATE CLOSED — {len(st['files'])} graphic(s), {len(pend)} pending verification.")
         print(f"Expected values: {st['expected'] or '(none set — pass --expected!)'}")
+        if st.get("website"):
+            print(f"Expected website CTA: {st['website']}  ← verify this on EVERY graphic that carries it")
         for f in pend:
             print(f"  PENDING  {f}  → Read it, compare digits char-for-char, then: digit_gate.py confirm '{d}' '{f}'")
         sys.exit(1 if pend or not st["files"] else 0)
@@ -98,6 +111,12 @@ def main():
             print(f"DIGIT GATE CLOSED — {n - len(pend) - len(bad)}/{n} confirmed."
                   + (f" {len(pend)} pending: {', '.join(pend)}." if pend else "")
                   + (f" {len(bad)} FAILED: {', '.join(f for f, _ in bad)}." if bad else ""))
+            sys.exit(1)
+        # 🔴 fail closed: an AUTO CTV set must have declared its website CTA. Missing means
+        # nobody verified a second CTA is on the graphics — the exact call-only failure.
+        if st.get("website_required") and not st.get("website"):
+            print("DIGIT GATE CLOSED — this set is flagged AUTO CTV but no website CTA was declared. "
+                  "Re-run init with --website \"SMA.INSURE\" and verify it on every graphic that carries it.")
             sys.exit(1)
         print(f"✓ DIGIT GATE OPEN — VERIFIED {n}/{n} graphics digit-confirmed.")
         sys.exit(0)
