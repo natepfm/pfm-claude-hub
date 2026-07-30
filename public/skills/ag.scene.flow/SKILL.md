@@ -16,6 +16,38 @@ description: "PFM's LOCK-KEY orchestrator for multi-shot AI scene creatives (ski
 7. **All ag.scenelock craft laws still apply** — room-relative geography, anchored positions, body orientation, pixel authority, single-panel repair, LOOK at every sheet. This flow doesn't replace [ag.scenelock](../ag.scenelock/SKILL.md); it sequences it and makes its state machine-checkable.
 8. **🔴 SET `scene.aspect` FIRST — every fire derives from it.** The bible declares the creative's aspect ONCE (`scene: aspect: "9:16"` or `"16:9"`; `init --aspect 16:9` sets it). Both fire scripts read it: frames render at it, clips render at it, and a camera's reference frame or a clip's start/end frame is REFUSED unless its real pixel aspect matches. **The law is ref aspect == render aspect, at ANY aspect** — a 16:9 plate in a 9:16 render (or the reverse) stretches anatomy and rescales furniture. So a CTV / Roku / podcast creative sets `16:9` and cuts 16:9 camera references; a story ad leaves the 9:16 default. Camera field is `reference_frame` (legacy `reference_frame_9x16` still honoured).
 
+## 🔴 The canon stages are GATED TOO (added 07-30, after the Pixar-office session)
+
+Building the canon — masters, environment plates, the 360 sheet, the tableau, the blocking
+plate — fires through `scripts/fire_canon.py`, never by hand. Hand-firing those stages is what
+produced a tableau that lost both characters, a fire on an empty prompt, and reported job IDs
+that never existed.
+
+```bash
+python3 ~/.claude/skills/ag.scene.flow/scripts/fire_canon.py <bible> \
+  --stage tableau --prompt-file <file> --edit <approved parent> [--ref ...] [--dry-run]
+```
+
+It refuses: an empty or missing prompt file · no declared mode · an `--edit` parent that isn't
+on disk · a missing reference · **`--fresh` on a tableau once the environment is locked** (the
+pixel-first law: a frame that sees locked pixels is an EDIT of them). It derives aspect from the
+bible, verifies the output on disk before reporting anything, takes the job id from the vendor's
+actual response, and writes a `.run.json` sidecar. `--dry-run` proves the refusals with no spend.
+
+**A lock now records what it approved.** `lock <stage> --artifact <path>` refuses when the file
+isn't there and pins its SHA-256, so "environment ✓" means a named file passed a check.
+
+**Register every environment frame** you intend to keep consistent:
+
+```bash
+python3 .../scene_bible.py env-register <bible> --role hero --path <rel> --dressing "where the props sit"
+```
+
+Registered frames are hashed. Re-fire one and `validate` REFUSES until you reconcile its siblings
+and re-register — which is how a plant ends up on the same end of the desk in every angle.
+
+**Clip firing lives in [ag.clip.flow](../ag.clip.flow/SKILL.md) as of 07-30** — `ag.scene.flow/scripts/fire_clip.py` is a retired stub that refuses and redirects. One clip path, one set of laws.
+
 ## What this is
 
 Born 07-28 from the Codex storyboard audit + best-practices research: PFM's craft was right, but production truth was fragmented across prose files, so superseded decisions kept re-entering prompts (the courtroom podium existed and didn't exist at the same time). The fix: **one canonical scene state, locks turned in a fixed order behind editor gates, prompts derived — never duplicated.**

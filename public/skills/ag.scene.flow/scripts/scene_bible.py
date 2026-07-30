@@ -47,6 +47,26 @@ SHOT_STATUSES = ["unboarded", "boarded", "qc_fail", "qc_pass", "fired"]
 SHOTS_NAME = "SHOTS.yaml"
 
 
+def sha256_of(path):
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def project_root(bible_path):
+    """<project>/Elements/Prompts/SCENE_BIBLE.yaml -> <project>"""
+    return Path(bible_path).parent.parent.parent
+
+
+def resolve_artifact(bible_path, rel):
+    """Artifact paths are recorded project-relative; accept absolute too."""
+    p = Path(rel)
+    return p if p.is_absolute() else project_root(bible_path) / rel
+
+
 def shots_path(bible_path):
     return Path(bible_path).parent / SHOTS_NAME
 
@@ -187,7 +207,7 @@ def filled(block):
     return not str(block).strip().startswith("(")
 
 
-def lint(data):
+def lint(data, bible_path=None):
     """Return a list of violations. Empty list = PASS."""
     errs = []
     geo = data.get("geography") or {}
@@ -219,6 +239,26 @@ def lint(data):
         m = PERSON_RELATIVE_RE.search(str(text))
         if m:
             errs.append(f"{label}: person-relative geography ('{m.group(0)}') — room-relative only; this mirror-flips when the character turns")
+
+    # 🔴 ENVIRONMENT FRAME REGISTRY (07-30). Registered frames are pinned by hash. A frame
+    # that changed on disk since registration means the set dressing may now contradict its
+    # siblings — the exact failure that put a succulent on both ends of one desk.
+    for f in ((data.get("environment") or {}).get("frames") or []):
+        role = f.get("role") or "?"
+        rel = f.get("path") or ""
+        if not rel:
+            errs.append(f"environment frame '{role}': no path recorded")
+            continue
+        art = resolve_artifact(bible_path, rel)
+        if not art.is_file():
+            errs.append(f"environment frame '{role}': file missing on disk ({rel})")
+            continue
+        rec = f.get("sha256") or ""
+        if rec and sha256_of(art) != rec:
+            errs.append(
+                f"environment frame '{role}' CHANGED since it was registered ({rel}) — "
+                f"reconcile the other frames to match its set dressing, then re-register each "
+                f"with `env-register`. Two 'locked' frames that disagree is the drift this catches.")
 
     axis_ids = {a.get("id") for a in (data.get("axes") or [])}
     for s in data.get("shots") or []:
@@ -283,9 +323,50 @@ def cmd_split_shots(args):
     print(f"    re-run `validate` to confirm the split bible still lints clean")
 
 
+def cmd_env_register(args):
+    """Pin an environment frame (hero / reverse / sheet / any angle) into the registry.
+
+    🔴 WHY (07-30, Pixar-office session): two environment frames were both 'locked' while
+    contradicting each other — a succulent sat on OPPOSITE ends of the desk in the hero and
+    the reverse angle. Nothing in the system knew those frames were supposed to agree, so a
+    human eye was the only check. Registered frames are hashed; if one is re-fired, its hash
+    stops matching and `validate` REFUSES until the siblings are reconciled and re-registered.
+    """
+    path, data = load(args.bible)
+    art = resolve_artifact(path, args.path)
+    if not art.is_file():
+        die(f"environment frame does not exist on disk: {art}")
+    env = data.setdefault("environment", {})
+    frames = env.setdefault("frames", [])
+    entry = next((f for f in frames if f.get("role") == args.role), None)
+    fresh = {
+        "role": args.role,
+        "path": args.path,
+        "sha256": sha256_of(art),
+        "dressing": args.dressing or (entry or {}).get("dressing") or "",
+        "registered": datetime.date.today().isoformat(),
+    }
+    if entry:
+        frames[frames.index(entry)] = fresh
+        verb = "re-registered"
+    else:
+        frames.append(fresh)
+        verb = "registered"
+    save(path, data)
+    print(f"OK: {verb} '{args.role}' -> {args.path}")
+    print(f"    sha256: {fresh['sha256'][:16]}...")
+    if not fresh["dressing"]:
+        print("    ⚠ no --dressing recorded. One line describing set dressing (where the props sit)")
+        print("      is what makes a contradiction between frames legible to the next reader.")
+    others = [f["role"] for f in frames if f["role"] != args.role]
+    if others:
+        print(f"    ↳ frames that must AGREE with this one: {', '.join(others)}")
+        print("      If this frame's dressing changed, reconcile them and re-register each.")
+
+
 def cmd_validate(args):
-    _, data = load(args.bible)
-    errs = lint(data)
+    path, data = load(args.bible)
+    errs = lint(data, path)
     if errs:
         print(f"LINT FAIL — {len(errs)} violation(s):")
         for e in errs:
@@ -307,14 +388,34 @@ def cmd_lock(args):
     if (locks.get(name) or {}).get("approved"):
         print(f"OK: '{name}' already locked ({locks[name]['approved']})")
         return
-    locks.setdefault(name, {})["approved"] = f"{datetime.date.today().isoformat()} by {args.by}"
+    # 🔴 A LOCK IS A CHECK THAT PASSED, NOT A CLAIM (07-30, after the Pixar-office
+    # session: "environment ✓" meant someone typed the command, not that an approved
+    # file existed and was pinned). Every lock records the artifact it approved, its
+    # SHA-256, and refuses when that file is not on disk. `script` is the one stage
+    # whose artifact is the request Copy rather than a file, so it stays optional.
+    entry = locks.setdefault(name, {})
+    if name != "script":
+        if not args.artifact:
+            die(f"'{name}' needs --artifact <path to the approved file> — a lock is a check that "
+                f"passed, not a claim. Point it at the exact file you approved.")
+    if args.artifact:
+        art = resolve_artifact(path, args.artifact)
+        if not art.is_file():
+            die(f"artifact does not exist on disk: {art}")
+        entry["artifact"] = args.artifact
+        entry["sha256"] = sha256_of(art)
+        entry["bytes"] = art.stat().st_size
+    entry["approved"] = f"{datetime.date.today().isoformat()} by {args.by}"
     data["locks"] = locks
     save(path, data)
-    print(f"OK: '{name}' locked ({locks[name]['approved']})")
+    print(f"OK: '{name}' locked ({entry['approved']})")
+    if entry.get("artifact"):
+        print(f"    artifact: {entry['artifact']}")
+        print(f"    sha256:   {entry['sha256'][:16]}...  ({entry['bytes']:,} bytes)")
 
 
 def cmd_status(args):
-    _, data = load(args.bible)
+    path, data = load(args.bible)
     locks = data.get("locks") or {}
     print(f"SCENE_BIBLE status — scene '{(data.get('scene') or {}).get('id', '?')}'")
     for name in LOCK_ORDER:
@@ -325,7 +426,7 @@ def cmd_status(args):
         print(f"  shots ({len(shots)}):")
         for s in shots:
             print(f"    {s.get('id','?'):>5}  {s.get('status','unboarded'):<10} {s.get('framing','')}")
-    errs = lint(data)
+    errs = lint(data, path)
     print(f"  lint: {'PASS' if not errs else f'FAIL ({len(errs)})'}")
 
 
@@ -346,7 +447,7 @@ def cmd_assemble(args):
     missing = all_locked(data)
     if missing:
         die(f"locks not approved: {', '.join(missing)} — no prompt assembly before every lock is turned")
-    errs = lint(data)
+    errs = lint(data, path)
     if errs:
         die(f"lint FAIL ({len(errs)}) — run validate and fix before assembling:\n  " + "\n  ".join(errs))
     shot = get_shot(data, args.shot)
@@ -444,7 +545,9 @@ def main():
     p = sub.add_parser("init"); p.add_argument("--project", required=True); p.add_argument("--scene-id", required=True); p.add_argument("--aspect", default="9:16"); p.set_defaults(fn=cmd_init)
     p = sub.add_parser("validate"); p.add_argument("bible"); p.set_defaults(fn=cmd_validate)
     p = sub.add_parser("split-shots"); p.add_argument("bible"); p.set_defaults(fn=cmd_split_shots)
-    p = sub.add_parser("lock"); p.add_argument("bible"); p.add_argument("lock"); p.add_argument("--by", default="editor"); p.set_defaults(fn=cmd_lock)
+    p = sub.add_parser("env-register"); p.add_argument("bible"); p.add_argument("--role", required=True)
+    p.add_argument("--path", required=True); p.add_argument("--dressing", default=None); p.set_defaults(fn=cmd_env_register)
+    p = sub.add_parser("lock"); p.add_argument("bible"); p.add_argument("lock"); p.add_argument("--by", default="editor"); p.add_argument("--artifact", default=None, help="path to the approved file (required for every lock except script)"); p.set_defaults(fn=cmd_lock)
     p = sub.add_parser("status"); p.add_argument("bible"); p.set_defaults(fn=cmd_status)
     p = sub.add_parser("assemble"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.set_defaults(fn=cmd_assemble)
     p = sub.add_parser("qc"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.add_argument("--verdict", required=True, choices=["PASS", "FAIL"]); p.add_argument("--reason", default=""); p.set_defaults(fn=cmd_qc)
