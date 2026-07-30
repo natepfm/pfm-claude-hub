@@ -1,0 +1,458 @@
+#!/usr/bin/env python3
+"""
+scene_bible.py — the SCENE_BIBLE engine for ag.scene.flow (born 2026-07-28).
+
+ONE canonical machine-readable scene state per creative. Every downstream prompt is
+ASSEMBLED from this file's verbatim blocks — never hand-written, never paraphrased.
+The laws from ag.scenelock live HERE as refusals (rules ship as code, not prose):
+
+  - Lock order is enforced: script -> cast -> environment -> tableau -> blocking.
+  - assemble refuses until all five locks are approved and lint passes.
+  - fire-check refuses until the shot's storyboard QC verdict is PASS.
+  - Lint refuses person-relative geography ("his left"), unanchored positions,
+    >3 negatives per shot, cast without verbatim outfit/position/facing blocks,
+    shots referencing unknown characters or axes.
+
+Scope: ONLY projects the editor explicitly runs ag.scene.flow on. Never a global rule.
+
+Usage:
+  scene_bible.py init        --project <folder> --scene-id <id> [--aspect 9:16]
+  scene_bible.py split-shots <bible.yaml>       # migrate shots -> sibling SHOTS.yaml
+  scene_bible.py validate <bible.yaml>
+  scene_bible.py lock     <bible.yaml> <script|cast|environment|tableau|blocking> [--by NAME]
+  scene_bible.py status   <bible.yaml>
+  scene_bible.py assemble <bible.yaml> --shot <ID>
+  scene_bible.py qc       <bible.yaml> --shot <ID> --verdict PASS|FAIL [--reason TEXT]
+  scene_bible.py fire-check <bible.yaml> --shot <ID>
+
+Exit codes: 0 = ok/allowed, 1 = refused/failed (the refusal reason prints to stdout).
+"""
+
+import argparse
+import datetime
+import re
+import sys
+from pathlib import Path
+
+import yaml
+
+LOCK_ORDER = ["script", "cast", "environment", "tableau", "blocking"]
+MAX_NEGATIVES = 3
+SHOT_STATUSES = ["unboarded", "boarded", "qc_fail", "qc_pass", "fired"]
+
+# Optional sibling shot file (added 07-30). A 24-shot creative pushed SCENE_BIBLE.yaml past
+# 750 lines, which is an AUTHOR-LEGIBILITY problem (the assembler only ever emits what one
+# shot needs, so this was never a token cost). `split-shots` migrates shots out; the engine
+# then loads them transparently. Bibles WITHOUT this file keep working unchanged.
+SHOTS_NAME = "SHOTS.yaml"
+
+
+def shots_path(bible_path):
+    return Path(bible_path).parent / SHOTS_NAME
+
+# person-relative geography is drift's side door — it mirror-flips when a character turns
+PERSON_RELATIVE_RE = re.compile(
+    r"\b(?:his|her|their)\s+(?:left|right)\b|"
+    r"\b(?:left|right)\s+of\s+(?:the\s+)?[A-Z][A-Za-z]*\b|"
+    r"\bto\s+the\s+(?:left|right)\s+of\s+\w+'s\b",
+    re.IGNORECASE,
+)
+
+TEMPLATE = """\
+# SCENE_BIBLE — the ONE canonical state for this creative. Every prompt is assembled
+# from this file by scene_bible.py; nothing downstream is hand-written or paraphrased.
+# Edit blocks here, re-validate, re-assemble. Never edit an assembled prompt directly.
+
+scene:
+  id: {scene_id}
+  project: {project}
+  aspect: "{aspect}"
+  script_version: ""
+
+# Gates. scene_bible.py lock flips these — in order, after the editor approves each.
+locks:
+  script:      {{approved: false, source: ""}}
+  cast:        {{approved: false}}
+  environment: {{approved: false, sheet: ""}}
+  tableau:     {{approved: false, take: ""}}
+  blocking:    {{approved: false, plate: ""}}
+
+# 🔴 ROOM-RELATIVE ONLY, defined once from ONE named reference direction.
+# Person-relative wording ("his left") is refused by lint.
+geography:
+  reference_direction: ""
+  room_relative: |
+    (e.g. "standing in the gallery looking toward the witness table: jury box against
+    the LEFT-hand wall, windows along the RIGHT-hand wall, doors behind camera")
+  forbidden_on_camera: []      # objects that EXIST in the world but never appear in frame
+
+# Verbatim text layers — pasted into every assembled prompt UNCHANGED.
+verbatim:
+  environment: |
+    (locked environment description — palette, materials, key background elements)
+  grade: |
+    (commercial lighting language: one motivated key, real shadow falloff, filmic
+    contrast, national-TV-spot grade, subtle grain, digital cinema camera + prime lens)
+  background_population: |
+    (e.g. "jury box always OCCUPIED by its seven seated jurors" — background humans
+    exist from the tableau on, never invented per-shot)
+
+cast: []
+# - id: GARY
+#   master: <path to approved character master>
+#   outfit_id: GARY-01
+#   outfit: |            # verbatim wardrobe block — a wardrobe change = a NEW ID
+#     ...
+#   position: |          # anchored between TWO named fixed elements, room-relative
+#     ...
+#   facing: ""           # which way the body faces AND what is behind their back
+#   eyeline: ""
+
+axes: []
+# - id: A
+#   subjects: [GARY, JUDGE]
+#   camera_side: ""      # which side of the action line every camera stays on
+#   screen_directions: ""  # e.g. "GARY looks frame-RIGHT, JUDGE looks frame-LEFT"
+
+shots: []
+# - id: S01
+#   beat: ""
+#   framing: ""          # e.g. MCU — qc.storyboard checks the render against this
+#   camera_position: ""
+#   axis: A
+#   characters: [GARY]
+#   performance: |       # the ONLY per-shot creative layer (action, expression)
+#     ...
+#   dialogue: ""
+#   negatives: []        # MAX {max_neg} — pixels carry the world; negatives are for
+#                        # what pixels can't forbid (e.g. "no podium in frame")
+#   duration: 8
+#   model: veo_lite
+#   start_frame: ""      # filled when the approved storyboard panel is cropped
+#   end_frame_required: false
+#   status: unboarded    # unboarded -> boarded -> qc_pass/qc_fail -> fired
+"""
+
+
+def die(msg):
+    print(f"REFUSED: {msg}")
+    sys.exit(1)
+
+
+def load(path):
+    p = Path(path)
+    if not p.is_file():
+        die(f"no bible at {p}")
+    try:
+        data = yaml.safe_load(p.read_text())
+    except yaml.YAMLError as e:
+        die(f"bible is not valid YAML: {e}")
+    if not isinstance(data, dict):
+        die("bible is not a mapping")
+
+    sp = shots_path(p)
+    if sp.is_file():
+        try:
+            sdata = yaml.safe_load(sp.read_text()) or {}
+        except yaml.YAMLError as e:
+            die(f"{SHOTS_NAME} is not valid YAML: {e}")
+        sib = sdata.get("shots") if isinstance(sdata, dict) else sdata
+        sib = sib or []
+        # 🔴 ONE CANON. Shots living in BOTH files is the exact fragmented-state failure this
+        # whole system exists to prevent (the courtroom podium that both did and did not exist).
+        if data.get("shots"):
+            die(f"shots exist in BOTH {p.name} and {SHOTS_NAME} — one canon only. "
+                f"Delete the inline `shots:` block from {p.name} (the sibling file wins) and re-run.")
+        data["shots"] = sib
+    return p, data
+
+
+def save(path, data):
+    sp = shots_path(path)
+    if sp.is_file():
+        shots = data.pop("shots", [])
+        try:
+            sp.write_text(yaml.safe_dump({"shots": shots}, sort_keys=False, allow_unicode=True, width=100))
+            Path(path).write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100))
+        finally:
+            data["shots"] = shots  # keep the in-memory view whole for the caller
+        return
+    Path(path).write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100))
+
+
+def filled(block):
+    """A verbatim block counts as filled once its template placeholder is replaced."""
+    if not block or not str(block).strip():
+        return False
+    return not str(block).strip().startswith("(")
+
+
+def lint(data):
+    """Return a list of violations. Empty list = PASS."""
+    errs = []
+    geo = data.get("geography") or {}
+    if not str(geo.get("reference_direction") or "").strip():
+        errs.append("geography.reference_direction is empty — geography must be defined once from ONE named direction")
+    if not filled(geo.get("room_relative")):
+        errs.append("geography.room_relative is not filled in")
+
+    # person-relative geography scan — geography + every cast position/facing
+    scan_fields = [("geography.room_relative", geo.get("room_relative") or "")]
+    cast = data.get("cast") or []
+    cast_ids = set()
+    for c in cast:
+        cid = c.get("id") or "?"
+        cast_ids.add(cid)
+        scan_fields.append((f"cast[{cid}].position", c.get("position") or ""))
+        scan_fields.append((f"cast[{cid}].facing", c.get("facing") or ""))
+        if not filled(c.get("outfit")):
+            errs.append(f"cast[{cid}]: no verbatim outfit block (Outfit ID law)")
+        if not str(c.get("outfit_id") or "").strip():
+            errs.append(f"cast[{cid}]: no outfit_id")
+        if not filled(c.get("position")):
+            errs.append(f"cast[{cid}]: no position block")
+        elif not re.search(r"\bbetween\b|\bmidway\b|\bin front of\b|\bbehind\b|\bat the\b|\bbeside\b", str(c.get("position")), re.I):
+            errs.append(f"cast[{cid}]: position is a zone, not an anchor — anchor it between named fixed elements")
+        if not str(c.get("facing") or "").strip():
+            errs.append(f"cast[{cid}]: facing not stated (body orientation law — which way they face AND what is behind their back)")
+    for label, text in scan_fields:
+        m = PERSON_RELATIVE_RE.search(str(text))
+        if m:
+            errs.append(f"{label}: person-relative geography ('{m.group(0)}') — room-relative only; this mirror-flips when the character turns")
+
+    axis_ids = {a.get("id") for a in (data.get("axes") or [])}
+    for s in data.get("shots") or []:
+        sid = s.get("id") or "?"
+        negs = s.get("negatives") or []
+        if len(negs) > MAX_NEGATIVES:
+            errs.append(f"shot {sid}: {len(negs)} negatives — max {MAX_NEGATIVES}; long negative lists degrade output, pixels carry the world")
+        for ch in s.get("characters") or []:
+            if ch not in cast_ids:
+                errs.append(f"shot {sid}: character '{ch}' not in cast — a character without a lock has an unlocked position")
+        ax = s.get("axis")
+        if ax and ax not in axis_ids:
+            errs.append(f"shot {sid}: axis '{ax}' not defined in axes")
+        if s.get("status", "unboarded") not in SHOT_STATUSES:
+            errs.append(f"shot {sid}: unknown status '{s.get('status')}'")
+        if not filled(s.get("performance")):
+            errs.append(f"shot {sid}: performance block empty")
+        if not str(s.get("framing") or "").strip():
+            errs.append(f"shot {sid}: framing not stated — qc.storyboard cannot check shot-size compliance without it")
+    return errs
+
+
+def cmd_init(args):
+    proj = Path(args.project)
+    if not proj.is_dir():
+        die(f"project folder does not exist: {proj}")
+    dest = proj / "Elements" / "Prompts" / "SCENE_BIBLE.yaml"
+    if dest.exists():
+        die(f"{dest} already exists — never overwritten; edit it or move it deliberately")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(TEMPLATE.format(scene_id=args.scene_id, project=str(proj), aspect=args.aspect, max_neg=MAX_NEGATIVES))
+    print(f"OK: bible created at {dest}")
+
+
+def cmd_split_shots(args):
+    """Migrate an inline `shots:` block out to the sibling SHOTS.yaml. Idempotent-by-refusal."""
+    p = Path(args.bible)
+    if not p.is_file():
+        die(f"no bible at {p}")
+    sp = shots_path(p)
+    if sp.is_file():
+        die(f"{sp} already exists — shots are already split; nothing to migrate")
+    data = yaml.safe_load(p.read_text())
+    if not isinstance(data, dict):
+        die("bible is not a mapping")
+    shots = data.get("shots") or []
+    if not shots:
+        die(f"{p.name} has no inline shots to migrate")
+
+    before = len(p.read_text().splitlines())
+    sp.write_text(
+        "# SHOTS — the shot list for this creative, loaded automatically alongside\n"
+        "# SCENE_BIBLE.yaml by scene_bible.py. Locks, cameras, registries and verbatim\n"
+        "# canon stay in the bible. Never keep a `shots:` block in both files.\n\n"
+        + yaml.safe_dump({"shots": shots}, sort_keys=False, allow_unicode=True, width=100)
+    )
+    data.pop("shots", None)
+    p.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100))
+    after = len(p.read_text().splitlines())
+    print(f"OK: {len(shots)} shot(s) -> {sp.name}")
+    print(f"    {p.name}: {before} -> {after} lines")
+    print(f"    re-run `validate` to confirm the split bible still lints clean")
+
+
+def cmd_validate(args):
+    _, data = load(args.bible)
+    errs = lint(data)
+    if errs:
+        print(f"LINT FAIL — {len(errs)} violation(s):")
+        for e in errs:
+            print(f"  ✗ {e}")
+        sys.exit(1)
+    print("LINT PASS")
+
+
+def cmd_lock(args):
+    path, data = load(args.bible)
+    locks = data.get("locks") or {}
+    name = args.lock
+    if name not in LOCK_ORDER:
+        die(f"unknown lock '{name}' — locks are {LOCK_ORDER}")
+    idx = LOCK_ORDER.index(name)
+    for prior in LOCK_ORDER[:idx]:
+        if not (locks.get(prior) or {}).get("approved"):
+            die(f"lock order violated — '{prior}' is not approved yet; each lock is Gate-0 for the next, never skip ahead")
+    if (locks.get(name) or {}).get("approved"):
+        print(f"OK: '{name}' already locked ({locks[name]['approved']})")
+        return
+    locks.setdefault(name, {})["approved"] = f"{datetime.date.today().isoformat()} by {args.by}"
+    data["locks"] = locks
+    save(path, data)
+    print(f"OK: '{name}' locked ({locks[name]['approved']})")
+
+
+def cmd_status(args):
+    _, data = load(args.bible)
+    locks = data.get("locks") or {}
+    print(f"SCENE_BIBLE status — scene '{(data.get('scene') or {}).get('id', '?')}'")
+    for name in LOCK_ORDER:
+        ap = (locks.get(name) or {}).get("approved")
+        print(f"  [{'✓' if ap else ' '}] {name}" + (f"  ({ap})" if ap else ""))
+    shots = data.get("shots") or []
+    if shots:
+        print(f"  shots ({len(shots)}):")
+        for s in shots:
+            print(f"    {s.get('id','?'):>5}  {s.get('status','unboarded'):<10} {s.get('framing','')}")
+    errs = lint(data)
+    print(f"  lint: {'PASS' if not errs else f'FAIL ({len(errs)})'}")
+
+
+def all_locked(data):
+    locks = data.get("locks") or {}
+    return [n for n in LOCK_ORDER if not (locks.get(n) or {}).get("approved")]
+
+
+def get_shot(data, sid):
+    for s in data.get("shots") or []:
+        if s.get("id") == sid:
+            return s
+    die(f"shot '{sid}' not in bible")
+
+
+def cmd_assemble(args):
+    path, data = load(args.bible)
+    missing = all_locked(data)
+    if missing:
+        die(f"locks not approved: {', '.join(missing)} — no prompt assembly before every lock is turned")
+    errs = lint(data)
+    if errs:
+        die(f"lint FAIL ({len(errs)}) — run validate and fix before assembling:\n  " + "\n  ".join(errs))
+    shot = get_shot(data, args.shot)
+    geo = data.get("geography") or {}
+    vb = data.get("verbatim") or {}
+    cast = {c["id"]: c for c in data.get("cast") or []}
+    axes = {a.get("id"): a for a in data.get("axes") or []}
+    ax = axes.get(shot.get("axis")) or {}
+
+    lines = []
+    lines.append(f"# {args.shot} — assembled from SCENE_BIBLE (never hand-edit; edit the bible and re-assemble)")
+    lines.append("")
+    lines.append("## CONTINUITY (verbatim-locked)")
+    lines.append("The SAME room, the SAME people, the SAME light as the reference. Only the camera is new.")
+    lines.append(f"Geography, room-relative, defined {geo.get('reference_direction','')}:")
+    lines.append(str(geo.get("room_relative", "")).strip())
+    lines.append(str(vb.get("environment", "")).strip())
+    lines.append(str(vb.get("background_population", "")).strip())
+    if ax:
+        lines.append(f"Axis {ax.get('id')}: camera stays on the {ax.get('camera_side','')}; {ax.get('screen_directions','')}")
+    lines.append("")
+    # 🔴 REFERENCE ROLES (07.30 anti-drift research): every reference has ONE named
+    # job so the model never votes between images. Order matches fire_frame.py's stack.
+    lines.append("## REFERENCE ROLES")
+    lines.append("- Image 1 is the CAMERA AND SPATIAL AUTHORITY: preserve its camera position, lens feel, composition, room geometry, furniture and character floor positions exactly.")
+    lines.append("- Image 2 is the GRADE AUTHORITY ONLY: take its light direction, exposure, contrast, color palette and material feel — and NOTHING else. It was shot from a DIFFERENT camera position, so it is NOT a source of room layout, wall positions, door placement, furniture arrangement or where people sit. Image 1 alone decides geometry and who is where.")
+    for i, ch in enumerate(shot.get("characters") or [], start=3):
+        lines.append(f"- Image {i} controls {ch}'s identity, face, hair and body proportions exactly, wearing their locked outfit below.")
+    lines.append("Where sources conflict, the LOWER image number wins. Do not redesign, restyle, add, remove, relocate, mirror or recolor anything not named in THIS SHOT ONLY.")
+    lines.append("")
+    lines.append("## CAST IN THIS SHOT (identity verbatim-locked)")
+    for ch in shot.get("characters") or []:
+        c = cast[ch]
+        lines.append(f"{ch} — Outfit {c.get('outfit_id','')}:")
+        lines.append(str(c.get("outfit", "")).strip())
+        lines.append(f"Position: {str(c.get('position','')).strip()}")
+        lines.append(f"Facing: {c.get('facing','')}. Eyeline: {c.get('eyeline','')}")
+        lines.append("")
+    lines.append("## GRADE (verbatim-locked)")
+    lines.append(str(vb.get("grade", "")).strip())
+    lines.append("")
+    lines.append("## THIS SHOT ONLY (the one variable layer)")
+    lines.append(f"Framing: {shot.get('framing','')}. Camera: {shot.get('camera_position','')}.")
+    lines.append(str(shot.get("performance", "")).strip())
+    if shot.get("dialogue"):
+        # 🔴 Frame prompts NEVER carry quoted dialogue — gpt2 renders quotes as burned-in
+        # captions (S15, 07.30.26). Dialogue reaches CLIP prompts only; for the still frame
+        # it becomes mouth-state context with an explicit no-text guard.
+        wc = len(str(shot["dialogue"]).split())
+        lines.append(f"He/she is mid-sentence (a spoken line of about {wc} words — context only, "
+                     f"NEVER render any words, captions, subtitles or text in the image).")
+    negs = list(shot.get("negatives") or [])
+    for f_obj in geo.get("forbidden_on_camera") or []:
+        neg = f"no {f_obj} in frame"
+        if neg not in negs and len(negs) < MAX_NEGATIVES:
+            negs.append(neg)
+    if negs:
+        lines.append("Negatives: " + "; ".join(negs[:MAX_NEGATIVES]))
+
+    out_dir = Path(path).parent / "assembled"
+    out_dir.mkdir(exist_ok=True)
+    out = out_dir / f"{args.shot}_prompt.md"
+    out.write_text("\n".join(lines) + "\n")
+    print(f"OK: assembled -> {out}")
+    print("\n".join(lines))
+
+
+def cmd_qc(args):
+    path, data = load(args.bible)
+    shot = get_shot(data, args.shot)
+    if args.verdict == "FAIL" and not (args.reason or "").strip():
+        die("a FAIL verdict requires --reason (what failed, so the repair is single-variable)")
+    shot["status"] = "qc_pass" if args.verdict == "PASS" else "qc_fail"
+    entry = {"shot": args.shot, "date": datetime.date.today().isoformat(),
+             "verdict": args.verdict, "reason": args.reason or ""}
+    data.setdefault("qc_log", []).append(entry)
+    save(path, data)
+    print(f"OK: {args.shot} -> {shot['status']}" + (f" ({args.reason})" if args.reason else ""))
+
+
+def cmd_fire_check(args):
+    _, data = load(args.bible)
+    shot = get_shot(data, args.shot)
+    if shot.get("status") != "qc_pass":
+        die(f"shot {args.shot} status is '{shot.get('status','unboarded')}' — clip fire requires a storyboard QC PASS (qc.storyboard), no exceptions")
+    if not str(shot.get("start_frame") or "").strip():
+        die(f"shot {args.shot} has no start_frame — crop the approved storyboard panel first; clips never fire into an empty plate")
+    print(f"OK: {args.shot} cleared to fire (qc_pass, start_frame set)")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("init"); p.add_argument("--project", required=True); p.add_argument("--scene-id", required=True); p.add_argument("--aspect", default="9:16"); p.set_defaults(fn=cmd_init)
+    p = sub.add_parser("validate"); p.add_argument("bible"); p.set_defaults(fn=cmd_validate)
+    p = sub.add_parser("split-shots"); p.add_argument("bible"); p.set_defaults(fn=cmd_split_shots)
+    p = sub.add_parser("lock"); p.add_argument("bible"); p.add_argument("lock"); p.add_argument("--by", default="editor"); p.set_defaults(fn=cmd_lock)
+    p = sub.add_parser("status"); p.add_argument("bible"); p.set_defaults(fn=cmd_status)
+    p = sub.add_parser("assemble"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.set_defaults(fn=cmd_assemble)
+    p = sub.add_parser("qc"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.add_argument("--verdict", required=True, choices=["PASS", "FAIL"]); p.add_argument("--reason", default=""); p.set_defaults(fn=cmd_qc)
+    p = sub.add_parser("fire-check"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.set_defaults(fn=cmd_fire_check)
+
+    args = ap.parse_args()
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()
