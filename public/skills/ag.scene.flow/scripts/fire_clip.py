@@ -5,7 +5,7 @@ Implements the 07.30 anti-drift research's Seedance rules as refusals:
   - strict start mode: the shot's approved start_frame is passed via --start-image
     (the dedicated first-frame role), NEVER a generic --image;
   - refuses when fire-check would refuse (shot not qc_pass, no start_frame);
-  - refuses when the start frame's aspect is not 9:16 (aspect must match output);
+  - refuses when the start/end frame aspect != the scene's DECLARED aspect (bible scene.aspect);
   - --end-image only when the bible marks end_frame_required and an approved
     end_frame exists at matching aspect;
   - one clip per shot unit; multi-shot generation is opt-in via --allow-multishot
@@ -33,11 +33,21 @@ def sh(cmd):
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def aspect_is_9x16(path):
+def aspect_ratio_of(spec):
+    """"9:16" -> 0.5625. Any W:H the bible declares."""
+    try:
+        w, h = spec.split(":")
+        return float(w) / float(h)
+    except Exception:
+        return 9 / 16
+
+
+def aspect_matches(path, spec):
+    """Frame aspect must equal the scene's DECLARED aspect (not a hardcoded 9:16)."""
     try:
         from PIL import Image
         w, h = Image.open(path).size
-        return abs((w / h) - (9 / 16)) < 0.02
+        return abs((w / h) - aspect_ratio_of(spec)) < 0.02
     except Exception:
         return False
 
@@ -56,6 +66,9 @@ def main():
     bible = Path(a.bible)
     project = bible.parent.parent.parent
     d = yaml.safe_load(bible.read_text())
+    # 🔴 ASPECT IS DECLARED ONCE, in the bible, and every fire derives from it. Never
+    # hardcoded here: a 16:9 creative (CTV / Roku / podcast) must fire 16:9 end to end.
+    aspect = str((d.get("scene") or {}).get("aspect") or "9:16").strip()
     # 🔴 SHOTS may live in a sibling SHOTS.yaml (bible split, 07.30) — ONE CANON ONLY.
     shots_path = bible.parent / "SHOTS.yaml"
     inline = d.get("shots") or []
@@ -77,8 +90,8 @@ def main():
     start = project / sf_rel
     if not start.exists():
         die(f"start frame missing on disk: {start}")
-    if not aspect_is_9x16(start):
-        die(f"start frame is not 9:16 — Seedance start/end and output aspect must match")
+    if not aspect_matches(start, aspect):
+        die(f"start frame is not {aspect} — Seedance start/end and output aspect must match the scene's declared aspect")
 
     end = None
     if shot.get("end_frame_required"):
@@ -86,8 +99,8 @@ def main():
         if not ef_rel:
             die(f"shot {a.shot} requires an end frame but none is approved")
         end = project / ef_rel
-        if not end.exists() or not aspect_is_9x16(end):
-            die(f"end frame missing or not 9:16: {end}")
+        if not end.exists() or not aspect_matches(end, aspect):
+            die(f"end frame missing or not {aspect}: {end}")
 
     prompt = (shot.get("clip_prompt") or "").strip()
     if not prompt:
@@ -102,7 +115,7 @@ def main():
            "--prompt", prompt, "--start-image", up(start)]
     if end is not None:
         cmd += ["--end-image", up(end)]
-    cmd += ["--aspect_ratio", "9:16", "--duration", dur, "--resolution", a.resolution,
+    cmd += ["--aspect_ratio", aspect, "--duration", dur, "--resolution", a.resolution,
             "--mode", a.mode, "--genre", a.genre, "--generate_audio", "true",
             "--wait", "--wait-timeout", "20m", "--json"]
     r = sh(cmd)

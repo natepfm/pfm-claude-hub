@@ -14,6 +14,7 @@ description: "PFM's LOCK-KEY orchestrator for multi-shot AI scene creatives (ski
 5. **≤3 negatives per shot.** Pixels carry the world; negatives are only for what pixels can't forbid. The lint refuses more.
 6. **No clip fires without `fire-check` passing** — which requires a qc.storyboard PASS and a cropped start frame. No exceptions, including "it looks fine."
 7. **All ag.scenelock craft laws still apply** — room-relative geography, anchored positions, body orientation, pixel authority, single-panel repair, LOOK at every sheet. This flow doesn't replace [ag.scenelock](../ag.scenelock/SKILL.md); it sequences it and makes its state machine-checkable.
+8. **🔴 SET `scene.aspect` FIRST — every fire derives from it.** The bible declares the creative's aspect ONCE (`scene: aspect: "9:16"` or `"16:9"`; `init --aspect 16:9` sets it). Both fire scripts read it: frames render at it, clips render at it, and a camera's reference frame or a clip's start/end frame is REFUSED unless its real pixel aspect matches. **The law is ref aspect == render aspect, at ANY aspect** — a 16:9 plate in a 9:16 render (or the reverse) stretches anatomy and rescales furniture. So a CTV / Roku / podcast creative sets `16:9` and cuts 16:9 camera references; a story ad leaves the 9:16 default. Camera field is `reference_frame` (legacy `reference_frame_9x16` still honoured).
 
 ## What this is
 

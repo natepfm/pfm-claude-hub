@@ -15,7 +15,7 @@ Refuses when:
   - the shot, its camera, or the camera's reference_frame is missing/TBD
   - the camera reference or tableau or a master file does not exist on disk
   - the shot has no assembled prompt (run scene_bible.py assemble first)
-Fires gpt_image_2 at 9:16 with the derived stack, saves Frame_<ID>_v<next>.png
+Fires gpt_image_2 at the scene's declared aspect with the derived stack, saves Frame_<ID>_v<next>.png
 (vN in place, never overwriting), prints the result URL, and exits 0 only when the
 file exists on disk with size > 0 (DONE = a check passed).
 """
@@ -75,12 +75,17 @@ def main():
     cam = next((c for c in d.get("cameras") or [] if c.get("id") == cam_id), None)
     if not cam:
         die(f"camera '{cam_id}' not defined in bible")
-    # 🔴 REF ASPECT == RENDER ASPECT (07.30.26): renders are 9:16, so the camera's
-    # native 9:16 reference is REQUIRED — feeding a 16:9 plate into a 9:16 render
-    # stretches anatomy and rescales furniture (S05/S13 proportion failures).
-    ref_rel = (cam.get("reference_frame_9x16") or "").split("#")[0].strip()
+    # 🔴 REF ASPECT == RENDER ASPECT (07.30.26; generalised 07-30 pm). The law is that the
+    # camera's reference must be NATIVE to whatever aspect this scene renders at — feeding a
+    # 16:9 plate into a 9:16 render (or the reverse) stretches anatomy and rescales furniture
+    # (S05/S13 proportion failures). The aspect is DECLARED ONCE in the bible (scene.aspect)
+    # and every fire derives from it; it is never hardcoded here.
+    aspect = str((d.get("scene") or {}).get("aspect") or "9:16").strip()
+    # camera field: neutral `reference_frame` preferred; `reference_frame_9x16` still honoured
+    # so bibles written before this change keep firing unchanged.
+    ref_rel = (cam.get("reference_frame") or cam.get("reference_frame_9x16") or "").split("#")[0].strip()
     if not ref_rel:
-        die(f"camera {cam_id} has no reference_frame_9x16 — cut a native 9:16 ref from its approved plate first (ref aspect must equal render aspect)")
+        die(f"camera {cam_id} has no reference_frame — cut a native {aspect} ref from its approved plate first (ref aspect must equal render aspect)")
     if ref_rel.upper().startswith("TBD"):
         die(f"camera {cam_id} has no approved reference_frame — lock it with Sam first")
     cam_ref = project / ref_rel
@@ -163,7 +168,7 @@ def main():
     cmd = ["higgsfield", "generate", "create"] + model_args + ["--prompt", prompt]
     for u in stack:
         cmd += ["--image", u]
-    cmd += ["--aspect_ratio", "9:16"]
+    cmd += ["--aspect_ratio", aspect]
     if engine != "gpt_image_2":
         cmd += ["--resolution", "2k"]
     cmd += ["--wait", "--wait-timeout", "10m", "--json"]
