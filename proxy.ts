@@ -14,7 +14,12 @@ export default auth((req) => {
   const isPublicPath =
     pathname === "/login" ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/brand/"); // masthead logos, needed by the login page
+    pathname.startsWith("/brand/") || // masthead logos, needed by the login page
+    // DELIBERATELY PUBLIC (Sam, 2026-07-28): the lander is a prospect-facing
+    // page that gets sent to people outside PFM, so it must never sit behind
+    // the staff login. It is a single self-contained file — all images are
+    // inline base64 — so this one path is the whole exemption.
+    pathname === "/lander.html";
 
   if (isPublicPath) return;
 
@@ -29,6 +34,7 @@ export default auth((req) => {
 export const config = {
   // Match everything except Next's own build output and the favicon.
   // NOTE: this deliberately DOES cover public/ files so the skill markdown,
-  // the .plugin bundle, lander.html and the SOP PDF are all gated.
+  // the .plugin bundle and the SOP PDF are all gated. lander.html is the one
+  // public exemption, allowed above.
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

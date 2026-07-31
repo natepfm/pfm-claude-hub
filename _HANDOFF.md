@@ -14,7 +14,7 @@ The PFM Editors Hub is the team's updater and skill catalog.
 **The hub is ONE page.** Sam collapsed it on 2026-07-26 because the site was public and exposing internal material. Everything that used to live here — workflow, creative taxonomy, onboarding, resources — now lives in **Notion**, which is access-controlled. Do not re-add pages without Sam asking.
 
 - `/` — the updater (Mac + Windows) and the canonical skill catalog. Auth required.
-- `/login` — Google sign-in, restricted to `@powerfoxmedia.com`.
+- `/login` — Google sign-in, restricted to `@powerfoxmedia.com` and `@savemaxauto.com`.
 - `/workflow`, `/skills`, `/creatives`, `/resources`, `/onboarding`, `/claude` — thin `redirect("/")` stubs kept only so old Slack/Notion links don't 404. They hold no content.
 
 ## Golden workflow rule
@@ -44,14 +44,23 @@ then restore the server gate in `app/page.tsx` and the sign-out action in `app/l
 
 The rest of this section describes that implementation.
 
-Google OAuth via Auth.js v5. **Only Google-verified `@powerfoxmedia.com` accounts get in.**
+Google OAuth via Auth.js v5. **Only Google-verified accounts on an allowed domain get in.** The allowlist lives in `ALLOWED_DOMAINS` in `auth.ts`:
+
+- `powerfoxmedia.com` — PFM staff
+- `savemaxauto.com` — Save Max Auto Organic team (added 2026-07-28)
+
+Widening access = adding a domain to that one array. Nothing else in the app hardcodes a domain — the login copy renders from the same list.
 
 Two independent gates — do not remove either:
 
-1. **`proxy.ts`** (Next 16's renamed middleware) gates *every* path except `/login`, `/api/auth/*`, `/brand/*`, and build assets. This is the only thing protecting static files in `public/` — the skill markdown under `/skills/**`, the Cowork `.plugin`, `lander.html`, and the SOP PDF — because static files never run page code.
+1. **`proxy.ts`** (Next 16's renamed middleware) gates *every* path except `/login`, `/api/auth/*`, `/brand/*`, `/lander.html`, and build assets. This is the only thing protecting static files in `public/` — the skill markdown under `/skills/**`, the Cowork `.plugin`, and the SOP PDF — because static files never run page code.
+
+   **`/lander.html` is public on purpose** (Sam, 2026-07-28). It is prospect-facing and gets sent to people outside PFM, so it must not sit behind the staff login. It is a single self-contained file (all images inline base64), so the one path exemption covers it completely — it pulls nothing else from `public/`.
 2. **`app/page.tsx`** re-checks the session server-side before rendering the catalog, so a proxy failure alone does not expose content.
 
-`auth.ts` holds the config. The `hd` param on the Google provider is only a UX hint and is spoofable — **the real boundary is the `signIn` callback**, which rejects any unverified email or any address not ending in `@powerfoxmedia.com`. Keep it that way.
+`auth.ts` holds the config. **The real boundary is the `signIn` callback**, which rejects any unverified email or any address whose domain is not in `ALLOWED_DOMAINS`. It matches the domain *exactly* (split on the final `@`), not by suffix, so a lookalike like `someone@notpowerfoxmedia.com` cannot slip through. Keep it that way.
+
+The Google provider no longer sends an `hd` param: `hd` pins the account chooser to a single Workspace domain and we now accept two. It was only ever a client-side UX hint and was spoofable, so nothing security-relevant was lost.
 
 Next.js is pinned at **≥16.2.12**; earlier 16.x had a published middleware/proxy bypass that would defeat gate 1.
 
@@ -93,7 +102,7 @@ bash scripts/build-cowork-plugin.sh
 ## Current source map
 
 ```text
-auth.ts                   Auth.js config + the @powerfoxmedia.com gate
+auth.ts                   Auth.js config + the allowed-domain gate
 proxy.ts                  Request gate for every path incl. public/ files
 app/
   layout.tsx              shell, fonts, theme script, masthead, sign-out action

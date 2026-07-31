@@ -1,7 +1,10 @@
-import { signIn, auth, ALLOWED_DOMAIN } from "@/auth";
+import { signIn, auth, ALLOWED_DOMAINS } from "@/auth";
 import { redirect } from "next/navigation";
 
 export const metadata = { title: "Sign in — PFM Editors Hub" };
+
+// Rendered from the allowlist so the copy can never drift from the gate.
+const DOMAIN_LIST = ALLOWED_DOMAINS.map((d) => `@${d}`).join(" or ");
 
 export default async function LoginPage({
   searchParams,
@@ -30,8 +33,8 @@ export default async function LoginPage({
             Sign in to the <em>Editors Hub.</em>
           </h1>
           <p className="text-muted text-sm mt-3 leading-relaxed">
-            This hub is for Power Fox Media staff. Sign in with your{" "}
-            <strong className="text-text">@{ALLOWED_DOMAIN}</strong> Google account —
+            This hub is for Power Fox Media and Save Max Auto staff. Sign in with your{" "}
+            <strong className="text-text">{DOMAIN_LIST}</strong> Google account —
             personal accounts and outside addresses are turned away.
           </p>
 
@@ -40,8 +43,8 @@ export default async function LoginPage({
               role="alert"
               className="mt-5 border border-ink bg-[#FEE2E2] text-[#991B1B] p-3 text-sm"
             >
-              <strong className="font-semibold">That account isn&apos;t on the PFM domain.</strong>{" "}
-              Pick your @{ALLOWED_DOMAIN} account and try again.
+              <strong className="font-semibold">That account isn&apos;t on a work domain.</strong>{" "}
+              Pick your {DOMAIN_LIST} account and try again.
             </div>
           )}
 
