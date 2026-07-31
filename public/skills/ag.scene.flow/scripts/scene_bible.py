@@ -78,6 +78,25 @@ PERSON_RELATIVE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# 🔴 CAMERA PHRASING (07-31, from the ComfyUI arm's WF3 result). A camera instruction that
+# names only a TARGET ("face the jury box wall straight on") is executed by the model as
+# "bring the jury box into the current view" — it moves the OBJECT, not the camera. An
+# instruction that states WHERE the camera goes first is executed as a camera move.
+TARGET_CAMERA_RE = re.compile(
+    r"\b(?:face|facing|point(?:ed|ing)?|aim(?:ed|ing)?|look(?:ing)?)\s+"
+    r"(?:straight\s+)?(?:at|toward|towards|on|into)?\s*the\b[^.;]*",
+    re.IGNORECASE,
+)
+POSITIONAL_CAMERA_RE = re.compile(
+    r"\b(?:move|moved|moving|place|placed|position(?:ed)?|stand(?:ing)?|set|sits?|"
+    r"from\s+(?:the|behind|beside|inside|above|below|within)|behind|beside|between|"
+    r"midway|in\s+the\s+\w+\s+(?:well|aisle|corner|row)|over\s+the\s+\w+'s\s+shoulder)\b",
+    re.IGNORECASE,
+)
+
+# lint() appends non-fatal notes here; cmd_validate prints them.
+WARNINGS = []
+
 TEMPLATE = """\
 # SCENE_BIBLE — the ONE canonical state for this creative. Every prompt is assembled
 # from this file by scene_bible.py; nothing downstream is hand-written or paraphrased.
@@ -207,6 +226,22 @@ def filled(block):
     return not str(block).strip().startswith("(")
 
 
+def camera_reference_for(data, shot, bible_path):
+    """The frame that shows THIS camera's view of the room, if one exists on disk.
+
+    Its presence is what licenses the lean prompt: a photograph of the room from this
+    camera makes every geometry paragraph a competing second opinion. Absent it, prose
+    is the only channel and the full verbatim blocks ship.
+    """
+    cams = {c.get("id"): c for c in (data.get("cameras") or [])}
+    cam = cams.get(shot.get("camera")) or {}
+    rel = cam.get("reference_frame") or cam.get("reference_frame_9x16") or ""
+    if not rel or not bible_path:
+        return None
+    art = resolve_artifact(bible_path, rel)
+    return str(art) if art.is_file() else None
+
+
 def lint(data, bible_path=None):
     """Return a list of violations. Empty list = PASS."""
     errs = []
@@ -278,6 +313,37 @@ def lint(data, bible_path=None):
             errs.append(f"shot {sid}: performance block empty")
         if not str(s.get("framing") or "").strip():
             errs.append(f"shot {sid}: framing not stated — qc.storyboard cannot check shot-size compliance without it")
+
+        # 🔴 POSITIONAL, NOT TARGET-BASED camera phrasing (07-31, ComfyUI arm).
+        # "Face the jury box wall straight on" makes the model MOVE THE JURY BOX into the
+        # existing view instead of moving the camera. The form that works is
+        # POSITION -> DIRECTION -> OBJECT: "move the camera into the open well, turn left,
+        # looking at the jury box." New shots are refused; already-boarded shots warn only,
+        # because re-phrasing an approved frame's canon would invalidate a passed QC.
+        camtext = " ".join(str(s.get(k) or "") for k in ("camera_position", "camera_move"))
+        if camtext.strip():
+            tgt = TARGET_CAMERA_RE.search(camtext)
+            if tgt and not POSITIONAL_CAMERA_RE.search(camtext):
+                msg = (f"shot {sid}: camera_position is TARGET-based ('{tgt.group(0).strip()}') with no "
+                       f"position stated — the model relocates the object instead of the camera. "
+                       f"Write POSITION then DIRECTION then OBJECT: 'move the camera into <named "
+                       f"place>, turn <direction>, looking at <object>'.")
+                if s.get("status", "unboarded") == "unboarded":
+                    errs.append(msg)
+                else:
+                    WARNINGS.append(msg + "  [warn only — this shot is already boarded]")
+
+        # 🔴 DETAIL REFS (07-31): pixels, not prose, for occluded detail. Each must exist.
+        for dref in s.get("detail_refs") or []:
+            rel = dref.get("path") or ""
+            if not rel:
+                errs.append(f"shot {sid}: detail_ref with no path")
+                continue
+            if not str(dref.get("region_of") or "").strip():
+                errs.append(f"shot {sid}: detail_ref '{rel}' has no region_of — name the object it resolves, "
+                            f"or the model treats it as a competing whole-scene reference")
+            if bible_path and not resolve_artifact(bible_path, rel).is_file():
+                errs.append(f"shot {sid}: detail_ref missing on disk ({rel})")
     return errs
 
 
@@ -366,13 +432,16 @@ def cmd_env_register(args):
 
 def cmd_validate(args):
     path, data = load(args.bible)
+    del WARNINGS[:]
     errs = lint(data, path)
+    for w in WARNINGS:
+        print(f"  ! {w}")
     if errs:
         print(f"LINT FAIL — {len(errs)} violation(s):")
         for e in errs:
             print(f"  ✗ {e}")
         sys.exit(1)
-    print("LINT PASS")
+    print(f"LINT PASS{f' ({len(WARNINGS)} warning(s))' if WARNINGS else ''}")
 
 
 def cmd_lock(args):
@@ -457,25 +526,53 @@ def cmd_assemble(args):
     axes = {a.get("id"): a for a in data.get("axes") or []}
     ax = axes.get(shot.get("axis")) or {}
 
+    # 🔴 PROSE NEVER RE-DESCRIBES WHAT A REFERENCE ALREADY SHOWS (07-31, ComfyUI arm).
+    # Measured there: a 3,557-char structured prompt + an approved hero image produced a room
+    # built from the TEXT, using the image only for wood tone. The same room held perfectly on
+    # 72 chars + the same image. Prose and pixels COMPETE; the model resolves the conflict by
+    # believing the prose. So when this shot has a camera reference frame — a real photograph
+    # of this room from this camera — the geometry/environment/population paragraphs are
+    # SUPPRESSED and replaced by one short deixis line. They still ship in full when there is
+    # no such frame (the first plate of a room, where prose is the only channel there is).
+    # Identity blocks are NEVER suppressed: a wide plate does not carry a face.
+    cam_ref = camera_reference_for(data, shot, path)
+    lean = bool(cam_ref) and not args.verbose
     lines = []
     lines.append(f"# {args.shot} — assembled from SCENE_BIBLE (never hand-edit; edit the bible and re-assemble)")
     lines.append("")
-    lines.append("## CONTINUITY (verbatim-locked)")
-    lines.append("The SAME room, the SAME people, the SAME light as the reference. Only the camera is new.")
-    lines.append(f"Geography, room-relative, defined {geo.get('reference_direction','')}:")
-    lines.append(str(geo.get("room_relative", "")).strip())
-    lines.append(str(vb.get("environment", "")).strip())
-    lines.append(str(vb.get("background_population", "")).strip())
-    if ax:
-        lines.append(f"Axis {ax.get('id')}: camera stays on the {ax.get('camera_side','')}; {ax.get('screen_directions','')}")
-    lines.append("")
+    if lean:
+        lines.append("## THE ROOM")
+        lines.append("This is the room. Same room as image 1, same walls, same furniture in the same places, "
+                     "same people in the same seats, same light. Nothing about the room changes.")
+        lines.append("")
+    else:
+        lines.append("## CONTINUITY (verbatim-locked)")
+        lines.append("The SAME room, the SAME people, the SAME light as the reference. Only the camera is new.")
+        lines.append(f"Geography, room-relative, defined {geo.get('reference_direction','')}:")
+        lines.append(str(geo.get("room_relative", "")).strip())
+        lines.append(str(vb.get("environment", "")).strip())
+        lines.append(str(vb.get("background_population", "")).strip())
+        if ax:
+            lines.append(f"Axis {ax.get('id')}: camera stays on the {ax.get('camera_side','')}; {ax.get('screen_directions','')}")
+        lines.append("")
     # 🔴 REFERENCE ROLES (07.30 anti-drift research): every reference has ONE named
     # job so the model never votes between images. Order matches fire_frame.py's stack.
     lines.append("## REFERENCE ROLES")
     lines.append("- Image 1 is the CAMERA AND SPATIAL AUTHORITY: preserve its camera position, lens feel, composition, room geometry, furniture and character floor positions exactly.")
     lines.append("- Image 2 is the GRADE AUTHORITY ONLY: take its light direction, exposure, contrast, color palette and material feel — and NOTHING else. It was shot from a DIFFERENT camera position, so it is NOT a source of room layout, wall positions, door placement, furniture arrangement or where people sit. Image 1 alone decides geometry and who is where.")
-    for i, ch in enumerate(shot.get("characters") or [], start=3):
-        lines.append(f"- Image {i} controls {ch}'s identity, face, hair and body proportions exactly, wearing their locked outfit below.")
+    n = 3
+    for ch in shot.get("characters") or []:
+        lines.append(f"- Image {n} controls {ch}'s identity, face, hair and body proportions exactly, wearing their locked outfit below.")
+        n += 1
+    # 🔴 DETAIL REFS: when the new camera needs an object the source frame never resolved
+    # (a jury box seen edge-on in the hero, square-on in this shot), the fix is PIXELS of that
+    # object, not a paragraph describing it. Scoped hard to the named region so it cannot
+    # act as a competing whole-scene reference.
+    for dref in shot.get("detail_refs") or []:
+        lines.append(f"- Image {n} shows the {dref.get('region_of')} in detail. Use it for that object's "
+                     f"construction, proportions and materials ONLY. It decides nothing else — not the "
+                     f"camera, not the room, not the light.")
+        n += 1
     lines.append("Where sources conflict, the LOWER image number wins. Do not redesign, restyle, add, remove, relocate, mirror or recolor anything not named in THIS SHOT ONLY.")
     lines.append("")
     lines.append("## CAST IN THIS SHOT (identity verbatim-locked)")
@@ -486,9 +583,16 @@ def cmd_assemble(args):
         lines.append(f"Position: {str(c.get('position','')).strip()}")
         lines.append(f"Facing: {c.get('facing','')}. Eyeline: {c.get('eyeline','')}")
         lines.append("")
-    lines.append("## GRADE (verbatim-locked)")
-    lines.append(str(vb.get("grade", "")).strip())
-    lines.append("")
+    if lean:
+        # image 2 IS the grade; re-stating it in prose is the same competition as the room
+        lines.append("## GRADE")
+        lines.append("Match image 2's light and colour exactly. Clean photographic rendering, real skin texture, "
+                     "no grain, no mottling, no splotches.")
+        lines.append("")
+    else:
+        lines.append("## GRADE (verbatim-locked)")
+        lines.append(str(vb.get("grade", "")).strip())
+        lines.append("")
     lines.append("## THIS SHOT ONLY (the one variable layer)")
     lines.append(f"Framing: {shot.get('framing','')}. Camera: {shot.get('camera_position','')}.")
     lines.append(str(shot.get("performance", "")).strip())
@@ -510,8 +614,19 @@ def cmd_assemble(args):
     out_dir = Path(path).parent / "assembled"
     out_dir.mkdir(exist_ok=True)
     out = out_dir / f"{args.shot}_prompt.md"
-    out.write_text("\n".join(lines) + "\n")
+    body = "\n".join(lines) + "\n"
+    out.write_text(body)
+    if lean:
+        mode = "LEAN (refs carry the room)"
+    elif cam_ref:
+        mode = "FULL (--verbose forced; a camera reference exists and prose will compete with it)"
+    else:
+        mode = "FULL (no camera reference — prose is the only channel)"
     print(f"OK: assembled -> {out}")
+    print(f"    mode: {mode} · {len(body)} chars")
+    if lean:
+        print("    suppressed: geography, environment, background_population, grade verbatim "
+              "— image 1 shows them")
     print("\n".join(lines))
 
 
@@ -549,7 +664,9 @@ def main():
     p.add_argument("--path", required=True); p.add_argument("--dressing", default=None); p.set_defaults(fn=cmd_env_register)
     p = sub.add_parser("lock"); p.add_argument("bible"); p.add_argument("lock"); p.add_argument("--by", default="editor"); p.add_argument("--artifact", default=None, help="path to the approved file (required for every lock except script)"); p.set_defaults(fn=cmd_lock)
     p = sub.add_parser("status"); p.add_argument("bible"); p.set_defaults(fn=cmd_status)
-    p = sub.add_parser("assemble"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.set_defaults(fn=cmd_assemble)
+    p = sub.add_parser("assemble"); p.add_argument("bible"); p.add_argument("--shot", required=True)
+    p.add_argument("--verbose", action="store_true", help="ship the full verbatim geography/environment/grade blocks even when a camera reference exists (default is LEAN — the refs carry the room)")
+    p.set_defaults(fn=cmd_assemble)
     p = sub.add_parser("qc"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.add_argument("--verdict", required=True, choices=["PASS", "FAIL"]); p.add_argument("--reason", default=""); p.set_defaults(fn=cmd_qc)
     p = sub.add_parser("fire-check"); p.add_argument("bible"); p.add_argument("--shot", required=True); p.set_defaults(fn=cmd_fire_check)
 

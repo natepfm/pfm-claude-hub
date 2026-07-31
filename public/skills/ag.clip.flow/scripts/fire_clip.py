@@ -21,8 +21,10 @@ from pathlib import Path
 
 import yaml
 
+# 🔴 mini_test RETIRED (Sam, 07.30: "I really hate mini, let's never use mini"). Kept only so
+# canon referencing it fails loudly instead of silently downgrading a shot to a rejected tier.
+BANNED_PROFILES = {"mini_test": 'Sam banned Seedance mini 07.30 ("I really hate mini"). Use fast_proof for cheap probes — he approved that tier.'}
 PROFILES = {
-    "mini_test":  {"model": "seedance_2_0_mini", "resolution": "720p",  "bitrate_mode": "standard", "mode": None},
     "fast_proof": {"model": "seedance_2_0",      "resolution": "720p",  "bitrate_mode": "standard", "mode": "fast"},
     "std_720":    {"model": "seedance_2_0",      "resolution": "720p",  "bitrate_mode": "high",     "mode": "std"},
     "std_1080":   {"model": "seedance_2_0",      "resolution": "1080p", "bitrate_mode": "high",     "mode": "std"},
@@ -135,6 +137,23 @@ def main():
                 "mottle risk. Use the native storyboard anchor, or declare continuation_from in canon "
                 "for a genuine continuous-shot chain.")
 
+    # 🔴 ONE PLATE PER CAMERA (Sam, 07.31 — the S25/S26 cast swap): coverage of the SAME
+    # camera setup animates from the SAME still. Two independent stills off one camera are
+    # two rolls of the dice, and the model re-invents faces and front rows between them.
+    # A performance difference (neutral vs gasp vs glance) belongs in the clip_prompt.
+    # Deliberate exception: declare plate_variant_reason in canon.
+    cam = shot.get("camera")
+    if cam and not shot.get("plate_variant_reason"):
+        siblings = {(s.get("start_frame") or ""): s.get("id")
+                    for s in shots
+                    if s.get("camera") == cam and s.get("id") != a.shot and s.get("start_frame")}
+        others = {p: i for p, i in siblings.items() if p != sf}
+        if others:
+            listed = ", ".join(f"{i} -> {Path(p).name}" for p, i in sorted(others.items(), key=lambda x: x[1]))
+            die(f"shot {a.shot} anchors to {Path(sf).name}, but camera {cam} already covers "
+                f"{listed}. ONE PLATE PER CAMERA — same setup, same still, or the cast re-rolls "
+                f"between shots. Point them at one anchor, or set plate_variant_reason in canon.")
+
     # ---- canon video block --------------------------------------------------
     v = shot.get("video") or {}
     if not v:
@@ -145,6 +164,13 @@ def main():
     if "generate_audio" not in v:
         die(f"shot {a.shot} has no explicit generate_audio — audio is a per-shot decision, never a default")
     audio = bool(v["generate_audio"])
+    # 🔴 NO LINE, NO AUDIO (Sam, 07.31 — S26 v01 invented a judge speaking offscreen): audio on a
+    # shot with no scripted line lets the model fill the silence with speech that isn't in the
+    # script. Reaction shots, cutaways and atmosphere run silent; gasps and room tone come from
+    # the library in post. Deliberate exception: declare audio_reason in canon.
+    if audio and not (shot.get("expected_dialogue") or "").strip() and not shot.get("audio_reason"):
+        die(f"shot {a.shot} has generate_audio:true but no expected_dialogue — the model will invent "
+            "speech to fill it. Silent clip, or set audio_reason in canon for a deliberate sound beat.")
     try:
         dur = int(v.get("duration"))
     except (TypeError, ValueError):
@@ -160,6 +186,8 @@ def main():
                 "Shorten it, or set multishot:true deliberately. (Exception: a single line whose word count needs >10s.)")
     genre = v.get("genre", "auto")
     prof_name = a.profile or v.get("profile") or "std_720"
+    if prof_name in BANNED_PROFILES:
+        die(f"profile '{prof_name}' is banned — {BANNED_PROFILES[prof_name]}")
     if prof_name not in PROFILES:
         die(f"unknown profile '{prof_name}' — one of {sorted(PROFILES)}")
     prof = PROFILES[prof_name]

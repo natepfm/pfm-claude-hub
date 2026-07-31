@@ -58,7 +58,11 @@ expected_dialogue: "..."
 expected_speaker: DEFENDANT
 ```
 
-Profiles: `mini_test` (seedance_2_0_mini 720p, mechanic tests) · `fast_proof` (fast mode, speed over texture) · `std_720` (std + high bitrate — the selection point) · `std_1080` (hero direct-final, ~2× cost).
+Profiles: `fast_proof` (seedance_2_0 fast — Sam-approved tier, good enough to judge performance and sometimes to keep) · `std_720` (std + high bitrate — the selection point) · `std_1080` (hero direct-final, ~2× cost). 🔴 **`mini_test` is BANNED** (Sam, 07.30: "I really hate mini") — the gate refuses it. Cheap probes use `fast_proof`.
+
+🔴 **TIER BY SHOT SIZE (Sam, 07.30).** `fast_proof` holds up on TIGHT shots — MCU and closer, subject near camera, limited movement. It FAILS on wides and any shot where a face is far from camera AND moving: the face warps and a blotchy filter-like texture settles over the frame (S17's aisle walk, twice). So: distant or moving subjects → `std_720` minimum, never fast. Fast is for cheap probes of BLOCKING and TIMING, and for keepable tight singles.
+
+**Vendor note (07.30):** `seedance_2_0` std mode failed 7 consecutive jobs with `status: failed` and an empty `result_url` while mini and fast succeeded on the identical anchor and prompt. When std fails repeatedly, probe with `fast_proof` before assuming a prompt problem — and never conclude "our fault" without checking `job_display` for the vendor's own status.
 
 ## Run it
 

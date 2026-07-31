@@ -143,8 +143,34 @@ def main():
     next_v = 1 + max([int(p.stem.split("_v")[-1]) for p in existing], default=0)
     out = out_dir / f"Frame_{a.shot}_v{next_v:02d}.png"
 
-    # Derived stack, fixed order: camera reference FIRST, tableau, then masters.
-    stack = [upload(cam_ref), upload(tableau)] + [upload(m) for m in masters] + [upload(sp) for _, sp, _ in screens]
+    # 🔴 DETAIL REFS (07-31, ComfyUI arm): the photocopy rule breaks when the NEW camera needs
+    # detail the source frame never resolved — a jury box seen edge-on in the hero renders as
+    # an invented flat box when shot square-on. The fix is PIXELS of that object (a crop of the
+    # canonical source), not a paragraph describing it. They sit AFTER the masters so the lower-
+    # number-wins rule keeps them subordinate to camera, grade and identity.
+    details = []
+    for dref in shot.get("detail_refs") or []:
+        rel = (dref.get("path") or "").strip()
+        if not rel:
+            die(f"shot {a.shot} has a detail_ref with no path")
+        dp = Path(rel) if rel.startswith("/") else project / rel
+        if not dp.exists():
+            die(f"detail_ref missing on disk: {dp}")
+        if not (dref.get("region_of") or "").strip():
+            die(f"detail_ref {dp.name} has no region_of — an unscoped crop competes with image 1 "
+                f"for the whole scene instead of resolving one object")
+        details.append((dref["region_of"], dp))
+
+    # Derived stack, fixed order: camera reference FIRST, tableau, masters, screens, detail crops.
+    stack = ([upload(cam_ref), upload(tableau)] + [upload(m) for m in masters]
+             + [upload(sp) for _, sp, _ in screens] + [upload(dp) for _, dp in details])
+    if details:
+        n1 = 2 + len(masters) + len(screens)
+        prompt += "\n\nDETAIL REFERENCE ROLES\n" + "\n".join(
+            f"- Image {n1+i+1} shows the {reg} in detail. Use it for that object's construction, "
+            f"proportions and materials ONLY — it decides nothing else about the room, the camera "
+            f"or the light."
+            for i, (reg, _) in enumerate(details))
     if screens:
         n0 = 2 + len(masters)
         roles = "\n".join(f"- Image {n0+i+1} is the SCREEN AUTHORITY for {k}: render this interface EXACTLY as shown on the device screen in frame — same layout, same colors, same text, legible and undistorted. It shows {desc}. Never invent UI, never substitute a generic app screen, never leave the screen blank or dark."
