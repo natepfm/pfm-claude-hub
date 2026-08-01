@@ -24,6 +24,9 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from canon_io import canon_write  # vendored; see canon_io.py header
+
 
 def die(msg):
     print(f"REFUSED: {msg}")
@@ -50,6 +53,10 @@ def main():
     ap.add_argument("--engine", default=None, choices=["nano_banana_2","flux_2_max","seedream_v5_pro","gpt_image_2","nano_banana_flash"],
                     help="Override stage routing. Default: shot's bible 'engine' field, else nano_banana_2 (people-heavy anchor default per 07.30 anti-drift research).")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--system-fix", dest="system_fix", default=None, metavar="REASON",
+                    help="Bypass the two-hop cap ONLY, to repair a SYSTEM-caused defect (e.g. a "
+                         "prompt-assembly regression). Requires a reason, recorded in canon. Does "
+                         "NOT reset hop_count and does NOT bypass any other gate.")
     a = ap.parse_args()
 
     bible = Path(a.bible)
@@ -189,8 +196,24 @@ def main():
                   "nano_banana_flash": ["nano_banana_flash"]}[engine]
     # hop tracking: refuse the third hop (rebuild from canon instead)
     hops = int(shot.get("hop_count") or 0)
-    if hops >= 2 and not shot.get("hop_reset_approved"):
-        die(f"shot {a.shot} is at hop {hops} — two-hop cap. Rebuild from clean canon (reset hop_count in the bible with Sam's approval) instead of chaining a third edit.")
+    # 🔴 SYSTEM-FIX HATCH (08-01, approved by the pipeline session with three conditions).
+    # A repair of a SYSTEM-caused defect is not a creative hop and must not consume the
+    # creative budget. Born when a prompt-assembly regression silently dropped the
+    # surface-quality + skin guards from every assembled prompt: repairing all 30 frames
+    # was blocked on 10 of them that were at hop 2 from genuine creative iteration.
+    # Conditions, all enforced below:
+    #   1. hop_count is NEVER reset — system repairs are counted separately, so the
+    #      creative budget stays honest AND system churn stays visible as its own number.
+    #   2. A non-empty reason is REQUIRED, recorded in canon and printed.
+    #   3. Narrow to the hop cap ONLY. This is not a general gate bypass — every other
+    #      refusal (qc status, missing frames, aspect mismatch, ref checks) still applies.
+    if a.system_fix and not str(a.system_fix).strip():
+        die("--system-fix requires a reason: what system defect is being repaired?")
+    if hops >= 2 and not shot.get("hop_reset_approved") and not a.system_fix:
+        die(f"shot {a.shot} is at hop {hops} — two-hop cap. Rebuild from clean canon (reset hop_count in the bible with Sam's approval) instead of chaining a third edit. "
+            f"If this is a repair of a SYSTEM defect rather than a creative iteration, re-run with --system-fix \"<reason>\".")
+    if a.system_fix:
+        print(f"SYSTEM FIX (hop cap bypassed, hop_count untouched at {hops}): {a.system_fix}")
     cmd = ["higgsfield", "generate", "create"] + model_args + ["--prompt", prompt]
     for u in stack:
         cmd += ["--image", u]
@@ -215,12 +238,28 @@ def main():
     shot["engine"] = engine
     shot["hop_count"] = hops + 1
     shot["last_frame_file"] = str(out.relative_to(project))
+    # 🔴 Write ONLY this shot's own fields, applied to the CURRENT document under a lock
+    # (canon_io). Dumping the whole doc we loaded minutes ago silently reverted editor
+    # approvals recorded while a background batch was running — observed twice, 07-31-26.
+    _fields = {"engine": engine, "hop_count": hops + 1,
+               "last_frame_file": str(out.relative_to(project))}
+    if a.system_fix:
+        # condition 1: creative budget untouched; system repairs counted on their own axis
+        _fields["hop_count"] = hops
+        _fields["system_fix_count"] = int(shot.get("system_fix_count") or 0) + 1
+        _log = list(shot.get("system_fix_log") or [])
+        _log.append(str(a.system_fix))
+        _fields["system_fix_log"] = _log
+
+    def _apply(doc):
+        for _s in (doc.get("shots") or []):
+            if _s.get("id") == a.shot:
+                _s.update(_fields)
+
     if shots_path.exists() and external:
-        sd_out = yaml.safe_load(shots_path.read_text()) or {}
-        if isinstance(sd_out, dict): sd_out["shots"] = all_shots
-        else: sd_out = all_shots
-        yaml.safe_dump(sd_out, shots_path.open("w"), sort_keys=False, allow_unicode=True, width=100)
-    yaml.safe_dump(d, bible.open("w"), sort_keys=False, allow_unicode=True, width=100)
+        canon_write(shots_path, _apply)
+    else:
+        canon_write(bible, _apply)
     print(f"bible updated: engine={engine} hop={hops+1}")
 
 

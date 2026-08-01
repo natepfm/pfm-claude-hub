@@ -21,6 +21,9 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from canon_io import canon_write  # vendored; see canon_io.py header
+
 # 🔴 mini_test RETIRED (Sam, 07.30: "I really hate mini, let's never use mini"). Kept only so
 # canon referencing it fails loudly instead of silently downgrading a shot to a rejected tier.
 BANNED_PROFILES = {"mini_test": 'Sam banned Seedance mini 07.30 ("I really hate mini"). Use fast_proof for cheap probes — he approved that tier.'}
@@ -67,17 +70,35 @@ def load_canon(bible):
     return d, (external or inline), (shots_path if external else None)
 
 
-def save_shots(bible, shots, shots_path, d):
-    if shots_path:
-        sd = yaml.safe_load(shots_path.read_text()) or {}
-        if isinstance(sd, dict):
-            sd["shots"] = shots
-        else:
-            sd = shots
-        yaml.safe_dump(sd, shots_path.open("w"), sort_keys=False, allow_unicode=True, width=100)
-    else:
-        d["shots"] = shots
-        yaml.safe_dump(d, bible.open("w"), sort_keys=False, allow_unicode=True, width=100)
+def save_shots(bible, shots, shots_path, d, only_shot=None):
+    """Persist shot state WITHOUT clobbering concurrent writers.
+
+    🔴 The old version dumped the whole in-memory document, which silently reverted
+    editor approvals recorded while a long batch held a stale copy (observed twice on
+    Test 3, 07-31-26). A Seedance batch holds its copy for many minutes, so this path
+    was the worst-exposed of the nine. canon_write re-reads under a lock and applies
+    only the fields this process owns. Pass only_shot to scope the merge to one shot.
+    """
+    by_id = {s.get("id"): s for s in shots if isinstance(s, dict)}
+
+    def _apply(doc):
+        cur = doc.get("shots")
+        if not isinstance(cur, list):
+            doc["shots"] = shots
+            return
+        for c in cur:
+            sid = c.get("id")
+            if only_shot and sid != only_shot:
+                continue
+            src = by_id.get(sid)
+            if src:
+                c.update(src)
+        have = {c.get("id") for c in cur}
+        for sid, src in by_id.items():
+            if sid not in have and (not only_shot or sid == only_shot):
+                cur.append(src)
+
+    canon_write(shots_path if shots_path else bible, _apply)
 
 
 def sha8(p):
@@ -114,7 +135,7 @@ def main():
         else:
             shot["clip_qc"] = "clip_qc_pass"
             shot.pop("clip_qc_reason", None)
-        save_shots(bible, shots, shots_path, d)
+        save_shots(bible, shots, shots_path, d, only_shot=a.shot)
         print(f"OK: {a.shot} -> {shot['clip_qc']}" + (f" ({a.reason})" if a.reason else ""))
         return
 
@@ -300,7 +321,7 @@ def main():
     shot["clip_sidecar"] = f"Elements/Footage/Seedance/{out.stem}.json"
     shot["clip_qc"] = "fired_pending_qc"
     shot["clip_take"] = take
-    save_shots(bible, shots, shots_path, d)
+    save_shots(bible, shots, shots_path, d, only_shot=a.shot)
 
     print(f"URL={url}")
     print(f"saved {out.name} (+ sidecar, + frame1)")

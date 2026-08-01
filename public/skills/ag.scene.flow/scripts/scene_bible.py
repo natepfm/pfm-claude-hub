@@ -36,6 +36,9 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from canon_io import canon_write  # vendored; see canon_io.py header
+
 LOCK_ORDER = ["script", "cast", "environment", "tableau", "blocking"]
 MAX_NEGATIVES = 3
 SHOT_STATUSES = ["unboarded", "boarded", "qc_fail", "qc_pass", "fired"]
@@ -69,6 +72,16 @@ def resolve_artifact(bible_path, rel):
 
 def shots_path(bible_path):
     return Path(bible_path).parent / SHOTS_NAME
+
+
+# 🔴 Baseline snapshots taken at load(), so save() can write a DIFF instead of a whole
+# stale document. Keyed by resolved path. See canon_io.py for why this exists.
+_BASELINE = {}
+
+
+def _snapshot(path, data):
+    import copy
+    _BASELINE[str(Path(path).resolve())] = copy.deepcopy(data)
 
 # person-relative geography is drift's side door — it mirror-flips when a character turns
 PERSON_RELATIVE_RE = re.compile(
@@ -203,20 +216,81 @@ def load(path):
             die(f"shots exist in BOTH {p.name} and {SHOTS_NAME} — one canon only. "
                 f"Delete the inline `shots:` block from {p.name} (the sibling file wins) and re-run.")
         data["shots"] = sib
+    _snapshot(p, data)
     return p, data
 
 
+def _changed(new, base):
+    """Top-level keys whose value differs from what load() saw."""
+    out = {}
+    base = base or {}
+    for k, v in (new or {}).items():
+        if k == "shots":
+            continue
+        if base.get(k) != v:
+            out[k] = v
+    return out
+
+
+def _shot_delta(new_shots, base_shots):
+    """Per-shot field changes, keyed by shot id, plus ids this process added."""
+    base = {s.get("id"): s for s in (base_shots or []) if isinstance(s, dict)}
+    delta, added = {}, []
+    for s in (new_shots or []):
+        if not isinstance(s, dict):
+            continue
+        sid = s.get("id")
+        b = base.get(sid)
+        if b is None:
+            added.append(s)
+            continue
+        fields = {k: v for k, v in s.items() if b.get(k) != v}
+        if fields:
+            delta[sid] = fields
+    return delta, added
+
+
 def save(path, data):
+    """Persist ONLY what this process changed, merged into the CURRENT document.
+
+    🔴 The old version wrote the whole in-memory document. When a background fire loop
+    held a copy loaded minutes earlier, its write silently reverted every field another
+    writer had recorded in the meantime — editor QC verdicts, start_frame pins, notes.
+    Observed twice on Test 3 (07-31-26), the second time while the defect was being
+    written up. load() now snapshots a baseline; save() diffs against it and applies
+    only the difference, under canon_io's lock. See canon_io.py for the full account.
+    """
+    key = str(Path(path).resolve())
+    base = _BASELINE.get(key) or {}
+    top = _changed(data, base)
+    delta, added = _shot_delta(data.get("shots"), base.get("shots"))
+
+    def _apply_shots(doc):
+        cur = doc.get("shots")
+        if not isinstance(cur, list):
+            doc["shots"] = list(data.get("shots") or [])
+            return
+        for c in cur:
+            f = delta.get(c.get("id"))
+            if f:
+                c.update(f)
+        have = {c.get("id") for c in cur}
+        for s in added:
+            if s.get("id") not in have:
+                cur.append(s)
+
     sp = shots_path(path)
     if sp.is_file():
-        shots = data.pop("shots", [])
-        try:
-            sp.write_text(yaml.safe_dump({"shots": shots}, sort_keys=False, allow_unicode=True, width=100))
-            Path(path).write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100))
-        finally:
-            data["shots"] = shots  # keep the in-memory view whole for the caller
-        return
-    Path(path).write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100))
+        if delta or added:
+            canon_write(sp, _apply_shots)
+        if top:
+            canon_write(path, lambda doc: doc.update(top))
+    else:
+        def _apply_all(doc):
+            doc.update(top)
+            _apply_shots(doc)
+        canon_write(path, _apply_all)
+    _snapshot(path, data)
 
 
 def filled(block):
@@ -584,10 +658,22 @@ def cmd_assemble(args):
         lines.append(f"Facing: {c.get('facing','')}. Eyeline: {c.get('eyeline','')}")
         lines.append("")
     if lean:
-        # image 2 IS the grade; re-stating it in prose is the same competition as the room
+        # 🔴 LEAN suppresses the LIGHT/COLOUR description (image 2 carries it) but NEVER the
+        # SURFACE-QUALITY and SKIN guards (07-31, Sam: "especially the skin"). A reference image
+        # cannot carry "render pores, not wax" — that is a rendering instruction, not a fact about
+        # the room, so suppressing it was an over-reach in the original LEAN change. Everything
+        # from CRITICAL SURFACE QUALITY onward ships VERBATIM in both modes.
         lines.append("## GRADE")
-        lines.append("Match image 2's light and colour exactly. Clean photographic rendering, real skin texture, "
-                     "no grain, no mottling, no splotches.")
+        lines.append("Match image 2's light and colour exactly.")
+        g = str(vb.get("grade", ""))
+        i = g.find("CRITICAL SURFACE QUALITY")
+        guards = g[i:].strip() if i != -1 else ""
+        if guards:
+            lines.append(guards)
+        else:
+            lines.append("Clean photographic rendering, walls smooth and evenly painted, no grain, no mottling, "
+                         "no splotches. Natural human skin with real texture, visible pores and fine lines, matte "
+                         "and dry, never airbrushed, never plastic-smooth.")
         lines.append("")
     else:
         lines.append("## GRADE (verbatim-locked)")
