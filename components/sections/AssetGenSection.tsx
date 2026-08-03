@@ -104,7 +104,7 @@ export default function AssetGenSection() {
       {/* Statuses (automated/staged side) */}
       <div className="rounded-lg bg-surface-gradient shadow-elev1 ring-1 ring-ink p-5 mb-6">
         <div className="text-xs uppercase tracking-wide text-accent font-semibold mb-1">The <span className="font-mono normal-case">Asset Gen</span> status on a request</div>
-        <p className="text-xs text-muted mb-3">Set on staged requests so the mini knows what&apos;s armed. (Manual hvg/hig fires don&apos;t need it.)</p>
+        <p className="text-xs text-muted mb-3">Set on staged requests so the mini knows what&apos;s armed. (Local fires you run yourself don&apos;t need it.)</p>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
           {statuses.map((s) => (
             <div key={s.name} className="flex items-start gap-2.5 text-sm">

@@ -106,12 +106,13 @@ export default function SetupMac() {
       </div>
 
       <div className="my-8">
-        <h3 className="text-xl font-semibold mb-2">5. Your first real project (HVG flow walkthrough)</h3>
+        <h3 className="text-xl font-semibold mb-2">5. Your first real project (asset gen walkthrough)</h3>
         <ol className="list-decimal ml-6 space-y-1 text-muted">
           <li>Open <strong className="text-text">Claude Code</strong> from inside the project folder (Code tab → folder picker → <code>/Volumes/ads/.../&lt;project&gt;</code>)</li>
-          <li>In the chat, paste: <code>Notion request: &lt;URL&gt;. Run video generations.</code></li>
-          <li>Claude walks 9 confirmation gates. You confirm each one before it moves on.</li>
-          <li>After Gate 9 (final preflight), type <code>fire</code> to launch the batch. Claude downloads MP4s into <code>Elements/Footage/Veo/</code> + writes the Excel manifest.</li>
+          <li>In the chat, paste the Notion request URL and run <code>/ag.stage</code> — that&apos;s the front door for a project&apos;s first gen.</li>
+          <li>Staging runs setup silently and stops for you only where a wrong call costs credits — a reference decision if your refs are ambiguous, then the preflight.</li>
+          <li>The preflight shows model, count, item count, cost and the output folder. Type <code>fire</code> (or click Fire) to launch. Claude downloads MP4s into <code>Elements/Footage/Veo/</code> and writes the manifest.</li>
+          <li>Regens, refires and fixes on a project that already has assets fire direct — they don&apos;t go back through staging.</li>
         </ol>
 
         <h4 className="font-semibold mt-4 mb-2">Common phrases</h4>
