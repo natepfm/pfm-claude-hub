@@ -2,10 +2,30 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Masthead only — the hub is a single page (Sam 2026-07-26), so the
-// page-tab row is gone. Logo + wordmark + sign-out + theme toggle.
+const pages = [
+  { href: "/", label: "Dashboard" },
+  { href: "/workflow", label: "Workflow" },
+  { href: "/skills", label: "Skills" },
+  { href: "/creatives", label: "Creatives" },
+  { href: "/resources", label: "Resources" },
+  { href: "/onboarding", label: "Onboarding" },
+];
+
+function baseRoute(pathname: string): string {
+  if (pathname.startsWith("/workflow") || pathname.startsWith("/claude")) return "/workflow";
+  if (pathname.startsWith("/skills")) return "/skills";
+  if (pathname.startsWith("/creatives")) return "/creatives";
+  if (pathname.startsWith("/resources")) return "/resources";
+  if (pathname.startsWith("/onboarding")) return "/onboarding";
+  return "/";
+}
+
+// Masthead + page tabs. The multi-page hub came back 2026-08-03 now that the
+// Google sign-in gate is in front of it; the tab row is hidden when there is
+// no session so /login stays a bare masthead.
 export default function TopNav({
   userEmail,
   signOutAction,
@@ -13,6 +33,8 @@ export default function TopNav({
   userEmail?: string | null;
   signOutAction?: () => Promise<void>;
 }) {
+  const pathname = usePathname() || "/";
+  const active = baseRoute(pathname);
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -105,6 +127,28 @@ export default function TopNav({
           <span className="hidden sm:inline">{mounted && darkMode ? "Light" : "Dark"}</span>
         </button>
       </div>
+      {userEmail && (
+        <ul className="nav-scrollbar flex overflow-x-auto border-t border-ink/70 divide-x divide-ink/70">
+          {pages.map((p) => {
+            const isActive = active === p.href;
+            return (
+              <li key={p.href} className="flex-none min-w-[94px] md:min-w-0 md:flex-1">
+                <Link
+                  href={p.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex min-h-11 items-center justify-center px-2 py-3 font-mono text-[10px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.08em] transition-colors ${
+                    isActive
+                      ? "bg-black/15 text-ink font-bold"
+                      : "text-ink/75 hover:text-ink hover:bg-white/20"
+                  }`}
+                >
+                  {p.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </header>
   );
 }
