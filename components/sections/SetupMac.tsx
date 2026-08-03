@@ -25,11 +25,12 @@ export default function SetupMac() {
           <li>Install <a href="https://www.lucidlink.com/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Lucid Link</a> and mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong> filespace at <code>/Volumes/ads/</code>.</li>
           <li>Make sure Notion is installed and you're signed in.</li>
           <li>
-            <strong className="text-text">Update Claude to the latest version before running the installer.</strong> The
-            PFM brief loads from <code>~/.claude/rules/</code>, which needs Claude Code <code>2.1.198</code> or newer.
-            On an older build the files would install and then silently never load — you&apos;d look fully set up while
-            running with none of the PFM rules. The installer checks your version and stops rather than let that
-            happen. Check yours with <code>claude --version</code>.
+            <strong className="text-text">Take whatever Claude version your updater offers</strong> — there&apos;s no
+            minimum to hit, and the installer will not block you on it. The PFM brief loads from{" "}
+            <code>~/.claude/rules/</code>; on older builds we haven&apos;t confirmed whether that loads, so after the
+            install run <code>/context</code> in Claude and look for <code>pfm-*.md</code> under{" "}
+            <strong className="text-text">Memory files</strong>. Listed = you&apos;re set. Not listed = tell Sam and
+            we&apos;ll ship the brief to you a different way. Everything else works either way.
           </li>
         </ol>
         <Callout type="warn" title='Expected: "Git is required for local sessions" error'>
