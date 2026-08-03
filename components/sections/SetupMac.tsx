@@ -9,7 +9,12 @@ export default function SetupMac() {
         <ul className="list-disc ml-6 space-y-1">
           <li><strong>Brand-new Mac</strong>, no Claude installed → start at step 1.</li>
           <li><strong>Claude installed + signed into your own @powerfoxmedia.com Team seat</strong>, never used Claude Code → start at step 2 (fast-path installer).</li>
-          <li><strong>Claude Code already working locally</strong> → start at step 3 (Higgsfield auth + skills).</li>
+          <li>
+            <strong>Already using Claude Code with your own setup</strong> (your own skills, your own CLAUDE.md, maybe
+            Lucid and the Higgsfield CLI already connected to a personal account) → <strong className="text-text">you
+            still run step 2</strong>. That is what installs the PFM skills and brief; nothing of yours is overwritten
+            (see the note in that step). Then do step 3 to move Higgsfield from your personal workspace onto PowerFox.
+          </li>
         </ul>
       </Callout>
 
@@ -19,6 +24,13 @@ export default function SetupMac() {
           <li>Download <a href="https://claude.ai/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Claude Desktop</a>, install, sign in with <strong className="text-text">your own @powerfoxmedia.com email</strong> (your Claude Team seat — not a shared login).</li>
           <li>Install <a href="https://www.lucidlink.com/download" className="text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">Lucid Link</a> and mount the <strong className="text-text">PFM MEDIA MASTER FOLDER</strong> filespace at <code>/Volumes/ads/</code>.</li>
           <li>Make sure Notion is installed and you're signed in.</li>
+          <li>
+            <strong className="text-text">Update Claude to the latest version before running the installer.</strong> The
+            PFM brief loads from <code>~/.claude/rules/</code>, which needs Claude Code <code>2.1.198</code> or newer.
+            On an older build the files would install and then silently never load — you&apos;d look fully set up while
+            running with none of the PFM rules. The installer checks your version and stops rather than let that
+            happen. Check yours with <code>claude --version</code>.
+          </li>
         </ol>
         <Callout type="warn" title='Expected: "Git is required for local sessions" error'>
           When Claude opens the Code tab the first time, you'll see this error linking to git-scm.com.
@@ -29,8 +41,16 @@ export default function SetupMac() {
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">2. Fast path — one-shot installer</h3>
         <p className="text-muted mb-3">
-          Installs Homebrew, Git, Node, Higgsfield CLI, <strong className="text-text">ffmpeg</strong> (so Claude can read video file metadata for the audio-qc skill), Python's openpyxl, and copies all PFM skills + settings from Lucid Link in one command.
+          Installs Homebrew, Git, Node, Higgsfield CLI, <strong className="text-text">ffmpeg + ffprobe</strong> (so Claude can read video file metadata for the QC skills), Whisper, Python&apos;s openpyxl and google-genai, and copies all PFM skills, hooks and the PFM brief from Lucid Link in one command.
         </p>
+        <Callout type="info" title="Already have your own Claude setup? Nothing of yours is overwritten">
+          <ul className="list-disc ml-6 space-y-1">
+            <li>It <strong className="text-text">snapshots your whole <code>~/.claude</code></strong> to a dated folder in your home directory before writing anything.</li>
+            <li>Your <code>settings.json</code> is <strong className="text-text">merged, not replaced</strong> — theme, model, effort level, plugins and your own permission rules all survive.</li>
+            <li>Your personal <code>~/.claude/CLAUDE.md</code> is <strong className="text-text">never touched</strong>. The PFM brief installs to <code>~/.claude/rules/</code> instead, so that file stays yours.</li>
+            <li>A personal skill sharing a name with a team skill is <strong className="text-text">backed up and named in the output</strong>, not silently replaced. If that happens, rename yours with your initials on the end and send it to Sam.</li>
+          </ul>
+        </Callout>
         <p className="text-muted">Open Terminal (⌘ Space → "Terminal") and paste:</p>
         <CopyBlock code={`bash "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-setup.sh"`} />
         <p className="text-sm text-muted">
@@ -46,7 +66,7 @@ export default function SetupMac() {
       </div>
 
       <div className="my-8">
-        <h3 className="text-xl font-semibold mb-2">3. Connect Higgsfield + Canva</h3>
+        <h3 className="text-xl font-semibold mb-2">3. Connect Higgsfield</h3>
 
         <h4 className="font-semibold mt-2 mb-2">Higgsfield CLI authentication</h4>
         <p className="text-muted mb-2">
@@ -70,25 +90,7 @@ export default function SetupMac() {
           <li>Restart Claude Desktop (⌘Q + reopen)</li>
         </ol>
 
-        <h4 className="font-semibold mt-4 mb-2">Connect Canva (shared PFM account)</h4>
-        <p className="text-sm text-muted mb-2">
-          Canva is used to generate <strong className="text-text">lower-thirds graphics</strong> for breaking-news creatives (chyrons, person IDs, location tags, the LATU News brand stack). PFM uses a <strong className="text-text">single shared Canva account</strong> — Sam will share the login credentials separately.
-        </p>
-        <p className="text-sm text-muted mb-2">
-          Canva uses an <strong className="text-text">authorization-link flow</strong>, not the Customize → Connectors UI. Connect it from inside a Claude Code session:
-        </p>
-        <ol className="list-decimal ml-6 space-y-1 text-sm text-muted">
-          <li>Open a Claude Code session (any project folder works for the auth step)</li>
-          <li>Ask Claude: <code>connect Canva</code> (or <code>authenticate Canva</code>)</li>
-          <li>Claude prints an <strong className="text-text">authorization URL</strong> — click it</li>
-          <li>Sign in with the <strong className="text-text">shared PFM Canva credentials</strong> Sam sent you (not your own Canva account)</li>
-          <li>Approve the access — the browser tab can be closed once you see the &ldquo;connected&rdquo; confirmation</li>
-          <li>Back in Claude, tell it you&apos;re done — it&apos;ll complete the handshake and Canva tools become available in this and future sessions</li>
-        </ol>
-        <p className="text-xs text-muted italic mt-2">
-          Once connected, when you&apos;re in a breaking-news project and the script has chyron specs (`BREAKING NEWS`, `JESSICA MARSH / MOTHER OF THREE`, etc.), Claude can generate the actual lower-thirds graphics in Canva and drop the PNGs into the project folder. Ask Claude to &ldquo;build the lower thirds&rdquo; after the script is locked.
-        </p>
-      </div>
+              </div>
 
       <div className="my-8">
         <h3 className="text-xl font-semibold mb-2">4. Smoke test</h3>
@@ -121,8 +123,13 @@ export default function SetupMac() {
         </ul>
 
         <h4 className="font-semibold mt-4 mb-2">Critical rules</h4>
-        <Callout type="danger" title="One project = one Claude Code session">
-          Don't reuse one session for multiple projects. The session's working directory is locked at start.
+        <Callout type="danger" title="One project per session — and /clear between tasks">
+          Don&apos;t reuse one session for multiple projects: the working directory is locked at start.
+          But don&apos;t keep one session alive for the length of a project either — run <code>/clear</code> when
+          you finish a task and start a different one, and again at the start of each day. Every turn re-reads
+          the whole session, so a session left open all week bills its entire history on every single turn.
+          In the 08.03 audit, ten multi-day sessions were <strong className="text-text">71% of one editor&apos;s bill</strong> —
+          a normal session cost $7, the worst cost $327.
         </Callout>
         <Callout type="danger" title="Always work on Lucid Link">
           The skills will hard-stop you if your session opens outside <code>/Volumes/ads/PFM MEDIA MASTER FOLDER/...</code>.
