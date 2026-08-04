@@ -7,7 +7,7 @@ genre, real multishot gate, validated duration, honest output directory, explici
 bitrate, and fired_pending_qc instead of a terminal "fired".
 
 Usage:
-  fire_clip.py <bible.yaml> --shot S07 [--profile std_720] [--dry-run] [--yes]
+  fire_clip.py <bible.yaml> --shot S07 [--profile std_720] [--dry-run]
   fire_clip.py <bible.yaml> --shot S07 --verdict pass|fail [--reason CODE]
 
 Refuses when: shot unknown · frame not qc_pass · start_frame missing on disk ·
@@ -28,6 +28,10 @@ from canon_io import canon_write  # vendored; see canon_io.py header
 # canon referencing it fails loudly instead of silently downgrading a shot to a rejected tier.
 BANNED_PROFILES = {"mini_test": 'Sam banned Seedance mini 07.30 ("I really hate mini"). Use fast_proof for cheap probes — he approved that tier.'}
 PROFILES = {
+    # draft_480: OPTION, never a default (Sam opted in 08.01, best-practices audit §4).
+    # Motion/performance proofs ONLY — 480p cannot answer fidelity questions (small-face
+    # lip-sync, screen legibility); those proofs stay at delivery resolution.
+    "draft_480":  {"model": "seedance_2_0",      "resolution": "480p",  "bitrate_mode": "standard", "mode": "fast"},
     "fast_proof": {"model": "seedance_2_0",      "resolution": "720p",  "bitrate_mode": "standard", "mode": "fast"},
     "std_720":    {"model": "seedance_2_0",      "resolution": "720p",  "bitrate_mode": "high",     "mode": "std"},
     "std_1080":   {"model": "seedance_2_0",      "resolution": "1080p", "bitrate_mode": "high",     "mode": "std"},
@@ -49,8 +53,22 @@ def sh(cmd):
 
 def upload(path):
     r = sh(["higgsfield", "upload", "create", str(path), "--json"])
+    out = (r.stdout or "") + (r.stderr or "")
+    # 🔴 NSFW BLOCK = CHECK THE WARDROBE FIRST (ported from ag.skit.continuous, 08-04). On the DMV
+    # Single Mom build the moderation block was chased through CLI upload, MCP presigned upload,
+    # and EIGHT imperceptible perturbations (re-encode, faint noise, 98% scale, 3% zoom, unsharp,
+    # jpeg-q12, level nudge, hflip) — every one blocked, because the filter is semantic. The actual
+    # cause was a wardrobe drift into a tank top: bare adult shoulders beside a held child. Locking
+    # the outfit through the gesture fixed the continuity AND the block on the first try.
+    if "NSFW" in out.upper():
+        die(f"upload refused as NSFW: {path}\n"
+            "  CHECK THIS FIRST: has the wardrobe DRIFTED to expose adult skin (tank top, bare\n"
+            "  shoulders, open collar), especially near a child? That is the documented cause —\n"
+            "  re-fire the source frame with the outfit hard-locked through the gesture.\n"
+            "  Pixel workarounds do NOT work; the filter is semantic. Photoreal young children are\n"
+            "  refused outright and must be carried in prose, never as an image reference.")
     if r.returncode != 0:
-        die(f"upload failed ({r.returncode}) for {path}: {(r.stderr or r.stdout)[:200]}")
+        die(f"upload failed ({r.returncode}) for {path}: {out[:200]}")
     try:
         return json.loads(r.stdout)["id"]
     except Exception:
@@ -111,7 +129,10 @@ def main():
     ap.add_argument("--shot", required=True)
     ap.add_argument("--profile", default=None, help="override canon profile")
     ap.add_argument("--dry-run", action="store_true", help="quote cost and print the command, fire nothing")
-    ap.add_argument("--yes", action="store_true", help="skip the cost pause")
+    # --yes removed 08-01 (Sol audit finding #6): it advertised "skip the cost pause" but no
+    # cost pause exists and the parsed value was never read. A flag that claims to control
+    # spend and controls nothing is worse than no flag. The Fire? confirmation lives with the
+    # editor (CLAUDE.md Rule 3), not in this script.
     ap.add_argument("--verdict", choices=["pass", "fail"], help="record editor QC on the latest take")
     ap.add_argument("--reason", default=None, help="reason code required with --verdict fail")
     a = ap.parse_args()
@@ -211,6 +232,15 @@ def main():
         die(f"profile '{prof_name}' is banned — {BANNED_PROFILES[prof_name]}")
     if prof_name not in PROFILES:
         die(f"unknown profile '{prof_name}' — one of {sorted(PROFILES)}")
+    # 🔴 1080p IS EXACTLY 2x AND MUST BE JUSTIFIED (ported from ag.skit.continuous, 08-04).
+    # Measured on the DMV Single Mom build: ~19 clips fired std_1080 "for screen legibility" when
+    # most did not need it — ~1,300 credits of a ~3,869-credit project, about a THIRD of the spend.
+    # Resolution is the single biggest cost lever in the whole pipeline, so the step up is a
+    # per-shot decision with a stated reason, and 720p gets tested first even for a text beat.
+    if prof_name == "std_1080" and not v.get("legibility_reason"):
+        die(f"shot {a.shot} asks for std_1080 with no legibility_reason in its video: block.\n"
+            "  1080p costs EXACTLY 2x 720p (135 vs 67.5 cr per 15s). Step up only for a beat whose\n"
+            "  fine on-screen text must be legible — and test std_720 there first.")
     prof = PROFILES[prof_name]
 
     prompt = (shot.get("clip_prompt") or "").strip()
@@ -258,8 +288,16 @@ def main():
             media += ["--image", upload(rp)]
         refs["reference_images"] = [str(x) for x in extra]
 
+    # 🔴 ASPECT DERIVES FROM CANON, NEVER HARDCODED (08-01, Sol audit finding #1). This file
+    # pinned "9:16" in THREE places — the gen command, the cost quote, and the sidecar. It never
+    # broke because every scene-flow creative so far has been vertical. Every Roku / CTV / podcast
+    # cut is 16:9, and the first one through here would have fired vertical clips, quoted vertical
+    # cost, and written 9:16 into provenance as if that were intended. scene.aspect is the single
+    # declaration; frames already derive from it (fire_frame.py) and clips now do too.
+    aspect = str((d.get("scene") or {}).get("aspect") or "9:16").strip()
+
     cmd = ["higgsfield", "generate", "create", prof["model"], "--prompt", prompt] + media + [
-        "--aspect_ratio", "9:16", "--duration", str(dur),
+        "--aspect_ratio", aspect, "--duration", str(dur),
         "--resolution", prof["resolution"], "--bitrate_mode", prof["bitrate_mode"],
         "--generate_audio", "true" if audio else "false", "--genre", genre]
     if prof["mode"]:
@@ -267,7 +305,7 @@ def main():
 
     # ---- cost quote (non-spending) -----------------------------------------
     q = sh(["higgsfield", "generate", "cost", prof["model"], "--prompt", prompt,
-            "--aspect_ratio", "9:16", "--duration", str(dur), "--resolution", prof["resolution"],
+            "--aspect_ratio", aspect, "--duration", str(dur), "--resolution", prof["resolution"],
             "--bitrate_mode", prof["bitrate_mode"], "--generate_audio", "true" if audio else "false",
             "--genre", genre] + (["--mode", prof["mode"]] if prof["mode"] else []) + ["--json"])
     cost = "unknown"
@@ -308,7 +346,7 @@ def main():
 
     sidecar = {"shot": a.shot, "take": take, "engine": prof["model"], "profile": prof_name,
                "mode": prof["mode"], "resolution": prof["resolution"], "bitrate_mode": prof["bitrate_mode"],
-               "duration": dur, "aspect_ratio": "9:16", "generate_audio": audio, "genre": genre,
+               "duration": dur, "aspect_ratio": aspect, "generate_audio": audio, "genre": genre,
                "reference_mode": ref_mode, "multishot": multishot, "references": refs,
                "uploaded_uuids": [m for m in media if not m.startswith("--")],
                "job_id": job_id, "result_url": url, "quoted_cost": cost,
