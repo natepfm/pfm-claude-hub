@@ -72,7 +72,7 @@ Read the composite: full phone number visible end to end (the opening paren is t
 Three-link handoff — this skill always SHOWS a single composite, so include all three (Hard Rule 2):
 - 📁 raw `/Volumes/ads/…` path in backticks (Finder)
 - 🔗 LinkYourFile link via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<path>"` (opens the Lucid folder)
-- 🦊 From Claude rail drop via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<path>"` (opens in Fox.io in a new tab; entry self-clears on click)
+- 🦊 From Claude rail drop via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<path>"` (opens in FoxView in a new tab; entry self-clears on click)
 - 📲 **Tappable** — the composite uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL the editor can tap and view on their phone, no Lucid. Locked 2026-06-15 (emoji 📲, not 🧭).
 
 ## Downstream use

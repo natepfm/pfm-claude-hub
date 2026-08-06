@@ -408,7 +408,7 @@ If you claimed the `Generating (Local)` lock at Gate 9, close the state now — 
 
 (Direct-brief run with no `Asset Gen` property → nothing to close.)
 
-Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 Fox.io — plus a 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
+Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open + 🦊 FoxView — plus a 📲 Tappable line whenever you show a representative image inline, per Hard Rule 2)** (standing rule, `feedback_two_link_lucid_handoff`): the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link, built with `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute B-Roll Photos folder>"` (and `--fox-drop` to queue the 🦊 rail entry) and rendered as `[label ↗](url)` (Lucid `/Volumes/ads/…` paths only):
 
 **Keep it COMPACT (Sam 2026-07-20)** — the stream already showed every image; this is a short receipt:
 
@@ -416,7 +416,7 @@ Final report — **always close with the Lucid handoff (📁 Path + 🔗 Open + 
 > ❌ <only if fails exist:> shotId — reason (refire candidates)
 > 📁 Path: `/Volumes/ads/…/Elements/Footage/Primary/B-Roll Photos`
 > 🔗 Open: [B-Roll Photos ↗](https://linkyourfile.com/link?p=…)
-> 🦊 Fox.io: B-Roll Photos → From Claude rail
+> 🦊 FoxView: B-Roll Photos → From Claude rail
 
 If any shot looks off in review, editor can re-fire individual shots via the `higgsfield-image-generation` skill (CLI-driven) or by re-running this skill with a scoped-down shot list.
 
@@ -438,7 +438,7 @@ After the final report, the editor can choose to promote any of this batch's ima
 - For each shot, ask which target(s) — `image`, `prompt`, or `both`
 - **Image promotion** → copy the delivered PNG into the per-character subfolder under `Character Library/` (Option B structure: per-character folder, wife/family/guest variants nested inside). Strip the source hash + version suffix on copy (`sma_houston_L17_v01.png` → `<Character> - Master.png` or a descriptive shot name). No overwrites — `v02` if a same-named file exists.
 - **Prompt promotion** → write a new `Prompts Library/<Role / Scene Type> - <Character>.md` entry mirroring existing entries' shape (metadata table → visual spec → working JSON prompt body → CLI fire snippet → provenance citing this project). Update the Prompts Library `README.md` index table with the new row.
-- Lucid handoff (Path + Open + 🦊 Fox.io) for each new central-folder destination.
+- Lucid handoff (Path + Open + 🦊 FoxView) for each new central-folder destination.
 
 **On `skip`:** acknowledge ("Skipped central libraries.") and move on. Don't re-prompt.
 

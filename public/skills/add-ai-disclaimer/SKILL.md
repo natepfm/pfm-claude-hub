@@ -111,7 +111,7 @@ Lucid sync. Run it in the background and report progress.
 Every Lucid output mention shows BOTH:
 - **📁 Path:** raw `/Volumes/ads/…` in backticks
 - **🔗 Open:** LinkYourFile link — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<path>"`
-- **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
+- **🦊 FoxView:** queue the folder in FoxView's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 FoxView: <label> → From Claude rail` (opens in FoxView in a NEW tab; clicking consumes the entry)
 - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 
 ### 7. Notion (optional, on request)

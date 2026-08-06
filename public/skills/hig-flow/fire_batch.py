@@ -332,7 +332,7 @@ def print_handoff(jl, root):
             pass
         try:
             subprocess.run(["python3", HELPER, "--fox-drop", out_dir, label], capture_output=True, text=True)
-            log("🦊 Fox.io: %s → From Claude rail" % label)
+            log("🦊 FoxView: %s → From Claude rail" % label)
         except Exception:
             pass
     else:

@@ -184,7 +184,7 @@ Staging is done; now the editor chooses where it fires. Do NOT flip any property
 
 **⚠️ Oversized-batch check FIRST (mirrors the mini's hard ceiling, locked 2026-06-17):** if the staged batch exceeds **300 clips OR ~4,000 cr**, route (a) "Send to mini" will be REFUSED — the AGF cycle bounces anything over that ceiling back to Needs Staging (the guardrail against unattended runaway spend). When you're over the ceiling, say so up front and steer the editor to either **(1) split it into smaller batches** (each under the ceiling) and stage those, or **(2) fire route (b) supervised locally** (where the human preflight + `fire` gate covers the spend). Do NOT arm an oversized request to the mini — it will only bounce. (Ceiling is tunable but must stay in sync with the `agf` cycle skill's rail.)
 
-1. Report the stage to the user: Lucid handoff (📁 path + 🔗 link + 🦊 Fox.io link for the project folder), what was staged from where, and the clip/credit math.
+1. Report the stage to the user: Lucid handoff (📁 path + 🔗 link + 🦊 FoxView link for the project folder), what was staged from where, and the clip/credit math.
 2. Then present the route as an **AskUserQuestion card** (sanctioned card #2, Sam 2026-06-11 — supersedes the old plain-markdown house rule for THIS fork only): header `Route`, question *"Staged — where should this fire?"*, options:
    - **🤖 Send to mini** — "hands-off: the mini claims it within ~3 min and runs the full cycle (fire → QC → deliver), queued behind anything already generating"
    - **💻 Generate locally** — "fires in THIS session immediately, no queue — for projects that can't wait"
@@ -222,14 +222,14 @@ When the gap is specifically a **missing character or reference image** (the cha
 
 - **🆕 Make from scratch** — "build the character master + reference image now from a description" → chain into `pfm-character-master` (or `ugc-talking-head-ref` for UGC talking-head creatives), get the editor's pick, drop the master into the Character Library + the ref into the project, then RESUME staging from where it stopped
 - **🔗 Link existing** — "I'll give you a link/path to one already made" → editor pastes a Lucid path or LinkYourFile link; verify the file exists, copy it into the project's `Elements/`, resume staging
-- **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
+- **🦊 FoxView:** queue the folder in FoxView's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 FoxView: <label> → From Claude rail` (opens in FoxView in a NEW tab; clicking consumes the entry)
 - **📤 Upload a ref image** — "I'll drop an image; build the character masters + reference from it" → editor attaches a photo; feed it to `pfm-character-master` as the source likeness, deliver the master set, then resume staging
 
 Whichever route resolves the ref: re-run the staging checks and continue to Step 6 — the request only leaves `Needs Staging` when staging actually completes. Non-character gaps (missing master prompt, out-of-scope shape) keep the plain Needs-Staging handoff above — no card.
 
 ## House rules that ride along
 
-- **Lucid handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile + 🦊 Fox.io rail drop (`linkyourfile.py --fox-drop`) (CLAUDE.md Hard Rule 2).
+- **Lucid handoff** on every folder mention: 📁 raw path + 🔗 LinkYourFile + 🦊 FoxView rail drop (`linkyourfile.py --fox-drop`) (CLAUDE.md Hard Rule 2).
 - **cp, never mv** — parent folders keep their assets.
 - **No AUTOMATIC Status changes, no @-tags, no delivery comments** — staging is not delivery. **One offered exception (Sam 2026-07-11):** when you're handed a request that is already `Staged` (Asset Gen) but its `Status` is NOT `In progress`, **ASK the editor** if they'd like to move `Status → In progress` — plain-markdown offer, NEVER an auto-flip. If yes, set `Status = In progress` and re-fetch to verify it stuck; if no, leave it. This is the one Status touch staging offers; everything else stays hands-off.
 - **NY cut = disclaimer warning** in the section (Hard Rule 4, NY-ONLY).

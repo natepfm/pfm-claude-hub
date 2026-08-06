@@ -98,7 +98,7 @@ Add scene-specific brand-clean negatives per `feedback_pfm_brand_clean_rules` (v
 
 THEN, below the reveal, add the skill's recommendation: build a contact strip (`ffmpeg ... hstack`), read it, and verdict each take against the five rules — phone/UI artifacts, posing, wide framing, grain — with honest per-take verdicts. The editor picks; the verdicts are advice, not a filter.
 
-Every handoff message carries the Lucid handoff block (📁 raw path + 🔗 LinkYourFile + 🦊 Fox.io) — including mid-iteration drops.
+Every handoff message carries the Lucid handoff block (📁 raw path + 🔗 LinkYourFile + 🦊 FoxView) — including mid-iteration drops.
 
 ## The pose rule — the hero ref's pose is EVERY clip's opening frame (Sam, 2026-06-11, Granny build)
 

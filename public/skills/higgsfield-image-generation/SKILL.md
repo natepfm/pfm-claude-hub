@@ -8,7 +8,7 @@ description: Drive Higgsfield image generation via the Higgsfield CLI (`higgsfie
 > Every time this skill saves, downloads, or reports an asset path — a one-off CLI fire, a refire, a variation, a character master test — render BOTH:
 > - **📁 Path:** raw `/Volumes/ads/…` path in backticks (for Finder)
 > - **🔗 Open:** clickable LinkYourFile link, built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"`
-> - **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
+> - **🦊 FoxView:** queue the folder in FoxView's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 FoxView: <label> → From Claude rail` (opens in FoxView in a NEW tab; clicking consumes the entry)
 > - **📲 Tappable** — *only when SHOWING a viewable asset* (preview / composite / hero pick, not just naming the folder): the asset uploaded via `higgsfield upload create "<file>" --json` → a CloudFront URL tappable on the editor's phone, no Lucid. Locked 2026-06-15.
 >
 > Never bare filenames. Never just a relative path. Never just a folder name without the clickable link. **A "Saved as: <filenames>" report with no links is a CLAUDE.md Hard-Rule-2 violation.** Build the link BEFORE rendering any report; same helper used everywhere.
@@ -189,7 +189,7 @@ ls -la /path/to/project/Elements/Footage/Primary/B-Roll\ Photos/ | grep "L14"
 
 Confirm file count matches expected (count × number of fires). Report to user:
 - Filenames saved
-- **Lucid handoff (standing rule, `feedback_two_link_lucid_handoff`):** the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link AND a **🦊 Fox.io** rail drop for the download folder — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --both "<absolute folder>" "<label>"` prints the 🔗 URL and queues the 🦊 drop in one call; render `[label ↗](url)` + `🦊 Fox.io: <label> → From Claude rail`. Lucid `/Volumes/ads/…` paths only; if the download landed elsewhere, give the Path and say the clickable link doesn't apply.
+- **Lucid handoff (standing rule, `feedback_two_link_lucid_handoff`):** the raw Lucid **Path** (backticked, for Finder) AND a clickable **Open** link AND a **🦊 FoxView** rail drop for the download folder — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --both "<absolute folder>" "<label>"` prints the 🔗 URL and queues the 🦊 drop in one call; render `[label ↗](url)` + `🦊 FoxView: <label> → From Claude rail`. Lucid `/Volumes/ads/…` paths only; if the download landed elsewhere, give the Path and say the clickable link doesn't apply.
 - Final balance (CLI: `higgsfield account status`)
 - Any silent losses (stuck or missing jobs — see below)
 
@@ -248,7 +248,7 @@ See **nano-banana-prompting** for more on setting-continuity prompt language.
 - **When something fails silently** (stuck job, failed upload, missing variation): name the miss matter-of-factly, show what DID land, and name the recovery you'd run — then stop; the refire is the editor's call. Don't catastrophize a single missing image.
 - **When pre-uploading**: list the reference images and their UUIDs so the user can confirm.
 - **As every gen lands** (Rule 5): relay its 📲 tappable link + widget immediately — the editor never waits for the batch to see a finished gen.
-- **After every download** (single fire, refire, batch, anything): render the **Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` + 🦊 **Fox.io:** rail drop via the same helper with `--fox-drop` (render `🦊 Fox.io: <label> → From Claude rail`). Listing bare filenames without those lines is a CLAUDE.md Hard-Rule-2 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.
+- **After every download** (single fire, refire, batch, anything): render the **Lucid handoff block** — 📁 **Path:** raw `/Volumes/ads/…` path in backticks + 🔗 **Open:** clickable LinkYourFile link built via `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute folder>"` + 🦊 **FoxView:** rail drop via the same helper with `--fox-drop` (render `🦊 FoxView: <label> → From Claude rail`). Listing bare filenames without those lines is a CLAUDE.md Hard-Rule-2 violation — the editor shouldn't have to ask "where are these?" — that question is the failure signal.
 
 ## When NOT to use this skill
 

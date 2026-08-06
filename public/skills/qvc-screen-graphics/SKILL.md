@@ -48,7 +48,7 @@ The state PNGs ARE the keyframes; diffusion never touches a digit. Recipe: (a) e
 Every delivery renders all four surfaces:
 - **📁 Path:** raw `/Volumes/ads/…` path in backticks
 - **🔗 Open:** `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<absolute path>"`
-- **🦊 Fox.io:** same helper with `--fox-drop "<absolute path>" "<label>"` (or `--both`) → render `🦊 Fox.io: <label> → From Claude rail`
+- **🦊 FoxView:** same helper with `--fox-drop "<absolute path>" "<label>"` (or `--both`) → render `🦊 FoxView: <label> → From Claude rail`
 - **📲 Tappable:** CloudFront link for the shown graphic(s)
 
 ## Cross-refs

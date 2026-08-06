@@ -31,6 +31,6 @@ python3 ~/.claude/skills/character-board/build_board.py copy   # copy the NEW ti
 Report what landed and give the Lucid handoff (📁/🔗/🦊) for the board folder:
 - **📁 Path:** `/Volumes/ads/PFM MEDIA MASTER FOLDER/1. PFM Media Assets/AI Generation Assets - PFM/AI Characters`
 - **🔗 Open:** `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py "<that path>"`
-- **🦊 Fox.io:** queue the folder in Fox.io's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 Fox.io: <label> → From Claude rail` (opens in Fox.io in a NEW tab; clicking consumes the entry)
+- **🦊 FoxView:** queue the folder in FoxView's From Claude rail — `python3 ~/.claude/skills/notion-asset-delivery/linkyourfile.py --fox-drop "<absolute path>" "<label>"` — then render `🦊 FoxView: <label> → From Claude rail` (opens in FoxView in a NEW tab; clicking consumes the entry)
 
 See [[project_character_board]] for the build history and the v1 roster.

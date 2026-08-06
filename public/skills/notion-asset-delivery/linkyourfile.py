@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a LinkYourFile share link from a Lucid Link path — and feed Fox.io's 🦊 From Claude rail.
+"""Build a LinkYourFile share link from a Lucid Link path — and feed FoxView's 🦊 From Claude rail.
 
 LinkYourFile encodes the target path as a STANDARD-base64 string in the `p=` query
 param, URL-encoded (so the `=` padding becomes `%3D`). This mirrors exactly how the
@@ -8,15 +8,15 @@ real PFM Notion delivery comments are formed — see the two known-good pairs in
 VSL, 2026-05). The `--selftest` mode decodes each real `p=` and re-encodes it, asserting
 byte-for-byte equality, so we KNOW the encoder matches LinkYourFile's scheme.
 
-Fox.io (PFM's macOS media browser) gets its handoffs through the **🦊 From Claude rail**:
-`--fox-drop` appends a JSONL entry to the watched inbox file, and Fox.io surfaces it as a
+FoxView (PFM's macOS media browser) gets its handoffs through the **🦊 From Claude rail**:
+`--fox-drop` appends a JSONL entry to the watched inbox file, and FoxView surfaces it as a
 sidebar entry + toast whose click opens the folder in a NEW tab (clicking consumes the
 entry; unclicked entries expire after 7 days). The rail exists because chat renderers
 cannot reach local apps at all — foxio:// links are swallowed, https links open the
 browser, file:// links open Claude's own viewer (all three tested 2026-07-06) — so the
 rail IS the click path. `--both` prints the LinkYourFile URL AND queues the 🦊 drop in one
-call. `--foxio-raw` emits the raw `foxio://open?p=<base64>` scheme (paste into Fox.io's
-Go-to box), byte-identical to the app's "Copy Fox.io Link" (AppModel.foxioLink: standard
+call. `--foxio-raw` emits the raw `foxio://open?p=<base64>` scheme (paste into FoxView's
+Go-to box), byte-identical to the app's "Copy FoxView Link" (AppModel.foxioLink: standard
 base64 with only the `=` padding replaced by `%3D`).
 
 Note on `+` / `/`: these PFM paths (`/Volumes/ads/PFM MEDIA MASTER FOLDER/...`) happen to
@@ -60,9 +60,9 @@ def make_foxio_raw(path):
 
 
 def fox_drop(path, label=None):
-    """Append a drop to Fox.io's 🦊 From Claude inbox — the app watches this file and
+    """Append a drop to FoxView's 🦊 From Claude inbox — the app watches this file and
     surfaces the drop as a sidebar entry + toast (jumps ALWAYS open in a new tab).
-    flock'd against Fox.io's own consume/clear rewrites (the app takes the same lock)."""
+    flock'd against FoxView's own consume/clear rewrites (the app takes the same lock)."""
     import fcntl
     path = path.rstrip("/")
     label = label or os.path.basename(path)
@@ -77,7 +77,7 @@ def fox_drop(path, label=None):
                 with open(FOX_INBOX, encoding="utf-8") as f:
                     lines = [l for l in f.read().split("\n") if l.strip()]
             lines.append(entry)
-            lines = lines[-300:]  # bound the file; Fox.io dedupes by path + expires >7d on load
+            lines = lines[-300:]  # bound the file; FoxView dedupes by path + expires >7d on load
             with open(FOX_INBOX, "w", encoding="utf-8") as f:
                 f.write("\n".join(lines) + "\n")
         finally:
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     else:
         print(
             "usage: linkyourfile.py <lucid-link-path>                    # LinkYourFile URL\n"
-            "       linkyourfile.py --fox-drop <path> [label]            # queue in Fox.io's From Claude rail\n"
+            "       linkyourfile.py --fox-drop <path> [label]            # queue in FoxView's From Claude rail\n"
             "       linkyourfile.py --both <path> [label]                # LYF URL + queue the 🦊 drop\n"
             "       linkyourfile.py --foxio-raw <path>                   # raw foxio:// scheme (Go-to box)\n"
             "       linkyourfile.py --selftest",
