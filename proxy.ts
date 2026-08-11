@@ -18,8 +18,16 @@ export default auth((req) => {
     // DELIBERATELY PUBLIC (Sam, 2026-07-28): the lander is a prospect-facing
     // page that gets sent to people outside PFM, so it must never sit behind
     // the staff login. It is a single self-contained file — all images are
-    // inline base64 — so this one path is the whole exemption.
-    pathname === "/lander.html";
+    // inline base64 — so these paths are the whole exemption.
+    //
+    // BOTH spellings must be listed (fixed 2026-08-11). Middleware runs on the
+    // INCOMING path, before next.config.js rewrites /lander -> /lander.html, so
+    // exempting only the .html left the clean URL 302-ing to /login — the URL
+    // that actually gets shared. Verified in prod before the fix:
+    //   /lander      -> 302 /login?from=%2Flander
+    //   /lander.html -> 200
+    pathname === "/lander.html" ||
+    pathname === "/lander";
 
   if (isPublicPath) return;
 

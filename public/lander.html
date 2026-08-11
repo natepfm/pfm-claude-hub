@@ -233,6 +233,10 @@
   .ebtn{flex:1;padding:15px;border-radius:12px;border:none;font-family:var(--font);font-weight:800;font-size:15px;cursor:pointer}
   .ebtn.reset{background:#1e2a3b;color:#aebdd2}
   .ebtn.done{background:hsl(var(--primary));color:#fff}
+  .ebtn.png{width:100%;background:#1e2a3b;color:#cfe0f5;border:1px solid #2a394f;display:flex;align-items:center;justify-content:center;gap:8px}
+  .ebtn.png:disabled{opacity:.55;cursor:default}
+  .ebtn.png.ok{background:hsl(var(--accent));color:#fff;border-color:transparent}
+  .ebtn.jump{width:100%;background:#1e2a3b;color:#cfe0f5;border:1px solid #2a394f;display:flex;align-items:center;justify-content:center;gap:8px}
   .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#0f1722;background:var(--cyan);padding:3px 8px;border-radius:6px;vertical-align:middle;margin-left:6px}
 
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -261,6 +265,12 @@
   </div>
 
   <div class="esec">
+    <div class="k">Quote page</div>
+    <button class="ebtn jump" id="btnJump">⚡ Jump to quote page</button>
+    <div class="hint">Skips the funnel — lands on the final quote with all discounts applied.</div>
+  </div>
+
+  <div class="esec">
     <div class="k">New rate <span id="rateUnitK"></span></div>
     <div class="step">
       <span class="dollar">$</span>
@@ -280,6 +290,12 @@
       <button id="oldPlus">+</button>
       <span class="unit" id="oldUnit"></span>
     </div>
+  </div>
+
+  <div class="esec" id="pngSec">
+    <div class="k">Graphic export</div>
+    <button class="ebtn png" id="btnPng">⬇ Download mobile PNG</button>
+    <div class="hint" id="pngHint">Saves the screen behind this panel as a phone-sized PNG (1170px wide, 3× retina).</div>
   </div>
 
   <div class="erow">
@@ -517,6 +533,7 @@ function renderQuestions(){
 
 function renderDiscounts(){
   const discs=qualifyingDiscounts();
+  if(st.jumpFinal){ st.jumpFinal=false; showFinal(); return; }
   // sub-phase: searching -> found -> final
   const R=66, CIRC=2*Math.PI*R;
   card.innerHTML = `<div class="searchwrap">
@@ -643,6 +660,106 @@ function bindStep(minusId,plusId,inputId,key){
 bindStep("rateMinus","ratePlus","rateInput","rate");
 bindStep("oldMinus","oldPlus","oldInput","old");
 document.getElementById("btnReset").onclick=()=>{ cfg[cfg.skin]=Object.assign({},S().def); saveCfg(); resetFunnel(); st.zip=C().zip; render(); syncSheet(); };
+
+/* jump straight to the final quote page — keeps anything already entered, fills the rest */
+function jumpToQuote(){
+  const keep={zip:st.zip, year:st.year, car:st.car, sqft:st.sqft};
+  resetFunnel();
+  Object.assign(st, keep);
+  if(S().input==="car" && !st.car) st.car = VEHICLES.includes("Toyota Camry") ? "Toyota Camry" : VEHICLES[0];
+  S().questions.forEach(q=>st.answers[q.id]=q.qualify);   // every discount qualifies
+  st.phase="discounts"; st.jumpFinal=true;
+  closeSheet(); render();
+}
+document.getElementById("btnJump").onclick=jumpToQuote;
+
+/* ====================== PNG EXPORT ====================== */
+/* Renders the live screen (#app only — no sheet, no scrim) into a phone-sized PNG.
+   Method: clone -> <svg><foreignObject> with all page CSS inlined (fonts + images are
+   already base64 in this file, so nothing external is fetched) -> <img> -> canvas.  */
+const PNG_W = 390, PNG_H = 844, PNG_SCALE = 3;
+
+function pngFilename(){
+  const c=C(), s=S();
+  const unit = s.unit==="/mo" ? "mo" : "yr";
+  const brand = cfg.skin==="home" ? "SaveMaxHomes" : "SaveMaxAuto";
+  const onFinal = !!document.querySelector(".final");
+  const stamp = new Date().toISOString().slice(0,10);
+  return onFinal ? `${brand}-quote-${c.rate}-${unit}-${stamp}.png`
+                 : `${brand}-screen-${stamp}.png`;
+}
+
+function buildExportClone(){
+  const app = document.getElementById("app");
+  const holder = document.createElement("div");
+  holder.setAttribute("data-png-holder","");
+  holder.style.cssText = "position:fixed;left:-10000px;top:0;width:"+PNG_W+"px;pointer-events:none;opacity:0";
+  const clone = app.cloneNode(true);
+  clone.style.zoom = "1";
+  clone.style.width = PNG_W+"px";
+  clone.style.maxWidth = PNG_W+"px";
+  clone.style.minHeight = PNG_H+"px";
+  clone.style.padding = "0";
+  holder.appendChild(clone);
+  document.body.appendChild(holder);
+  const h = Math.max(PNG_H, Math.ceil(clone.getBoundingClientRect().height));
+  return {holder, clone, h};
+}
+
+function svgForExport(clone, h){
+  const css = Array.from(document.querySelectorAll("style")).map(s=>s.textContent).join("\n");
+  const overrides =
+    "*{animation:none!important;transition:none!important}" +
+    "#app{width:"+PNG_W+"px;max-width:"+PNG_W+"px;min-height:"+h+"px;zoom:1;padding:0}" +
+    ".card{animation:none!important;opacity:1!important;transform:none!important}" +
+    ".crow,.ditem{animation:none!important;opacity:1!important;transform:none!important}";
+  const body = new XMLSerializer().serializeToString(clone);
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+PNG_W+'" height="'+h+'" viewBox="0 0 '+PNG_W+' '+h+'">'
+    + '<foreignObject x="0" y="0" width="100%" height="100%">'
+    + '<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+PNG_W+'px;height:'+h+'px;background:var(--grad-hero);font-family:\'Plus Jakarta Sans\',sans-serif">'
+    + '<style>/*<![CDATA[*/' + css + overrides + '/*]]>*/</style>'
+    + body
+    + '</div></foreignObject></svg>';
+}
+
+async function downloadPNG(){
+  const btn = document.getElementById("btnPng");
+  const hint = document.getElementById("pngHint");
+  const label = "⬇ Download mobile PNG";
+  btn.disabled = true; btn.textContent = "Rendering…"; btn.classList.remove("ok");
+  const {holder, clone, h} = buildExportClone();
+  try{
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    const svg = svgForExport(clone, h);
+    // data: URI, not a blob URL — blob-loaded SVGs taint the canvas in some engines
+    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    const img = new Image();
+    await new Promise((res, rej)=>{ img.onload=res; img.onerror=()=>rej(new Error("render failed")); img.src=url; });
+    const cv = document.createElement("canvas");
+    cv.width = PNG_W*PNG_SCALE; cv.height = h*PNG_SCALE;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.setTransform(PNG_SCALE,0,0,PNG_SCALE,0,0);
+    ctx.drawImage(img, 0, 0, PNG_W, h);
+    const blob = await new Promise(r=>cv.toBlob(r, "image/png"));
+    if(!blob) throw new Error("encode failed");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = pngFilename();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    btn.textContent = "✓ Saved  "+cv.width+"×"+cv.height;
+    btn.classList.add("ok");
+    setTimeout(()=>{ btn.textContent=label; btn.classList.remove("ok"); }, 2600);
+  }catch(err){
+    btn.textContent = label;
+    hint.textContent = "Couldn't render a PNG here — try Chrome on desktop. ("+err.message+")";
+  }finally{
+    holder.remove();
+    btn.disabled = false;
+  }
+}
+document.getElementById("btnPng").onclick = downloadPNG;
 
 render();
 </script>
