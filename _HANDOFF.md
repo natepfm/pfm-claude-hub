@@ -2,6 +2,36 @@
 
 > Standing charter for work on the editor-facing hub. Updated 2026-07-26 after the single-page + auth rebuild.
 
+---
+
+## 🔴 CURRENT SESSION STATE — 2026-08-11
+
+*Live working state, rewritten each `/x.wrap`. The charter below it is permanent — do not treat this block as charter.*
+
+**Where it stands:** Added two things to the field lander's Field Controls sheet — **⬇ Download mobile PNG** (export the on-screen quote as a phone-sized PNG, so graphics stop being screenshots) and **⚡ Jump to quote page** (skip the funnel). Also fixed `proxy.ts` so the clean `/lander` URL is public, not just `/lander.html` — middleware runs on the incoming path, before the rewrite, so the shared URL was 302-ing to the staff login. That commit is `4486b5d`, pushed, live and verified on prod.
+
+**In flight — ONE uncommitted change, not yet verified where it matters:** `public/lander.html` is modified with a **rewrite of the PNG export**, fixing two defects Sam hit on his iPhone:
+1. **Car photo exported blank.** iOS Safari will not rasterise `<img src="data:...">` inside an SVG `foreignObject`. Desktop Chrome does, which is why the first version passed my tests and failed on his phone.
+2. **Wrong shape** — output was content-height (tall and narrow) instead of a phone frame.
+
+The rewrite composites in three layers: **A)** the page via `foreignObject` with every `<img>` and `.cap` hidden, **B)** each image painted straight onto the canvas (`object-fit: cover` + rounded clip), **C)** each `.carprev` caption re-rendered on top so the label sits over the photo. Frame is now fixed at `PNG_W 440 × PNG_H 956 @3 = 1320 × 2868` (iPhone Pro Max screenshot size), content scaled to fit and centred, page hero gradient behind.
+
+Verified in **desktop Chrome only**: `node --check` clean · output exactly `1320×2868` · the car row samples 12 distinct colours, which proves layer B drew the photo (layer A hides all `<img>`, so a blank box would read as flat colour).
+
+**Next step:** Sam re-tests **on his iPhone** — that is the only environment that proves the Safari fix. Serve it locally (`cd public && python3 -m http.server 8899`, then hit the Mac's LAN IP from the phone) or push and test on prod. **Append a cache-buster** (`?v=3`) when re-testing; a stale cached copy silently ran the old code on me once already.
+
+**Open questions for the editor:**
+- Frame size — is `1320 × 2868` right, or should it match a different phone / a 9:16 crop?
+- Should the export ever include the *whole* page unscaled, or is fit-to-frame always correct?
+
+**Pointers:**
+- Export code: `public/lander.html`, search `PNG EXPORT` (`PNG_W`/`PNG_H`/`PNG_SCALE`, `collectLayers`, `svgWrap`, `downloadPNG`)
+- Jump button: search `btnJump` / `jumpToQuote`; the funnel skip works by `st.jumpFinal` + an early exit at the top of `renderDiscounts()`
+- Sheet section order is now: Lander · **Quote page** · New rate · Was · **Graphic export**
+- Do not commit until Sam says `run` (charter rule below). Shell `git push` works in this repo — GitHub Desktop is not required.
+
+---
+
 ## What this repo is
 
 The PFM Editors Hub is the team's updater and skill catalog.
@@ -28,11 +58,11 @@ The PFM Editors Hub is the team's updater and skill catalog.
 5. Wait for `run`.
 6. Commit + push; Railway deploys automatically.
 
-## Authentication — BUILT, NOT CURRENTLY WIRED
+## Authentication — LIVE
 
-The hub is **open** right now. Sam parked the Google/Railway setup on 2026-07-26, so the gate was removed from `main` the same day it shipped.
+**Corrected 2026-08-11:** this section used to say the gate was parked and the hub was open. It is not — Google sign-in went live 2026-07-27 and is wired on `main`. Verified signed-out on prod 2026-08-11: `/` and `/skills` both 302 to `/login`, `/skills/<skill>/SKILL.md` 302s, and `/lander` + `/lander.html` are 200 (the deliberate public exemption).
 
-**The working implementation is preserved in commit `e7de887`.** To bring it back:
+Historical note — the implementation was briefly reverted on 2026-07-26 and preserved in commit `e7de887`. If it ever needs restoring again:
 
 ```bash
 git checkout e7de887 -- auth.ts proxy.ts app/login app/api/auth
@@ -53,9 +83,9 @@ Widening access = adding a domain to that one array. Nothing else in the app har
 
 Two independent gates — do not remove either:
 
-1. **`proxy.ts`** (Next 16's renamed middleware) gates *every* path except `/login`, `/api/auth/*`, `/brand/*`, `/lander.html`, and build assets. This is the only thing protecting static files in `public/` — the skill markdown under `/skills/**`, the Cowork `.plugin`, and the SOP PDF — because static files never run page code.
+1. **`proxy.ts`** (Next 16's renamed middleware) gates *every* path except `/login`, `/api/auth/*`, `/brand/*`, `/lander.html`, `/lander`, and build assets. This is the only thing protecting static files in `public/` — the skill markdown under `/skills/**`, the Cowork `.plugin`, and the SOP PDF — because static files never run page code.
 
-   **`/lander.html` is public on purpose** (Sam, 2026-07-28). It is prospect-facing and gets sent to people outside PFM, so it must not sit behind the staff login. It is a single self-contained file (all images inline base64), so the one path exemption covers it completely — it pulls nothing else from `public/`.
+   **`/lander.html` AND `/lander` are public on purpose** (Sam, 2026-07-28; the clean URL was added to the exemption 2026-08-11 — middleware sees the incoming path *before* `next.config.js` rewrites `/lander` → `/lander.html`, so exempting only the `.html` left the shared URL hitting the login). It is prospect-facing and gets sent to people outside PFM, so it must not sit behind the staff login. It is a single self-contained file (all images inline base64), so the one path exemption covers it completely — it pulls nothing else from `public/`.
 2. **`app/page.tsx`** re-checks the session server-side before rendering the catalog, so a proxy failure alone does not expose content.
 
 `auth.ts` holds the config. **The real boundary is the `signIn` callback**, which rejects any unverified email or any address whose domain is not in `ALLOWED_DOMAINS`. It matches the domain *exactly* (split on the final `@`), not by suffix, so a lookalike like `someone@notpowerfoxmedia.com` cannot slip through. Keep it that way.

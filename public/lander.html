@@ -237,6 +237,11 @@
   .ebtn.png:disabled{opacity:.55;cursor:default}
   .ebtn.png.ok{background:hsl(var(--accent));color:#fff;border-color:transparent}
   .ebtn.jump{width:100%;background:#1e2a3b;color:#cfe0f5;border:1px solid #2a394f;display:flex;align-items:center;justify-content:center;gap:8px}
+  /* sheet dropdown — the light .input,select styling above is for the on-camera form, not this panel */
+  .esel{width:100%;padding:14px 42px 14px 14px;margin-bottom:10px;border-radius:12px;border:1px solid #2a394f;
+    background:#1a2534 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237f95b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 14px center;
+    color:#fff;font-family:var(--font);font-weight:800;font-size:16px;appearance:none;-webkit-appearance:none}
+  .esel:focus{outline:none;border-color:hsl(var(--primary));box-shadow:none}
   .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#0f1722;background:var(--cyan);padding:3px 8px;border-radius:6px;vertical-align:middle;margin-left:6px}
 
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -264,10 +269,11 @@
     </div>
   </div>
 
-  <div class="esec">
+  <div class="esec" id="quoteSec">
     <div class="k">Quote page</div>
+    <select class="esel" id="e_car" aria-label="Vehicle"></select>
     <button class="ebtn jump" id="btnJump">⚡ Jump to quote page</button>
-    <div class="hint">Skips the funnel — lands on the final quote with all discounts applied.</div>
+    <div class="hint" id="quoteHint">Change the vehicle any time — it swaps behind this panel. Jump skips the funnel to the final quote with all discounts applied.</div>
   </div>
 
   <div class="esec">
@@ -295,7 +301,7 @@
   <div class="esec" id="pngSec">
     <div class="k">Graphic export</div>
     <button class="ebtn png" id="btnPng">⬇ Download mobile PNG</button>
-    <div class="hint" id="pngHint">Saves the screen behind this panel as a phone-sized PNG (1170px wide, 3× retina).</div>
+    <div class="hint" id="pngHint">Saves the screen behind this panel as a 1320 × 2868 phone screenshot — no status bar, no URL bar.</div>
   </div>
 
   <div class="erow">
@@ -639,6 +645,9 @@ function syncSheet(){
   const oldSec=document.getElementById("oldRateSec");
   if(S().finalOldRate){ oldSec.style.display=""; document.getElementById("oldUnit").textContent=unit; document.getElementById("oldInput").value=C().old; }
   else oldSec.style.display="none";
+  const isAuto=S().input==="car";                       // SaveMaxHomes has no vehicle
+  carSel.style.display=isAuto?"":"none";
+  if(isAuto) carSel.value=st.car||"";
 }
 document.querySelectorAll("#segSkin button").forEach(b=>b.onclick=()=>{
   cfg.skin=b.dataset.skin; saveCfg(); resetFunnel(); st.zip=C().zip; render(); syncSheet();
@@ -673,11 +682,36 @@ function jumpToQuote(){
 }
 document.getElementById("btnJump").onclick=jumpToQuote;
 
+/* vehicle picker — the same list the on-camera form uses, reachable once you are past the form.
+   Patches the car in place (like liveRates) so changing it never replays the scan animation. */
+const carSel=document.getElementById("e_car");
+carSel.innerHTML='<option value="">Select your vehicle</option>'+VEHICLES.map(v=>`<option>${v}</option>`).join("");
+function liveCar(){
+  const prev=card.querySelector(".carprev");
+  if(!prev) return false;
+  if(!st.car){ prev.remove(); return true; }
+  const img=prev.querySelector("img"); if(img){ img.src=CARS[st.car]||""; img.alt=st.car; }
+  const cap=prev.querySelector(".cap"); if(cap) cap.textContent=st.car;
+  return true;
+}
+carSel.onchange=e=>{
+  st.car=e.target.value;
+  if(st.phase==="form") render();   // the form's own dropdown has to follow
+  else liveCar();                   // nothing on screen to patch = it lands when the quote draws
+};
+
 /* ====================== PNG EXPORT ====================== */
-/* Renders the live screen (#app only — no sheet, no scrim) into a phone-sized PNG.
-   Method: clone -> <svg><foreignObject> with all page CSS inlined (fonts + images are
-   already base64 in this file, so nothing external is fetched) -> <img> -> canvas.  */
-const PNG_W = 390, PNG_H = 844, PNG_SCALE = 3;
+/* Renders the live screen (#app only — never the sheet/scrim) as a phone-sized PNG.
+   Composited in THREE layers, because iOS Safari will not rasterise
+   <img src="data:..."> inside an SVG foreignObject — the car photo exported blank
+   while the same code was fine in desktop Chrome (Sam, 2026-08-11):
+     A) the page itself through foreignObject, with every <img> and .cap hidden
+     B) each image painted straight onto the canvas (object-fit: cover + rounded clip)
+     C) each .carprev caption re-rendered on top, so the label sits over the photo
+   The frame is a fixed iPhone screenshot size, so a desktop browser window exports
+   the same shape a phone does — and browser chrome (status bar, URL bar) is never
+   part of it, because this draws the DOM rather than capturing the screen. */
+const PNG_W = 440, PNG_H = 956, PNG_SCALE = 3;   // 1320 × 2868 — iPhone Pro Max screenshot
 
 function pngFilename(){
   const c=C(), s=S();
@@ -690,36 +724,93 @@ function pngFilename(){
 }
 
 function buildExportClone(){
-  const app = document.getElementById("app");
   const holder = document.createElement("div");
-  holder.setAttribute("data-png-holder","");
   holder.style.cssText = "position:fixed;left:-10000px;top:0;width:"+PNG_W+"px;pointer-events:none;opacity:0";
-  const clone = app.cloneNode(true);
-  clone.style.zoom = "1";
-  clone.style.width = PNG_W+"px";
-  clone.style.maxWidth = PNG_W+"px";
-  clone.style.minHeight = PNG_H+"px";
-  clone.style.padding = "0";
+  const clone = document.getElementById("app").cloneNode(true);
+  clone.style.zoom="1"; clone.style.width=PNG_W+"px"; clone.style.maxWidth=PNG_W+"px";
+  clone.style.minHeight="0"; clone.style.padding="0";
   holder.appendChild(clone);
   document.body.appendChild(holder);
-  const h = Math.max(PNG_H, Math.ceil(clone.getBoundingClientRect().height));
-  return {holder, clone, h};
+  return {holder, clone};
 }
 
-function svgForExport(clone, h){
+/* Pull the images and captions out of the clone, then hide them so layer A
+   leaves clean holes for layers B and C to fill. */
+function collectLayers(clone){
+  const base = clone.getBoundingClientRect();
+  const rel = el=>{ const r=el.getBoundingClientRect();
+    return {x:r.left-base.left, y:r.top-base.top, w:r.width, h:r.height}; };
+  const images=[], caps=[];
+  clone.querySelectorAll("img").forEach(im=>{
+    const src = im.getAttribute("src");
+    if(!src) return;
+    const box = rel(im);
+    if(box.w<1 || box.h<1) return;
+    const host = im.parentElement;
+    const radius = host ? (parseFloat(getComputedStyle(host).borderTopLeftRadius)||0) : 0;
+    images.push({src, x:box.x, y:box.y, w:box.w, h:box.h, radius});
+  });
+  clone.querySelectorAll(".carprev .cap").forEach(cap=>{
+    const host = cap.parentElement, box = rel(host);
+    const mini = host.cloneNode(true);
+    mini.querySelectorAll("img").forEach(i=>{ i.style.visibility="hidden"; });
+    // the mini render has no .final ancestor, so pin its box explicitly
+    mini.style.cssText += ";width:"+box.w+"px;height:"+box.h+"px;margin:0;background:transparent";
+    caps.push({html:new XMLSerializer().serializeToString(mini), x:box.x, y:box.y, w:box.w, h:box.h});
+  });
+  clone.querySelectorAll("img").forEach(i=>{ i.style.visibility="hidden"; });
+  clone.querySelectorAll(".carprev .cap").forEach(c=>{ c.style.visibility="hidden"; });
+  return {images, caps};
+}
+
+function svgWrap(bodyHTML, w, h, extraCss){
   const css = Array.from(document.querySelectorAll("style")).map(s=>s.textContent).join("\n");
-  const overrides =
-    "*{animation:none!important;transition:none!important}" +
-    "#app{width:"+PNG_W+"px;max-width:"+PNG_W+"px;min-height:"+h+"px;zoom:1;padding:0}" +
-    ".card{animation:none!important;opacity:1!important;transform:none!important}" +
-    ".crow,.ditem{animation:none!important;opacity:1!important;transform:none!important}";
-  const body = new XMLSerializer().serializeToString(clone);
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+PNG_W+'" height="'+h+'" viewBox="0 0 '+PNG_W+' '+h+'">'
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">'
     + '<foreignObject x="0" y="0" width="100%" height="100%">'
-    + '<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+PNG_W+'px;height:'+h+'px;background:var(--grad-hero);font-family:\'Plus Jakarta Sans\',sans-serif">'
-    + '<style>/*<![CDATA[*/' + css + overrides + '/*]]>*/</style>'
-    + body
-    + '</div></foreignObject></svg>';
+    + '<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;font-family:\'Plus Jakarta Sans\',sans-serif">'
+    + '<style>/*<![CDATA[*/' + css
+    + '*{animation:none!important;transition:none!important}'
+    + '.card,.crow,.ditem{opacity:1!important;transform:none!important}'
+    + (extraCss||'') + '/*]]>*/</style>'
+    + bodyHTML + '</div></foreignObject></svg>';
+}
+
+function svgToImage(svg){
+  // data: URI, not a blob URL — blob-loaded SVGs taint the canvas and toBlob throws
+  return new Promise((res, rej)=>{
+    const im=new Image();
+    im.onload=()=>res(im); im.onerror=()=>rej(new Error("render failed"));
+    im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
+}
+function loadImage(src){
+  return new Promise((res, rej)=>{
+    const im=new Image();
+    im.onload=()=>res(im); im.onerror=()=>rej(new Error("asset failed"));
+    im.src = src;
+  });
+}
+
+function clipRounded(ctx,x,y,w,h,r){
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  if(r<=0){ ctx.rect(x,y,w,h); }
+  else if(ctx.roundRect){ ctx.roundRect(x,y,w,h,r); }
+  else{
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  }
+  ctx.closePath(); ctx.clip();
+}
+function drawCover(ctx,img,x,y,w,h){   // CSS object-fit: cover
+  const iw=img.naturalWidth||w, ih=img.naturalHeight||h;
+  const ir=iw/ih, br=w/h;
+  let sw,sh,sx,sy;
+  if(ir>br){ sh=ih; sw=sh*br; sx=(iw-sw)/2; sy=0; }
+  else     { sw=iw; sh=sw/br; sx=0; sy=(ih-sh)/2; }
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 
 async function downloadPNG(){
@@ -727,20 +818,40 @@ async function downloadPNG(){
   const hint = document.getElementById("pngHint");
   const label = "⬇ Download mobile PNG";
   btn.disabled = true; btn.textContent = "Rendering…"; btn.classList.remove("ok");
-  const {holder, clone, h} = buildExportClone();
+  const {holder, clone} = buildExportClone();
   try{
     if(document.fonts && document.fonts.ready) await document.fonts.ready;
-    const svg = svgForExport(clone, h);
-    // data: URI, not a blob URL — blob-loaded SVGs taint the canvas in some engines
-    const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-    const img = new Image();
-    await new Promise((res, rej)=>{ img.onload=res; img.onerror=()=>rej(new Error("render failed")); img.src=url; });
+    const layers = collectLayers(clone);
+    const contentH = Math.max(1, Math.ceil(clone.getBoundingClientRect().height));
+    const s = Math.min(1, PNG_H/contentH);          // scale to fit the phone frame
+    const offX = (PNG_W - PNG_W*s)/2;               // centred when scaled down
+
+    const pageSVG = svgWrap(new XMLSerializer().serializeToString(clone), PNG_W, contentH,
+      "#app{width:"+PNG_W+"px;max-width:"+PNG_W+"px;min-height:0;zoom:1;padding:0}");
+    const pageImg = await svgToImage(pageSVG);
+    const assets  = await Promise.all(layers.images.map(j=>loadImage(j.src)));
+    const capImgs = await Promise.all(layers.caps.map(c=>
+      svgToImage(svgWrap(c.html, Math.ceil(c.w), Math.ceil(c.h), ""))));
+
     const cv = document.createElement("canvas");
-    cv.width = PNG_W*PNG_SCALE; cv.height = h*PNG_SCALE;
+    cv.width = PNG_W*PNG_SCALE; cv.height = PNG_H*PNG_SCALE;
     const ctx = cv.getContext("2d");
-    ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,cv.width,cv.height);
+
+    // page background — the site's own hero gradient, so any leftover frame matches
     ctx.setTransform(PNG_SCALE,0,0,PNG_SCALE,0,0);
-    ctx.drawImage(img, 0, 0, PNG_W, h);
+    const g = ctx.createLinearGradient(0,0,0,PNG_H);
+    g.addColorStop(0,"hsl(210 25% 97%)"); g.addColorStop(1,"hsl(200 30% 94%)");
+    ctx.fillStyle=g; ctx.fillRect(0,0,PNG_W,PNG_H);
+
+    // layers A/B/C all share one transform, so clone coordinates line up
+    ctx.setTransform(PNG_SCALE*s, 0, 0, PNG_SCALE*s, offX*PNG_SCALE, 0);
+    ctx.drawImage(pageImg, 0, 0, PNG_W, contentH);
+    layers.images.forEach((j,i)=>{
+      ctx.save(); clipRounded(ctx,j.x,j.y,j.w,j.h,j.radius);
+      drawCover(ctx,assets[i],j.x,j.y,j.w,j.h); ctx.restore();
+    });
+    layers.caps.forEach((c,i)=>{ ctx.drawImage(capImgs[i], c.x, c.y, c.w, c.h); });
+
     const blob = await new Promise(r=>cv.toBlob(r, "image/png"));
     if(!blob) throw new Error("encode failed");
     const a = document.createElement("a");
