@@ -242,6 +242,14 @@
     background:#1a2534 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237f95b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 14px center;
     color:#fff;font-family:var(--font);font-weight:800;font-size:16px;appearance:none;-webkit-appearance:none}
   .esel:focus{outline:none;border-color:hsl(var(--primary));box-shadow:none}
+  /* discount picker — one row per discount in the ACTIVE skin */
+  .dtog{display:flex;align-items:center;gap:11px;width:100%;padding:13px 14px;margin-bottom:8px;border-radius:12px;
+    border:1px solid #2a394f;background:#1a2534;color:#8aa0bd;font-family:var(--font);font-weight:800;font-size:15px;text-align:left;cursor:pointer;transition:.15s}
+  .dtog .ic{font-size:18px;line-height:1}
+  .dtog .nm{flex:1}
+  .dtog .bx{width:22px;height:22px;flex:none;border-radius:6px;border:1.5px solid #3a4c66;display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent}
+  .dtog.on{color:#fff;border-color:hsl(var(--primary))}
+  .dtog.on .bx{background:hsl(var(--primary));border-color:hsl(var(--primary));color:#fff}
   .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#0f1722;background:var(--cyan);padding:3px 8px;border-radius:6px;vertical-align:middle;margin-left:6px}
 
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -259,7 +267,7 @@
 <div class="sheet" id="sheet">
   <div class="grab"></div>
   <h3>⚙️ Field Controls <span class="tag" id="sheetSkin">Auto</span></h3>
-  <div class="hint">Set what the camera sees, then close this panel. Nothing here shows on screen. Discounts follow the questions — answer them on camera to set how many apply.</div>
+  <div class="hint">Set what the camera sees, then close this panel. Nothing here shows on screen. Answering the questions on camera still sets the discounts — the picker below is the shortcut.</div>
 
   <div class="esec">
     <div class="k">Lander</div>
@@ -273,7 +281,13 @@
     <div class="k">Quote page</div>
     <select class="esel" id="e_car" aria-label="Vehicle"></select>
     <button class="ebtn jump" id="btnJump">⚡ Jump to quote page</button>
-    <div class="hint" id="quoteHint">Change the vehicle any time — it swaps behind this panel. Jump skips the funnel to the final quote with all discounts applied.</div>
+    <div class="hint" id="quoteHint">Change the vehicle any time — it swaps behind this panel. Jump skips the funnel straight to the final quote.</div>
+  </div>
+
+  <div class="esec" id="discSec">
+    <div class="k">Discounts <span class="tag" id="discCount"></span></div>
+    <div id="discList"></div>
+    <div class="hint">Ticked discounts show on the quote page. This list follows the lander — Auto and Home have different discounts, and each remembers its own picks.</div>
   </div>
 
   <div class="esec">
@@ -358,6 +372,13 @@ function loadCfg(){
     c[k]=Object.assign({}, SKINS[k].def, c[k]||{});
     if(c[k].zip==="12345") c[k].zip="";  // clear legacy sample prefill
     c[k].rate=Math.max(SKINS[k].minRate, c[k].rate||0);  // enforce compliance floor
+    // Which discounts land on the quote page. Auto and Home have DIFFERENT
+    // discounts, so each skin keeps its own list of its own question ids —
+    // never share or copy this between skins. Default: all of them.
+    const ids=SKINS[k].questions.map(q=>q.id);
+    c[k].discounts = Array.isArray(c[k].discounts)
+      ? ids.filter(id=>c[k].discounts.includes(id))   // drop anything stale, keep skin order
+      : ids.slice();
   }
   return c;
 }
@@ -648,6 +669,7 @@ function syncSheet(){
   const isAuto=S().input==="car";                       // SaveMaxHomes has no vehicle
   carSel.style.display=isAuto?"":"none";
   if(isAuto) carSel.value=st.car||"";
+  renderDiscToggles();                                  // rebuilt per skin — the lists differ
 }
 document.querySelectorAll("#segSkin button").forEach(b=>b.onclick=()=>{
   cfg.skin=b.dataset.skin; saveCfg(); resetFunnel(); st.zip=C().zip; render(); syncSheet();
@@ -668,7 +690,12 @@ function bindStep(minusId,plusId,inputId,key){
 }
 bindStep("rateMinus","ratePlus","rateInput","rate");
 bindStep("oldMinus","oldPlus","oldInput","old");
-document.getElementById("btnReset").onclick=()=>{ cfg[cfg.skin]=Object.assign({},S().def); saveCfg(); resetFunnel(); st.zip=C().zip; render(); syncSheet(); };
+document.getElementById("btnReset").onclick=()=>{
+  // def carries no discount list, so restore all of THIS skin's discounts explicitly —
+  // otherwise the toggles read empty while Jump still falls back to all four.
+  cfg[cfg.skin]=Object.assign({},S().def,{discounts:S().questions.map(q=>q.id)});
+  saveCfg(); resetFunnel(); st.zip=C().zip; render(); syncSheet();
+};
 
 /* jump straight to the final quote page — keeps anything already entered, fills the rest */
 function jumpToQuote(){
@@ -676,7 +703,9 @@ function jumpToQuote(){
   resetFunnel();
   Object.assign(st, keep);
   if(S().input==="car" && !st.car) st.car = VEHICLES.includes("Toyota Camry") ? "Toyota Camry" : VEHICLES[0];
-  S().questions.forEach(q=>st.answers[q.id]=q.qualify);   // every discount qualifies
+  // honour the sheet's discount picks rather than forcing all four on
+  const picked=C().discounts||S().questions.map(q=>q.id);
+  S().questions.forEach(q=>st.answers[q.id]= picked.includes(q.id) ? q.qualify : !q.qualify);
   st.phase="discounts"; st.jumpFinal=true;
   closeSheet(); render();
 }
@@ -699,6 +728,44 @@ carSel.onchange=e=>{
   if(st.phase==="form") render();   // the form's own dropdown has to follow
   else liveCar();                   // nothing on screen to patch = it lands when the quote draws
 };
+
+/* ---------------------- DISCOUNT PICKER ----------------------
+   Which discounts land on the quote page. The rows are built from the ACTIVE
+   skin's own questions, so Auto and Home each show their own four and neither
+   can pick up the other's — the saved selection lives in cfg[skin].discounts.
+   Ticking writes BOTH: cfg (so it survives a reset and drives Jump) and the
+   live funnel answer (so a quote already on screen updates under the panel). */
+const discList=document.getElementById("discList");
+function renderDiscToggles(){
+  const picked=C().discounts||[];
+  document.getElementById("discCount").textContent=`${picked.length} of ${S().questions.length}`;
+  discList.innerHTML=S().questions.map(q=>
+    `<button class="dtog${picked.includes(q.id)?" on":""}" data-q="${q.id}">
+       <span class="ic">${q.disc.ic}</span><span class="nm">${q.disc.nm}</span><span class="bx">✓</span>
+     </button>`).join("");
+  discList.querySelectorAll(".dtog").forEach(b=>b.onclick=()=>toggleDisc(b.dataset.q));
+}
+function toggleDisc(id){
+  const q=S().questions.find(x=>x.id===id);
+  const set=new Set(C().discounts||[]);
+  set.has(id) ? set.delete(id) : set.add(id);
+  C().discounts=S().questions.map(x=>x.id).filter(x=>set.has(x));   // keep the skin's own order
+  saveCfg();
+  st.answers[id]= set.has(id) ? q.qualify : !q.qualify;             // so the live page agrees
+  renderDiscToggles();
+  liveDiscounts();
+}
+/* patch the quote page in place — same reason as liveRates/liveCar: never replay the scan */
+function liveDiscounts(){
+  const list=card.querySelector(".final .dlist");
+  if(!list) return false;
+  const discs=qualifyingDiscounts();
+  list.innerHTML = discs.map(d=>`<div class="ditem"><span class="ic">${d.ic}</span><span class="nm">${d.nm}</span><span class="ck">✓</span></div>`).join("")
+    || '<p class="sub" style="margin-top:0">No discounts qualified — adjust your answers.</p>';
+  const h=card.querySelector(".final .title");
+  if(h) h.textContent=`${discs.length} Discount${discs.length===1?'':'s'} Applied`;
+  return true;
+}
 
 /* ====================== PNG EXPORT ====================== */
 /* Renders the live screen (#app only — never the sheet/scrim) as a phone-sized PNG.
