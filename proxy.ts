@@ -8,10 +8,21 @@ import { auth } from "@/auth";
 //
 // The pages themselves ALSO check the session server-side (see app/page.tsx),
 // so a middleware failure alone does not expose the catalog.
+// The lander's own hostname (e.g. rates.example.com), set as a Railway variable.
+// On that host — and ONLY that host — "/" is the lander instead of the hub, so the
+// URL handed to people outside PFM has no path on it. Unset = nothing changes.
+// next.config.js does the matching rewrite; this is the gate half.
+const LANDER_HOST = process.env.LANDER_HOST?.toLowerCase();
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
+  // Host header carries the port in local dev; strip it before comparing.
+  const host = req.headers.get("host")?.split(":")[0].toLowerCase();
+  const isLanderRoot = !!LANDER_HOST && host === LANDER_HOST && pathname === "/";
+
   const isPublicPath =
+    isLanderRoot ||
     pathname === "/login" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/brand/") || // masthead logos, needed by the login page
