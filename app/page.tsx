@@ -48,9 +48,22 @@ export default async function DashboardPage() {
           The state of <em>the system.</em>
         </h1>
         <p className="text-muted text-lg max-w-2xl mt-5">
-          The operating snapshot: how the system runs, what shipped, and the commands that keep every editor current.
+          The operating snapshot: how the system runs, what shipped, and everything available to download and install.
         </p>
       </header>
+
+      <section className="mb-10" aria-label="Announcement">
+        <div className="bg-tintBlue border border-ink shadow-elev2 p-5 md:p-6">
+          <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-accentDeep mb-2">Announcement · 2026-08-17</div>
+          <h2 className="font-heading font-bold text-2xl text-text">The hub no longer pushes system updates.</h2>
+          <p className="text-sm text-text mt-3 max-w-3xl">
+            As the system and skills grow, one unified skill set for every editor no longer makes sense. <strong>Each editor now manages their own skills and workflows</strong> — more room to experiment and share with each other. Every skill, CLI, MCP, and workflow stays available here to download and install whenever you want it.
+          </p>
+          <p className="text-sm text-muted mt-2 max-w-3xl">
+            Share the skills and tools you discover — and ask your Claude questions — in the Slack channel.
+          </p>
+        </div>
+      </section>
 
       <section aria-label="System status">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
@@ -65,7 +78,7 @@ export default async function DashboardPage() {
             <div className="text-xs mt-1.5 text-muted">request → delivered creative</div>
           </div>
           <div className="bg-surface border border-ink shadow-elev1 p-5">
-            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Updates shipped</div>
+            <div className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-muted">Changelog entries</div>
             <div className="font-heading font-bold text-4xl mt-2 tabular-nums">{changelog.count}</div>
             <Link href="/workflow#changelog" className="text-xs mt-1.5 inline-block text-accentDeep font-medium hover:text-accentHover underline underline-offset-2">changelog →</Link>
           </div>
@@ -89,7 +102,7 @@ export default async function DashboardPage() {
 
       <section className="mt-10" aria-labelledby="update-heading">
         <div className="flex items-baseline justify-between gap-4 mb-3">
-          <h2 id="update-heading" className="font-heading font-bold text-[26px] text-text">Update my skills</h2>
+          <h2 id="update-heading" className="font-heading font-bold text-[26px] text-text">Install the full set</h2>
           <Link href="/skills" className="font-mono text-[11px] uppercase tracking-[0.08em] text-accentDeep underline underline-offset-2">open Skills →</Link>
         </div>
         <div className="grid md:grid-cols-2 gap-5">
@@ -102,7 +115,7 @@ export default async function DashboardPage() {
             <CopyBlock code={`bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/claude-pfm-update.sh"`} />
           </div>
         </div>
-        <p className="text-xs text-muted mt-3">Restart Claude Desktop after the updater finishes.</p>
+        <p className="text-xs text-muted mt-3">On demand, whenever you want it — the hub no longer pushes updates. Restart Claude Desktop after the installer finishes.</p>
       </section>
 
       <section className="mt-14" aria-labelledby="explore-heading">

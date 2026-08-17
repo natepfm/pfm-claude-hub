@@ -2,9 +2,31 @@
 
 Recent changes to PFM Claude skills, scripts, and tooling. Newest first.
 
-When something here changes that affects what editors run on their machines, run the **Update my skills** command from the [Home page](/) to sync.
+As of 2026-08-17 the hub no longer pushes system updates — this log is the record of what shipped through the unified-system era, and of anything new posted to the library going forward. Install what you want from the [Skills catalog](/skills).
 
 ---
+
+## 2026-08-17
+
+### The hub stops pushing updates — editors now own their skills
+
+No more system updates from the PFM Hub. As the system and skills have grown, it no longer makes sense for everyone to run one unified skill set. From here, **each editor manages their own skills and workflows** — more room to experiment and to share what you build directly with each other, instead of everything routing through one system.
+
+Nothing is going away: every skill, CLI, MCP, and workflow stays available on this hub to **download and install** whenever you want it. The installer on the [Home page](/) still pulls the full set on demand — it just won't be pushed at you anymore.
+
+Share the skills, workflows, and tools you discover — and ask any questions about using Claude with our requests — in the Slack channel.
+
+
+## 2026-08-13
+
+### New editor-built skill — ag.ugc.ecom (Ecom UGC in Marketing Studio)
+
+**`ag.ugc.ecom`** (Nicolai M) — the Ecom/DTC UGC pipeline on Higgsfield Marketing Studio: scrape the real product into the MS library, lock one avatar, cut the script into duration-sized lines, one style preset per line, fire through a gated script. Invoke it with `/ag.ugc.ecom`, "run the ecom UGC flow", or "make the marketing studio ads". Registry row AG 49.
+
+Every refire on the proving run traced back to a guard block that was missing on the first fire, so the guard stack now rides fire #1 automatically — identity lock, product accuracy, packaging, no-ad-lib, pacing. The fire script also locks 720p (half the credits, no visible loss on a phone), refuses lines outside the duration word band, refuses digits in spoken dialogue, and refuses a batch until you've approved a smoke clip. No QC runs on its own; audio-qc and visual-qc are offered.
+
+Run **Update my skills** from the [Home page](/) to get it.
+
 
 ## 2026-07-22
 

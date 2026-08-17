@@ -95,17 +95,17 @@ export default function SkillCatalog() {
     <div>
       <PageHero
         eyebrow="PFM · Editors Hub"
-        title="Update your skills"
-        subtitle="Run the updater, then browse every skill in the system — what it does, when to reach for it, and the file that ships to your machine."
+        title="The skill library"
+        subtitle="Every skill in the system, yours to browse and install — what it does, when to reach for it, and the file that ships to your machine. You manage your own set; the hub no longer pushes updates."
       />
 
       <section id="update" className="bg-accentMuted border border-ink shadow-elev2 p-5 md:p-6 mb-8 scroll-mt-28" aria-labelledby="skills-update-heading">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Keep your install current</div>
-            <h2 id="skills-update-heading" className="font-heading font-bold text-2xl text-text mt-1">Update my skills</h2>
+            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Download &amp; install on demand</div>
+            <h2 id="skills-update-heading" className="font-heading font-bold text-2xl text-text mt-1">Install the full set</h2>
           </div>
-          <p className="text-xs text-muted">Run it any time, then restart Claude Desktop.</p>
+          <p className="text-xs text-muted">Run it whenever you want to pull the library, then restart Claude Desktop.</p>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -122,7 +122,7 @@ export default function SkillCatalog() {
       {/* stat tiles */}
       <div className="flex flex-wrap gap-2.5 mb-6">
         <Stat n={counts.total} label="Skills" />
-        <Stat n={counts.live} label="Live to team" />
+        <Stat n={counts.live} label="Live on the hub" />
         <Stat n={counts.flow} label="Workflows" />
         <Stat n={counts.hold} label="On hold" />
         <Stat n={counts.cowork} label="Cowork" />
@@ -197,7 +197,7 @@ export default function SkillCatalog() {
       </div>
 
       <p className="font-mono text-[10px] text-faint mt-4">
-        Canonical registry · audited {SKILLS_AUDIT_DATE} · statuses: Live = synced to the team · Hold / Vendor / Restricted / Command as tagged.
+        Canonical registry · audited {SKILLS_AUDIT_DATE} · statuses: Live = available on the hub · Hold / Vendor / Restricted / Command as tagged.
       </p>
 
       <section className="mt-10 bg-tintBlue border border-ink shadow-elev1 p-5 flex flex-wrap items-center justify-between gap-5">

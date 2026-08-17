@@ -102,7 +102,7 @@ export default function SetupMac() {
           <li>Then type: <code>higgsfield account status</code> — should return your email + Power Fox Media credit balance with no permission prompt.</li>
         </ol>
         <Callout type="success" title="If both worked, you're done with setup">
-          Bookmark this Hub. You'll come back here when you need to update skills or troubleshoot.
+          Bookmark this Hub. You'll come back here when you want to grab skills or troubleshoot.
         </Callout>
       </div>
 

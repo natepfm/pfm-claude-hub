@@ -74,7 +74,7 @@ export default function SetupWindows() {
           <li>Then type: <code>higgsfield account status</code> — should show your email + Power Fox Media + ~1.1M credits.</li>
         </ol>
         <Callout type="success" title="Both worked? You're done">
-          Bookmark this Hub. Come back when you need to update skills or troubleshoot.
+          Bookmark this Hub. Come back when you want to grab skills or troubleshoot.
         </Callout>
       </div>
 
