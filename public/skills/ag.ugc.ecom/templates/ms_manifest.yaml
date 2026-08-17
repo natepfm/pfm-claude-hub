@@ -1,0 +1,30 @@
+# ms_manifest.yaml — template for ag.ugc.ecom (lives in Elements/Prompts/ of the project)
+# Every field is REQUIRED — fire_ms.py refuses a manifest missing any of them.
+
+project_dir: /Volumes/ads/PFM MEDIA MASTER FOLDER/4. PFM Project Files/Ecommerce/<Brand>/<MM.DD.YY> - <Type> - <Name>
+product_id: <uuid from `higgsfield ms products fetch --url <sales page> --wait`>
+avatar_id: <uuid from `higgsfield ms avatars list --json`>
+duration: 7          # word band scales with this: 2.0–2.9 w/s → 14–20 words at 7s
+aspect: "9:16"
+# resolution is NOT a field — fire_ms.py locks 720p (Sam, 08.12.26)
+
+# Verbatim physical lock for the avatar — complexion, hair, brows, freckling, wardrobe.
+# The script appends "do not substitute a different person" itself.
+identity_block: |
+  <e.g. Early-40s woman, fair complexion with light freckling across the nose, shoulder-length
+  auburn hair, natural brows, wearing a plain heather-grey crew-neck tee.>
+
+# The REAL product geometry — what the engine invents wrong without it.
+product_accuracy_block: |
+  <e.g. The pillow is soft and compressible with a shredded-foam insert — never a rigid square
+  foam block. The zipper runs along the SIDE seam, never across the pillow face.>
+
+lines:
+  - id: C2_H1_01
+    hook: "C2 H1"                    # → Elements/Footage/Veo/C2 H1/
+    style: ugc_selfie_testimonial    # exactly ONE preset slug, from show_marketing_studio(action='presets')
+    scene: >-
+      <one-sentence setting/action for this beat — the guard stack is appended by the script,
+      do not restate identity, packaging, pacing, or no-ad-lib wording here>
+    dialogue: >-
+      <the exact spoken words — 14–20 words at 7s, numbers written out, no digits>
