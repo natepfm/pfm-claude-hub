@@ -237,6 +237,7 @@
   .ebtn.png:disabled{opacity:.55;cursor:default}
   .ebtn.png.ok{background:hsl(var(--accent));color:#fff;border-color:transparent}
   .ebtn.jump{width:100%;background:#1e2a3b;color:#cfe0f5;border:1px solid #2a394f;display:flex;align-items:center;justify-content:center;gap:8px}
+  .ebtn.rand{width:100%;margin-top:8px;background:#1e2a3b;color:#cfe0f5;border:1px solid #2a394f;display:flex;align-items:center;justify-content:center;gap:8px}
   /* sheet dropdown — the light .input,select styling above is for the on-camera form, not this panel */
   .esel{width:100%;padding:14px 42px 14px 14px;margin-bottom:10px;border-radius:12px;border:1px solid #2a394f;
     background:#1a2534 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237f95b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 14px center;
@@ -281,7 +282,8 @@
     <div class="k">Quote page</div>
     <select class="esel" id="e_car" aria-label="Vehicle"></select>
     <button class="ebtn jump" id="btnJump">⚡ Jump to quote page</button>
-    <div class="hint" id="quoteHint">Change the vehicle any time — it swaps behind this panel. Jump skips the funnel straight to the final quote.</div>
+    <button class="ebtn rand" id="btnRand">🎲 Randomize quote</button>
+    <div class="hint" id="quoteHint">Change the vehicle any time — it swaps behind this panel. Jump skips the funnel straight to the final quote. Randomize rolls a fresh vehicle, discount mix and rate, all inside the compliance floors.</div>
   </div>
 
   <div class="esec" id="discSec">
@@ -343,6 +345,9 @@ const SKINS = {
     order:["home","dui","multi","miles"],
     finalOldRate:true, cta:"Claim New Rate",
     minRate:39,   // PFM compliance floor — Auto team practical minimum $39/mo
+    // Randomizer bands. rate STARTS at the compliance floor so a roll can never
+    // land under it; old sits in believable "was" territory above the new rate.
+    rand:{rate:[39,89], old:[149,299]},
     def:{rate:57, old:190, zip:""}
   },
   home:{
@@ -358,6 +363,8 @@ const SKINS = {
     order:["ins","claim","bundle","smoke"],
     finalOldRate:false, cta:"Claim Now",
     minRate:360,  // PFM compliance floor — Home Forms minimum $360/year
+    // Home shows no crossed-out old rate, so the randomizer only rolls the new one.
+    rand:{rate:[420,880]},
     def:{rate:649, old:0, zip:""}
   }
 };
@@ -755,6 +762,36 @@ function toggleDisc(id){
   renderDiscToggles();
   liveDiscounts();
 }
+/* ------------------------- RANDOMIZER -------------------------
+   Rolls a fresh quote page in one tap: vehicle, discount mix and rates.
+   Rates come from the skin's own rand band, whose low end IS the compliance
+   floor, so a roll can never produce a non-compliant number. Home has no
+   crossed-out old rate, so only Auto rolls one — and it is forced clear of
+   the new rate so the "was" price never lands at or below it. */
+function randInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function randomizeQuote(){
+  const s=S(), c=C(), band=s.rand;
+
+  c.rate = Math.max(s.minRate, randInt(band.rate[0], band.rate[1]));
+  if(s.finalOldRate && band.old) c.old = Math.max(randInt(band.old[0], band.old[1]), c.rate+60);
+
+  if(s.input==="car") st.car = VEHICLES[randInt(0, VEHICLES.length-1)];
+
+  // at least two discounts — a quote page with one tick reads thin, zero reads broken
+  const ids=s.questions.map(q=>q.id);
+  const pool=ids.slice();
+  for(let i=pool.length-1;i>0;i--){ const j=randInt(0,i); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  const keep=new Set(pool.slice(0, randInt(2, ids.length)));
+  c.discounts = ids.filter(id=>keep.has(id));          // keep the skin's own order
+  s.questions.forEach(q=>st.answers[q.id]= keep.has(q.id) ? q.qualify : !q.qualify);
+
+  saveCfg();
+  syncSheet();                                          // panel reflects the roll
+  if(st.phase==="form") render();                       // the form's own fields have to follow
+  else { liveRates(); liveCar(); liveDiscounts(); }     // otherwise patch in place
+}
+document.getElementById("btnRand").onclick=randomizeQuote;
+
 /* patch the quote page in place — same reason as liveRates/liveCar: never replay the scan */
 function liveDiscounts(){
   const list=card.querySelector(".final .dlist");
