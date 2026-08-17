@@ -60,7 +60,7 @@ export default async function DashboardPage() {
             As the system and skills grow, one unified skill set for every editor no longer makes sense. <strong>Each editor now manages their own skills and workflows</strong> — more room to experiment and share with each other. Every skill, CLI, MCP, and workflow stays available here to download and install whenever you want it.
           </p>
           <p className="text-sm text-muted mt-2 max-w-3xl">
-            Share the skills and tools you discover — and ask your Claude questions — in the Slack channel.
+            Share the skills and tools you discover — and ask your Claude questions — in the Slack channel. Want your skill added to the hub? DM Sam.
           </p>
         </div>
       </section>
