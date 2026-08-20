@@ -1,6 +1,10 @@
 ---
 name: notion-asset-delivery
-description: PFM's delivery-comment poster for the Notion Video Task Manager. Posts the right house-format delivery comment to a VTM request — `✅ Assets Generated [folder ↗](link)` for a raw-asset handoff (Status untouched, no count) or `✅ Completed Creatives (#): [folder ↗](link)` for a finished-creative turn-in (Status → Done + Dima V/Gabriel Moss tags) — auto-building the LinkYourFile link from the folder path so the editor never hand-makes it. STATUS RULE (Sam 2026-06-01): a routine asset delivery leaves the request Status UNTOUCHED — dropping generated clips in the folder is a raw-asset handoff, not a finished creative, so the request stays "Requested." The skill sets Status → "Done" AND @-tags Dima V + Gabriel Moss ONLY when the editor explicitly asks to report a COMPLETED creative ("mark done", "report complete", "move to Done"). Use when an editor says "post the delivery comment", "deliver this to Notion", "drop the folder link on the request", "post completed creatives", "I'm done editing — post the delivery", or finishes a gen flow and wants to notify the requester — and, for the Done path, "mark <request> done" / "report this completed creative". Also auto-offered by hvg-flow at its final-report step; usable standalone anytime you have a delivered folder (after a vsl / hig batch or after an edit). The skill builds the link + composes the comment SILENTLY and — when the editor asked for the report and nothing is off (count matches, disclaimer verified, right request) — POSTS IMMEDIATELY with no "post" confirm gate, BOTH paths including the status-flipping creative turn-in (Sam 2026-06-18, re-locked 2026-07-08: "when you report a creative I don't have to say post — if it's done, you can post"); it stops to flag ONLY when the something's-off list trips (count mismatch / wrong target / brand mismatch / missing disclaimer / QC note). NOT for: building request pages or state batches (use notion-state-batches), generating the assets themselves (use hvg-flow / hig-flow / vsl-state-variations), or any comment other than a delivery notification.
+description: >-
+  PFM's delivery-comment poster for the Notion Video Task Manager. Use on: "post the delivery
+  comment", "deliver this to Notion", "drop the folder link on the request", "post completed
+  creatives".
+
 ---
 
 # notion-asset-delivery
@@ -28,7 +32,7 @@ editor/Sam explicitly asks to **report a completed creative** ("mark this done",
 - **Dima V** — user UUID `65ec1d09-9170-4f79-a5cd-9b955e411b61`
 - **Gabriel Moss** — user UUID `27dd872b-594c-81f8-bef8-0002275b5ee0`
 
-**🔴 HARD RULE — mentions MUST be posted via `rich_text` array, NEVER markdown** (Sam 2026-06-04, verified on the SMA Houston VSL turn-in). The markdown `<mention-user url="...">` syntax renders in Notion as empty grey "@" pills with no name attached — looks broken, no notification fires, defeats the tag. ANY comment with an @-mention (Dima V, Gabriel Moss, requester, anyone) MUST use `notion-create-comment`'s `rich_text` parameter with explicit mention objects of the form `{"type":"mention","mention":{"type":"user","user":{"id":"<uuid>"}}}` — bare UUID in the `id` field, no `user://` prefix. See Step 6 for the exact payload shape.
+**🔴 HARD RULE — mentions MUST be posted via `rich_text` array, NEVER markdown** (🔒 ENFORCED 2026-08-04: `~/.claude/hooks/notion_mention_gate.sh` refuses any payload containing `user://`. A stored `user://user://` mention 400s the comments endpoint for the WHOLE PAGE forever, blanking FoxView's Comments tab and the folder resolver.) (Sam 2026-06-04, verified on the SMA Houston VSL turn-in). The markdown `<mention-user url="...">` syntax renders in Notion as empty grey "@" pills with no name attached — looks broken, no notification fires, defeats the tag. ANY comment with an @-mention (Dima V, Gabriel Moss, requester, anyone) MUST use `notion-create-comment`'s `rich_text` parameter with explicit mention objects of the form `{"type":"mention","mention":{"type":"user","user":{"id":"<uuid>"}}}` — bare UUID in the `id` field, no `user://` prefix. See Step 6 for the exact payload shape.
 
 Plain `markdown=` is still fine for comments WITHOUT @-mentions (the default ① Assets Generated handoff with no requester tag).
 
@@ -62,6 +66,7 @@ Two distinct labels, one per event. Pick by **intent** (which of the two events 
 ```
 <@Dima V> <@Gabriel Moss>
 ✅ Completed Creatives (#): [folder ↗](LinkYourFile link)
+💰 Gen cost: <N> cr (actual | est)
 <any notes, one tight line each>
 ```
 
@@ -73,6 +78,7 @@ Two distinct labels, one per event. Pick by **intent** (which of the two events 
   - `Update: **L40** also still needs a manual fire — same Veo NSFW-filter issue as L19.`
 - **DO NOT** include: dialogue text, slide-vs-CTA backstory, "originally fired against Florida" context, a "— Claude, <date>" signature, or `⚠️`-heavy headers. Scannable status only — teammates (Nicolai, Dima, etc.) read these. (See `feedback_notion_manual_flag_comment_format`.)
 - The **Dima V + Gabriel Moss tags appear ONLY on ②** (the Done path). An optional leading `@`-mention of the requester (Step 5) can go on either — separate from the mandatory pair.
+- **🔴 `💰 Gen cost` line — MANDATORY on ② (Sam, locked 2026-08-18), never on ①.** Every completed-creative turn-in reports the creative's Higgsfield credit cost, labeled **(actual)** or **(est)** — PFM uses this to judge which creative requests are worth their cost, and only the Claude session that fired the gens knows it. Derive in this order: **(1) actual** — credits spent on this request's gens in session (fire records, balance before/after); **(2) estimate** — reconstruct from the project's manifests/sidecars (clip count × duration × model rate, e.g. sd2.5 = 6.5 cr/s — see `reference_higgsfield_credit_dollar_rate`); **(3) ask the editor** for their number. A creative with no AI gen posts `💰 Gen cost: 0 cr`. **Never post a ② comment without the cost line** — if you can't derive it, ask; don't skip it and don't guess without the (est) label.
 
 **Worked examples:**
 
@@ -86,6 +92,7 @@ Note: **L19 still needs a manual fire** — it repeatedly hit Veo's NSFW filter.
 ```
 <@Dima V> <@Gabriel Moss>
 ✅ Completed Creatives (4): [Texas](https://linkyourfile.com/link?p=…)
+💰 Gen cost: 1,860 cr (actual)
 ```
 
 ## Inputs — gather from context first, ask only for what's missing
@@ -236,6 +243,9 @@ auto-flip and ask which option to use. Don't let a status hiccup block the deliv
    creative's name. Any missing → actively ping the editor: *"Timelines aren't published for this
    project yet — want me to also export the timelines (/e.timeline.export)?"* Yes → run
    `e.timeline.export`. No → drop it, never nag twice. Skip entirely on routine (①) deliveries.
+   🔴 **ALWAYS OFFERED, NEVER MANDATORY (Sam, 2026-07-24):** a missing `.drt` never blocks or delays
+   the turn-in, and never makes a creative "incomplete" — some projects have no DaVinci timeline at
+   all (Palmier carries its own `.palmier` bundle). Ask once, respect the answer, post either way.
    **🔴 SKIP the ping entirely for a PALMIER project (Sam 07.24.26):** if the deliverables came from Palmier — the project has a `Creatives/Palmier/` folder (Videos + the `.palmier` project bundle) — the timeline is ALREADY published as the `.palmier` bundle in its own subfolder. `/e.timeline.export` is a DaVinci `.drt` step and does NOT apply. Detect Palmier by a `Creatives/Palmier/` dir (or deliverables under it) and do not ping. The `.drt` ping is for DaVinci-finished projects only.
 
 ## What NOT to do
@@ -257,10 +267,14 @@ auto-flip and ask which option to use. Don't let a status hiccup block the deliv
 
 ## Cross-references
 
-- `hvg-flow` auto-offers this skill at its final report. Usable standalone after any other flow
+- Editor-invoked after any flow's delivery (the retired hvg-flow's auto-offer is gone). Usable standalone after any flow
   (`vsl-state-variations`, `hig-flow`) or after an edit — just invoke it with the request + folder.
 - `notion-state-batches` — builds the request pages (this skill closes them out).
 - Memory: `feedback_notion_request_status_lifecycle` (the status rule + Dima V / Gabriel Moss tag
   IDs), `feedback_notion_manual_flag_comment_format` (house format + the LinkYourFile link fact),
   `feedback_notion_comment_rich_text_for_mentions` (rich_text-vs-markdown rule for mentions),
   `feedback_pfm_no_redundant_notion_redrop`, `feedback_no_askuserquestion_in_pfm_flows`.
+
+## Not for
+
+NOT for: building request pages or state batches (notion-state-batches), generating the assets themselves (ag.stage / the type skills / vsl-state-variations), or any comment other than a delivery notification.

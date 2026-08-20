@@ -209,6 +209,10 @@ one is ALSO enforced in code, so skipping the read still can't skip the law:
     'continuous' — written only after they answer), and in stepwise mode refuses each seam fire
     until the prior take carries an editor-OK marker (`<take>.mp4.ok`, touched only on their
     call). The editor can switch modes mid-chain by rewriting `.fire_mode`.
+    **STEPWISE IS THE RECOMMENDED DEFAULT** (Sam, 2026-08-12: "okay no more continuous — it's not
+    locked in enough yet"): reveal/seam framing is not yet reliable enough to trust a chain
+    unwatched — a bad take mid-chain poisons every clip fired after it. Offer continuous only
+    AFTER the same creative's chain has already produced approved takes; when in doubt, stepwise.
 
 > **2026-08-06 hardening (LOCAL, Mitchell — Bar Mitzvah post-mortem B0–B7; every guard verified by a
 > test-spec run).** B0 isolate guard + `sliding_window()` · B1 auto reveal face-ref (`revealRef` → a

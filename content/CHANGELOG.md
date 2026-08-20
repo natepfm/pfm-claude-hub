@@ -6,6 +6,37 @@ As of 2026-08-17 the hub no longer pushes system updates — this log is the rec
 
 ---
 
+## 2026-08-20
+
+### SD2.5 UGC Skit joins the library — narrative skits with zero seams
+
+**`sd2.5-ugc-skit`** (AG 50) is live: the no-seam chain method for narrative first-person/handheld skits on Seedance 2.5 — recurring cast, one storyline, shot like someone's iPhone. Four editor-gated locks (script → cast masters → environment → populated master still), then clips chain off real pixels with hard blur/cut/duration gates in the fire path. Proven on two full builds (HOA Garage Sale, DMV Single Mom). **`sd2.5-interview-flow`** (AG 48) is refreshed to the latest tested version in the same drop.
+
+**Install (Lucid mounted, paste in Terminal):**
+
+- **Mac:** `unzip -o "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/Skill Drops/SD2.5 UGC Skit - 08.20.26.zip" -d ~/.claude/skills`
+- **Interview flow refresh:** `unzip -o "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/Skill Drops/SD2.5 Interview Flow - 08.20.26.zip" -d ~/.claude/skills`
+- **Windows · Git Bash:** same commands with the Lucid root swapped to `/l/PFM MEDIA MASTER FOLDER/...`
+
+Then restart Claude. Safe to run twice.
+
+
+## 2026-08-18
+
+### Completed-creative reports now carry the gen cost — mandatory
+
+Every **✅ Completed Creatives** turn-in comment now includes a **`💰 Gen cost: <N> cr (actual | est)`** line — what the creative cost to generate, in Higgsfield credits. We're analyzing which creative requests are and aren't worth their cost, and the only place that number exists is your Claude session.
+
+**`notion-asset-delivery`** and **`/r.creative`** now bake it in, and a scoped hook (the Gen-cost gate) refuses any turn-in comment posted without the line — Claude reports actual session spend, estimates from the project's manifests, or asks you for the number. Reporting by hand? Same rule — add the line yourself. `0 cr` if the creative used no AI gen.
+
+**Install (targeted — updates ONLY this skill, your other work is untouched):**
+
+- **Mac:** double-click **`Update - Cost Reporting.command`** in `6. Claude PFM/` on Lucid
+- **Windows · Git Bash:** `bash "/l/PFM MEDIA MASTER FOLDER/6. Claude PFM/update-cost-reporting.sh"`
+
+Then restart Claude Desktop. Your existing `notion-asset-delivery` copy is snapshotted to `skills-local-backup/` first, and the installer is safe to run twice.
+
+
 ## 2026-08-17
 
 ### The hub stops pushing updates — editors now own their skills
