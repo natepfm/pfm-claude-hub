@@ -44,8 +44,10 @@ export default auth((req) => {
 
   if (!req.auth) {
     const url = new URL("/login", req.nextUrl.origin);
-    // Send the user back where they were headed after signing in.
-    if (pathname !== "/") url.searchParams.set("from", pathname);
+    // Send the user back where they were headed after signing in — WITH the query string.
+    // FoxView's sign-in handshake (/foxview-auth?nonce=…) dies without it: pathname-only
+    // stripped the nonce on the login round-trip and dead-ended every fresh session.
+    if (pathname !== "/") url.searchParams.set("from", pathname + req.nextUrl.search);
     return Response.redirect(url);
   }
 });
