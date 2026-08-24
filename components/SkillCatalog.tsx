@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { dicts, isLocale, type Locale } from "@/lib/i18n";
 import {
   SKILLS_AUDIT_DATE,
   coworkSkillFolders,
@@ -50,7 +51,17 @@ function Stat({ n, label }: { n: number | string; label: string }) {
   );
 }
 
-export default function SkillCatalog() {
+export default function SkillCatalog({ initialLang = "en" }: { initialLang?: Locale }) {
+  const [lang, setLang] = useState<Locale>(initialLang);
+  const t9 = dicts[lang];
+  useEffect(() => {
+    const onLang = (e: Event) => {
+      const d = (e as CustomEvent).detail;
+      if (isLocale(d)) setLang(d);
+    };
+    window.addEventListener("pfm-lang", onLang);
+    return () => window.removeEventListener("pfm-lang", onLang);
+  }, []);
   const [q, setQ] = useState("");
   const [sec, setSec] = useState("All");
   const [tier, setTier] = useState("all");
@@ -94,18 +105,18 @@ export default function SkillCatalog() {
   return (
     <div>
       <PageHero
-        eyebrow="PFM · Editors Hub"
-        title="The skill library"
-        subtitle="Every skill in the system, yours to browse and install — what it does, when to reach for it, and the file that ships to your machine. You manage your own set; the hub no longer pushes updates."
+        eyebrow={t9.sk_eyebrow}
+        title={t9.sk_title}
+        subtitle={t9.sk_sub}
       />
 
       <section id="update" className="bg-accentMuted border border-ink shadow-elev2 p-5 md:p-6 mb-8 scroll-mt-28" aria-labelledby="skills-update-heading">
         <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">Download &amp; install on demand</div>
-            <h2 id="skills-update-heading" className="font-heading font-bold text-2xl text-text mt-1">Install the full set</h2>
+            <div className="font-mono text-[10px] uppercase tracking-[0.08em] text-accentDeep">{t9.sk_install_kicker}</div>
+            <h2 id="skills-update-heading" className="font-heading font-bold text-2xl text-text mt-1">{t9.sk_install_h}</h2>
           </div>
-          <p className="text-xs text-muted">Run it whenever you want to pull the library, then restart Claude Desktop.</p>
+          <p className="text-xs text-muted">{t9.sk_install_note}</p>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -121,9 +132,9 @@ export default function SkillCatalog() {
 
       {/* stat tiles */}
       <div className="flex flex-wrap gap-2.5 mb-6">
-        <Stat n={counts.total} label="Skills" />
-        <Stat n={counts.live} label="Live on the hub" />
-        <Stat n={counts.flow} label="Workflows" />
+        <Stat n={counts.total} label={t9.sk_stat_skills} />
+        <Stat n={counts.live} label={t9.sk_stat_live} />
+        <Stat n={counts.flow} label={t9.sk_stat_flows} />
         <Stat n={counts.hold} label="On hold" />
         <Stat n={counts.cowork} label="Cowork" />
       </div>
@@ -133,7 +144,7 @@ export default function SkillCatalog() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search skills — name, folder, or what it does…"
+          placeholder={t9.sk_search}
           className="w-full bg-bg ring-1 ring-borderInput px-3 py-2 text-sm text-text placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent mb-3"
         />
         <div className="flex flex-wrap gap-1.5 mb-2">
@@ -173,7 +184,7 @@ export default function SkillCatalog() {
         <table className="w-full text-left border-collapse min-w-[640px]">
           <thead>
             <tr className="border-b-2 border-ink">
-              {([["num", "#"], ["id", "Skill"], ["status", "Status"]] as const).map(([col, label]) => (
+              {([["num", t9.sk_th_num], ["id", t9.sk_th_skill], ["status", t9.sk_th_status]] as const).map(([col, label]) => (
                 <th
                   key={col}
                   onClick={() => toggleSort(col)}
@@ -182,7 +193,7 @@ export default function SkillCatalog() {
                   {label}{sort.col === col ? (sort.dir === 1 ? " ▲" : " ▼") : ""}
                 </th>
               ))}
-              <th className="font-mono text-[9px] uppercase tracking-[0.06em] text-muted px-3 py-2.5">What it&apos;s for</th>
+              <th className="font-mono text-[9px] uppercase tracking-[0.06em] text-muted px-3 py-2.5">{t9.sk_th_for}</th>
             </tr>
           </thead>
           <tbody>

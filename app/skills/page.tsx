@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import SkillCatalog from "@/components/SkillCatalog";
+import { getLocale } from "@/lib/locale-server";
 
 // The skill catalog. This is the registry-driven component written during the
 // single-page era (2026-07-26) — it supersedes the older /skills page, which
@@ -10,5 +11,5 @@ export default async function SkillsPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  return <SkillCatalog />;
+  return <SkillCatalog initialLang={await getLocale()} />;
 }

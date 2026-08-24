@@ -2,17 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const pages = [
-  { href: "/", label: "Dashboard" },
-  { href: "/workflow", label: "Workflow" },
-  { href: "/skills", label: "Skills" },
-  { href: "/creatives", label: "Creatives" },
-  { href: "/resources", label: "Resources" },
-  { href: "/onboarding", label: "Onboarding" },
-];
+import { dicts, LANG_COOKIE, LOCALES, type Locale } from "@/lib/i18n";
 
 function baseRoute(pathname: string): string {
   if (pathname.startsWith("/workflow") || pathname.startsWith("/claude")) return "/workflow";
@@ -29,14 +21,28 @@ function baseRoute(pathname: string): string {
 export default function TopNav({
   userEmail,
   signOutAction,
+  initialLang = "en",
 }: {
   userEmail?: string | null;
   signOutAction?: () => Promise<void>;
+  initialLang?: Locale;
 }) {
   const pathname = usePathname() || "/";
+  const router = useRouter();
   const active = baseRoute(pathname);
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [lang, setLang] = useState<Locale>(initialLang);
+  const t = dicts[lang];
+
+  const pages = [
+    { href: "/", label: t.nav_dashboard },
+    { href: "/workflow", label: t.nav_workflow },
+    { href: "/skills", label: t.nav_skills },
+    { href: "/creatives", label: t.nav_creatives },
+    { href: "/resources", label: t.nav_resources },
+    { href: "/onboarding", label: t.nav_onboarding },
+  ];
 
   useEffect(() => {
     setDarkMode(document.documentElement.classList.contains("dark"));
@@ -48,6 +54,14 @@ export default function TopNav({
     document.documentElement.classList.toggle("dark", next);
     localStorage.setItem("pfm-hub-theme", next ? "dark" : "light");
     setDarkMode(next);
+  }
+
+  function cycleLang() {
+    const next = LOCALES[(LOCALES.indexOf(lang) + 1) % LOCALES.length];
+    document.cookie = `${LANG_COOKIE}=${next};path=/;max-age=31536000;samesite=lax`;
+    setLang(next);
+    window.dispatchEvent(new CustomEvent("pfm-lang", { detail: next })); // live-update client components (SkillCatalog)
+    router.refresh(); // re-render server pages in the new locale
   }
 
   return (
@@ -64,7 +78,7 @@ export default function TopNav({
               className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
             >
               <span aria-hidden className="text-sm leading-none">⏻</span>
-              <span className="hidden sm:inline">Sign out</span>
+              <span className="hidden sm:inline">{t.nav_signout}</span>
             </button>
           </form>
         )}
@@ -115,17 +129,29 @@ export default function TopNav({
             <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink/70">Hub</span>
           </span>
         </Link>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          aria-pressed={darkMode}
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
-        >
-          <span aria-hidden className="text-base leading-none">{mounted && darkMode ? "☀" : "☾"}</span>
-          <span className="hidden sm:inline">{mounted && darkMode ? "Light" : "Dark"}</span>
-        </button>
+        <div className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={cycleLang}
+            aria-label="Change language / Сменить язык / Змінити мову"
+            title="EN → RU → UK"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
+          >
+            <span aria-hidden className="text-base leading-none">🌐</span>
+            <span className="hidden sm:inline">{lang.toUpperCase()}</span>
+          </button>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-pressed={darkMode}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 border border-ink/60 bg-white/15 px-2.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em] text-ink hover:bg-white/25 transition-colors"
+          >
+            <span aria-hidden className="text-base leading-none">{mounted && darkMode ? "☀" : "☾"}</span>
+            <span className="hidden sm:inline">{mounted && darkMode ? t.nav_light : t.nav_dark}</span>
+          </button>
+        </div>
       </div>
       {userEmail && (
         <ul className="nav-scrollbar flex overflow-x-auto border-t border-ink/70 divide-x divide-ink/70">

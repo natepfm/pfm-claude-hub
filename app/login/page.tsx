@@ -1,5 +1,7 @@
 import { signIn, auth, ALLOWED_DOMAINS } from "@/auth";
 import { redirect } from "next/navigation";
+import { dicts } from "@/lib/i18n";
+import { getLocale } from "@/lib/locale-server";
 
 export const metadata = { title: "Sign in — PFM Editors Hub" };
 
@@ -18,6 +20,7 @@ export default async function LoginPage({
   if (session) redirect(from && from.startsWith("/") ? from : "/");
 
   const wrongDomain = error === "AccessDenied";
+  const t = dicts[await getLocale()];
 
   return (
     <div className="max-w-md mx-auto pt-10 md:pt-20">
@@ -26,11 +29,11 @@ export default async function LoginPage({
         <div className="p-6 md:p-8">
           <div className="inline-flex items-center gap-2 border border-ink bg-bg px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-text mb-5">
             <span aria-hidden className="inline-block w-2 h-2 bg-accent" />
-            Team access
+            {t.login_kicker}
           </div>
 
           <h1 className="font-heading font-bold text-3xl text-text leading-tight">
-            Sign in to the <em>Editors Hub.</em>
+            {t.login_title_a} <em>{t.login_title_b}</em>
           </h1>
           <p className="text-muted text-sm mt-3 leading-relaxed">
             This hub is for Power Fox Media and Save Max Auto staff. Sign in with your{" "}
@@ -78,7 +81,7 @@ export default async function LoginPage({
                   d="M21.35 11.1H12v2.98h5.35c-.23 1.4-1.64 4.1-5.35 4.1-3.22 0-5.85-2.67-5.85-5.95S8.78 6.28 12 6.28c1.83 0 3.06.78 3.76 1.45l2.56-2.47C16.7 3.72 14.55 2.8 12 2.8 6.98 2.8 2.9 6.88 2.9 11.9S6.98 21 12 21c5.4 0 8.98-3.8 8.98-9.15 0-.62-.07-1.09-.16-1.55z"
                 />
               </svg>
-              Sign in with Google
+              {t.login_button}
             </button>
           </form>
 

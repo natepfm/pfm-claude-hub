@@ -3,14 +3,17 @@ import { Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/Nav";
 import { auth, signOut } from "@/auth";
+import { getLocale } from "@/lib/locale-server";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+// cyrillic subsets: the EN/RU/UK language switch (2026-08-24) needs real glyphs
+// in all three faces, or Cyrillic falls back to system fonts and breaks the look.
+const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-sans" });
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-mono",
 });
 const playfair = Playfair_Display({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   style: ["normal", "italic"],
   variable: "--font-heading",
 });
@@ -22,6 +25,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  const locale = await getLocale();
 
   async function signOutAction() {
     "use server";
@@ -29,7 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -40,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       {/* Persimmon Clean v2 — flat stone canvas; the old dark atmosphere
           (orbs, radial glows, dot grid) is gone by design. */}
       <body className="min-h-screen bg-bg text-text font-sans">
-        <TopNav userEmail={session?.user?.email ?? null} signOutAction={signOutAction} />
+        <TopNav userEmail={session?.user?.email ?? null} signOutAction={signOutAction} initialLang={locale} />
         <main className="px-6 md:px-12 py-10 max-w-5xl mx-auto w-full">{children}</main>
         <footer className="border-t border-ink py-6 text-center text-sm text-muted">
           Power Fox Media · Editors Hub

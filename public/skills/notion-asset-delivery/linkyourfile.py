@@ -65,6 +65,12 @@ def fox_drop(path, label=None):
     flock'd against FoxView's own consume/clear rewrites (the app takes the same lock)."""
     import fcntl
     path = path.rstrip("/")
+    # 🦊 drops are FOLDERS, always (Sam, locked 2026-08-24): FoxView should open the
+    # folder view with the file in it, never try to render the file itself. A file
+    # path auto-converts to its parent folder; the label keeps naming the deliverable.
+    if os.path.isfile(path):
+        label = label or os.path.basename(path)
+        path = os.path.dirname(path)
     label = label or os.path.basename(path)
     os.makedirs(os.path.dirname(FOX_INBOX), exist_ok=True)
     entry = json.dumps({"ts": time.time(), "path": path, "label": label})
