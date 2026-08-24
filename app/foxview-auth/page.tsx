@@ -48,6 +48,29 @@ export default async function FoxViewAuthPage({
     );
   }
 
-  const token = mintFoxViewToken({ email, name: session!.user!.name, nonce: nonce! });
+  let token: string;
+  try {
+    token = mintFoxViewToken({ email, name: session!.user!.name, nonce: nonce! });
+  } catch (e) {
+    // A readable card instead of Next's blank 500 — the one time this fired in prod, the
+    // white error page cost a whole debugging round-trip to even learn WHICH step died.
+    const msg = e instanceof Error ? e.message : String(e);
+    return (
+      <div className="max-w-md mx-auto pt-10 md:pt-20">
+        <div className="bg-surface border border-ink shadow-elev2">
+          <div aria-hidden className="h-1.5 bg-accent border-b border-ink" />
+          <div className="p-6 md:p-8">
+            <h1 className="font-heading font-bold text-2xl text-text leading-tight">
+              FoxView sign-in isn&apos;t configured right.
+            </h1>
+            <p className="text-muted text-sm mt-3 leading-relaxed">
+              The hub couldn&apos;t mint the sign-in token. Send Sam this:
+            </p>
+            <p className="font-mono text-xs text-accentDeep mt-3 break-all">{msg}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return <RedirectClient url={`foxio://auth?token=${encodeURIComponent(token)}`} email={email} />;
 }
