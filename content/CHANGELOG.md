@@ -6,6 +6,22 @@ As of 2026-08-17 the hub no longer pushes system updates — this log is the rec
 
 ---
 
+## 2026-09-01
+
+### hf-client joins the library: one fire path instead of nineteen
+
+**`hf-client`** (AG 51) is live: the shared Higgsfield transport component. Every gen skill used to carry its own copy of the fire/poll/download loop, and only one copy handled the slow-render timeout correctly (the CLI says "timed out, no video" while the job is still rendering and billing; an unprotected loop re-fires and pays twice, one incident cost 261 credits). hf-client fires once, polls the live job by id, persists and resumes pending jobs, refuses to overwrite a prior take on every path, and never retries when the balance moved without a job id. 41 offline assertions prove it for zero credits: `python3 ~/.claude/skills/hf-client/scripts/selftest.py`.
+
+Built by Michal Fadrny (the Nineteen Fire Paths memo), reviewed and hardened by Sam 09-01. **Rule going forward: a new skill does not write its own fire loop, it calls `hf_client.fire()`.** Existing skills are not being rewired; they switch over when they are next opened for another reason. `sd2.5-ugc-skit` already calls it.
+
+**Install (Lucid mounted, paste in Terminal):**
+
+- **Mac:** `unzip -o "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/Skill Drops/hf-client - 09.01.26.zip" -d ~/.claude/skills`
+- **Windows · Git Bash:** same command with the Lucid root swapped to `/l/PFM MEDIA MASTER FOLDER/...`
+
+Then restart Claude. Safe to run twice.
+
+
 ## 2026-08-20
 
 ### SD2.5 UGC Skit joins the library — narrative skits with zero seams
