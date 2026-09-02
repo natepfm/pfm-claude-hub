@@ -6,6 +6,18 @@ As of 2026-08-17 the hub no longer pushes system updates — this log is the rec
 
 ---
 
+## 2026-09-02
+
+### hf-client: `credits_spent` is now the `generate cost` charge, not the workspace balance delta
+
+The balance delta is workspace-wide, so another editor's gen billing during your fire window landed in your number (measured about 3x over on a 4-clip fire). `credits_spent` now comes from `higgsfield generate cost` (`credits_source: generate_cost`); the delta stays as `balance_delta` for the billed-but-no-URL tripwire and audit only. Also fixed: the CLI requires `--prompt` on `generate cost`, so every quote before this was silently `None`. Selftest 41 → 51 assertions.
+
+Install (Mac):
+```
+unzip -o "/Volumes/ads/PFM MEDIA MASTER FOLDER/6. Claude PFM/Skill Drops/hf-client - 09.02.26.zip" -d ~/.claude/skills
+```
+Windows Git Bash: same command with `/l/PFM MEDIA MASTER FOLDER/...`.
+
 ## 2026-09-01
 
 ### hf-client joins the library: one fire path instead of nineteen

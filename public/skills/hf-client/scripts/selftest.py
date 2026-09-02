@@ -116,7 +116,9 @@ def run():
         r = hf_client.fire(req(t, no_submit_retries=0), runner=fake(script, c),
                            log=lambda *_: None)
         check("billed_but_no_url flagged", r.billed_but_no_url, "silent credit loss")
-        check("credits_spent measured", r.credits_spent == 52.0, str(r.credits_spent))
+        check("credits_spent measured (fallback, flagged)",
+              r.credits_spent == 52.0 and r.credits_source == "balance_delta_fallback",
+              f"{r.credits_spent} {r.credits_source}")
 
     # 6 — refusals happen BEFORE any fire
     with tempfile.TemporaryDirectory() as t:
@@ -227,6 +229,78 @@ def run():
         check("download HTTP error reports exhausted", r.status == "exhausted", r.status)
         check("download HTTP error leaves no dest file",
               not os.path.exists(os.path.join(t, "o_v01.mp4")), "error page saved as media")
+
+    # 13 — 🔴 credits_spent is the `generate cost` charge, NOT the workspace balance delta
+    #      (2026-09-02: another editor's 1130-cr gen billing in the fire window must not land
+    #      in this fire's number — the delta measured ~3x over on the shared workspace)
+    with tempfile.TemporaryDirectory() as t:
+        bal, seen = {"n": 5000.0}, {"cost_cmd": None}
+
+        def script(cmd):
+            if cmd[:3] == ["higgsfield", "account", "status"]:
+                return '{"credits": %s}' % bal["n"], "", 0
+            if cmd[:3] == ["higgsfield", "generate", "cost"]:
+                seen["cost_cmd"] = cmd
+                return '{\n  "credits": 156\n}\n', "", 0
+            if cmd[:3] == ["higgsfield", "generate", "create"]:
+                bal["n"] -= 156.0 + 1130.0        # my clip + someone else's gen
+                return URL, "", 0
+            return "", "", 0
+        r = hf_client.fire(req(t, params={"duration": "24", "resolution": "720p",
+                                          "aspect_ratio": "9:16", "bitrate_mode": "high"}),
+                           runner=fake(script, {"fires": 0}), log=lambda *_: None)
+        check("🔴 credits_spent == generate-cost charge (156), not the polluted delta",
+              r.credits_spent == 156.0, str(r.credits_spent))
+        check("credits_source == generate_cost", r.credits_source == "generate_cost",
+              str(r.credits_source))
+        check("balance_delta kept for audit (1286.0)", r.balance_delta == 1286.0,
+              str(r.balance_delta))
+        cc = seen["cost_cmd"] or []
+        check("cost quote sent --prompt (CLI requires it) and --json",
+              "--prompt" in cc and "--json" in cc, " ".join(cc))
+        check("cost quote sent only price-keyed params (no bitrate_mode)",
+              "--duration" in cc and "--resolution" in cc and "--aspect_ratio" in cc
+              and "--bitrate_mode" not in cc, " ".join(cc))
+        check("cost_quote_cr is 156.0", r.cost_quote_cr == 156.0, str(r.cost_quote_cr))
+
+    # 14 — no quote readable → delta is the FLAGGED fallback, never silent
+    with tempfile.TemporaryDirectory() as t:
+        bal = {"n": 1000.0}
+
+        def script(cmd):
+            if cmd[:3] == ["higgsfield", "account", "status"]:
+                return '{"credits": %s}' % bal["n"], "", 0
+            if cmd[:3] == ["higgsfield", "generate", "cost"]:
+                return "", "Error: Missing required params: prompt", 1
+            if cmd[:3] == ["higgsfield", "generate", "create"]:
+                bal["n"] -= 52.0
+                return URL, "", 0
+            return "", "", 0
+        r = hf_client.fire(req(t), runner=fake(script, {"fires": 0}), log=lambda *_: None)
+        check("no quote → credits_spent falls back to the delta", r.credits_spent == 52.0,
+              str(r.credits_spent))
+        check("no quote → credits_source flags the fallback",
+              r.credits_source == "balance_delta_fallback", str(r.credits_source))
+
+    # 15 — a resumed landing records the sidecar's quote as its spend (no delta exists)
+    with tempfile.TemporaryDirectory() as t:
+        import json
+        json.dump({"job": JOB, "dest": os.path.join(t, "r_v01.mp4"), "cost_quote_cr": 156},
+                  open(hf_client.pending_path(t, JOB), "w"))
+        rs = hf_client.resume(t, runner=fake(lambda cmd: (URL, "", 0), {"fires": 0}),
+                              log=lambda *_: None)
+        check("resume records sidecar quote as credits_spent",
+              rs and rs[0].ok and rs[0].credits_spent == 156.0 and rs[0].credits_source == "generate_cost",
+              str(rs and (rs[0].credits_spent, rs[0].credits_source)))
+
+    # 16 — a true no-submit charges nothing
+    with tempfile.TemporaryDirectory() as t:
+        r = hf_client.fire(req(t, no_submit_retries=0),
+                           runner=fake(lambda cmd: ("", "something went wrong", 1), {"fires": 0}),
+                           log=lambda *_: None)
+        check("no-submit → credits_spent 0.0 / not_submitted",
+              r.credits_spent == 0.0 and r.credits_source == "not_submitted",
+              str((r.credits_spent, r.credits_source)))
 
 
 run()

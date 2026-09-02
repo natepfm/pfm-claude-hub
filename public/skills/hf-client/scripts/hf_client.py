@@ -2,7 +2,8 @@
 # PURPOSE:   Submit ONE generation request to Higgsfield and land the artifact. Nothing else.
 # OWNS:      the higgsfield CLI invocation · the pre-spend cost quote · the model-param
 #            advisory · FIRE-ONCE-THEN-POLL · pending-job persistence + resume ·
-#            balance-before/after billing truth · the download to a caller-named path.
+#            the `generate cost` charge as credits_spent (balance delta = tripwire only) ·
+#            the download to a caller-named path.
 # DOES NOT:  judge creative content · run QC gates · look at pixels · choose output names ·
 #            write provenance sidecars · read prompts from disk · know what a "portrait",
 #            "wide", "plate", "station" or "vN" is. Those belong to the CALLING skill.
@@ -87,7 +88,7 @@ class Request:
     label: str = ""
     allow_overwrite: bool = False
     no_submit_retries: int = 1
-    cost_params: tuple = ("duration", "resolution")
+    cost_params: tuple = ("duration", "resolution", "aspect_ratio")
 
 
 @dataclass
@@ -97,10 +98,12 @@ class Result:
     dest: Optional[str] = None
     url: Optional[str] = None
     job_id: Optional[str] = None
-    cost_quote_cr: Optional[int] = None
+    cost_quote_cr: Optional[float] = None
     balance_before: Optional[float] = None
     balance_after: Optional[float] = None
-    credits_spent: Optional[float] = None
+    balance_delta: Optional[float] = None      # workspace-wide; tripwire + audit ONLY
+    credits_spent: Optional[float] = None      # this fire's charge (see credits_source)
+    credits_source: Optional[str] = None       # generate_cost | balance_delta_fallback | not_submitted
     billed_but_no_url: bool = False
     fire_attempts: int = 0
     poll_attempts: int = 0
@@ -136,10 +139,24 @@ def balance(runner=sh):
 
 
 def spent(before, after):
-    """Measured delta, or None when either read failed. None means UNMEASURED, never zero."""
+    """Measured WORKSPACE delta, or None when either read failed. None means UNMEASURED, never
+    zero. 🔴 Not this fire's cost: the workspace is shared, so another editor's gen billing in
+    the fire window lands in this number (measured ~3x over on a 4-clip fire, 2026-09-02).
+    It stays for the billed-but-no-url tripwire and the audit row. See record_spend()."""
     if before is None or after is None:
         return None
-    return round(before - after, 4)
+    return round(before - after, 2)
+
+
+def record_spend(quote, delta, submitted):
+    """(credits_spent, credits_source). The deterministic per-job charge from `generate cost`
+    is the source of record — keyed only to this fire's params, it cannot be polluted. The
+    delta is the flagged fallback when no quote could be read."""
+    if not submitted:
+        return 0.0, "not_submitted"
+    if quote is not None:
+        return float(quote), "generate_cost"
+    return delta, "balance_delta_fallback"
 
 
 def _looks_like_path(v):
@@ -190,16 +207,22 @@ def build_command(req: Request):
 
 
 def cost_quote(req: Request, runner=sh):
-    """Ask the price BEFORE spending. Non-fatal — a missing quote never blocks a fire."""
-    args = []
+    """Ask the price BEFORE spending. Non-fatal — a missing quote never blocks a fire.
+    `--prompt` is REQUIRED by the CLI (verified 2026-09-02; without it every quote was None).
+    Only price-keyed params are sent: the CLI refuses unknown ones (`Unknown params: ...`)."""
+    args = ["--prompt", req.prompt]
     for k in req.cost_params:
         if k in req.params:
             args += [f"--{k}", str(req.params[k])]
-    if not args:
+    try:
+        q = runner(["higgsfield", "generate", "cost", req.model] + args + ["--json"])
+        try:
+            return float(json.loads(q.stdout)["credits"])
+        except Exception:
+            m = re.search(r"(\d[\d,]*(?:\.\d+)?)\s*(?:cr|credit)", (q.stdout + q.stderr), re.I)
+            return float(m.group(1).replace(",", "")) if m else None
+    except Exception:
         return None
-    q = runner(["higgsfield", "generate", "cost", req.model] + args)
-    m = re.search(r"(\d[\d,]*)\s*(?:cr|credit)", (q.stdout + q.stderr), re.I)
-    return int(m.group(1).replace(",", "")) if m else None
 
 
 def model_params(model, runner=sh):
@@ -287,14 +310,17 @@ def fire(req: Request, runner=sh, log=print) -> Result:
         bal_after = balance(runner=runner)
         res.fire_attempts += 1
         res.balance_before, res.balance_after = bal_before, bal_after
-        res.credits_spent = spent(bal_before, bal_after)
+        _delta = spent(bal_before, bal_after)
+        res.balance_delta = _delta
 
         out_text = (r.stdout or "") + (r.stderr or "")
         urls = find_urls(out_text)
         job = find_job_id(out_text)
         res.job_id = job or res.job_id
-        money_moved = (res.credits_spent or 0) > 0
+        money_moved = (_delta or 0) > 0          # tripwire reads the DELTA, unchanged
         dead = None
+        res.credits_spent, res.credits_source = record_spend(
+            res.cost_quote_cr, _delta, submitted=bool(urls or job or money_moved))
 
         if not urls and job:
             # 🔴 The job EXISTS and is billing. Persist, then poll. NEVER re-fire.
@@ -328,7 +354,7 @@ def fire(req: Request, runner=sh, log=print) -> Result:
                               f"{os.path.basename(pending_path(work, job))} in place; resume it")
             elif money_moved:
                 res.status = "exhausted"
-                res.detail = (f"balance dropped {res.credits_spent} cr but no url and no job id "
+                res.detail = (f"balance dropped {res.balance_delta} cr but no url and no job id "
                               f"came back — a job WAS created; NOT re-firing. Find it with "
                               f"`higgsfield generate list` and resume/download it by id")
             else:
@@ -389,6 +415,7 @@ def resume(work_dir, dest=None, runner=sh, log=print, allow_overwrite=False) -> 
         ok, err = download(res.url, target, runner=runner)
         if ok:
             res.ok, res.status, res.dest = True, "landed", target
+            res.credits_spent, res.credits_source = record_spend(res.cost_quote_cr, None, True)
             os.remove(pf)
             log(f"  LANDED {target}  {res.url}")
         else:

@@ -26,13 +26,21 @@ description: >-
 > `billed_but_no_url` is computed AFTER the poll (a poll that lands is not a loss) ·
 > `Error: Job not found` (which the CLI returns with exit code 0) stops polling after one
 > call and leaves no sidecar · `curl -f` so an HTTP error is never saved as the media file.
+>
+> **2026-09-02 credit-cost fix (Sam, "FIX CREDIT COST TRACKING"; selftest 13–16):**
+> `credits_spent` is now the deterministic per-job charge from `higgsfield generate cost`,
+> NOT `balance_before − balance_after`. The balance is WORKSPACE-wide, so another editor's
+> gen billing during the fire window inflated the number (~3× over on a 4-clip fire). The
+> delta is kept as `balance_delta` for the billed-but-no-url tripwire and audit only;
+> `credits_source` says which one you are reading. Also fixed: the CLI REQUIRES `--prompt`
+> on `generate cost`, so every quote before this fix was silently `None`.
 
 ## 🔴 CHECKLIST — read at the TOP, every run
 
 1. **This component does ONE thing: request in, landed file out.** If you are about to add
    creative judgement, a QC gate, an output-naming rule or a sidecar shape to this skill —
    stop. That belongs to the CALLING skill. The boundary is the whole point.
-2. **Never edit `hf_client.py` without re-running `selftest.py`.** 26 assertions, offline,
+2. **Never edit `hf_client.py` without re-running `selftest.py`.** 51 assertions, offline,
    zero credits. A red selftest means the expensive bug is back.
 3. **Verify with `--dry-run` before any real fire.** It validates the request and prints the
    exact command without spending.
@@ -45,6 +53,10 @@ description: >-
 6. **The caller names the output file.** `--dest` is exact. This layer refuses to overwrite an
    existing file unless explicitly told to, because a prior take is never clobbered — but it
    does not know what a `vN` is and must not learn.
+7. **Log `credits_spent`, never the balance delta, as a fire's cost.** `credits_spent` comes
+   from `generate cost` (keyed only to this fire's params, cannot be polluted). `balance_delta`
+   is workspace-wide and exists for the tripwire + audit row only. If `credits_source` reads
+   `balance_delta_fallback`, the quote was unreadable and the number is suspect.
 
 ## 🔴 The contract: FIRE ONCE, THEN POLL
 
@@ -70,10 +82,10 @@ the sidecar — re-run with `--dest <next vN>`.
 | Owns | Does NOT own — belongs to the caller |
 |---|---|
 | the `higgsfield generate create` invocation | what a good prompt is |
-| pre-spend cost quote | creative refusals / policy gates |
+| pre-spend cost quote = the recorded `credits_spent` | creative refusals / policy gates |
 | model-param advisory (warns, never blocks) | QC gates, cut gates, looking at pixels |
 | fire-once-then-poll + pending/resume | output naming (`vN`), provenance sidecars |
-| balance before/after, measured credit delta | slot maps, plates, portraits, stations |
+| balance before/after → `balance_delta` (tripwire + audit) | slot maps, plates, portraits, stations |
 | download to an exact caller-named path | streaming 📲/📁/🔗/🦊 handoffs |
 
 Refusals happen **before** anything is submitted: empty prompt · missing `--model`/`--dest` ·
@@ -121,17 +133,28 @@ if res.ok:
 ```
 
 `Result` carries `ok · status · dest · url · job_id · cost_quote_cr · balance_before/after ·
-credits_spent · billed_but_no_url · fire_attempts · poll_attempts · advisories · command`.
+balance_delta · credits_spent · credits_source · billed_but_no_url · fire_attempts ·
+poll_attempts · advisories · command`.
 `fire_attempts` is the contract made observable: on any submitted job it is **1**.
+`credits_spent` = the `generate cost` charge (`credits_source: generate_cost`); it falls back
+to `balance_delta` only when no quote was readable (`balance_delta_fallback`) and is `0.0`
+(`not_submitted`) when nothing reached Higgsfield. Write `credits_spent` + `credits_source` +
+`balance_delta` into your ledger row.
 
 ## Verify
 
 ```bash
 python3 ~/.claude/skills/hf-client/scripts/selftest.py
 ```
-41 assertions, offline, no credits, no network. Includes the ones that matter most:
+51 assertions, offline, no credits, no network. Includes the ones that matter most:
 *timeout fired only once*, *billed-but-no-id fired only once*, *resume fires nothing*,
-*resume refuses an existing dest*.
+*resume refuses an existing dest*, *credits_spent is the generate-cost charge, not the
+polluted workspace delta*.
+
+Live price check (reads the price, spends nothing) — must print `156.0`:
+```bash
+python3 -c 'import sys,os; sys.path.insert(0, os.path.expanduser("~/.claude/skills/hf-client/scripts")); import hf_client; print(hf_client.cost_quote(hf_client.Request(model="seedance_2_5", prompt="cost-probe", dest="/tmp/x.mp4", params={"duration":24,"resolution":"720p"})))'
+```
 
 ## Not for
 
