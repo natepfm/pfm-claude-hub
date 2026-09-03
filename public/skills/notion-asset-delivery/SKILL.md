@@ -27,10 +27,17 @@ Sam caught it on the Sarah Herman state batches 2026-06-01 and had them reverted
 
 **"Done" is a separate, explicit action — never inferred.** Set **Status → "Done"** ONLY when the
 editor/Sam explicitly asks to **report a completed creative** ("mark this done", "report complete",
-"move it to Done"). When you do, the delivery comment **MUST @-tag BOTH** of these, every time:
+"move it to Done"). When you do, the delivery comment **MUST @-tag the people the editor picked** — `/r.creative` ASKS who before posting (Sam, 2026-09-02, Josiah's ask): plain-markdown options, one reply, then post. The known options:
 
+**1. Dima V + Gabriel Moss** (the default — `go`/`post`/no name picks this):
 - **Dima V** — user UUID `65ec1d09-9170-4f79-a5cd-9b955e411b61`
 - **Gabriel Moss** — user UUID `27dd872b-594c-81f8-bef8-0002275b5ee0`
+
+**2. Lahndon Homola** — user UUID `398d872b-594c-8165-a078-000265b0d375`
+
+**3. Someone else** — the editor names them; resolve the UUID with `notion-get-users` (query by name) and confirm the match in chat before posting.
+
+Everywhere below that says "Dima V + Gabriel Moss" reads as "the picked tag(s)". One mention object per person; the rest of the rich_text payload is identical.
 
 **🔴 HARD RULE — mentions MUST be posted via `rich_text` array, NEVER markdown** (🔒 ENFORCED 2026-08-04: `~/.claude/hooks/notion_mention_gate.sh` refuses any payload containing `user://`. A stored `user://user://` mention 400s the comments endpoint for the WHOLE PAGE forever, blanking FoxView's Comments tab and the folder resolver.) (Sam 2026-06-04, verified on the SMA Houston VSL turn-in). The markdown `<mention-user url="...">` syntax renders in Notion as empty grey "@" pills with no name attached — looks broken, no notification fires, defeats the tag. ANY comment with an @-mention (Dima V, Gabriel Moss, requester, anyone) MUST use `notion-create-comment`'s `rich_text` parameter with explicit mention objects of the form `{"type":"mention","mention":{"type":"user","user":{"id":"<uuid>"}}}` — bare UUID in the `id` field, no `user://` prefix. See Step 6 for the exact payload shape.
 
